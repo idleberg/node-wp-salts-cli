@@ -1,6 +1,6 @@
 {
   "name": "wp-salts-cli",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "CLI tool to generate WordPress salts in various formats",
   "scripts": {
     "lint": "npm run test",
