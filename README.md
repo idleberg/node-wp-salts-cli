@@ -30,7 +30,7 @@ wp-salts SECURE_AUTH_KEY SECURE_AUTH_SALT --yaml
 
 ### Options
 
-Running `nlf --help` list available flags
+Running `wp-salts --help` list available flags
 
 ```
 -V, --version        output the version number
