@@ -5,7 +5,7 @@
 [![CircleCI](https://flat.badgen.net/circleci/github/idleberg/node-wp-salts-cli)](https://circleci.com/gh/idleberg/node-wp-salts-cli)
 [![David](https://flat.badgen.net/david/dev/idleberg/node-wp-salts-cli)](https://david-dm.org/idleberg/node-wp-salts-cli?type=dev)
 
-CLI tool to generate WordPress salts
+CLI tool to generate WordPress salts in various formats
 
 ## Installation
 

@@ -13,7 +13,7 @@ updateNotifier({pkg}).notify();
 
 // Action
 program
-  .description('CLI tool to generate WordPress salts')
+  .description('CLI tool to generate WordPress salts in various formats')
   .version(pkg.version)
   .arguments('[options]')
   .usage('[options]')
