@@ -9,6 +9,13 @@ const updateNotifier = require('update-notifier');
 const { table, getBorderCharacters } = require('table');
 const { wpSalts } = require('wp-salts');
 
+const getLongestString = input => {
+  var map = input.map(x => x.length);
+  var max = map.indexOf(Math.max(...map));
+
+  return input[max];
+};
+
 updateNotifier({pkg}).notify();
 
 // Action
@@ -52,7 +59,7 @@ if (program.json) {
     console.log(`${key}='${salts[key]}'`);
   });
 } else if (program.php) {
-  const maxLength = 'SECURE_AUTH_SALT'.length;
+  const maxLength = getLongestString(Object.keys(salts)).length;
 
   Object.keys(salts).forEach( key => {
     const whitespace = (program.ugly) ? '' : ' '.repeat(maxLength - key.length);
