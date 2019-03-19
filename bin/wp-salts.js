@@ -22,7 +22,7 @@ program
   .option('--php', 'output as PHP', true)
   .option('--yaml', 'output as YAML', true)
   .option('-i, --indent <int>', 'indentation level for JSON output', parseInt)
-  .option('-u, --ugly', 'doesn\'t align JSON or PHP output', true)
+  .option('-u, --ugly', 'don\'t align JSON or PHP output', true)
   .option('-d, --double-quotes', 'use double-quotes in PHP output', false)
   .parse(process.argv);
 
