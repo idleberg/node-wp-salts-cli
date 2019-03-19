@@ -55,7 +55,7 @@ if (program.json) {
   const maxLength = 'SECURE_AUTH_SALT'.length;
 
   Object.keys(salts).forEach( key => {
-    const whitespace = (program.ugly) ? ' ' : ' '.repeat(maxLength - key.length);
+    const whitespace = (program.ugly) ? '' : ' '.repeat(maxLength - key.length);
     console.log(`define(${quotes}${key}${quotes}, ${whitespace}${quotes}${salts[key]}${quotes});`);
   });
 } else {
