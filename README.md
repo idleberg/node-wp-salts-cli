@@ -33,14 +33,15 @@ wp-salts SECURE_AUTH_KEY SECURE_AUTH_SALT --yaml
 Running `wp-salts --help` list available flags
 
 ```
--V, --version        output the version number
---dotenv             output as DotENV
---json               output as JSON
---php                output as PHP
---yaml               output as YAML
--i, --indent <int>   indentation level for JSON
--d, --double-quotes  use double-quotes in PHP definitions
--h, --help           output usage information
+  -V, --version        output the version number
+  --dotenv             output as DotENV
+  --json               output as JSON
+  --php                output as PHP
+  --yaml               output as YAML
+  -i, --indent <int>   indentation level for JSON
+  -a, --align          align salts in PHP definitions
+  -d, --double-quotes  use double-quotes in PHP definitions
+  -h, --help           output usage information
 ```
 
 ## Related
