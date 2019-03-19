@@ -21,12 +21,21 @@ program
   .option('--json', 'output as JSON', true)
   .option('--php', 'output as PHP', true)
   .option('--yaml', 'output as YAML', true)
-  .option('-i, --indent <int>', 'indentation level for JSON', parseInt)
-  .option('-a, --align', 'align salts in PHP definitions', true)
-  .option('-d, --double-quotes', 'use double-quotes in PHP definitions', false)
+  .option('-i, --indent <int>', 'indentation level for JSON output', parseInt)
+  .option('-u, --ugly', 'doesn\'t align JSON or PHP output', true)
+  .option('-d, --double-quotes', 'use double-quotes in PHP output', false)
   .parse(process.argv);
 
-const indentation = (!isNaN(program.indent)) ? program.indent : 2;
+let indentation;
+
+if (!isNaN(program.indent)) {
+  indentation = program.indent;
+} else if (!program.indent && program.ugly) {
+  indentation = 0;
+} else {
+  indentation = 2;
+}
+
 const quotes = (program.doubleQuotes) ? '"' : '\'';
 const salts = (program.args.length) ? wpSalts(program.args) : wpSalts();
 
@@ -46,7 +55,7 @@ if (program.json) {
   const maxLength = 'SECURE_AUTH_SALT'.length;
 
   Object.keys(salts).forEach( key => {
-    const whitespace = (program.align) ? ' '.repeat(maxLength - key.length) : '';
+    const whitespace = (program.ugly) ? ' ' : ' '.repeat(maxLength - key.length);
     console.log(`define(${quotes}${key}${quotes}, ${whitespace}${quotes}${salts[key]}${quotes});`);
   });
 } else {

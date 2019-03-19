@@ -38,9 +38,9 @@ Running `wp-salts --help` list available flags
   --json               output as JSON
   --php                output as PHP
   --yaml               output as YAML
-  -i, --indent <int>   indentation level for JSON
-  -a, --align          align salts in PHP definitions
-  -d, --double-quotes  use double-quotes in PHP definitions
+  -i, --indent <int>   indentation level for JSON output
+  -u, --ugly           doesn't align JSON or PHP output
+  -d, --double-quotes  use double-quotes in PHP output
   -h, --help           output usage information
 ```
 
