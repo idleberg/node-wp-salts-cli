@@ -22,6 +22,7 @@ program
   .option('--php', 'output as PHP', true)
   .option('--yaml', 'output as YAML', true)
   .option('-i, --indent <int>', 'indentation level for JSON', parseInt)
+  .option('-a, --align', 'align salts in PHP definitions', true)
   .option('-d, --double-quotes', 'use double-quotes in PHP definitions', false)
   .parse(process.argv);
 
@@ -45,7 +46,7 @@ if (program.json) {
   const maxLength = 'SECURE_AUTH_SALT'.length;
 
   Object.keys(salts).forEach( key => {
-    const whitespace = ' '.repeat(maxLength - key.length);
+    const whitespace = (program.align) ? ' '.repeat(maxLength - key.length) : '';
     console.log(`define(${quotes}${key}${quotes}, ${whitespace}${quotes}${salts[key]}${quotes});`);
   });
 } else {
