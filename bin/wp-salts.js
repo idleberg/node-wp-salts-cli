@@ -46,7 +46,7 @@ if (!isNaN(program.indent)) {
 
 const quotes = (program.doubleQuotes) ? '"' : '\'';
 const length = (program.length) ? program.length : 64;
-const salts = (program.args.length) ? wpSalts(program.args, length) : wpSalts(length);
+const salts = (program.args.length) ? wpSalts(program.args, length) : wpSalts('', length);
 
 if (program.json) {
   console.log(
