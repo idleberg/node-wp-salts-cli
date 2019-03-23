@@ -1548,10 +1548,10 @@ wordwrap@~1.0.0:
   resolved "https://registry.yarnpkg.com/wordwrap/-/wordwrap-1.0.0.tgz#27584810891456a4171c8d0226441ade90cbcaeb"
   integrity sha1-J1hIEIkUVqQXHI0CJkQa3pDLyus=
 
-wp-salts@^0.1.1:
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/wp-salts/-/wp-salts-0.1.1.tgz#cb19b07ff5d598c13e4030ef9b777f58fb9068d7"
-  integrity sha512-3cMELlx3lirApVu/XQGe557Og0xJ23N8PePk4OdM35llmF+rw4gWJZ4GktMj56Pznf1A5A2QeSPu6FbGnXMyqA==
+wp-salts@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/wp-salts/-/wp-salts-0.2.0.tgz#7eb0c04d52b81ab9b0b84a1e05633916073d019d"
+  integrity sha512-ugao9qjrYnvFwz97E5XzmBbRXJNiyIRffPgnR58FDeNs8v0mfV9vNH56FpIwNhaJ16QN4ujGWS5VYkJ/qQTVEg==
   dependencies:
     get-random-values "^1.2.0"
 
