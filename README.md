@@ -40,6 +40,7 @@ Running `wp-salts --help` list available flags
   --yaml               output as YAML
   -d, --double-quotes  use double-quotes in PHP output
   -i, --indent <int>   indentation level for JSON output
+  -l, --length <int>   length of the salt (default: 64)
   -u, --ugly           don't align JSON or PHP output
   -h, --help           output usage information
 ```

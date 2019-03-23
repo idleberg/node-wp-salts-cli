@@ -30,6 +30,7 @@ program
   .option('--yaml', 'output as YAML', true)
   .option('-d, --double-quotes', 'use double-quotes in PHP output', false)
   .option('-i, --indent <int>', 'indentation level for JSON output', parseInt)
+  .option('-l, --length <int>', 'length of the salt (default: 64)', parseInt)
   .option('-u, --ugly', 'don\'t align JSON or PHP output', true)
   .parse(process.argv);
 
@@ -44,7 +45,8 @@ if (!isNaN(program.indent)) {
 }
 
 const quotes = (program.doubleQuotes) ? '"' : '\'';
-const salts = (program.args.length) ? wpSalts(program.args) : wpSalts();
+const length = (program.length) ? program.length : 64;
+const salts = (program.args.length) ? wpSalts(program.args, length) : wpSalts(length);
 
 if (program.json) {
   console.log(
