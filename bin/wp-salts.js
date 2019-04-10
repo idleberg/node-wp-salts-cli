@@ -6,6 +6,7 @@ const pkg = require('../package.json');
 const chalk = require('chalk');
 const program = require('commander');
 const updateNotifier = require('update-notifier');
+const sortKeys = require('sort-keys');
 const { table, getBorderCharacters } = require('table');
 const { wpSalts } = require('wp-salts');
 
@@ -31,6 +32,7 @@ program
   .option('-d, --double-quotes', 'use double-quotes in PHP output', false)
   .option('-i, --indent <int>', 'indentation level for JSON output', parseInt)
   .option('-l, --length <int>', 'length of the salt (default: 64)', parseInt)
+  .option('-s, --sort', 'sort keys alphabetically', true)
   .option('-u, --ugly', 'don\'t align JSON or PHP output', true)
   .parse(process.argv);
 
@@ -46,7 +48,11 @@ if (!isNaN(program.indent)) {
 
 const quotes = (program.doubleQuotes) ? '"' : '\'';
 const length = (program.length) ? program.length : 64;
-const salts = (program.args.length) ? wpSalts(program.args, length) : wpSalts('', length);
+let salts = (program.args.length) ? wpSalts(program.args, length) : wpSalts('', length);
+
+if (program.sort) {
+  salts = sortKeys(salts);
+}
 
 if (program.json) {
   console.log(

@@ -23,6 +23,7 @@
   "dependencies": {
     "chalk": "^2.4.2",
     "commander": "^2.20.0",
+    "sort-keys": "^2.0.0",
     "table": "^5.2.3",
     "update-notifier": "^2.5.0",
     "wp-salts": "^0.3.0"
