@@ -11,8 +11,8 @@ const { table, getBorderCharacters } = require('table');
 const { wpSalts } = require('wp-salts');
 
 const getLongestString = input => {
-  var map = input.map(x => x.length);
-  var max = map.indexOf(Math.max(...map));
+  const map = input.map(x => x.length);
+  const max = map.indexOf(Math.max(...map));
 
   return input[max];
 };
