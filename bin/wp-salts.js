@@ -1,85 +1,74 @@
 #!/usr/bin/env node
-
-const pkg = require('../package.json');
-
+var pkg = require('../package.json');
 // Dependencies
-const chalk = require('chalk');
-const program = require('commander');
-const updateNotifier = require('update-notifier');
-const sortKeys = require('sort-keys');
-const { table, getBorderCharacters } = require('table');
-const { wpSalts } = require('wp-salts');
-
-const getLongestString = input => {
-  const map = input.map(x => x.length);
-  const max = map.indexOf(Math.max(...map));
-
-  return input[max];
+var chalk = require('chalk');
+var program = require('commander');
+var sortKeys = require('sort-keys');
+var _a = require('table'), table = _a.table, getBorderCharacters = _a.getBorderCharacters;
+var wpSalts = require('wp-salts').wpSalts;
+var getLongestString = function (input) {
+    var map = input.map(function (x) { return x.length; });
+    var max = map.indexOf(Math.max.apply(Math, map));
+    return input[max];
 };
-
-updateNotifier({pkg}).notify();
-
 // Action
 program
-  .description('CLI tool to generate WordPress salts in various formats')
-  .version(pkg.version)
-  .arguments('[options]')
-  .usage('[options]')
-  .option('--dotenv', 'output as DotENV', true)
-  .option('--json', 'output as JSON', true)
-  .option('--php', 'output as PHP', true)
-  .option('--yaml', 'output as YAML', true)
-  .option('-i, --indent <int>', 'indentation level for JSON output', parseInt)
-  .option('-l, --length <int>', 'length of the salt (default: 64)', parseInt)
-  .option('-s, --sort', 'sort keys alphabetically', true)
-  .option('-u, --ugly', 'don\'t align JSON or PHP output', true)
-  .parse(process.argv);
-
-let indentation;
-
+    .description('CLI tool to generate WordPress salts in various formats')
+    .version(pkg.version)
+    .arguments('[options]')
+    .usage('[options]')
+    .option('--dotenv', 'output as DotENV', true)
+    .option('--json', 'output as JSON', true)
+    .option('--php', 'output as PHP', true)
+    .option('--yaml', 'output as YAML', true)
+    .option('-i, --indent <int>', 'indentation level for JSON output', parseInt)
+    .option('-l, --length <int>', 'length of the salt (default: 64)', parseInt)
+    .option('-s, --sort', 'sort keys alphabetically', true)
+    .option('-u, --ugly', 'don\'t align JSON or PHP output', true)
+    .parse(process.argv);
+var indentation;
 if (!isNaN(program.indent)) {
-  indentation = program.indent;
-} else if (!program.indent && program.ugly) {
-  indentation = 0;
-} else {
-  indentation = 2;
+    indentation = program.indent;
 }
-
-const length = (program.length) ? program.length : 64;
-let salts = (program.args.length) ? wpSalts(program.args, length) : wpSalts('', length);
-
+else if (!program.indent && program.ugly) {
+    indentation = 0;
+}
+else {
+    indentation = 2;
+}
+var saltLength = (program.length) ? program.length : 64;
+var salts = (program.args.length) ? wpSalts(program.args, saltLength) : wpSalts('', saltLength);
 if (program.sort) {
-  salts = sortKeys(salts);
+    salts = sortKeys(salts);
 }
-
 if (program.json) {
-  console.log(
-    JSON.stringify(salts, null, indentation)
-  );
-} else if (program.yaml) {
-  Object.keys(salts).forEach( key => {
-    console.log(`${key.toLowerCase()}:`, `"${salts[key]}"`);
-  });
-} else if (program.dotenv) {
-  Object.keys(salts).forEach( key => {
-    console.log(`${key}='${salts[key]}'`);
-  });
-} else if (program.php) {
-  const maxLength = getLongestString(Object.keys(salts)).length;
-
-  Object.keys(salts).forEach( key => {
-    const whitespace = (program.ugly) ? '' : ' '.repeat(maxLength - key.length);
-    console.log(`define('${key}', ${whitespace}'${salts[key]}');`);
-  });
-} else {
-  const data = [
-    [chalk.bold('Key'), chalk.bold('Salt')]
-  ];
-
-  Object.keys(salts).forEach( key => {
-    data.push([key, salts[key]]);
-  });
-
-  const output = table(data, {border: getBorderCharacters('norc')});
-  console.log(output);
+    console.log(JSON.stringify(salts, null, indentation));
 }
+else if (program.yaml) {
+    Object.keys(salts).forEach(function (key) {
+        console.log(key.toLowerCase() + ":", "\"" + salts[key] + "\"");
+    });
+}
+else if (program.dotenv) {
+    Object.keys(salts).forEach(function (key) {
+        console.log(key + "='" + salts[key] + "'");
+    });
+}
+else if (program.php) {
+    var maxLength_1 = getLongestString(Object.keys(salts)).length;
+    Object.keys(salts).forEach(function (key) {
+        var whitespace = (program.ugly) ? '' : ' '.repeat(maxLength_1 - key.length);
+        console.log("define('" + key + "', " + whitespace + "'" + salts[key] + "');");
+    });
+}
+else {
+    var data_1 = [
+        [chalk.bold('Key'), chalk.bold('Salt')]
+    ];
+    Object.keys(salts).forEach(function (key) {
+        data_1.push([key, salts[key]]);
+    });
+    var output = table(data_1, { border: getBorderCharacters('norc') });
+    console.log(output);
+}
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoid3Atc2FsdHMuanMiLCJzb3VyY2VSb290IjoiIiwic291cmNlcyI6WyIuLi9zcmMvd3Atc2FsdHMudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IjtBQUVBLElBQU0sR0FBRyxHQUFHLE9BQU8sQ0FBQyxpQkFBaUIsQ0FBQyxDQUFDO0FBRXZDLGVBQWU7QUFDZixJQUFNLEtBQUssR0FBRyxPQUFPLENBQUMsT0FBTyxDQUFDLENBQUM7QUFDL0IsSUFBTSxPQUFPLEdBQUcsT0FBTyxDQUFDLFdBQVcsQ0FBQyxDQUFDO0FBQ3JDLElBQU0sUUFBUSxHQUFHLE9BQU8sQ0FBQyxXQUFXLENBQUMsQ0FBQztBQUNoQyxJQUFBLHFCQUFpRCxFQUEvQyxnQkFBSyxFQUFFLDRDQUF3QyxDQUFDO0FBQ2hELElBQUEscUNBQU8sQ0FBeUI7QUFFeEMsSUFBTSxnQkFBZ0IsR0FBRyxVQUFBLEtBQUs7SUFDNUIsSUFBTSxHQUFHLEdBQUcsS0FBSyxDQUFDLEdBQUcsQ0FBQyxVQUFBLENBQUMsSUFBSSxPQUFBLENBQUMsQ0FBQyxNQUFNLEVBQVIsQ0FBUSxDQUFDLENBQUM7SUFDckMsSUFBTSxHQUFHLEdBQUcsR0FBRyxDQUFDLE9BQU8sQ0FBQyxJQUFJLENBQUMsR0FBRyxPQUFSLElBQUksRUFBUSxHQUFHLEVBQUUsQ0FBQztJQUUxQyxPQUFPLEtBQUssQ0FBQyxHQUFHLENBQUMsQ0FBQztBQUNwQixDQUFDLENBQUM7QUFFRixTQUFTO0FBQ1QsT0FBTztLQUNKLFdBQVcsQ0FBQyx5REFBeUQsQ0FBQztLQUN0RSxPQUFPLENBQUMsR0FBRyxDQUFDLE9BQU8sQ0FBQztLQUNwQixTQUFTLENBQUMsV0FBVyxDQUFDO0tBQ3RCLEtBQUssQ0FBQyxXQUFXLENBQUM7S0FDbEIsTUFBTSxDQUFDLFVBQVUsRUFBRSxrQkFBa0IsRUFBRSxJQUFJLENBQUM7S0FDNUMsTUFBTSxDQUFDLFFBQVEsRUFBRSxnQkFBZ0IsRUFBRSxJQUFJLENBQUM7S0FDeEMsTUFBTSxDQUFDLE9BQU8sRUFBRSxlQUFl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

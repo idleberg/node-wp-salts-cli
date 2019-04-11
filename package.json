@@ -3,8 +3,10 @@
   "version": "0.5.0",
   "description": "CLI tool to generate WordPress salts in various formats",
   "scripts": {
-    "lint": "npm run test",
-    "test": "eslint ./bin"
+    "build": "tsc --pretty --project ./",
+    "dev": "tsc --watch --pretty --project ./",
+    "lint": "tslint --project .",
+    "test": "npm run test"
   },
   "bin": {
     "wp-salts": "./bin/wp-salts.js"
@@ -25,13 +27,14 @@
     "commander": "^2.20.0",
     "sort-keys": "^2.0.0",
     "table": "^5.2.3",
-    "update-notifier": "^2.5.0",
     "wp-salts": "^0.3.3"
   },
   "devDependencies": {
-    "babel-eslint": "^10.0.1",
-    "eslint": "^5.16.0",
-    "husky": "^1.3.1"
+    "@types/node": "^11.11.6",
+    "husky": "^1.3.1",
+    "tslint": "^5.12.1",
+    "typedoc": "^0.14.2",
+    "typescript": "^3.3.4000"
   },
   "husky": {
     "hooks": {

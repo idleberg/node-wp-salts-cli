@@ -2,7 +2,6 @@
 .circleci/
 src/
 test/
-types/
 
 # Files
 .editorconfig

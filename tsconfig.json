@@ -1,0 +1,25 @@
+{
+    "compilerOptions": {
+        "declaration": true,
+        "inlineSourceMap": true,
+        "lib": [
+            "dom",
+            "es7"
+        ],
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "noFallthroughCasesInSwitch": true,
+        "noImplicitAny": false,
+        "outDir": "./bin",
+        "removeComments": false,
+        "rootDir": "src",
+        "sourceMap": false,
+        "target": "es5",
+
+    },
+    "exclude": [
+        ".vscode-test",
+        "bin",
+        "node_modules"
+    ]
+}
