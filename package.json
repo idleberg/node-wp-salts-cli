@@ -6,7 +6,7 @@
     "build": "tsc --pretty --project ./",
     "dev": "tsc --watch --pretty --project ./",
     "lint": "tslint --project .",
-    "test": "npm run test"
+    "test": "npm run lint"
   },
   "bin": {
     "wp-salts": "./bin/wp-salts.js"
