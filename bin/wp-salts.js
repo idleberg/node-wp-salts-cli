@@ -29,7 +29,6 @@ program
   .option('--json', 'output as JSON', true)
   .option('--php', 'output as PHP', true)
   .option('--yaml', 'output as YAML', true)
-  .option('-d, --double-quotes', 'use double-quotes in PHP output', false)
   .option('-i, --indent <int>', 'indentation level for JSON output', parseInt)
   .option('-l, --length <int>', 'length of the salt (default: 64)', parseInt)
   .option('-s, --sort', 'sort keys alphabetically', true)
@@ -46,7 +45,6 @@ if (!isNaN(program.indent)) {
   indentation = 2;
 }
 
-const quotes = (program.doubleQuotes) ? '"' : '\'';
 const length = (program.length) ? program.length : 64;
 let salts = (program.args.length) ? wpSalts(program.args, length) : wpSalts('', length);
 
@@ -71,7 +69,7 @@ if (program.json) {
 
   Object.keys(salts).forEach( key => {
     const whitespace = (program.ugly) ? '' : ' '.repeat(maxLength - key.length);
-    console.log(`define(${quotes}${key}${quotes}, ${whitespace}${quotes}${salts[key]}${quotes});`);
+    console.log(`define('${key}', ${whitespace}'${salts[key]}');`);
   });
 } else {
   const data = [
