@@ -15,7 +15,7 @@
         "rootDir": "src",
         "sourceMap": false,
         "target": "es5",
-
+        "incremental": true
     },
     "exclude": [
         ".vscode-test",

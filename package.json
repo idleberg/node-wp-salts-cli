@@ -1,7 +1,7 @@
 {
   "name": "wp-salts-cli",
   "version": "0.6.0",
-  "description": "CLI tool to generate WordPress salts in various formats",
+  "description": "CLI tool to generate WordPress salts in various formats without the need of an internet-connection",
   "scripts": {
     "build": "tsc --pretty --project ./",
     "dev": "tsc --watch --pretty --project ./",
