@@ -27,7 +27,7 @@
     "commander": "^2.20.0",
     "sort-keys": "^3.0.0",
     "table": "^5.4.1",
-    "wp-salts": "^0.3.4"
+    "wp-salts": "^1.0.0"
   },
   "devDependencies": {
     "@types/node": "^12.6.2",

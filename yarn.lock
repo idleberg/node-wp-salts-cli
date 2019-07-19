@@ -968,10 +968,10 @@ wordwrap@~0.0.2:
   resolved "https://registry.yarnpkg.com/wordwrap/-/wordwrap-0.0.3.tgz#a3d5da6cd5c0bc0008d37234bbaf1bed63059107"
   integrity sha1-o9XabNXAvAAI03I0u68b7WMFkQc=
 
-wp-salts@^0.3.4:
-  version "0.3.4"
-  resolved "https://registry.yarnpkg.com/wp-salts/-/wp-salts-0.3.4.tgz#7e5f5bb763d9ff5e2055a554aff51c885052dccb"
-  integrity sha512-lFil+3W54g73cDjLd5ZYGls1ZsboWgjcANcMjgDAbk1+JNVKaZikTG/cM/0LtKsRsJ0yRqOJe283qhR/15eurA==
+wp-salts@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/wp-salts/-/wp-salts-1.0.0.tgz#ad4686b0a78954f8b41462fdd8312fdf85c9ab24"
+  integrity sha512-2oNxZ/pjSzkWtmTxG4ycQ7TUpRjSQgFvzvgPq7yCkneqrW3D31jDhTGWxNq/zP/yQ0Yr2jB6H33gO0j/cuY+kg==
   dependencies:
     get-random-values "^1.2.0"
 
