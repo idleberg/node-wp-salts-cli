@@ -16,6 +16,12 @@ const getLongestString = input => {
   return input[max];
 };
 
+const lineBreak = p => {
+  if (p.break && (p.json || p.yaml || p.dotenv || p.php)) {
+    console.log();
+  }
+};
+
 // Action
 program
   .description('CLI tool to generate WordPress salts in various formats')
@@ -26,6 +32,7 @@ program
   .option('--json', 'output as JSON')
   .option('--php', 'output as PHP')
   .option('--yaml', 'output as YAML')
+  .option('-b, --break', 'add line-breaks before and after the result')
   .option('-i, --indent <int>', 'indentation level for JSON output', parseInt)
   .option('-l, --length <int>', 'length of the salt (default: 64)', parseInt)
   .option('-s, --sort', 'sort keys alphabetically')
@@ -33,6 +40,8 @@ program
   .parse(process.argv);
 
 let indentation: number;
+
+Object.freeze(program);
 
 if (!isNaN(program.indent)) {
   indentation = program.indent;
@@ -48,6 +57,10 @@ let salts = (program.args.length) ? wpSalts(program.args, saltLength) : wpSalts(
 if (program.sort) {
   salts = sortKeys(salts);
 }
+
+Object.freeze(salts);
+
+lineBreak(program);
 
 if (program.json) {
   console.log(
@@ -80,3 +93,5 @@ if (program.json) {
   const output: string = table(data, {border: getBorderCharacters('norc')});
   console.log(output);
 }
+
+lineBreak(program);
