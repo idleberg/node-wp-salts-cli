@@ -45,6 +45,8 @@ Running `wp-salts --help` list available flags
   -h, --help           output usage information
 ```
 
+**Note:** The minimum length of each salt is 8-bit (64 characters)
+
 ## Related
 
 - [wp-salts](https://www.npmjs.org/package/wp-salts)
