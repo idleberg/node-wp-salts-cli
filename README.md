@@ -33,16 +33,17 @@ wp-salts SECURE_AUTH_KEY SECURE_AUTH_SALT --yaml
 Running `wp-salts --help` list available flags
 
 ```
-  -V, --version        output the version number
-  --dotenv             output as DotENV
-  --json               output as JSON
-  --php                output as PHP
-  --yaml               output as YAML
-  -i, --indent <int>   indentation level for JSON output
-  -l, --length <int>   length of the salt (default: 64)
-  -s, --sort           sort keys alphabetically
-  -u, --ugly           don't align JSON or PHP output
-  -h, --help           output usage information
+  -V, --version       output the version number
+  --dotenv            output as DotENV
+  --json              output as JSON
+  --php               output as PHP
+  --yaml              output as YAML
+  -b, --break         add line-breaks before and after the result
+  -i, --indent <int>  indentation level for JSON output
+  -l, --length <int>  length of the salt (default: 64)
+  -s, --sort          sort keys alphabetically
+  -u, --ugly          don't align JSON or PHP output
+  -h, --help          output usage information
 ```
 
 **Note:** The minimum length of each salt is 8-bit (64 characters)
