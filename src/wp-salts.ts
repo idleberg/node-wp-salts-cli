@@ -22,14 +22,14 @@ program
   .version(pkg.version)
   .arguments('[options]')
   .usage('[options]')
-  .option('--dotenv', 'output as DotENV', true)
-  .option('--json', 'output as JSON', true)
-  .option('--php', 'output as PHP', true)
-  .option('--yaml', 'output as YAML', true)
+  .option('--dotenv', 'output as DotENV')
+  .option('--json', 'output as JSON')
+  .option('--php', 'output as PHP')
+  .option('--yaml', 'output as YAML')
   .option('-i, --indent <int>', 'indentation level for JSON output', parseInt)
   .option('-l, --length <int>', 'length of the salt (default: 64)', parseInt)
-  .option('-s, --sort', 'sort keys alphabetically', true)
-  .option('-u, --ugly', 'don\'t align JSON or PHP output', true)
+  .option('-s, --sort', 'sort keys alphabetically')
+  .option('-u, --ugly', 'don\'t align JSON or PHP output')
   .parse(process.argv);
 
 let indentation: number;
