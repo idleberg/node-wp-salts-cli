@@ -10,6 +10,7 @@ test/
 .travis.yml
 gulpfile.js
 tsconfig.json
+tsconfig.tsbuildinfo
 tslint.json
 
 # project specific
