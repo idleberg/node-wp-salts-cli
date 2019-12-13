@@ -28,7 +28,7 @@ wp-salts --dotenv
 wp-salts SECURE_AUTH_KEY SECURE_AUTH_SALT --yaml
 
 # Combine short-form switches
-wp-salts -bui 2 -l 128 --php
+wp-salts -bul 128 --php
 ```
 
 ### Options
