@@ -26,6 +26,9 @@ wp-salts --dotenv
 
 # Output single strings as YAML
 wp-salts SECURE_AUTH_KEY SECURE_AUTH_SALT --yaml
+
+# Combine short-form switches
+wp-salts -bui 2 -l 128 --php
 ```
 
 ### Options
