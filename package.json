@@ -30,7 +30,7 @@
     "sort-keys": "^4.0.0",
     "table": "^5.4.6",
     "update-notifier": "^4.1.0",
-    "wp-salts": "^1.0.0"
+    "wp-salts": "^1.1.0"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^14.0.0",
