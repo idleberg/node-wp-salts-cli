@@ -42,14 +42,14 @@ var dependencies = {
 	"sort-keys": "^4.0.0",
 	table: "^5.4.6",
 	"update-notifier": "^4.1.0",
-	"wp-salts": "^1.0.0"
+	"wp-salts": "^1.1.0"
 };
 var devDependencies = {
 	"@rollup/plugin-commonjs": "^14.0.0",
 	"@rollup/plugin-json": "^4.1.0",
 	"@rollup/plugin-node-resolve": "^8.4.0",
 	"@rollup/plugin-typescript": "^5.0.2",
-	"@types/node": "^12.12.53",
+	"@types/node": "^14.0.27",
 	"@typescript-eslint/eslint-plugin": "^3.7.1",
 	"@typescript-eslint/parser": "^3.7.1",
 	ava: "^3.11.0",
