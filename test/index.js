@@ -1,7 +1,9 @@
 // Dependencies
 import test from 'ava';
 import execa from 'execa';
+import { resolve } from 'path';
 
+const CLI_SCRIPT =  resolve(__dirname, '..', 'bin', 'cli.js')
 const WORDPRESS_KEYS = [
   'AUTH_KEY',
   'AUTH_SALT',
@@ -16,7 +18,7 @@ const WORDPRESS_KEYS = [
 // Tests
 
 test('Default: Key count', async t => {
-  const jsonOut = (await execa('bin/wp-salts.js', ['--json'])).stdout;
+  const jsonOut = (await execa('node', [CLI_SCRIPT, '--json'])).stdout;
 
   const actual = Object.keys(JSON.parse(jsonOut)).sort();
   const expected = WORDPRESS_KEYS;
@@ -25,7 +27,7 @@ test('Default: Key count', async t => {
 });
 
 test('Default: Key length (8-bit)', async t => {
-  const jsonOut = (await execa('bin/wp-salts.js', ['--json'])).stdout;
+  const jsonOut = (await execa('node', [CLI_SCRIPT, '--json'])).stdout;
   const salts = JSON.parse(jsonOut);
   let actual = 0;
 
@@ -40,7 +42,7 @@ test('Default: Key length (8-bit)', async t => {
 
 test('Default: Key length (16-bit)', async t => {
   const keyLength = 128;
-  const jsonOut = (await execa('bin/wp-salts.js', ['--json', `--length=${keyLength}`])).stdout;
+  const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', `--length=${keyLength}`])).stdout;
   const salts = JSON.parse(jsonOut);
 
   let actual = 0;
@@ -56,7 +58,7 @@ test('Default: Key length (16-bit)', async t => {
 
 test('Default: Key length below minimum', async t => {
   const keyLength = 32;
-  const jsonOut = (await execa('bin/wp-salts.js', ['--json', `--length=${keyLength}`])).stdout;
+  const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', `--length=${keyLength}`])).stdout;
   const salts = JSON.parse(jsonOut);
 
   let actual = 0;
@@ -73,7 +75,7 @@ test('Default: Key length below minimum', async t => {
 test('Custom String: Key count', async t => {
   const defaultKey = 'test';
 
-  const jsonOut = (await execa('bin/wp-salts.js', ['--json', defaultKey])).stdout;
+  const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', defaultKey])).stdout;
   const actual = Object.keys(JSON.parse(jsonOut)).sort();
   const expected = [ defaultKey ];
 
@@ -82,7 +84,7 @@ test('Custom String: Key count', async t => {
 
 test('Custom String: Key length (8-bit)', async t => {
   const defaultKey = 'test';
-  const jsonOut = (await execa('bin/wp-salts.js', ['--json', defaultKey])).stdout;
+  const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', defaultKey])).stdout;
   const salts = JSON.parse(jsonOut);
 
   const actual = salts[defaultKey].length;
@@ -94,7 +96,7 @@ test('Custom String: Key length (8-bit)', async t => {
 test('Custom String: Key length (16-bit)', async t => {
   const defaultKey = 'test';
   const keyLength = 128;
-  const jsonOut = (await execa('bin/wp-salts.js', ['--json', `--length=${keyLength}`, defaultKey])).stdout;
+  const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', `--length=${keyLength}`, defaultKey])).stdout;
   const salts = JSON.parse(jsonOut);
 
   const actual = salts[defaultKey].length;
@@ -106,7 +108,7 @@ test('Custom String: Key length (16-bit)', async t => {
 test('Custom String: Key length below minimum', async t => {
   const defaultKey = 'test';
   const keyLength = 32;
-  const jsonOut = (await execa('bin/wp-salts.js', ['--json', `--length=${keyLength}`, defaultKey])).stdout;
+  const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', `--length=${keyLength}`, defaultKey])).stdout;
   const salts = JSON.parse(jsonOut);
 
   const actual = salts[defaultKey].length;
@@ -117,7 +119,7 @@ test('Custom String: Key length below minimum', async t => {
 
 test('Custom Array: Key count', async t => {
   const defaultKeys = ['test1', 'test2', 'test3']
-  const jsonOut = (await execa('bin/wp-salts.js', ['--json', ...defaultKeys])).stdout;
+  const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', ...defaultKeys])).stdout;
 
   const actual = Object.keys(JSON.parse(jsonOut)).sort();
   const expected = defaultKeys;
@@ -127,7 +129,7 @@ test('Custom Array: Key count', async t => {
 
 test('Custom Array: Key length (8-bit)', async t => {
   const defaultKeys = ['test1', 'test2', 'test3']
-  const jsonOut = (await execa('bin/wp-salts.js', ['--json', ...defaultKeys])).stdout;
+  const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', ...defaultKeys])).stdout;
   const salts = JSON.parse(jsonOut);
 
   let actual = 0;
@@ -144,7 +146,7 @@ test('Custom Array: Key length (8-bit)', async t => {
 test('Custom Array: Key length (16-bit)', async t => {
   const defaultKeys = ['test1', 'test2', 'test3']
   const keyLength = 128;
-  const jsonOut = (await execa('bin/wp-salts.js', ['--json', `--length=${keyLength}`, ...defaultKeys])).stdout;
+  const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', `--length=${keyLength}`, ...defaultKeys])).stdout;
   const salts = JSON.parse(jsonOut);
 
   let actual = 0;
@@ -161,7 +163,7 @@ test('Custom Array: Key length (16-bit)', async t => {
 test('Custom Array: Key length below minimum', async t => {
   const defaultKeys = ['test1', 'test2', 'test3']
   const keyLength = 32;
-  const jsonOut = (await execa('bin/wp-salts.js', ['--json', `--length=${keyLength}`, ...defaultKeys])).stdout;
+  const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', `--length=${keyLength}`, ...defaultKeys])).stdout;
   const salts = JSON.parse(jsonOut);
 
   let actual = 0;

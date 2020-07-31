@@ -1,13 +1,11 @@
-#!/usr/bin/env node
-
-const pkg = require('../package.json');
+import pkg from '../package.json';
 
 // Dependencies
-const chalk = require('chalk');
-const program = require('commander');
-const sortKeys = require('sort-keys');
-const { table, getBorderCharacters } = require('table');
-const { wpSalts } = require('wp-salts');
+import chalk from 'chalk';
+import program from 'commander';
+import sortKeys from 'sort-keys';
+import { table, getBorderCharacters } from 'table';
+import { wpSalts } from 'wp-salts';
 
 const getLongestString = input => {
   const map = input.map(x => x.length);
@@ -82,7 +80,7 @@ if (program.json) {
     console.log(`define('${key}', ${whitespace}'${salts[key]}');`);
   });
 } else {
-  const data: Object[] = [
+  const data: unknown[] = [
     [chalk.bold('Key'), chalk.bold('Salt')]
   ];
 
