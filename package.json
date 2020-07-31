@@ -4,9 +4,10 @@
   "description": "CLI tool to generate WordPress salts in various formats",
   "scripts": {
     "build": "tsc --pretty --project ./",
-    "dev": "tsc --watch --pretty --project ./",
+    "dev": "npm run start",
     "lint": "tslint --project .",
     "prepublishOnly": "npm run build",
+    "start": "tsc --watch --pretty --project ./",
     "test": "ava --verbose"
   },
   "bin": {
