@@ -11,7 +11,7 @@
     "test": "ava ./test/*.js --verbose"
   },
   "bin": {
-    "wp-salts": "./bin/cli.js"
+    "wp-salts": "./index.js"
   },
   "repository": {
     "type": "git",
