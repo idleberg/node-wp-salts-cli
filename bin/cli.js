@@ -1,6 +1,7 @@
 'use strict';
 
 var chalk = require('chalk');
+var logSymbols = require('log-symbols');
 var program = require('commander');
 var sortKeys = require('sort-keys');
 require('string-width');
@@ -16,6 +17,7 @@ var require$$0$2 = require('crypto');
 function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
 
 var chalk__default = /*#__PURE__*/_interopDefaultLegacy(chalk);
+var logSymbols__default = /*#__PURE__*/_interopDefaultLegacy(logSymbols);
 var program__default = /*#__PURE__*/_interopDefaultLegacy(program);
 var sortKeys__default = /*#__PURE__*/_interopDefaultLegacy(sortKeys);
 var stripAnsi__default = /*#__PURE__*/_interopDefaultLegacy(stripAnsi);
@@ -53,6 +55,7 @@ var license = "MIT";
 var dependencies = {
 	chalk: "^4.1.0",
 	commander: "^6.1.0",
+	"log-symbols": "^4.0.0",
 	"sort-keys": "^4.0.0",
 	table: "^6.0.1",
 	"update-notifier": "^4.1.1",
@@ -8639,6 +8642,10 @@ program__default['default']
     .option('-s, --sort', 'sort keys alphabetically')
     .option('-u, --ugly', 'don\'t align JSON or PHP output')
     .parse(process.argv);
+if (program__default['default'].indent && program__default['default'].ugly) {
+    console.log(logSymbols__default['default'].error, 'You cannot combine the indent and ugly flags');
+    process.exit();
+}
 var indentation;
 Object.freeze(program__default['default']);
 if (!isNaN(program__default['default'].indent)) {

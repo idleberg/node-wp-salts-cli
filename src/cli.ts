@@ -2,6 +2,7 @@ import pkg from '../package.json';
 
 // Dependencies
 import chalk from 'chalk';
+import logSymbols from 'log-symbols';
 import program from 'commander';
 import sortKeys from 'sort-keys';
 import { table, getBorderCharacters } from 'table';
@@ -36,6 +37,11 @@ program
   .option('-s, --sort', 'sort keys alphabetically')
   .option('-u, --ugly', 'don\'t align JSON or PHP output')
   .parse(process.argv);
+
+if (program.indent && program.ugly) {
+  console.log(logSymbols.error, 'You cannot combine the indent and ugly flags');
+  process.exit();
+}
 
 let indentation: number;
 
