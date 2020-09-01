@@ -37,16 +37,16 @@ Running `wp-salts --help` list available flags
 
 ```
   -V, --version       output the version number
-  --dotenv            output as DotENV
-  --json              output as JSON
-  --php               output as PHP
-  --yaml              output as YAML
+  -D, --dotenv        output as DotENV
+  -J, --json          output as JSON
+  -P, --php           output as PHP
+  -Y, --yaml          output as YAML
   -b, --break         add line-breaks before and after the result
   -i, --indent <int>  indentation level for JSON output
   -l, --length <int>  length of the salt (default: 64)
   -s, --sort          sort keys alphabetically
   -u, --ugly          don't align JSON or PHP output
-  -h, --help          output usage information
+  -h, --help          display help for command
 ```
 
 **Note:** The minimum length of each salt is 8-bit (64 characters)

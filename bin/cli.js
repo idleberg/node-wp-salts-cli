@@ -26,7 +26,7 @@ var require$$0__default$1 = /*#__PURE__*/_interopDefaultLegacy(require$$0$1);
 var require$$0__default$2 = /*#__PURE__*/_interopDefaultLegacy(require$$0$2);
 
 var name = "wp-salts-cli";
-var version = "1.2.0";
+var version = "1.2.1";
 var description = "CLI tool to generate WordPress salts in various formats";
 var scripts = {
 	build: "rollup --config",
@@ -8629,10 +8629,10 @@ program__default['default']
     .version(pkg.version)
     .arguments('[options]')
     .usage('[options]')
-    .option('--dotenv', 'output as DotENV')
-    .option('--json', 'output as JSON')
-    .option('--php', 'output as PHP')
-    .option('--yaml', 'output as YAML')
+    .option('-D, --dotenv', 'output as DotENV')
+    .option('-J, --json', 'output as JSON')
+    .option('-P, --php', 'output as PHP')
+    .option('-Y, --yaml', 'output as YAML')
     .option('-b, --break', 'add line-breaks before and after the result')
     .option('-i, --indent <int>', 'indentation level for JSON output', parseInt)
     .option('-l, --length <int>', 'length of the salt (default: 64)', parseInt)
