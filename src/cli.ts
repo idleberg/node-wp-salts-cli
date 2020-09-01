@@ -8,19 +8,6 @@ import sortKeys from 'sort-keys';
 import { table, getBorderCharacters } from 'table';
 import { wpSalts } from 'wp-salts';
 
-const getLongestString = input => {
-  const map = input.map(x => x.length);
-  const max = map.indexOf(Math.max(...map));
-
-  return input[max];
-};
-
-const lineBreak = p => {
-  if (p.break && (p.json || p.yaml || p.dotenv || p.php)) {
-    console.log();
-  }
-};
-
 // Action
 program
   .description('CLI tool to generate WordPress salts in various formats')
@@ -99,3 +86,17 @@ if (program.json) {
 }
 
 lineBreak(program);
+
+// Helpers
+function getLongestString(input) {
+  const map = input.map(x => x.length);
+  const max = map.indexOf(Math.max(...map));
+
+  return input[max];
+}
+
+function lineBreak(p) {
+  if (p.break && (p.json || p.yaml || p.dotenv || p.php)) {
+    console.log();
+  }
+}

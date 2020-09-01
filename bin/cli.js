@@ -8616,16 +8616,6 @@ var wpSalts = function (keys, saltLength) {
 exports.wpSalts = wpSalts;
 });
 
-var getLongestString = function (input) {
-    var map = input.map(function (x) { return x.length; });
-    var max = map.indexOf(Math.max.apply(Math, map));
-    return input[max];
-};
-var lineBreak = function (p) {
-    if (p["break"] && (p.json || p.yaml || p.dotenv || p.php)) {
-        console.log();
-    }
-};
 // Action
 program__default['default']
     .description('CLI tool to generate WordPress salts in various formats')
@@ -8695,3 +8685,14 @@ else {
     console.log(output);
 }
 lineBreak(program__default['default']);
+// Helpers
+function getLongestString(input) {
+    var map = input.map(function (x) { return x.length; });
+    var max = map.indexOf(Math.max.apply(Math, map));
+    return input[max];
+}
+function lineBreak(p) {
+    if (p["break"] && (p.json || p.yaml || p.dotenv || p.php)) {
+        console.log();
+    }
+}
