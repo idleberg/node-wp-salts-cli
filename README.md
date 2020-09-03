@@ -28,7 +28,7 @@ wp-salts --dotenv
 wp-salts SECURE_AUTH_KEY SECURE_AUTH_SALT --yaml
 
 # Combine short-form flags
-wp-salts -bul 128 --php
+wp-salts -Pbul 128
 ```
 
 ### Options
