@@ -5,6 +5,7 @@ import chalk from 'chalk';
 import logSymbols from 'log-symbols';
 import program from 'commander';
 import sortKeys from 'sort-keys';
+import * as formatters from './formatters';
 import { table, getBorderCharacters } from 'table';
 import { wpSalts } from 'wp-salts';
 
@@ -58,20 +59,11 @@ if (program.json) {
     JSON.stringify(salts, null, indentation)
   );
 } else if (program.yaml) {
-  Object.keys(salts).forEach( (key: string) => {
-    console.log(`${key.toLowerCase()}:`, `"${salts[key]}"`);
-  });
+  console.log(formatters.toYAML(salts));
 } else if (program.dotenv) {
-  Object.keys(salts).forEach( (key: string) => {
-    console.log(`${key}='${salts[key]}'`);
-  });
+  console.log(formatters.toDotEnv(salts));
 } else if (program.php) {
-  const maxLength = getLongestString(Object.keys(salts)).length;
-
-  Object.keys(salts).forEach( (key: string) => {
-    const whitespace = (program.ugly) ? '' : ' '.repeat(maxLength - key.length);
-    console.log(`define('${key}', ${whitespace}'${salts[key]}');`);
-  });
+  console.log(formatters.toPHP(salts, !program.ugly));
 } else {
   const data: unknown[] = [
     [chalk.bold('Key'), chalk.bold('Salt')]
@@ -88,13 +80,6 @@ if (program.json) {
 lineBreak(program);
 
 // Helpers
-function getLongestString(input) {
-  const map = input.map(x => x.length);
-  const max = map.indexOf(Math.max(...map));
-
-  return input[max];
-}
-
 function lineBreak(p) {
   if (p.break && (p.json || p.yaml || p.dotenv || p.php)) {
     console.log();
