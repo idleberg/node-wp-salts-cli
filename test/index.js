@@ -72,8 +72,27 @@ test('Default: Key length below minimum', async t => {
   t.is(expected, actual);
 });
 
-test('Default: Ugly JSON output', async t => {
-  const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', `--ugly`])).stdout;
+test('Default: --break flag', async t => {
+  const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', '--ugly', '--break'])).stdout;
+
+  const actual = jsonOut.includes('\n');
+  const expected = true;
+
+  t.is(expected, actual);
+});
+
+test('Default: --sort flag', async t => {
+  const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', '--sort'])).stdout;
+  const salts = JSON.parse(jsonOut);
+
+  const actual = Object.keys(salts).join('|');
+  const expected = 'AUTH_KEY|AUTH_SALT|LOGGED_IN_KEY|LOGGED_IN_SALT|NONCE_KEY|NONCE_SALT|SECURE_AUTH_KEY|SECURE_AUTH_SALT';
+
+  t.is(expected, actual);
+});
+
+test('Default: --ugly flag', async t => {
+  const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', '--ugly'])).stdout;
 
   const actual = jsonOut.includes('\n');
   const expected = false;
@@ -126,9 +145,19 @@ test('Custom String: Key length below minimum', async t => {
   t.is(expected, actual);
 });
 
-test('Custom String: Ugly JSON output', async t => {
+test('Custom String: --break flag', async t => {
   const defaultKey = 'test';
-  const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', `--ugly`, defaultKey])).stdout;
+  const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', '--ugly', '--break', defaultKey])).stdout;
+
+  const actual = jsonOut.includes('\n');
+  const expected = true;
+
+  t.is(expected, actual);
+});
+
+test('Custom String: --ugly flag', async t => {
+  const defaultKey = 'test';
+  const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', '--ugly', defaultKey])).stdout;
 
   const actual = jsonOut.includes('\n');
   const expected = false;
@@ -137,7 +166,7 @@ test('Custom String: Ugly JSON output', async t => {
 });
 
 test('Custom Array: Key count', async t => {
-  const defaultKeys = ['test1', 'test2', 'test3']
+  const defaultKeys = ['test1', 'test2', 'test3'];
   const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', ...defaultKeys])).stdout;
 
   const actual = Object.keys(JSON.parse(jsonOut)).sort();
@@ -147,7 +176,7 @@ test('Custom Array: Key count', async t => {
 });
 
 test('Custom Array: Key length (8-bit)', async t => {
-  const defaultKeys = ['test1', 'test2', 'test3']
+  const defaultKeys = ['test1', 'test2', 'test3'];
   const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', ...defaultKeys])).stdout;
   const salts = JSON.parse(jsonOut);
 
@@ -163,7 +192,7 @@ test('Custom Array: Key length (8-bit)', async t => {
 });
 
 test('Custom Array: Key length (16-bit)', async t => {
-  const defaultKeys = ['test1', 'test2', 'test3']
+  const defaultKeys = ['test1', 'test2', 'test3'];
   const keyLength = 128;
   const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', `--length=${keyLength}`, ...defaultKeys])).stdout;
   const salts = JSON.parse(jsonOut);
@@ -180,7 +209,7 @@ test('Custom Array: Key length (16-bit)', async t => {
 });
 
 test('Custom Array: Key length below minimum', async t => {
-  const defaultKeys = ['test1', 'test2', 'test3']
+  const defaultKeys = ['test1', 'test2', 'test3'];
   const keyLength = 32;
   const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', `--length=${keyLength}`, ...defaultKeys])).stdout;
   const salts = JSON.parse(jsonOut);
@@ -196,9 +225,30 @@ test('Custom Array: Key length below minimum', async t => {
   t.is(expected, actual);
 });
 
-test('Custom Array: Ugly JSON output', async t => {
-  const defaultKeys = ['test1', 'test2', 'test3']
-  const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', `--ugly`, ...defaultKeys])).stdout;
+test('Custom Array: --break flag', async t => {
+  const defaultKeys = ['test1', 'test2', 'test3'];
+  const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', '--ugly', '--break', ...defaultKeys])).stdout;
+
+  const actual = jsonOut.includes('\n');
+  const expected = true;
+
+  t.is(expected, actual);
+});
+
+test('Custom Array: --sort flag', async t => {
+  const defaultKeys = ['A', 'C', 'B'];
+  const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', '--sort', ...defaultKeys])).stdout;
+  const salts = JSON.parse(jsonOut);
+
+  const actual = Object.keys(salts).join('|');
+  const expected = 'A|B|C';
+
+  t.is(expected, actual);
+});
+
+test('Custom Array: --ugly flag', async t => {
+  const defaultKeys = ['test1', 'test2', 'test3'];
+  const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', '--ugly', ...defaultKeys])).stdout;
 
   const actual = jsonOut.includes('\n');
   const expected = false;
