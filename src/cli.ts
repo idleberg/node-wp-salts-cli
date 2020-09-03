@@ -26,7 +26,7 @@ program
   .parse(process.argv);
 
 if (program.indent && program.ugly) {
-  console.log(logSymbols.error, 'You cannot combine the indent and ugly flags');
+  console.error(logSymbols.error, 'You cannot combine the indent and ugly flags\n');
   process.exit();
 }
 
