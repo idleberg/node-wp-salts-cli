@@ -1,9 +1,10 @@
+import { nodeResolve } from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import json from '@rollup/plugin-json';
+import nodePolyfills from 'rollup-plugin-node-polyfills';
 import typescript from '@rollup/plugin-typescript';
 
-export default {
-  input: 'src/cli.ts',
+const defaults = {
   output: {
     dir: 'bin',
     format: 'cjs'
@@ -11,8 +12,16 @@ export default {
   plugins: [
     commonjs(),
     json(),
+    nodePolyfills(),
+    nodeResolve(),
     typescript({
-      allowSyntheticDefaultImports: true
+      allowSyntheticDefaultImports: true,
+      moduleResolution: 'node'
     })
   ]
+};
+
+export default {
+  ...defaults,
+  input: 'src/cli.ts'
 };
