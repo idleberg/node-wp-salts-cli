@@ -72,6 +72,15 @@ test('Default: Key length below minimum', async t => {
   t.is(expected, actual);
 });
 
+test('Default: Ugly JSON output', async t => {
+  const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', `--ugly`])).stdout;
+
+  const actual = jsonOut.includes('\n');
+  const expected = false;
+
+  t.is(expected, actual);
+});
+
 test('Custom String: Key count', async t => {
   const defaultKey = 'test';
 
@@ -113,6 +122,16 @@ test('Custom String: Key length below minimum', async t => {
 
   const actual = salts[defaultKey].length;
   const expected = 64;
+
+  t.is(expected, actual);
+});
+
+test('Custom String: Ugly JSON output', async t => {
+  const defaultKey = 'test';
+  const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', `--ugly`, defaultKey])).stdout;
+
+  const actual = jsonOut.includes('\n');
+  const expected = false;
 
   t.is(expected, actual);
 });
@@ -173,6 +192,16 @@ test('Custom Array: Key length below minimum', async t => {
   });
 
   const expected = 192;
+
+  t.is(expected, actual);
+});
+
+test('Custom Array: Ugly JSON output', async t => {
+  const defaultKeys = ['test1', 'test2', 'test3']
+  const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', `--ugly`, ...defaultKeys])).stdout;
+
+  const actual = jsonOut.includes('\n');
+  const expected = false;
 
   t.is(expected, actual);
 });
