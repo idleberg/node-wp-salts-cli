@@ -5,6 +5,7 @@ import nodePolyfills from 'rollup-plugin-node-polyfills';
 import typescript from '@rollup/plugin-typescript';
 
 const defaults = {
+  external: [ 'crypto' ],
   output: {
     dir: 'bin',
     format: 'cjs'
