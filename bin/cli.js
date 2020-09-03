@@ -29,7 +29,7 @@ var require$$0__default$2 = /*#__PURE__*/_interopDefaultLegacy(require$$0$2);
 
 var name = "wp-salts-cli";
 var version = "1.3.0";
-var description = "CLI tool to generate WordPress salts in various formats";
+var description = "Generate WordPress salts right in your shell, even when offline. Supports plain-text output as well as DotEnv, PHP, JSON, or YAML.";
 var scripts = {
 	build: "rollup --config",
 	dev: "npm run start",
@@ -8633,7 +8633,7 @@ program__default['default']
     .option('-u, --ugly', 'don\'t align JSON or PHP output')
     .parse(process.argv);
 if (program__default['default'].indent && program__default['default'].ugly) {
-    console.log(logSymbols__default['default'].error, 'You cannot combine the indent and ugly flags');
+    console.error(logSymbols__default['default'].error, 'You cannot combine the indent and ugly flags\n');
     process.exit();
 }
 var indentation;
