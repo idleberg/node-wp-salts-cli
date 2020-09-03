@@ -72,7 +72,16 @@ test('Default: Key length below minimum', async t => {
   t.is(expected, actual);
 });
 
-test('Default: --break flag', async t => {
+test('Default: Indentation', async t => {
+  const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', '--indent', '7'])).stdout;
+
+  const actual = /\s{7}/g.test(jsonOut);
+  const expected = true;
+
+  t.is(expected, actual);
+});
+
+test('Default: Line breaks', async t => {
   const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', '--ugly', '--break'])).stdout;
 
   const actual = jsonOut.includes('\n');
@@ -81,7 +90,7 @@ test('Default: --break flag', async t => {
   t.is(expected, actual);
 });
 
-test('Default: --sort flag', async t => {
+test('Default: Sort results', async t => {
   const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', '--sort'])).stdout;
   const salts = JSON.parse(jsonOut);
 
@@ -91,7 +100,7 @@ test('Default: --sort flag', async t => {
   t.is(expected, actual);
 });
 
-test('Default: --ugly flag', async t => {
+test('Default: Ugly JSON output', async t => {
   const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', '--ugly'])).stdout;
 
   const actual = jsonOut.includes('\n');
@@ -100,10 +109,19 @@ test('Default: --ugly flag', async t => {
   t.is(expected, actual);
 });
 
+test('Default: Ugly PHP output', async t => {
+  const jsonOut = (await execa('node', [CLI_SCRIPT, '--php', '--ugly'])).stdout;
+
+  const actual = /\s{2,}/.test(jsonOut);
+  const expected = false;
+
+  t.is(expected, actual);
+});
+
 test('Custom String: Key count', async t => {
   const defaultKey = 'test';
-
   const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', defaultKey])).stdout;
+
   const actual = Object.keys(JSON.parse(jsonOut)).sort();
   const expected = [ defaultKey ];
 
@@ -145,7 +163,17 @@ test('Custom String: Key length below minimum', async t => {
   t.is(expected, actual);
 });
 
-test('Custom String: --break flag', async t => {
+test('Custom String: Indentation', async t => {
+  const defaultKey = 'test';
+  const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', '--indent', '7', defaultKey])).stdout;
+
+  const actual = /\s{7}/g.test(jsonOut);
+  const expected = true;
+
+  t.is(expected, actual);
+});
+
+test('Custom String: Line breaks', async t => {
   const defaultKey = 'test';
   const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', '--ugly', '--break', defaultKey])).stdout;
 
@@ -155,7 +183,7 @@ test('Custom String: --break flag', async t => {
   t.is(expected, actual);
 });
 
-test('Custom String: --ugly flag', async t => {
+test('Custom String: Ugly JSON output', async t => {
   const defaultKey = 'test';
   const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', '--ugly', defaultKey])).stdout;
 
@@ -225,7 +253,18 @@ test('Custom Array: Key length below minimum', async t => {
   t.is(expected, actual);
 });
 
-test('Custom Array: --break flag', async t => {
+test('Custom Array: Indentation', async t => {
+  const defaultKeys = ['test1', 'test2', 'test3'];
+  const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', '--indent', '7', ...defaultKeys])).stdout;
+
+  const actual = /\s{7}/g.test(jsonOut);
+  const expected = true;
+
+  t.is(expected, actual);
+});
+
+
+test('Custom Array: Line breaks', async t => {
   const defaultKeys = ['test1', 'test2', 'test3'];
   const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', '--ugly', '--break', ...defaultKeys])).stdout;
 
@@ -235,7 +274,7 @@ test('Custom Array: --break flag', async t => {
   t.is(expected, actual);
 });
 
-test('Custom Array: --sort flag', async t => {
+test('Custom Array: Sort results', async t => {
   const defaultKeys = ['A', 'C', 'B'];
   const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', '--sort', ...defaultKeys])).stdout;
   const salts = JSON.parse(jsonOut);
@@ -246,11 +285,21 @@ test('Custom Array: --sort flag', async t => {
   t.is(expected, actual);
 });
 
-test('Custom Array: --ugly flag', async t => {
+test('Custom Array: Ugly JSON output', async t => {
   const defaultKeys = ['test1', 'test2', 'test3'];
   const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', '--ugly', ...defaultKeys])).stdout;
 
   const actual = jsonOut.includes('\n');
+  const expected = false;
+
+  t.is(expected, actual);
+});
+
+test('Custom Array: Ugly PHP output', async t => {
+  const defaultKeys = ['A', 'B', 'CCC'];
+  const jsonOut = (await execa('node', [CLI_SCRIPT, '--php', '--ugly', ...defaultKeys])).stdout;
+
+  const actual = /\s{2,}/.test(jsonOut);
   const expected = false;
 
   t.is(expected, actual);
