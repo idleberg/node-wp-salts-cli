@@ -16,7 +16,6 @@ const WORDPRESS_KEYS = [
 ];
 
 // Tests
-
 test('Default: Key count', async t => {
   const jsonOut = (await execa('node', [CLI_SCRIPT, '--json'])).stdout;
 
@@ -95,7 +94,7 @@ test('Default: Sort results', async t => {
   const salts = JSON.parse(jsonOut);
 
   const actual = Object.keys(salts).join('|');
-  const expected = 'AUTH_KEY|AUTH_SALT|LOGGED_IN_KEY|LOGGED_IN_SALT|NONCE_KEY|NONCE_SALT|SECURE_AUTH_KEY|SECURE_AUTH_SALT';
+  const expected = WORDPRESS_KEYS.join('|');
 
   t.is(expected, actual);
 });
