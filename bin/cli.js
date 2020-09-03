@@ -28,7 +28,7 @@ var require$$0__default$1 = /*#__PURE__*/_interopDefaultLegacy(require$$0$1);
 var require$$0__default$2 = /*#__PURE__*/_interopDefaultLegacy(require$$0$2);
 
 var name = "wp-salts-cli";
-var version = "1.2.1";
+var version = "1.3.0";
 var description = "CLI tool to generate WordPress salts in various formats";
 var scripts = {
 	build: "rollup --config",
