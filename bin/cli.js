@@ -68,7 +68,6 @@ var devDependencies = {
 	execa: "^4.0.3",
 	husky: "^4.2.5",
 	rollup: "^2.26.9",
-	"rollup-plugin-filesize": "^9.0.2",
 	typescript: "^4.0.2"
 };
 var husky = {
