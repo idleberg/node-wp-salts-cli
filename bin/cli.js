@@ -19,7 +19,7 @@ var fs__default = /*#__PURE__*/_interopDefaultLegacy(fs);
 var nodeCrypto__default = /*#__PURE__*/_interopDefaultLegacy(nodeCrypto);
 
 var name = "wp-salts-cli";
-var version = "1.3.1";
+var version = "1.3.2";
 var description = "Generate WordPress salts right in your shell, even when offline. Supports plain-text output as well as DotEnv, PHP, JSON, or YAML.";
 var scripts = {
 	build: "rollup --config",
