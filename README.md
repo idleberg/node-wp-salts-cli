@@ -45,7 +45,7 @@ Running `wp-salts --help` list available flags
   -i, --indent <int>  indentation level for JSON output
   -l, --length <int>  length of the salt (default: 64)
   -s, --sort          sort keys alphabetically
-  -u, --ugly          don't align JSON or PHP output
+  -u, --ugly          don't pretty-print JSON or PHP output
   -h, --help          display help for command
 ```
 
