@@ -55,7 +55,7 @@ var dependencies = {
 	"sort-keys": "^4.2.0",
 	table: "^6.0.7",
 	"update-notifier": "^5.0.1",
-	"wp-salts": "^1.1.2",
+	"wp-salts": "^1.2.0",
 	yaml: "^1.10.0"
 };
 var devDependencies = {
