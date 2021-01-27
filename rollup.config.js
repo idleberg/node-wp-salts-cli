@@ -14,7 +14,8 @@ const defaults = {
     json(),
     nodeResolve(),
     typescript({
-      allowSyntheticDefaultImports: true
+      allowSyntheticDefaultImports: true,
+      strictNullChecks: true
     })
   ]
 };
