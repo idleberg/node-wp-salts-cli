@@ -5,6 +5,7 @@ test/
 
 # Files
 .editorconfig
+.eslintcache
 .eslintrc
 .gitignore
 .travis.yml
