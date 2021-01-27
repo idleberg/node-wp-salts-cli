@@ -3,6 +3,18 @@ declare module '*.json' {
   export default value;
 }
 
+interface ProgramOptioms {
+  dotenv?: boolean;
+  json?: boolean;
+  php?: boolean;
+  yaml?: boolean;
+  break?: boolean;
+  indent?: number;
+  length?: number;
+  sort?: boolean;
+  ugly?: boolean;
+}
+
 interface WordpressSalts {
   AUTH_KEY: string;
   SECURE_AUTH_KEY: string;
