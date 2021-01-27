@@ -15,7 +15,8 @@ const defaults = {
     nodeResolve(),
     typescript({
       allowSyntheticDefaultImports: true,
-      moduleResolution: 'node'
+      moduleResolution: 'node',
+      strictNullChecks: true
     })
   ]
 };
