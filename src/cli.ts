@@ -43,8 +43,13 @@ if (!isNaN(program.indent)) {
   indentation = 2;
 }
 
-const saltLength: number = (program.length) ? program.length : 64;
-let salts = (program.args.length) ? wpSalts(program.args, saltLength) : wpSalts('', saltLength);
+const saltLength: number = (program.length)
+  ? program.length
+  : 64;
+
+let salts = program.args.length
+  ? wpSalts(program.args, saltLength)
+  : wpSalts('', saltLength);
 
 if (program.sort) {
   salts = sortKeys(salts);
