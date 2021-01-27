@@ -12,7 +12,7 @@ function getLongestString(input: string[]): string {
  * @param input
  * @returns
  */
-function toDotEnv(input: unknown): string {
+function toDotEnv(input: CustomSalts): string {
   return Object.keys(input).map((key: string) => {
     return `${key}='${input[key]}'`;
   }).join('\n');
@@ -23,7 +23,7 @@ function toDotEnv(input: unknown): string {
  * @param input
  * @returns
  */
-function toPHP(input: unknown, prettyPrint = true): string {
+function toPHP(input: CustomSalts, prettyPrint = true): string {
   const maxLength = getLongestString(Object.keys(input)).length;
 
   return Object.keys(input).map((key: string) => {
