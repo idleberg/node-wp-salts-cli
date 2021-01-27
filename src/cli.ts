@@ -26,7 +26,9 @@ program
   .option('-u, --ugly', 'don\'t align JSON or PHP output')
   .parse(process.argv);
 
-if (program.indent && program.ugly) {
+const options: ProgramOptioms = program.opts();
+
+if (options.indent && options.ugly) {
   console.error(logSymbols.error, 'You cannot combine the indent and ugly flags\n');
   process.exit();
 }
@@ -35,40 +37,40 @@ let indentation: number;
 
 Object.freeze(program);
 
-if (!isNaN(program.indent)) {
-  indentation = program.indent;
-} else if (!program.indent && program.ugly) {
+if (options.indent && !isNaN(options.indent)) {
+  indentation = options.indent;
+} else if (!options.indent && options.ugly) {
   indentation = 0;
 } else {
   indentation = 2;
 }
 
-const saltLength: number = (program.length)
-  ? program.length
+const saltLength: number = (options.length)
+  ? options.length
   : 64;
 
 let salts = program.args.length
   ? wpSalts(program.args, saltLength)
   : wpSalts('', saltLength);
 
-if (program.sort) {
+if (options.sort) {
   salts = sortKeys(salts);
 }
 
 Object.freeze(salts);
 
-lineBreak(program);
+lineBreak(options);
 
-if (program.json) {
+if (options.json) {
   console.log(
     JSON.stringify(salts, null, indentation)
   );
-} else if (program.yaml) {
+} else if (options.yaml) {
   console.log(formatters.toYAML(salts));
-} else if (program.dotenv) {
+} else if (options.dotenv) {
   console.log(formatters.toDotEnv(salts));
-} else if (program.php) {
-  console.log(formatters.toPHP(salts, !program.ugly));
+} else if (options.php) {
+  console.log(formatters.toPHP(salts, !options.ugly));
 } else {
   const data: unknown[] = [
     [chalk.bold('Key'), chalk.bold('Salt')]
@@ -82,7 +84,7 @@ if (program.json) {
   console.log(output);
 }
 
-lineBreak(program);
+lineBreak(options);
 
 // Helpers
 function lineBreak(p) {
