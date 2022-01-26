@@ -1,22 +1,18 @@
 'use strict';
 
-var os = require('os');
-var tty = require('tty');
 var require$$0 = require('events');
-var childProcess = require('child_process');
-var path = require('path');
-var fs = require('fs');
-var nodeCrypto = require('crypto');
+var require$$1 = require('child_process');
+var require$$2 = require('path');
+var require$$3 = require('fs');
+var require$$1$1 = require('crypto');
 
 function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
 
-var os__default = /*#__PURE__*/_interopDefaultLegacy(os);
-var tty__default = /*#__PURE__*/_interopDefaultLegacy(tty);
 var require$$0__default = /*#__PURE__*/_interopDefaultLegacy(require$$0);
-var childProcess__default = /*#__PURE__*/_interopDefaultLegacy(childProcess);
-var path__default = /*#__PURE__*/_interopDefaultLegacy(path);
-var fs__default = /*#__PURE__*/_interopDefaultLegacy(fs);
-var nodeCrypto__default$1 = /*#__PURE__*/_interopDefaultLegacy(nodeCrypto);
+var require$$1__default = /*#__PURE__*/_interopDefaultLegacy(require$$1);
+var require$$2__default = /*#__PURE__*/_interopDefaultLegacy(require$$2);
+var require$$3__default = /*#__PURE__*/_interopDefaultLegacy(require$$3);
+var require$$1__default$1 = /*#__PURE__*/_interopDefaultLegacy(require$$1$1);
 
 var name = "wp-salts-cli";
 var version = "1.3.4";
@@ -25,7 +21,7 @@ var scripts = {
 	build: "rollup --config",
 	dev: "npm run start",
 	fix: "eslint --fix ./src",
-	"lint:json": "jsonlint --quiet ./*.json",
+	"lint:json": "eslint ./*.json --ignore-path .gitignore",
 	"lint:md": "remark . --quiet --frail --ignore-path .gitignore",
 	"lint:ts": "eslint ./src --ignore-path .gitignore",
 	lint: "npm-run-all --parallel lint:*",
@@ -49,37 +45,36 @@ var keywords = [
 var author = "";
 var license = "MIT";
 var dependencies = {
-	chalk: "^4.1.0",
+	chalk: "^5.0.0",
 	commander: "^7.0.0",
-	"log-symbols": "^4.0.0",
-	"sort-keys": "^4.2.0",
+	"log-symbols": "^5.1.0",
+	"sort-keys": "^5.0.0",
 	table: "^6.0.7",
 	"update-notifier": "^5.0.1",
-	"wp-salts": "^1.2.0",
+	"wp-salts": "^2.0.0",
 	yaml: "^1.10.0"
 };
 var devDependencies = {
-	"@rollup/plugin-commonjs": "^17.0.0",
+	"@rollup/plugin-commonjs": "^21.0.1",
 	"@rollup/plugin-json": "^4.1.0",
-	"@rollup/plugin-node-resolve": "11.1.0",
+	"@rollup/plugin-node-resolve": "13.1.3",
 	"@rollup/plugin-typescript": "^8.1.0",
-	"@types/node": "^14.14.22",
-	"@typescript-eslint/eslint-plugin": "^4.14.1",
-	"@typescript-eslint/parser": "^4.14.1",
+	"@types/node": "^16.0.0",
+	"@typescript-eslint/eslint-plugin": "^5.10.1",
+	"@typescript-eslint/parser": "^5.10.1",
 	ava: "^3.15.0",
-	eslint: "^7.18.0",
-	"eslint-plugin-json": "^2.1.2",
+	eslint: "^8.7.0",
+	"eslint-plugin-json": "^3.1.0",
 	esm: "^3.2.25",
 	execa: "^5.0.0",
 	husky: "^4.3.8",
-	jsonlint: "^1.6.3",
-	"lint-staged": "^10.5.3",
+	"lint-staged": "^12.3.2",
 	np: "^7.2.0",
 	"npm-run-all": "^4.1.5",
 	prettier: "^2.2.1",
-	"remark-cli": "^9.0.0",
-	"remark-preset-lint-recommended": "^5.0.0",
-	"remark-preset-prettier": "^0.4.0",
+	"remark-cli": "^10.0.1",
+	"remark-preset-lint-recommended": "^6.1.2",
+	"remark-preset-prettier": "^1.0.0",
 	rollup: "^2.38.0",
 	tslib: "^2.1.0",
 	typescript: "^4.1.3"
@@ -110,1244 +105,18 @@ var pkg = {
 	ava: ava,
 	husky: husky,
 	"lint-staged": {
-	"*.ts": "eslint --cache --fix",
-	"*.json": "jsonlint --quiet",
+	"*.(json|ts)": "eslint --cache --fix",
 	"*.md": "prettier --write"
 }
 };
 
-var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
+const ANSI_BACKGROUND_OFFSET = 10;
 
-function createCommonjsModule(fn) {
-  var module = { exports: {} };
-	return fn(module, module.exports), module.exports;
-}
+const wrapAnsi16 = (offset = 0) => code => `\u001B[${code + offset}m`;
 
-var colorName = {
-	"aliceblue": [240, 248, 255],
-	"antiquewhite": [250, 235, 215],
-	"aqua": [0, 255, 255],
-	"aquamarine": [127, 255, 212],
-	"azure": [240, 255, 255],
-	"beige": [245, 245, 220],
-	"bisque": [255, 228, 196],
-	"black": [0, 0, 0],
-	"blanchedalmond": [255, 235, 205],
-	"blue": [0, 0, 255],
-	"blueviolet": [138, 43, 226],
-	"brown": [165, 42, 42],
-	"burlywood": [222, 184, 135],
-	"cadetblue": [95, 158, 160],
-	"chartreuse": [127, 255, 0],
-	"chocolate": [210, 105, 30],
-	"coral": [255, 127, 80],
-	"cornflowerblue": [100, 149, 237],
-	"cornsilk": [255, 248, 220],
-	"crimson": [220, 20, 60],
-	"cyan": [0, 255, 255],
-	"darkblue": [0, 0, 139],
-	"darkcyan": [0, 139, 139],
-	"darkgoldenrod": [184, 134, 11],
-	"darkgray": [169, 169, 169],
-	"darkgreen": [0, 100, 0],
-	"darkgrey": [169, 169, 169],
-	"darkkhaki": [189, 183, 107],
-	"darkmagenta": [139, 0, 139],
-	"darkolivegreen": [85, 107, 47],
-	"darkorange": [255, 140, 0],
-	"darkorchid": [153, 50, 204],
-	"darkred": [139, 0, 0],
-	"darksalmon": [233, 150, 122],
-	"darkseagreen": [143, 188, 143],
-	"darkslateblue": [72, 61, 139],
-	"darkslategray": [47, 79, 79],
-	"darkslategrey": [47, 79, 79],
-	"darkturquoise": [0, 206, 209],
-	"darkviolet": [148, 0, 211],
-	"deeppink": [255, 20, 147],
-	"deepskyblue": [0, 191, 255],
-	"dimgray": [105, 105, 105],
-	"dimgrey": [105, 105, 105],
-	"dodgerblue": [30, 144, 255],
-	"firebrick": [178, 34, 34],
-	"floralwhite": [255, 250, 240],
-	"forestgreen": [34, 139, 34],
-	"fuchsia": [255, 0, 255],
-	"gainsboro": [220, 220, 220],
-	"ghostwhite": [248, 248, 255],
-	"gold": [255, 215, 0],
-	"goldenrod": [218, 165, 32],
-	"gray": [128, 128, 128],
-	"green": [0, 128, 0],
-	"greenyellow": [173, 255, 47],
-	"grey": [128, 128, 128],
-	"honeydew": [240, 255, 240],
-	"hotpink": [255, 105, 180],
-	"indianred": [205, 92, 92],
-	"indigo": [75, 0, 130],
-	"ivory": [255, 255, 240],
-	"khaki": [240, 230, 140],
-	"lavender": [230, 230, 250],
-	"lavenderblush": [255, 240, 245],
-	"lawngreen": [124, 252, 0],
-	"lemonchiffon": [255, 250, 205],
-	"lightblue": [173, 216, 230],
-	"lightcoral": [240, 128, 128],
-	"lightcyan": [224, 255, 255],
-	"lightgoldenrodyellow": [250, 250, 210],
-	"lightgray": [211, 211, 211],
-	"lightgreen": [144, 238, 144],
-	"lightgrey": [211, 211, 211],
-	"lightpink": [255, 182, 193],
-	"lightsalmon": [255, 160, 122],
-	"lightseagreen": [32, 178, 170],
-	"lightskyblue": [135, 206, 250],
-	"lightslategray": [119, 136, 153],
-	"lightslategrey": [119, 136, 153],
-	"lightsteelblue": [176, 196, 222],
-	"lightyellow": [255, 255, 224],
-	"lime": [0, 255, 0],
-	"limegreen": [50, 205, 50],
-	"linen": [250, 240, 230],
-	"magenta": [255, 0, 255],
-	"maroon": [128, 0, 0],
-	"mediumaquamarine": [102, 205, 170],
-	"mediumblue": [0, 0, 205],
-	"mediumorchid": [186, 85, 211],
-	"mediumpurple": [147, 112, 219],
-	"mediumseagreen": [60, 179, 113],
-	"mediumslateblue": [123, 104, 238],
-	"mediumspringgreen": [0, 250, 154],
-	"mediumturquoise": [72, 209, 204],
-	"mediumvioletred": [199, 21, 133],
-	"midnightblue": [25, 25, 112],
-	"mintcream": [245, 255, 250],
-	"mistyrose": [255, 228, 225],
-	"moccasin": [255, 228, 181],
-	"navajowhite": [255, 222, 173],
-	"navy": [0, 0, 128],
-	"oldlace": [253, 245, 230],
-	"olive": [128, 128, 0],
-	"olivedrab": [107, 142, 35],
-	"orange": [255, 165, 0],
-	"orangered": [255, 69, 0],
-	"orchid": [218, 112, 214],
-	"palegoldenrod": [238, 232, 170],
-	"palegreen": [152, 251, 152],
-	"paleturquoise": [175, 238, 238],
-	"palevioletred": [219, 112, 147],
-	"papayawhip": [255, 239, 213],
-	"peachpuff": [255, 218, 185],
-	"peru": [205, 133, 63],
-	"pink": [255, 192, 203],
-	"plum": [221, 160, 221],
-	"powderblue": [176, 224, 230],
-	"purple": [128, 0, 128],
-	"rebeccapurple": [102, 51, 153],
-	"red": [255, 0, 0],
-	"rosybrown": [188, 143, 143],
-	"royalblue": [65, 105, 225],
-	"saddlebrown": [139, 69, 19],
-	"salmon": [250, 128, 114],
-	"sandybrown": [244, 164, 96],
-	"seagreen": [46, 139, 87],
-	"seashell": [255, 245, 238],
-	"sienna": [160, 82, 45],
-	"silver": [192, 192, 192],
-	"skyblue": [135, 206, 235],
-	"slateblue": [106, 90, 205],
-	"slategray": [112, 128, 144],
-	"slategrey": [112, 128, 144],
-	"snow": [255, 250, 250],
-	"springgreen": [0, 255, 127],
-	"steelblue": [70, 130, 180],
-	"tan": [210, 180, 140],
-	"teal": [0, 128, 128],
-	"thistle": [216, 191, 216],
-	"tomato": [255, 99, 71],
-	"turquoise": [64, 224, 208],
-	"violet": [238, 130, 238],
-	"wheat": [245, 222, 179],
-	"white": [255, 255, 255],
-	"whitesmoke": [245, 245, 245],
-	"yellow": [255, 255, 0],
-	"yellowgreen": [154, 205, 50]
-};
+const wrapAnsi256 = (offset = 0) => code => `\u001B[${38 + offset};5;${code}m`;
 
-/* MIT license */
-
-/* eslint-disable no-mixed-operators */
-
-
-// NOTE: conversions should only return primitive values (i.e. arrays, or
-//       values that give correct `typeof` results).
-//       do not use box values types (i.e. Number(), String(), etc.)
-
-const reverseKeywords = {};
-for (const key of Object.keys(colorName)) {
-	reverseKeywords[colorName[key]] = key;
-}
-
-const convert = {
-	rgb: {channels: 3, labels: 'rgb'},
-	hsl: {channels: 3, labels: 'hsl'},
-	hsv: {channels: 3, labels: 'hsv'},
-	hwb: {channels: 3, labels: 'hwb'},
-	cmyk: {channels: 4, labels: 'cmyk'},
-	xyz: {channels: 3, labels: 'xyz'},
-	lab: {channels: 3, labels: 'lab'},
-	lch: {channels: 3, labels: 'lch'},
-	hex: {channels: 1, labels: ['hex']},
-	keyword: {channels: 1, labels: ['keyword']},
-	ansi16: {channels: 1, labels: ['ansi16']},
-	ansi256: {channels: 1, labels: ['ansi256']},
-	hcg: {channels: 3, labels: ['h', 'c', 'g']},
-	apple: {channels: 3, labels: ['r16', 'g16', 'b16']},
-	gray: {channels: 1, labels: ['gray']}
-};
-
-var conversions = convert;
-
-// Hide .channels and .labels properties
-for (const model of Object.keys(convert)) {
-	if (!('channels' in convert[model])) {
-		throw new Error('missing channels property: ' + model);
-	}
-
-	if (!('labels' in convert[model])) {
-		throw new Error('missing channel labels property: ' + model);
-	}
-
-	if (convert[model].labels.length !== convert[model].channels) {
-		throw new Error('channel and label counts mismatch: ' + model);
-	}
-
-	const {channels, labels} = convert[model];
-	delete convert[model].channels;
-	delete convert[model].labels;
-	Object.defineProperty(convert[model], 'channels', {value: channels});
-	Object.defineProperty(convert[model], 'labels', {value: labels});
-}
-
-convert.rgb.hsl = function (rgb) {
-	const r = rgb[0] / 255;
-	const g = rgb[1] / 255;
-	const b = rgb[2] / 255;
-	const min = Math.min(r, g, b);
-	const max = Math.max(r, g, b);
-	const delta = max - min;
-	let h;
-	let s;
-
-	if (max === min) {
-		h = 0;
-	} else if (r === max) {
-		h = (g - b) / delta;
-	} else if (g === max) {
-		h = 2 + (b - r) / delta;
-	} else if (b === max) {
-		h = 4 + (r - g) / delta;
-	}
-
-	h = Math.min(h * 60, 360);
-
-	if (h < 0) {
-		h += 360;
-	}
-
-	const l = (min + max) / 2;
-
-	if (max === min) {
-		s = 0;
-	} else if (l <= 0.5) {
-		s = delta / (max + min);
-	} else {
-		s = delta / (2 - max - min);
-	}
-
-	return [h, s * 100, l * 100];
-};
-
-convert.rgb.hsv = function (rgb) {
-	let rdif;
-	let gdif;
-	let bdif;
-	let h;
-	let s;
-
-	const r = rgb[0] / 255;
-	const g = rgb[1] / 255;
-	const b = rgb[2] / 255;
-	const v = Math.max(r, g, b);
-	const diff = v - Math.min(r, g, b);
-	const diffc = function (c) {
-		return (v - c) / 6 / diff + 1 / 2;
-	};
-
-	if (diff === 0) {
-		h = 0;
-		s = 0;
-	} else {
-		s = diff / v;
-		rdif = diffc(r);
-		gdif = diffc(g);
-		bdif = diffc(b);
-
-		if (r === v) {
-			h = bdif - gdif;
-		} else if (g === v) {
-			h = (1 / 3) + rdif - bdif;
-		} else if (b === v) {
-			h = (2 / 3) + gdif - rdif;
-		}
-
-		if (h < 0) {
-			h += 1;
-		} else if (h > 1) {
-			h -= 1;
-		}
-	}
-
-	return [
-		h * 360,
-		s * 100,
-		v * 100
-	];
-};
-
-convert.rgb.hwb = function (rgb) {
-	const r = rgb[0];
-	const g = rgb[1];
-	let b = rgb[2];
-	const h = convert.rgb.hsl(rgb)[0];
-	const w = 1 / 255 * Math.min(r, Math.min(g, b));
-
-	b = 1 - 1 / 255 * Math.max(r, Math.max(g, b));
-
-	return [h, w * 100, b * 100];
-};
-
-convert.rgb.cmyk = function (rgb) {
-	const r = rgb[0] / 255;
-	const g = rgb[1] / 255;
-	const b = rgb[2] / 255;
-
-	const k = Math.min(1 - r, 1 - g, 1 - b);
-	const c = (1 - r - k) / (1 - k) || 0;
-	const m = (1 - g - k) / (1 - k) || 0;
-	const y = (1 - b - k) / (1 - k) || 0;
-
-	return [c * 100, m * 100, y * 100, k * 100];
-};
-
-function comparativeDistance(x, y) {
-	/*
-		See https://en.m.wikipedia.org/wiki/Euclidean_distance#Squared_Euclidean_distance
-	*/
-	return (
-		((x[0] - y[0]) ** 2) +
-		((x[1] - y[1]) ** 2) +
-		((x[2] - y[2]) ** 2)
-	);
-}
-
-convert.rgb.keyword = function (rgb) {
-	const reversed = reverseKeywords[rgb];
-	if (reversed) {
-		return reversed;
-	}
-
-	let currentClosestDistance = Infinity;
-	let currentClosestKeyword;
-
-	for (const keyword of Object.keys(colorName)) {
-		const value = colorName[keyword];
-
-		// Compute comparative distance
-		const distance = comparativeDistance(rgb, value);
-
-		// Check if its less, if so set as closest
-		if (distance < currentClosestDistance) {
-			currentClosestDistance = distance;
-			currentClosestKeyword = keyword;
-		}
-	}
-
-	return currentClosestKeyword;
-};
-
-convert.keyword.rgb = function (keyword) {
-	return colorName[keyword];
-};
-
-convert.rgb.xyz = function (rgb) {
-	let r = rgb[0] / 255;
-	let g = rgb[1] / 255;
-	let b = rgb[2] / 255;
-
-	// Assume sRGB
-	r = r > 0.04045 ? (((r + 0.055) / 1.055) ** 2.4) : (r / 12.92);
-	g = g > 0.04045 ? (((g + 0.055) / 1.055) ** 2.4) : (g / 12.92);
-	b = b > 0.04045 ? (((b + 0.055) / 1.055) ** 2.4) : (b / 12.92);
-
-	const x = (r * 0.4124) + (g * 0.3576) + (b * 0.1805);
-	const y = (r * 0.2126) + (g * 0.7152) + (b * 0.0722);
-	const z = (r * 0.0193) + (g * 0.1192) + (b * 0.9505);
-
-	return [x * 100, y * 100, z * 100];
-};
-
-convert.rgb.lab = function (rgb) {
-	const xyz = convert.rgb.xyz(rgb);
-	let x = xyz[0];
-	let y = xyz[1];
-	let z = xyz[2];
-
-	x /= 95.047;
-	y /= 100;
-	z /= 108.883;
-
-	x = x > 0.008856 ? (x ** (1 / 3)) : (7.787 * x) + (16 / 116);
-	y = y > 0.008856 ? (y ** (1 / 3)) : (7.787 * y) + (16 / 116);
-	z = z > 0.008856 ? (z ** (1 / 3)) : (7.787 * z) + (16 / 116);
-
-	const l = (116 * y) - 16;
-	const a = 500 * (x - y);
-	const b = 200 * (y - z);
-
-	return [l, a, b];
-};
-
-convert.hsl.rgb = function (hsl) {
-	const h = hsl[0] / 360;
-	const s = hsl[1] / 100;
-	const l = hsl[2] / 100;
-	let t2;
-	let t3;
-	let val;
-
-	if (s === 0) {
-		val = l * 255;
-		return [val, val, val];
-	}
-
-	if (l < 0.5) {
-		t2 = l * (1 + s);
-	} else {
-		t2 = l + s - l * s;
-	}
-
-	const t1 = 2 * l - t2;
-
-	const rgb = [0, 0, 0];
-	for (let i = 0; i < 3; i++) {
-		t3 = h + 1 / 3 * -(i - 1);
-		if (t3 < 0) {
-			t3++;
-		}
-
-		if (t3 > 1) {
-			t3--;
-		}
-
-		if (6 * t3 < 1) {
-			val = t1 + (t2 - t1) * 6 * t3;
-		} else if (2 * t3 < 1) {
-			val = t2;
-		} else if (3 * t3 < 2) {
-			val = t1 + (t2 - t1) * (2 / 3 - t3) * 6;
-		} else {
-			val = t1;
-		}
-
-		rgb[i] = val * 255;
-	}
-
-	return rgb;
-};
-
-convert.hsl.hsv = function (hsl) {
-	const h = hsl[0];
-	let s = hsl[1] / 100;
-	let l = hsl[2] / 100;
-	let smin = s;
-	const lmin = Math.max(l, 0.01);
-
-	l *= 2;
-	s *= (l <= 1) ? l : 2 - l;
-	smin *= lmin <= 1 ? lmin : 2 - lmin;
-	const v = (l + s) / 2;
-	const sv = l === 0 ? (2 * smin) / (lmin + smin) : (2 * s) / (l + s);
-
-	return [h, sv * 100, v * 100];
-};
-
-convert.hsv.rgb = function (hsv) {
-	const h = hsv[0] / 60;
-	const s = hsv[1] / 100;
-	let v = hsv[2] / 100;
-	const hi = Math.floor(h) % 6;
-
-	const f = h - Math.floor(h);
-	const p = 255 * v * (1 - s);
-	const q = 255 * v * (1 - (s * f));
-	const t = 255 * v * (1 - (s * (1 - f)));
-	v *= 255;
-
-	switch (hi) {
-		case 0:
-			return [v, t, p];
-		case 1:
-			return [q, v, p];
-		case 2:
-			return [p, v, t];
-		case 3:
-			return [p, q, v];
-		case 4:
-			return [t, p, v];
-		case 5:
-			return [v, p, q];
-	}
-};
-
-convert.hsv.hsl = function (hsv) {
-	const h = hsv[0];
-	const s = hsv[1] / 100;
-	const v = hsv[2] / 100;
-	const vmin = Math.max(v, 0.01);
-	let sl;
-	let l;
-
-	l = (2 - s) * v;
-	const lmin = (2 - s) * vmin;
-	sl = s * vmin;
-	sl /= (lmin <= 1) ? lmin : 2 - lmin;
-	sl = sl || 0;
-	l /= 2;
-
-	return [h, sl * 100, l * 100];
-};
-
-// http://dev.w3.org/csswg/css-color/#hwb-to-rgb
-convert.hwb.rgb = function (hwb) {
-	const h = hwb[0] / 360;
-	let wh = hwb[1] / 100;
-	let bl = hwb[2] / 100;
-	const ratio = wh + bl;
-	let f;
-
-	// Wh + bl cant be > 1
-	if (ratio > 1) {
-		wh /= ratio;
-		bl /= ratio;
-	}
-
-	const i = Math.floor(6 * h);
-	const v = 1 - bl;
-	f = 6 * h - i;
-
-	if ((i & 0x01) !== 0) {
-		f = 1 - f;
-	}
-
-	const n = wh + f * (v - wh); // Linear interpolation
-
-	let r;
-	let g;
-	let b;
-	/* eslint-disable max-statements-per-line,no-multi-spaces */
-	switch (i) {
-		default:
-		case 6:
-		case 0: r = v;  g = n;  b = wh; break;
-		case 1: r = n;  g = v;  b = wh; break;
-		case 2: r = wh; g = v;  b = n; break;
-		case 3: r = wh; g = n;  b = v; break;
-		case 4: r = n;  g = wh; b = v; break;
-		case 5: r = v;  g = wh; b = n; break;
-	}
-	/* eslint-enable max-statements-per-line,no-multi-spaces */
-
-	return [r * 255, g * 255, b * 255];
-};
-
-convert.cmyk.rgb = function (cmyk) {
-	const c = cmyk[0] / 100;
-	const m = cmyk[1] / 100;
-	const y = cmyk[2] / 100;
-	const k = cmyk[3] / 100;
-
-	const r = 1 - Math.min(1, c * (1 - k) + k);
-	const g = 1 - Math.min(1, m * (1 - k) + k);
-	const b = 1 - Math.min(1, y * (1 - k) + k);
-
-	return [r * 255, g * 255, b * 255];
-};
-
-convert.xyz.rgb = function (xyz) {
-	const x = xyz[0] / 100;
-	const y = xyz[1] / 100;
-	const z = xyz[2] / 100;
-	let r;
-	let g;
-	let b;
-
-	r = (x * 3.2406) + (y * -1.5372) + (z * -0.4986);
-	g = (x * -0.9689) + (y * 1.8758) + (z * 0.0415);
-	b = (x * 0.0557) + (y * -0.2040) + (z * 1.0570);
-
-	// Assume sRGB
-	r = r > 0.0031308
-		? ((1.055 * (r ** (1.0 / 2.4))) - 0.055)
-		: r * 12.92;
-
-	g = g > 0.0031308
-		? ((1.055 * (g ** (1.0 / 2.4))) - 0.055)
-		: g * 12.92;
-
-	b = b > 0.0031308
-		? ((1.055 * (b ** (1.0 / 2.4))) - 0.055)
-		: b * 12.92;
-
-	r = Math.min(Math.max(0, r), 1);
-	g = Math.min(Math.max(0, g), 1);
-	b = Math.min(Math.max(0, b), 1);
-
-	return [r * 255, g * 255, b * 255];
-};
-
-convert.xyz.lab = function (xyz) {
-	let x = xyz[0];
-	let y = xyz[1];
-	let z = xyz[2];
-
-	x /= 95.047;
-	y /= 100;
-	z /= 108.883;
-
-	x = x > 0.008856 ? (x ** (1 / 3)) : (7.787 * x) + (16 / 116);
-	y = y > 0.008856 ? (y ** (1 / 3)) : (7.787 * y) + (16 / 116);
-	z = z > 0.008856 ? (z ** (1 / 3)) : (7.787 * z) + (16 / 116);
-
-	const l = (116 * y) - 16;
-	const a = 500 * (x - y);
-	const b = 200 * (y - z);
-
-	return [l, a, b];
-};
-
-convert.lab.xyz = function (lab) {
-	const l = lab[0];
-	const a = lab[1];
-	const b = lab[2];
-	let x;
-	let y;
-	let z;
-
-	y = (l + 16) / 116;
-	x = a / 500 + y;
-	z = y - b / 200;
-
-	const y2 = y ** 3;
-	const x2 = x ** 3;
-	const z2 = z ** 3;
-	y = y2 > 0.008856 ? y2 : (y - 16 / 116) / 7.787;
-	x = x2 > 0.008856 ? x2 : (x - 16 / 116) / 7.787;
-	z = z2 > 0.008856 ? z2 : (z - 16 / 116) / 7.787;
-
-	x *= 95.047;
-	y *= 100;
-	z *= 108.883;
-
-	return [x, y, z];
-};
-
-convert.lab.lch = function (lab) {
-	const l = lab[0];
-	const a = lab[1];
-	const b = lab[2];
-	let h;
-
-	const hr = Math.atan2(b, a);
-	h = hr * 360 / 2 / Math.PI;
-
-	if (h < 0) {
-		h += 360;
-	}
-
-	const c = Math.sqrt(a * a + b * b);
-
-	return [l, c, h];
-};
-
-convert.lch.lab = function (lch) {
-	const l = lch[0];
-	const c = lch[1];
-	const h = lch[2];
-
-	const hr = h / 360 * 2 * Math.PI;
-	const a = c * Math.cos(hr);
-	const b = c * Math.sin(hr);
-
-	return [l, a, b];
-};
-
-convert.rgb.ansi16 = function (args, saturation = null) {
-	const [r, g, b] = args;
-	let value = saturation === null ? convert.rgb.hsv(args)[2] : saturation; // Hsv -> ansi16 optimization
-
-	value = Math.round(value / 50);
-
-	if (value === 0) {
-		return 30;
-	}
-
-	let ansi = 30
-		+ ((Math.round(b / 255) << 2)
-		| (Math.round(g / 255) << 1)
-		| Math.round(r / 255));
-
-	if (value === 2) {
-		ansi += 60;
-	}
-
-	return ansi;
-};
-
-convert.hsv.ansi16 = function (args) {
-	// Optimization here; we already know the value and don't need to get
-	// it converted for us.
-	return convert.rgb.ansi16(convert.hsv.rgb(args), args[2]);
-};
-
-convert.rgb.ansi256 = function (args) {
-	const r = args[0];
-	const g = args[1];
-	const b = args[2];
-
-	// We use the extended greyscale palette here, with the exception of
-	// black and white. normal palette only has 4 greyscale shades.
-	if (r === g && g === b) {
-		if (r < 8) {
-			return 16;
-		}
-
-		if (r > 248) {
-			return 231;
-		}
-
-		return Math.round(((r - 8) / 247) * 24) + 232;
-	}
-
-	const ansi = 16
-		+ (36 * Math.round(r / 255 * 5))
-		+ (6 * Math.round(g / 255 * 5))
-		+ Math.round(b / 255 * 5);
-
-	return ansi;
-};
-
-convert.ansi16.rgb = function (args) {
-	let color = args % 10;
-
-	// Handle greyscale
-	if (color === 0 || color === 7) {
-		if (args > 50) {
-			color += 3.5;
-		}
-
-		color = color / 10.5 * 255;
-
-		return [color, color, color];
-	}
-
-	const mult = (~~(args > 50) + 1) * 0.5;
-	const r = ((color & 1) * mult) * 255;
-	const g = (((color >> 1) & 1) * mult) * 255;
-	const b = (((color >> 2) & 1) * mult) * 255;
-
-	return [r, g, b];
-};
-
-convert.ansi256.rgb = function (args) {
-	// Handle greyscale
-	if (args >= 232) {
-		const c = (args - 232) * 10 + 8;
-		return [c, c, c];
-	}
-
-	args -= 16;
-
-	let rem;
-	const r = Math.floor(args / 36) / 5 * 255;
-	const g = Math.floor((rem = args % 36) / 6) / 5 * 255;
-	const b = (rem % 6) / 5 * 255;
-
-	return [r, g, b];
-};
-
-convert.rgb.hex = function (args) {
-	const integer = ((Math.round(args[0]) & 0xFF) << 16)
-		+ ((Math.round(args[1]) & 0xFF) << 8)
-		+ (Math.round(args[2]) & 0xFF);
-
-	const string = integer.toString(16).toUpperCase();
-	return '000000'.substring(string.length) + string;
-};
-
-convert.hex.rgb = function (args) {
-	const match = args.toString(16).match(/[a-f0-9]{6}|[a-f0-9]{3}/i);
-	if (!match) {
-		return [0, 0, 0];
-	}
-
-	let colorString = match[0];
-
-	if (match[0].length === 3) {
-		colorString = colorString.split('').map(char => {
-			return char + char;
-		}).join('');
-	}
-
-	const integer = parseInt(colorString, 16);
-	const r = (integer >> 16) & 0xFF;
-	const g = (integer >> 8) & 0xFF;
-	const b = integer & 0xFF;
-
-	return [r, g, b];
-};
-
-convert.rgb.hcg = function (rgb) {
-	const r = rgb[0] / 255;
-	const g = rgb[1] / 255;
-	const b = rgb[2] / 255;
-	const max = Math.max(Math.max(r, g), b);
-	const min = Math.min(Math.min(r, g), b);
-	const chroma = (max - min);
-	let grayscale;
-	let hue;
-
-	if (chroma < 1) {
-		grayscale = min / (1 - chroma);
-	} else {
-		grayscale = 0;
-	}
-
-	if (chroma <= 0) {
-		hue = 0;
-	} else
-	if (max === r) {
-		hue = ((g - b) / chroma) % 6;
-	} else
-	if (max === g) {
-		hue = 2 + (b - r) / chroma;
-	} else {
-		hue = 4 + (r - g) / chroma;
-	}
-
-	hue /= 6;
-	hue %= 1;
-
-	return [hue * 360, chroma * 100, grayscale * 100];
-};
-
-convert.hsl.hcg = function (hsl) {
-	const s = hsl[1] / 100;
-	const l = hsl[2] / 100;
-
-	const c = l < 0.5 ? (2.0 * s * l) : (2.0 * s * (1.0 - l));
-
-	let f = 0;
-	if (c < 1.0) {
-		f = (l - 0.5 * c) / (1.0 - c);
-	}
-
-	return [hsl[0], c * 100, f * 100];
-};
-
-convert.hsv.hcg = function (hsv) {
-	const s = hsv[1] / 100;
-	const v = hsv[2] / 100;
-
-	const c = s * v;
-	let f = 0;
-
-	if (c < 1.0) {
-		f = (v - c) / (1 - c);
-	}
-
-	return [hsv[0], c * 100, f * 100];
-};
-
-convert.hcg.rgb = function (hcg) {
-	const h = hcg[0] / 360;
-	const c = hcg[1] / 100;
-	const g = hcg[2] / 100;
-
-	if (c === 0.0) {
-		return [g * 255, g * 255, g * 255];
-	}
-
-	const pure = [0, 0, 0];
-	const hi = (h % 1) * 6;
-	const v = hi % 1;
-	const w = 1 - v;
-	let mg = 0;
-
-	/* eslint-disable max-statements-per-line */
-	switch (Math.floor(hi)) {
-		case 0:
-			pure[0] = 1; pure[1] = v; pure[2] = 0; break;
-		case 1:
-			pure[0] = w; pure[1] = 1; pure[2] = 0; break;
-		case 2:
-			pure[0] = 0; pure[1] = 1; pure[2] = v; break;
-		case 3:
-			pure[0] = 0; pure[1] = w; pure[2] = 1; break;
-		case 4:
-			pure[0] = v; pure[1] = 0; pure[2] = 1; break;
-		default:
-			pure[0] = 1; pure[1] = 0; pure[2] = w;
-	}
-	/* eslint-enable max-statements-per-line */
-
-	mg = (1.0 - c) * g;
-
-	return [
-		(c * pure[0] + mg) * 255,
-		(c * pure[1] + mg) * 255,
-		(c * pure[2] + mg) * 255
-	];
-};
-
-convert.hcg.hsv = function (hcg) {
-	const c = hcg[1] / 100;
-	const g = hcg[2] / 100;
-
-	const v = c + g * (1.0 - c);
-	let f = 0;
-
-	if (v > 0.0) {
-		f = c / v;
-	}
-
-	return [hcg[0], f * 100, v * 100];
-};
-
-convert.hcg.hsl = function (hcg) {
-	const c = hcg[1] / 100;
-	const g = hcg[2] / 100;
-
-	const l = g * (1.0 - c) + 0.5 * c;
-	let s = 0;
-
-	if (l > 0.0 && l < 0.5) {
-		s = c / (2 * l);
-	} else
-	if (l >= 0.5 && l < 1.0) {
-		s = c / (2 * (1 - l));
-	}
-
-	return [hcg[0], s * 100, l * 100];
-};
-
-convert.hcg.hwb = function (hcg) {
-	const c = hcg[1] / 100;
-	const g = hcg[2] / 100;
-	const v = c + g * (1.0 - c);
-	return [hcg[0], (v - c) * 100, (1 - v) * 100];
-};
-
-convert.hwb.hcg = function (hwb) {
-	const w = hwb[1] / 100;
-	const b = hwb[2] / 100;
-	const v = 1 - b;
-	const c = v - w;
-	let g = 0;
-
-	if (c < 1) {
-		g = (v - c) / (1 - c);
-	}
-
-	return [hwb[0], c * 100, g * 100];
-};
-
-convert.apple.rgb = function (apple) {
-	return [(apple[0] / 65535) * 255, (apple[1] / 65535) * 255, (apple[2] / 65535) * 255];
-};
-
-convert.rgb.apple = function (rgb) {
-	return [(rgb[0] / 255) * 65535, (rgb[1] / 255) * 65535, (rgb[2] / 255) * 65535];
-};
-
-convert.gray.rgb = function (args) {
-	return [args[0] / 100 * 255, args[0] / 100 * 255, args[0] / 100 * 255];
-};
-
-convert.gray.hsl = function (args) {
-	return [0, 0, args[0]];
-};
-
-convert.gray.hsv = convert.gray.hsl;
-
-convert.gray.hwb = function (gray) {
-	return [0, 100, gray[0]];
-};
-
-convert.gray.cmyk = function (gray) {
-	return [0, 0, 0, gray[0]];
-};
-
-convert.gray.lab = function (gray) {
-	return [gray[0], 0, 0];
-};
-
-convert.gray.hex = function (gray) {
-	const val = Math.round(gray[0] / 100 * 255) & 0xFF;
-	const integer = (val << 16) + (val << 8) + val;
-
-	const string = integer.toString(16).toUpperCase();
-	return '000000'.substring(string.length) + string;
-};
-
-convert.rgb.gray = function (rgb) {
-	const val = (rgb[0] + rgb[1] + rgb[2]) / 3;
-	return [val / 255 * 100];
-};
-
-/*
-	This function routes a model to all other models.
-
-	all functions that are routed have a property `.conversion` attached
-	to the returned synthetic function. This property is an array
-	of strings, each with the steps in between the 'from' and 'to'
-	color models (inclusive).
-
-	conversions that are not possible simply are not included.
-*/
-
-function buildGraph() {
-	const graph = {};
-	// https://jsperf.com/object-keys-vs-for-in-with-closure/3
-	const models = Object.keys(conversions);
-
-	for (let len = models.length, i = 0; i < len; i++) {
-		graph[models[i]] = {
-			// http://jsperf.com/1-vs-infinity
-			// micro-opt, but this is simple.
-			distance: -1,
-			parent: null
-		};
-	}
-
-	return graph;
-}
-
-// https://en.wikipedia.org/wiki/Breadth-first_search
-function deriveBFS(fromModel) {
-	const graph = buildGraph();
-	const queue = [fromModel]; // Unshift -> queue -> pop
-
-	graph[fromModel].distance = 0;
-
-	while (queue.length) {
-		const current = queue.pop();
-		const adjacents = Object.keys(conversions[current]);
-
-		for (let len = adjacents.length, i = 0; i < len; i++) {
-			const adjacent = adjacents[i];
-			const node = graph[adjacent];
-
-			if (node.distance === -1) {
-				node.distance = graph[current].distance + 1;
-				node.parent = current;
-				queue.unshift(adjacent);
-			}
-		}
-	}
-
-	return graph;
-}
-
-function link(from, to) {
-	return function (args) {
-		return to(from(args));
-	};
-}
-
-function wrapConversion(toModel, graph) {
-	const path = [graph[toModel].parent, toModel];
-	let fn = conversions[graph[toModel].parent][toModel];
-
-	let cur = graph[toModel].parent;
-	while (graph[cur].parent) {
-		path.unshift(graph[cur].parent);
-		fn = link(conversions[graph[cur].parent][cur], fn);
-		cur = graph[cur].parent;
-	}
-
-	fn.conversion = path;
-	return fn;
-}
-
-var route = function (fromModel) {
-	const graph = deriveBFS(fromModel);
-	const conversion = {};
-
-	const models = Object.keys(graph);
-	for (let len = models.length, i = 0; i < len; i++) {
-		const toModel = models[i];
-		const node = graph[toModel];
-
-		if (node.parent === null) {
-			// No possible conversion, or this node is the source model.
-			continue;
-		}
-
-		conversion[toModel] = wrapConversion(toModel, graph);
-	}
-
-	return conversion;
-};
-
-const convert$1 = {};
-
-const models = Object.keys(conversions);
-
-function wrapRaw(fn) {
-	const wrappedFn = function (...args) {
-		const arg0 = args[0];
-		if (arg0 === undefined || arg0 === null) {
-			return arg0;
-		}
-
-		if (arg0.length > 1) {
-			args = arg0;
-		}
-
-		return fn(args);
-	};
-
-	// Preserve .conversion property if there is one
-	if ('conversion' in fn) {
-		wrappedFn.conversion = fn.conversion;
-	}
-
-	return wrappedFn;
-}
-
-function wrapRounded(fn) {
-	const wrappedFn = function (...args) {
-		const arg0 = args[0];
-
-		if (arg0 === undefined || arg0 === null) {
-			return arg0;
-		}
-
-		if (arg0.length > 1) {
-			args = arg0;
-		}
-
-		const result = fn(args);
-
-		// We're assuming the result is an array here.
-		// see notice in conversions.js; don't use box types
-		// in conversion functions.
-		if (typeof result === 'object') {
-			for (let len = result.length, i = 0; i < len; i++) {
-				result[i] = Math.round(result[i]);
-			}
-		}
-
-		return result;
-	};
-
-	// Preserve .conversion property if there is one
-	if ('conversion' in fn) {
-		wrappedFn.conversion = fn.conversion;
-	}
-
-	return wrappedFn;
-}
-
-models.forEach(fromModel => {
-	convert$1[fromModel] = {};
-
-	Object.defineProperty(convert$1[fromModel], 'channels', {value: conversions[fromModel].channels});
-	Object.defineProperty(convert$1[fromModel], 'labels', {value: conversions[fromModel].labels});
-
-	const routes = route(fromModel);
-	const routeModels = Object.keys(routes);
-
-	routeModels.forEach(toModel => {
-		const fn = routes[toModel];
-
-		convert$1[fromModel][toModel] = wrapRounded(fn);
-		convert$1[fromModel][toModel].raw = wrapRaw(fn);
-	});
-});
-
-var colorConvert = convert$1;
-
-var ansiStyles = createCommonjsModule(function (module) {
-
-const wrapAnsi16 = (fn, offset) => (...args) => {
-	const code = fn(...args);
-	return `\u001B[${code + offset}m`;
-};
-
-const wrapAnsi256 = (fn, offset) => (...args) => {
-	const code = fn(...args);
-	return `\u001B[${38 + offset};5;${code}m`;
-};
-
-const wrapAnsi16m = (fn, offset) => (...args) => {
-	const rgb = fn(...args);
-	return `\u001B[${38 + offset};2;${rgb[0]};${rgb[1]};${rgb[2]}m`;
-};
-
-const ansi2ansi = n => n;
-const rgb2rgb = (r, g, b) => [r, g, b];
-
-const setLazyProperty = (object, property, get) => {
-	Object.defineProperty(object, property, {
-		get: () => {
-			const value = get();
-
-			Object.defineProperty(object, property, {
-				value,
-				enumerable: true,
-				configurable: true
-			});
-
-			return value;
-		},
-		enumerable: true,
-		configurable: true
-	});
-};
-
-/** @type {typeof import('color-convert')} */
-let colorConvert$1;
-const makeDynamicStyles = (wrap, targetSpace, identity, isBackground) => {
-	if (colorConvert$1 === undefined) {
-		colorConvert$1 = colorConvert;
-	}
-
-	const offset = isBackground ? 10 : 0;
-	const styles = {};
-
-	for (const [sourceSpace, suite] of Object.entries(colorConvert$1)) {
-		const name = sourceSpace === 'ansi16' ? 'ansi' : sourceSpace;
-		if (sourceSpace === targetSpace) {
-			styles[name] = wrap(identity, offset);
-		} else if (typeof suite === 'object') {
-			styles[name] = wrap(suite[targetSpace], offset);
-		}
-	}
-
-	return styles;
-};
+const wrapAnsi16m = (offset = 0) => (red, green, blue) => `\u001B[${38 + offset};2;${red};${green};${blue}m`;
 
 function assembleStyles() {
 	const codes = new Map();
@@ -1359,9 +128,10 @@ function assembleStyles() {
 			dim: [2, 22],
 			italic: [3, 23],
 			underline: [4, 24],
+			overline: [53, 55],
 			inverse: [7, 27],
 			hidden: [8, 28],
-			strikethrough: [9, 29]
+			strikethrough: [9, 29],
 		},
 		color: {
 			black: [30, 39],
@@ -1381,7 +151,7 @@ function assembleStyles() {
 			blueBright: [94, 39],
 			magentaBright: [95, 39],
 			cyanBright: [96, 39],
-			whiteBright: [97, 39]
+			whiteBright: [97, 39],
 		},
 		bgColor: {
 			bgBlack: [40, 49],
@@ -1401,8 +171,8 @@ function assembleStyles() {
 			bgBlueBright: [104, 49],
 			bgMagentaBright: [105, 49],
 			bgCyanBright: [106, 49],
-			bgWhiteBright: [107, 49]
-		}
+			bgWhiteBright: [107, 49],
+		},
 	};
 
 	// Alias bright black as gray (and grey)
@@ -1415,7 +185,7 @@ function assembleStyles() {
 		for (const [styleName, style] of Object.entries(group)) {
 			styles[styleName] = {
 				open: `\u001B[${style[0]}m`,
-				close: `\u001B[${style[1]}m`
+				close: `\u001B[${style[1]}m`,
 			};
 
 			group[styleName] = styles[styleName];
@@ -1425,178 +195,157 @@ function assembleStyles() {
 
 		Object.defineProperty(styles, groupName, {
 			value: group,
-			enumerable: false
+			enumerable: false,
 		});
 	}
 
 	Object.defineProperty(styles, 'codes', {
 		value: codes,
-		enumerable: false
+		enumerable: false,
 	});
 
 	styles.color.close = '\u001B[39m';
 	styles.bgColor.close = '\u001B[49m';
 
-	setLazyProperty(styles.color, 'ansi', () => makeDynamicStyles(wrapAnsi16, 'ansi16', ansi2ansi, false));
-	setLazyProperty(styles.color, 'ansi256', () => makeDynamicStyles(wrapAnsi256, 'ansi256', ansi2ansi, false));
-	setLazyProperty(styles.color, 'ansi16m', () => makeDynamicStyles(wrapAnsi16m, 'rgb', rgb2rgb, false));
-	setLazyProperty(styles.bgColor, 'ansi', () => makeDynamicStyles(wrapAnsi16, 'ansi16', ansi2ansi, true));
-	setLazyProperty(styles.bgColor, 'ansi256', () => makeDynamicStyles(wrapAnsi256, 'ansi256', ansi2ansi, true));
-	setLazyProperty(styles.bgColor, 'ansi16m', () => makeDynamicStyles(wrapAnsi16m, 'rgb', rgb2rgb, true));
+	styles.color.ansi = wrapAnsi16();
+	styles.color.ansi256 = wrapAnsi256();
+	styles.color.ansi16m = wrapAnsi16m();
+	styles.bgColor.ansi = wrapAnsi16(ANSI_BACKGROUND_OFFSET);
+	styles.bgColor.ansi256 = wrapAnsi256(ANSI_BACKGROUND_OFFSET);
+	styles.bgColor.ansi16m = wrapAnsi16m(ANSI_BACKGROUND_OFFSET);
+
+	// From https://github.com/Qix-/color-convert/blob/3f0e0d4e92e235796ccb17f6e85c72094a651f49/conversions.js
+	Object.defineProperties(styles, {
+		rgbToAnsi256: {
+			value: (red, green, blue) => {
+				// We use the extended greyscale palette here, with the exception of
+				// black and white. normal palette only has 4 greyscale shades.
+				if (red === green && green === blue) {
+					if (red < 8) {
+						return 16;
+					}
+
+					if (red > 248) {
+						return 231;
+					}
+
+					return Math.round(((red - 8) / 247) * 24) + 232;
+				}
+
+				return 16
+					+ (36 * Math.round(red / 255 * 5))
+					+ (6 * Math.round(green / 255 * 5))
+					+ Math.round(blue / 255 * 5);
+			},
+			enumerable: false,
+		},
+		hexToRgb: {
+			value: hex => {
+				const matches = /(?<colorString>[a-f\d]{6}|[a-f\d]{3})/i.exec(hex.toString(16));
+				if (!matches) {
+					return [0, 0, 0];
+				}
+
+				let {colorString} = matches.groups;
+
+				if (colorString.length === 3) {
+					colorString = [...colorString].map(character => character + character).join('');
+				}
+
+				const integer = Number.parseInt(colorString, 16);
+
+				return [
+					/* eslint-disable no-bitwise */
+					(integer >> 16) & 0xFF,
+					(integer >> 8) & 0xFF,
+					integer & 0xFF,
+					/* eslint-enable no-bitwise */
+				];
+			},
+			enumerable: false,
+		},
+		hexToAnsi256: {
+			value: hex => styles.rgbToAnsi256(...styles.hexToRgb(hex)),
+			enumerable: false,
+		},
+		ansi256ToAnsi: {
+			value: code => {
+				if (code < 8) {
+					return 30 + code;
+				}
+
+				if (code < 16) {
+					return 90 + (code - 8);
+				}
+
+				let red;
+				let green;
+				let blue;
+
+				if (code >= 232) {
+					red = (((code - 232) * 10) + 8) / 255;
+					green = red;
+					blue = red;
+				} else {
+					code -= 16;
+
+					const remainder = code % 36;
+
+					red = Math.floor(code / 36) / 5;
+					green = Math.floor(remainder / 6) / 5;
+					blue = (remainder % 6) / 5;
+				}
+
+				const value = Math.max(red, green, blue) * 2;
+
+				if (value === 0) {
+					return 30;
+				}
+
+				// eslint-disable-next-line no-bitwise
+				let result = 30 + ((Math.round(blue) << 2) | (Math.round(green) << 1) | Math.round(red));
+
+				if (value === 2) {
+					result += 60;
+				}
+
+				return result;
+			},
+			enumerable: false,
+		},
+		rgbToAnsi: {
+			value: (red, green, blue) => styles.ansi256ToAnsi(styles.rgbToAnsi256(red, green, blue)),
+			enumerable: false,
+		},
+		hexToAnsi: {
+			value: hex => styles.ansi256ToAnsi(styles.hexToAnsi256(hex)),
+			enumerable: false,
+		},
+	});
 
 	return styles;
 }
 
-// Make the export immutable
-Object.defineProperty(module, 'exports', {
-	enumerable: true,
-	get: assembleStyles
-});
-});
+const ansiStyles$2 = assembleStyles();
 
-var hasFlag = (flag, argv = process.argv) => {
-	const prefix = flag.startsWith('-') ? '' : (flag.length === 1 ? '-' : '--');
-	const position = argv.indexOf(prefix + flag);
-	const terminatorPosition = argv.indexOf('--');
-	return position !== -1 && (terminatorPosition === -1 || position < terminatorPosition);
+/* eslint-env browser */
+
+const isBlinkBasedBrowser = /\b(Chrome|Chromium)\//.test(navigator.userAgent);
+
+const colorSupport = isBlinkBasedBrowser ? {
+	level: 1,
+	hasBasic: true,
+	has256: false,
+	has16m: false,
+} : false;
+
+const supportsColor = {
+	stdout: colorSupport,
+	stderr: colorSupport,
 };
 
-const {env} = process;
-
-let forceColor;
-if (hasFlag('no-color') ||
-	hasFlag('no-colors') ||
-	hasFlag('color=false') ||
-	hasFlag('color=never')) {
-	forceColor = 0;
-} else if (hasFlag('color') ||
-	hasFlag('colors') ||
-	hasFlag('color=true') ||
-	hasFlag('color=always')) {
-	forceColor = 1;
-}
-
-if ('FORCE_COLOR' in env) {
-	if (env.FORCE_COLOR === 'true') {
-		forceColor = 1;
-	} else if (env.FORCE_COLOR === 'false') {
-		forceColor = 0;
-	} else {
-		forceColor = env.FORCE_COLOR.length === 0 ? 1 : Math.min(parseInt(env.FORCE_COLOR, 10), 3);
-	}
-}
-
-function translateLevel(level) {
-	if (level === 0) {
-		return false;
-	}
-
-	return {
-		level,
-		hasBasic: true,
-		has256: level >= 2,
-		has16m: level >= 3
-	};
-}
-
-function supportsColor(haveStream, streamIsTTY) {
-	if (forceColor === 0) {
-		return 0;
-	}
-
-	if (hasFlag('color=16m') ||
-		hasFlag('color=full') ||
-		hasFlag('color=truecolor')) {
-		return 3;
-	}
-
-	if (hasFlag('color=256')) {
-		return 2;
-	}
-
-	if (haveStream && !streamIsTTY && forceColor === undefined) {
-		return 0;
-	}
-
-	const min = forceColor || 0;
-
-	if (env.TERM === 'dumb') {
-		return min;
-	}
-
-	if (process.platform === 'win32') {
-		// Windows 10 build 10586 is the first Windows release that supports 256 colors.
-		// Windows 10 build 14931 is the first release that supports 16m/TrueColor.
-		const osRelease = os__default['default'].release().split('.');
-		if (
-			Number(osRelease[0]) >= 10 &&
-			Number(osRelease[2]) >= 10586
-		) {
-			return Number(osRelease[2]) >= 14931 ? 3 : 2;
-		}
-
-		return 1;
-	}
-
-	if ('CI' in env) {
-		if (['TRAVIS', 'CIRCLECI', 'APPVEYOR', 'GITLAB_CI'].some(sign => sign in env) || env.CI_NAME === 'codeship') {
-			return 1;
-		}
-
-		return min;
-	}
-
-	if ('TEAMCITY_VERSION' in env) {
-		return /^(9\.(0*[1-9]\d*)\.|\d{2,}\.)/.test(env.TEAMCITY_VERSION) ? 1 : 0;
-	}
-
-	if ('GITHUB_ACTIONS' in env) {
-		return 1;
-	}
-
-	if (env.COLORTERM === 'truecolor') {
-		return 3;
-	}
-
-	if ('TERM_PROGRAM' in env) {
-		const version = parseInt((env.TERM_PROGRAM_VERSION || '').split('.')[0], 10);
-
-		switch (env.TERM_PROGRAM) {
-			case 'iTerm.app':
-				return version >= 3 ? 3 : 2;
-			case 'Apple_Terminal':
-				return 2;
-			// No default
-		}
-	}
-
-	if (/-256(color)?$/i.test(env.TERM)) {
-		return 2;
-	}
-
-	if (/^screen|^xterm|^vt100|^vt220|^rxvt|color|ansi|cygwin|linux/i.test(env.TERM)) {
-		return 1;
-	}
-
-	if ('COLORTERM' in env) {
-		return 1;
-	}
-
-	return min;
-}
-
-function getSupportLevel(stream) {
-	const level = supportsColor(stream, stream && stream.isTTY);
-	return translateLevel(level);
-}
-
-var supportsColor_1 = {
-	supportsColor: getSupportLevel,
-	stdout: translateLevel(supportsColor(true, tty__default['default'].isatty(1))),
-	stderr: translateLevel(supportsColor(true, tty__default['default'].isatty(2)))
-};
-
-const stringReplaceAll = (string, substring, replacer) => {
+// TODO: When targeting Node.js 16, use `String.prototype.replaceAll`.
+function stringReplaceAll(string, substring, replacer) {
 	let index = string.indexOf(substring);
 	if (index === -1) {
 		return string;
@@ -1611,11 +360,11 @@ const stringReplaceAll = (string, substring, replacer) => {
 		index = string.indexOf(substring, endIndex);
 	} while (index !== -1);
 
-	returnValue += string.substr(endIndex);
+	returnValue += string.slice(endIndex);
 	return returnValue;
-};
+}
 
-const stringEncaseCRLFWithFirstIndex = (string, prefix, postfix, index) => {
+function stringEncaseCRLFWithFirstIndex(string, prefix, postfix, index) {
 	let endIndex = 0;
 	let returnValue = '';
 	do {
@@ -1625,163 +374,22 @@ const stringEncaseCRLFWithFirstIndex = (string, prefix, postfix, index) => {
 		index = string.indexOf('\n', endIndex);
 	} while (index !== -1);
 
-	returnValue += string.substr(endIndex);
+	returnValue += string.slice(endIndex);
 	return returnValue;
-};
-
-var util = {
-	stringReplaceAll,
-	stringEncaseCRLFWithFirstIndex
-};
-
-const TEMPLATE_REGEX = /(?:\\(u(?:[a-f\d]{4}|\{[a-f\d]{1,6}\})|x[a-f\d]{2}|.))|(?:\{(~)?(\w+(?:\([^)]*\))?(?:\.\w+(?:\([^)]*\))?)*)(?:[ \t]|(?=\r?\n)))|(\})|((?:.|[\r\n\f])+?)/gi;
-const STYLE_REGEX = /(?:^|\.)(\w+)(?:\(([^)]*)\))?/g;
-const STRING_REGEX = /^(['"])((?:\\.|(?!\1)[^\\])*)\1$/;
-const ESCAPE_REGEX = /\\(u(?:[a-f\d]{4}|{[a-f\d]{1,6}})|x[a-f\d]{2}|.)|([^\\])/gi;
-
-const ESCAPES = new Map([
-	['n', '\n'],
-	['r', '\r'],
-	['t', '\t'],
-	['b', '\b'],
-	['f', '\f'],
-	['v', '\v'],
-	['0', '\0'],
-	['\\', '\\'],
-	['e', '\u001B'],
-	['a', '\u0007']
-]);
-
-function unescape(c) {
-	const u = c[0] === 'u';
-	const bracket = c[1] === '{';
-
-	if ((u && !bracket && c.length === 5) || (c[0] === 'x' && c.length === 3)) {
-		return String.fromCharCode(parseInt(c.slice(1), 16));
-	}
-
-	if (u && bracket) {
-		return String.fromCodePoint(parseInt(c.slice(2, -1), 16));
-	}
-
-	return ESCAPES.get(c) || c;
 }
 
-function parseArguments(name, arguments_) {
-	const results = [];
-	const chunks = arguments_.trim().split(/\s*,\s*/g);
-	let matches;
+const {stdout: stdoutColor, stderr: stderrColor} = supportsColor;
 
-	for (const chunk of chunks) {
-		const number = Number(chunk);
-		if (!Number.isNaN(number)) {
-			results.push(number);
-		} else if ((matches = chunk.match(STRING_REGEX))) {
-			results.push(matches[2].replace(ESCAPE_REGEX, (m, escape, character) => escape ? unescape(escape) : character));
-		} else {
-			throw new Error(`Invalid Chalk template style argument: ${chunk} (in style '${name}')`);
-		}
-	}
-
-	return results;
-}
-
-function parseStyle(style) {
-	STYLE_REGEX.lastIndex = 0;
-
-	const results = [];
-	let matches;
-
-	while ((matches = STYLE_REGEX.exec(style)) !== null) {
-		const name = matches[1];
-
-		if (matches[2]) {
-			const args = parseArguments(name, matches[2]);
-			results.push([name].concat(args));
-		} else {
-			results.push([name]);
-		}
-	}
-
-	return results;
-}
-
-function buildStyle(chalk, styles) {
-	const enabled = {};
-
-	for (const layer of styles) {
-		for (const style of layer.styles) {
-			enabled[style[0]] = layer.inverse ? null : style.slice(1);
-		}
-	}
-
-	let current = chalk;
-	for (const [styleName, styles] of Object.entries(enabled)) {
-		if (!Array.isArray(styles)) {
-			continue;
-		}
-
-		if (!(styleName in current)) {
-			throw new Error(`Unknown Chalk style: ${styleName}`);
-		}
-
-		current = styles.length > 0 ? current[styleName](...styles) : current[styleName];
-	}
-
-	return current;
-}
-
-var templates = (chalk, temporary) => {
-	const styles = [];
-	const chunks = [];
-	let chunk = [];
-
-	// eslint-disable-next-line max-params
-	temporary.replace(TEMPLATE_REGEX, (m, escapeCharacter, inverse, style, close, character) => {
-		if (escapeCharacter) {
-			chunk.push(unescape(escapeCharacter));
-		} else if (style) {
-			const string = chunk.join('');
-			chunk = [];
-			chunks.push(styles.length === 0 ? string : buildStyle(chalk, styles)(string));
-			styles.push({inverse, styles: parseStyle(style)});
-		} else if (close) {
-			if (styles.length === 0) {
-				throw new Error('Found extraneous } in Chalk template literal');
-			}
-
-			chunks.push(buildStyle(chalk, styles)(chunk.join('')));
-			chunk = [];
-			styles.pop();
-		} else {
-			chunk.push(character);
-		}
-	});
-
-	chunks.push(chunk.join(''));
-
-	if (styles.length > 0) {
-		const errMessage = `Chalk template literal is missing ${styles.length} closing bracket${styles.length === 1 ? '' : 's'} (\`}\`)`;
-		throw new Error(errMessage);
-	}
-
-	return chunks.join('');
-};
-
-const {stdout: stdoutColor, stderr: stderrColor} = supportsColor_1;
-const {
-	stringReplaceAll: stringReplaceAll$1,
-	stringEncaseCRLFWithFirstIndex: stringEncaseCRLFWithFirstIndex$1
-} = util;
-
-const {isArray} = Array;
+const GENERATOR = Symbol('GENERATOR');
+const STYLER = Symbol('STYLER');
+const IS_EMPTY = Symbol('IS_EMPTY');
 
 // `supportsColor.level` → `ansiStyles.color[name]` mapping
 const levelMapping = [
 	'ansi',
 	'ansi',
 	'ansi256',
-	'ansi16m'
+	'ansi16m',
 ];
 
 const styles = Object.create(null);
@@ -1796,77 +404,81 @@ const applyOptions = (object, options = {}) => {
 	object.level = options.level === undefined ? colorLevel : options.level;
 };
 
-class ChalkClass {
-	constructor(options) {
-		// eslint-disable-next-line no-constructor-return
-		return chalkFactory(options);
-	}
-}
-
 const chalkFactory = options => {
-	const chalk = {};
+	const chalk = (...strings) => strings.join(' ');
 	applyOptions(chalk, options);
 
-	chalk.template = (...arguments_) => chalkTag(chalk.template, ...arguments_);
+	Object.setPrototypeOf(chalk, createChalk.prototype);
 
-	Object.setPrototypeOf(chalk, Chalk.prototype);
-	Object.setPrototypeOf(chalk.template, chalk);
-
-	chalk.template.constructor = () => {
-		throw new Error('`chalk.constructor()` is deprecated. Use `new chalk.Instance()` instead.');
-	};
-
-	chalk.template.Instance = ChalkClass;
-
-	return chalk.template;
+	return chalk;
 };
 
-function Chalk(options) {
+function createChalk(options) {
 	return chalkFactory(options);
 }
 
-for (const [styleName, style] of Object.entries(ansiStyles)) {
+Object.setPrototypeOf(createChalk.prototype, Function.prototype);
+
+for (const [styleName, style] of Object.entries(ansiStyles$2)) {
 	styles[styleName] = {
 		get() {
-			const builder = createBuilder(this, createStyler(style.open, style.close, this._styler), this._isEmpty);
+			const builder = createBuilder(this, createStyler(style.open, style.close, this[STYLER]), this[IS_EMPTY]);
 			Object.defineProperty(this, styleName, {value: builder});
 			return builder;
-		}
+		},
 	};
 }
 
 styles.visible = {
 	get() {
-		const builder = createBuilder(this, this._styler, true);
+		const builder = createBuilder(this, this[STYLER], true);
 		Object.defineProperty(this, 'visible', {value: builder});
 		return builder;
-	}
+	},
 };
 
-const usedModels = ['rgb', 'hex', 'keyword', 'hsl', 'hsv', 'hwb', 'ansi', 'ansi256'];
+const getModelAnsi = (model, level, type, ...arguments_) => {
+	if (model === 'rgb') {
+		if (level === 'ansi16m') {
+			return ansiStyles$2[type].ansi16m(...arguments_);
+		}
+
+		if (level === 'ansi256') {
+			return ansiStyles$2[type].ansi256(ansiStyles$2.rgbToAnsi256(...arguments_));
+		}
+
+		return ansiStyles$2[type].ansi(ansiStyles$2.rgbToAnsi(...arguments_));
+	}
+
+	if (model === 'hex') {
+		return getModelAnsi('rgb', level, type, ...ansiStyles$2.hexToRgb(...arguments_));
+	}
+
+	return ansiStyles$2[type][model](...arguments_);
+};
+
+const usedModels = ['rgb', 'hex', 'ansi256'];
 
 for (const model of usedModels) {
 	styles[model] = {
 		get() {
 			const {level} = this;
 			return function (...arguments_) {
-				const styler = createStyler(ansiStyles.color[levelMapping[level]][model](...arguments_), ansiStyles.color.close, this._styler);
-				return createBuilder(this, styler, this._isEmpty);
+				const styler = createStyler(getModelAnsi(model, levelMapping[level], 'color', ...arguments_), ansiStyles$2.color.close, this[STYLER]);
+				return createBuilder(this, styler, this[IS_EMPTY]);
 			};
-		}
+		},
 	};
-}
 
-for (const model of usedModels) {
 	const bgModel = 'bg' + model[0].toUpperCase() + model.slice(1);
 	styles[bgModel] = {
 		get() {
 			const {level} = this;
 			return function (...arguments_) {
-				const styler = createStyler(ansiStyles.bgColor[levelMapping[level]][model](...arguments_), ansiStyles.bgColor.close, this._styler);
-				return createBuilder(this, styler, this._isEmpty);
+				const styler = createStyler(getModelAnsi(model, levelMapping[level], 'bgColor', ...arguments_), ansiStyles$2.bgColor.close, this[STYLER]);
+				return createBuilder(this, styler, this[IS_EMPTY]);
 			};
-		}
+		},
 	};
 }
 
@@ -1875,12 +487,12 @@ const proto = Object.defineProperties(() => {}, {
 	level: {
 		enumerable: true,
 		get() {
-			return this._generator.level;
+			return this[GENERATOR].level;
 		},
 		set(level) {
-			this._generator.level = level;
-		}
-	}
+			this[GENERATOR].level = level;
+		},
+	},
 });
 
 const createStyler = (open, close, parent) => {
@@ -1899,51 +511,44 @@ const createStyler = (open, close, parent) => {
 		close,
 		openAll,
 		closeAll,
-		parent
+		parent,
 	};
 };
 
 const createBuilder = (self, _styler, _isEmpty) => {
-	const builder = (...arguments_) => {
-		if (isArray(arguments_[0]) && isArray(arguments_[0].raw)) {
-			// Called as a template literal, for example: chalk.red`2 + 3 = {bold ${2+3}}`
-			return applyStyle(builder, chalkTag(builder, ...arguments_));
-		}
-
-		// Single argument is hot path, implicit coercion is faster than anything
-		// eslint-disable-next-line no-implicit-coercion
-		return applyStyle(builder, (arguments_.length === 1) ? ('' + arguments_[0]) : arguments_.join(' '));
-	};
+	// Single argument is hot path, implicit coercion is faster than anything
+	// eslint-disable-next-line no-implicit-coercion
+	const builder = (...arguments_) => applyStyle(builder, (arguments_.length === 1) ? ('' + arguments_[0]) : arguments_.join(' '));
 
 	// We alter the prototype because we must return a function, but there is
 	// no way to create a function with a different prototype
 	Object.setPrototypeOf(builder, proto);
 
-	builder._generator = self;
-	builder._styler = _styler;
-	builder._isEmpty = _isEmpty;
+	builder[GENERATOR] = self;
+	builder[STYLER] = _styler;
+	builder[IS_EMPTY] = _isEmpty;
 
 	return builder;
 };
 
 const applyStyle = (self, string) => {
 	if (self.level <= 0 || !string) {
-		return self._isEmpty ? '' : string;
+		return self[IS_EMPTY] ? '' : string;
 	}
 
-	let styler = self._styler;
+	let styler = self[STYLER];
 
 	if (styler === undefined) {
 		return string;
 	}
 
 	const {openAll, closeAll} = styler;
-	if (string.indexOf('\u001B') !== -1) {
+	if (string.includes('\u001B')) {
 		while (styler !== undefined) {
 			// Replace any instances already present with a re-opening code
 			// otherwise only the part of the string until said closing code
 			// will be colored, and the rest will simply be 'plain'.
-			string = stringReplaceAll$1(string, styler.close, styler.open);
+			string = stringReplaceAll(string, styler.close, styler.open);
 
 			styler = styler.parent;
 		}
@@ -1954,75 +559,37 @@ const applyStyle = (self, string) => {
 	// after next line to fix a bleed issue on macOS: https://github.com/chalk/chalk/pull/92
 	const lfIndex = string.indexOf('\n');
 	if (lfIndex !== -1) {
-		string = stringEncaseCRLFWithFirstIndex$1(string, closeAll, openAll, lfIndex);
+		string = stringEncaseCRLFWithFirstIndex(string, closeAll, openAll, lfIndex);
 	}
 
 	return openAll + string + closeAll;
 };
 
-let template;
-const chalkTag = (chalk, ...strings) => {
-	const [firstString] = strings;
+Object.defineProperties(createChalk.prototype, styles);
 
-	if (!isArray(firstString) || !isArray(firstString.raw)) {
-		// If chalk() was called by itself or with a string,
-		// return the string itself as a string.
-		return strings.join(' ');
-	}
+const chalk = createChalk();
+createChalk({level: stderrColor ? stderrColor.level : 0});
 
-	const arguments_ = strings.slice(1);
-	const parts = [firstString.raw[0]];
-
-	for (let i = 1; i < firstString.length; i++) {
-		parts.push(
-			String(arguments_[i - 1]).replace(/[{}\\]/g, '\\$&'),
-			String(firstString.raw[i])
-		);
-	}
-
-	if (template === undefined) {
-		template = templates;
-	}
-
-	return template(chalk, parts.join(''));
+const logSymbols = {
+	info: 'ℹ️',
+	success: '✅',
+	warning: '⚠️',
+	error: '❌️',
 };
 
-Object.defineProperties(Chalk.prototype, styles);
+var commonjsGlobal$1 = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
-const chalk = Chalk(); // eslint-disable-line new-cap
-chalk.supportsColor = stdoutColor;
-chalk.stderr = Chalk({level: stderrColor ? stderrColor.level : 0}); // eslint-disable-line new-cap
-chalk.stderr.supportsColor = stderrColor;
-
-var source = chalk;
-
-const isSupported = process.platform !== 'win32' || process.env.CI || process.env.TERM === 'xterm-256color';
-
-const main = {
-	info: source.blue('ℹ'),
-	success: source.green('✔'),
-	warning: source.yellow('⚠'),
-	error: source.red('✖')
-};
-
-const fallbacks = {
-	info: source.blue('i'),
-	success: source.green('√'),
-	warning: source.yellow('‼'),
-	error: source.red('×')
-};
-
-var logSymbols = isSupported ? main : fallbacks;
+var commander = {exports: {}};
 
 /**
  * Module dependencies.
  */
 
-var commander = createCommonjsModule(function (module, exports) {
-const EventEmitter = require$$0__default['default'].EventEmitter;
-
-
-
+(function (module, exports) {
+const EventEmitter = require$$0__default["default"].EventEmitter;
+const childProcess = require$$1__default["default"];
+const path = require$$2__default["default"];
+const fs = require$$3__default["default"];
 
 // @ts-check
 
@@ -2442,6 +1009,18 @@ class Option {
   };
 
   /**
+   * @api private
+   */
+
+  _concatValue(value, previous) {
+    if (previous === this.defaultValue || !Array.isArray(previous)) {
+      return [value];
+    }
+
+    return previous.concat(value);
+  }
+
+  /**
    * Only allow option value to be one of choices.
    *
    * @param {string[]} values
@@ -2450,9 +1029,12 @@ class Option {
 
   choices(values) {
     this.argChoices = values;
-    this.parseArg = (arg) => {
+    this.parseArg = (arg, previous) => {
       if (!values.includes(arg)) {
         throw new InvalidOptionArgumentError(`Allowed choices are ${values.join(', ')}.`);
+      }
+      if (this.variadic) {
+        return this._concatValue(arg, previous);
       }
       return arg;
     };
@@ -2990,11 +1572,7 @@ class Command extends EventEmitter {
           throw err;
         }
       } else if (val !== null && option.variadic) {
-        if (oldValue === defaultValue || !Array.isArray(oldValue)) {
-          val = [val];
-        } else {
-          val = oldValue.concat(val);
-        }
+        val = option._concatValue(val, oldValue);
       }
 
       // unassigned or boolean value
@@ -3175,7 +1753,7 @@ class Command extends EventEmitter {
   passThroughOptions(passThrough = true) {
     this._passThroughOptions = !!passThrough;
     if (!!this.parent && passThrough && !this.parent._enablePositionalOptions) {
-      throw new Error('passThroughOptions can not be used without turning on enablePositionOptions for parent command(s)');
+      throw new Error('passThroughOptions can not be used without turning on enablePositionalOptions for parent command(s)');
     }
     return this;
   };
@@ -3284,14 +1862,12 @@ class Command extends EventEmitter {
       default:
         throw new Error(`unexpected parse option { from: '${parseOptions.from}' }`);
     }
-    // @ts-ignore: unknown property
-    if (!this._scriptPath && process.mainModule) {
-      // @ts-ignore: unknown property
-      this._scriptPath = process.mainModule.filename;
+    if (!this._scriptPath && require.main) {
+      this._scriptPath = require.main.filename;
     }
 
     // Guess name, used in usage in help.
-    this._name = this._name || (this._scriptPath && path__default['default'].basename(this._scriptPath, path__default['default'].extname(this._scriptPath)));
+    this._name = this._name || (this._scriptPath && path.basename(this._scriptPath, path.extname(this._scriptPath)));
 
     // Let's go!
     this._parseCommand([], userArgs);
@@ -3333,7 +1909,7 @@ class Command extends EventEmitter {
   _executeSubCommand(subcommand, args) {
     args = args.slice();
     let launchWithNode = false; // Use node for source targets so do not need to get permissions correct, and on Windows.
-    const sourceExt = ['.js', '.ts', '.tsx', '.mjs'];
+    const sourceExt = ['.js', '.ts', '.tsx', '.mjs', '.cjs'];
 
     // Not checking for help first. Unlikely to have mandatory and executable, and can't robustly test for help flags in external command.
     this._checkForMissingMandatoryOptions();
@@ -3341,39 +1917,37 @@ class Command extends EventEmitter {
     // Want the entry script as the reference for command name and directory for searching for other files.
     let scriptPath = this._scriptPath;
     // Fallback in case not set, due to how Command created or called.
-    // @ts-ignore: unknown property
-    if (!scriptPath && process.mainModule) {
-      // @ts-ignore: unknown property
-      scriptPath = process.mainModule.filename;
+    if (!scriptPath && require.main) {
+      scriptPath = require.main.filename;
     }
 
     let baseDir;
     try {
-      const resolvedLink = fs__default['default'].realpathSync(scriptPath);
-      baseDir = path__default['default'].dirname(resolvedLink);
+      const resolvedLink = fs.realpathSync(scriptPath);
+      baseDir = path.dirname(resolvedLink);
     } catch (e) {
       baseDir = '.'; // dummy, probably not going to find executable!
     }
 
     // name of the subcommand, like `pm-install`
-    let bin = path__default['default'].basename(scriptPath, path__default['default'].extname(scriptPath)) + '-' + subcommand._name;
+    let bin = path.basename(scriptPath, path.extname(scriptPath)) + '-' + subcommand._name;
     if (subcommand._executableFile) {
       bin = subcommand._executableFile;
     }
 
-    const localBin = path__default['default'].join(baseDir, bin);
-    if (fs__default['default'].existsSync(localBin)) {
+    const localBin = path.join(baseDir, bin);
+    if (fs.existsSync(localBin)) {
       // prefer local `./<bin>` to bin in the $PATH
       bin = localBin;
     } else {
       // Look for source files.
       sourceExt.forEach((ext) => {
-        if (fs__default['default'].existsSync(`${localBin}${ext}`)) {
+        if (fs.existsSync(`${localBin}${ext}`)) {
           bin = `${localBin}${ext}`;
         }
       });
     }
-    launchWithNode = sourceExt.includes(path__default['default'].extname(bin));
+    launchWithNode = sourceExt.includes(path.extname(bin));
 
     let proc;
     if (process.platform !== 'win32') {
@@ -3382,15 +1956,15 @@ class Command extends EventEmitter {
         // add executable arguments to spawn
         args = incrementNodeInspectorPort(process.execArgv).concat(args);
 
-        proc = childProcess__default['default'].spawn(process.argv[0], args, { stdio: 'inherit' });
+        proc = childProcess.spawn(process.argv[0], args, { stdio: 'inherit' });
       } else {
-        proc = childProcess__default['default'].spawn(bin, args, { stdio: 'inherit' });
+        proc = childProcess.spawn(bin, args, { stdio: 'inherit' });
       }
     } else {
       args.unshift(bin);
       // add executable arguments to spawn
       args = incrementNodeInspectorPort(process.execArgv).concat(args);
-      proc = childProcess__default['default'].spawn(process.execPath, args, { stdio: 'inherit' });
+      proc = childProcess.spawn(process.execPath, args, { stdio: 'inherit' });
     }
 
     const signals = ['SIGUSR1', 'SIGUSR2', 'SIGTERM', 'SIGINT', 'SIGHUP'];
@@ -3482,12 +2056,17 @@ class Command extends EventEmitter {
 
       outputHelpIfRequested(this, parsed.unknown);
       this._checkForMissingMandatoryOptions();
-      if (parsed.unknown.length > 0) {
-        this.unknownOption(parsed.unknown[0]);
-      }
+
+      // We do not always call this check to avoid masking a "better" error, like unknown command.
+      const checkForUnknownOptions = () => {
+        if (parsed.unknown.length > 0) {
+          this.unknownOption(parsed.unknown[0]);
+        }
+      };
 
       const commandEvent = `command:${this.name()}`;
       if (this._actionHandler) {
+        checkForUnknownOptions();
         // Check expected arguments and collect variadic together.
         const args = this.args.slice();
         this._args.forEach((arg, i) => {
@@ -3505,19 +2084,26 @@ class Command extends EventEmitter {
         this._actionHandler(args);
         if (this.parent) this.parent.emit(commandEvent, operands, unknown); // legacy
       } else if (this.parent && this.parent.listenerCount(commandEvent)) {
+        checkForUnknownOptions();
         this.parent.emit(commandEvent, operands, unknown); // legacy
       } else if (operands.length) {
-        if (this._findCommand('*')) { // legacy
+        if (this._findCommand('*')) { // legacy default command
           this._dispatchSubcommand('*', operands, unknown);
         } else if (this.listenerCount('command:*')) {
+          // skip option check, emit event for possible misspelling suggestion
           this.emit('command:*', operands, unknown);
         } else if (this.commands.length) {
           this.unknownCommand();
+        } else {
+          checkForUnknownOptions();
         }
       } else if (this.commands.length) {
         // This command has subcommands and nothing hooked up at this level, so display help.
         this.help({ error: true });
-      } else ;
+      } else {
+        checkForUnknownOptions();
+        // fall through for caller to handle after calling .parse()
+      }
     }
   };
 
@@ -4209,29 +2795,30 @@ function incrementNodeInspectorPort(args) {
     return arg;
   });
 }
-});
+}(commander, commander.exports));
 
-var isPlainObj = value => {
+var program = commander.exports;
+
+function isPlainObject(value) {
 	if (Object.prototype.toString.call(value) !== '[object Object]') {
 		return false;
 	}
 
 	const prototype = Object.getPrototypeOf(value);
 	return prototype === null || prototype === Object.prototype;
-};
+}
 
-var sortKeys = (object, options = {}) => {
-	if (!isPlainObj(object) && !Array.isArray(object)) {
+function sortKeys(object, options = {}) {
+	if (!isPlainObject(object) && !Array.isArray(object)) {
 		throw new TypeError('Expected a plain object or array');
 	}
 
-	const {deep} = options;
+	const {deep, compare} = options;
 	const seenInput = [];
 	const seenOutput = [];
 
 	const deepSortArray = array => {
 		const seenIndex = seenInput.indexOf(array);
-
 		if (seenIndex !== -1) {
 			return seenOutput[seenIndex];
 		}
@@ -4245,8 +2832,8 @@ var sortKeys = (object, options = {}) => {
 				return deepSortArray(item);
 			}
 
-			if (isPlainObj(item)) {
-				return sortKeys(item);
+			if (isPlainObject(item)) {
+				return _sortKeys(item);
 			}
 
 			return item;
@@ -4255,15 +2842,14 @@ var sortKeys = (object, options = {}) => {
 		return result;
 	};
 
-	const sortKeys = object => {
+	const _sortKeys = object => {
 		const seenIndex = seenInput.indexOf(object);
-
 		if (seenIndex !== -1) {
 			return seenOutput[seenIndex];
 		}
 
 		const result = {};
-		const keys = Object.keys(object).sort(options.compare);
+		const keys = Object.keys(object).sort(compare);
 
 		seenInput.push(object);
 		seenOutput.push(result);
@@ -4275,7 +2861,7 @@ var sortKeys = (object, options = {}) => {
 			if (deep && Array.isArray(value)) {
 				newValue = deepSortArray(value);
 			} else {
-				newValue = deep && isPlainObj(value) ? sortKeys(value) : value;
+				newValue = deep && isPlainObject(value) ? _sortKeys(value) : value;
 			}
 
 			Object.defineProperty(result, key, {
@@ -4291,8 +2877,14 @@ var sortKeys = (object, options = {}) => {
 		return deep ? deepSortArray(object) : object.slice();
 	}
 
-	return sortKeys(object);
-};
+	return _sortKeys(object);
+}
+
+var dist = {};
+
+var parseCst$1 = {};
+
+var PlainValueEc8e588e = {};
 
 const Char = {
   ANCHOR: '&',
@@ -4552,10 +3144,10 @@ class Range {
 
 /** Root class of all nodes */
 
-class Node {
+class Node$1 {
   static addStringTerminator(src, offset, str) {
     if (str[str.length - 1] === '\n') return str;
-    const next = Node.endOfWhiteSpace(src, offset);
+    const next = Node$1.endOfWhiteSpace(src, offset);
     return next >= src.length || src[next] === '\n' ? str + '\n' : str;
   } // ^(---|...)
 
@@ -4634,12 +3226,12 @@ class Node {
 
 
   static endOfBlockIndent(src, indent, lineStart) {
-    const inEnd = Node.endOfIndent(src, lineStart);
+    const inEnd = Node$1.endOfIndent(src, lineStart);
 
     if (inEnd > lineStart + indent) {
       return inEnd;
     } else {
-      const wsEnd = Node.endOfWhiteSpace(src, inEnd);
+      const wsEnd = Node$1.endOfWhiteSpace(src, inEnd);
       const ch = src[wsEnd];
       if (!ch || ch === '\n') return wsEnd;
     }
@@ -4661,7 +3253,7 @@ class Node {
 
   static normalizeOffset(src, offset) {
     const ch = src[offset];
-    return !ch ? offset : ch !== '\n' && src[offset - 1] === '\n' ? offset - 1 : Node.endOfWhiteSpace(src, offset);
+    return !ch ? offset : ch !== '\n' && src[offset - 1] === '\n' ? offset - 1 : Node$1.endOfWhiteSpace(src, offset);
   } // fold single newline into space, multiple newlines to N - 1 newlines
   // presumes src[offset] === '\n'
 
@@ -4682,7 +3274,7 @@ class Node {
 
         case '\t':
           if (inCount <= indent) error = true;
-          offset = Node.endOfWhiteSpace(src, offset + 2) - 1;
+          offset = Node$1.endOfWhiteSpace(src, offset + 2) - 1;
           break;
 
         case ' ':
@@ -4754,7 +3346,7 @@ class Node {
     const {
       end
     } = this.valueRange;
-    return start !== end || Node.atBlank(src, end - 1);
+    return start !== end || Node$1.atBlank(src, end - 1);
   }
 
   get hasComment() {
@@ -4860,7 +3452,7 @@ class Node {
     } = this.context;
 
     if (src[start] === Char.COMMENT) {
-      const end = Node.endOfLine(src, start + 1);
+      const end = Node$1.endOfLine(src, start + 1);
       const commentRange = new Range(start, end);
       this.props.push(commentRange);
       return end;
@@ -4895,14 +3487,14 @@ class Node {
     } = this;
     if (value != null) return value;
     const str = src.slice(range.start, range.end);
-    return Node.addStringTerminator(src, range.end, str);
+    return Node$1.addStringTerminator(src, range.end, str);
   }
 
 }
 
 class YAMLError extends Error {
   constructor(name, source, message) {
-    if (!message || !(source instanceof Node)) throw new Error(`Invalid arguments for new ${name}`);
+    if (!message || !(source instanceof Node$1)) throw new Error(`Invalid arguments for new ${name}`);
     super();
     this.name = name;
     this.message = message;
@@ -4989,7 +3581,7 @@ function _defineProperty(obj, key, value) {
   return obj;
 }
 
-class PlainValue extends Node {
+class PlainValue$6 extends Node$1 {
   static endOfLine(src, start, inFlow) {
     let ch = src[start];
     let offset = start;
@@ -5028,7 +3620,7 @@ class PlainValue extends Node {
         const {
           fold,
           offset
-        } = Node.foldNewline(src, i, -1);
+        } = Node$1.foldNewline(src, i, -1);
         str += fold;
         i = offset;
       } else if (ch === ' ' || ch === '\t') {
@@ -5086,14 +3678,14 @@ class PlainValue extends Node {
     let valueEnd = start;
 
     for (let ch = src[offset]; ch === '\n'; ch = src[offset]) {
-      if (Node.atDocumentBoundary(src, offset + 1)) break;
-      const end = Node.endOfBlockIndent(src, indent, offset + 1);
+      if (Node$1.atDocumentBoundary(src, offset + 1)) break;
+      const end = Node$1.endOfBlockIndent(src, indent, offset + 1);
       if (end === null || src[end] === '#') break;
 
       if (src[end] === '\n') {
         offset = end;
       } else {
-        valueEnd = PlainValue.endOfLine(src, end, inFlow);
+        valueEnd = PlainValue$6.endOfLine(src, end, inFlow);
         offset = valueEnd;
       }
     }
@@ -5139,11 +3731,11 @@ class PlainValue extends Node {
     const ch = src[offset];
 
     if (ch && ch !== '#' && ch !== '\n') {
-      offset = PlainValue.endOfLine(src, start, inFlow);
+      offset = PlainValue$6.endOfLine(src, start, inFlow);
     }
 
     this.valueRange = new Range(start, offset);
-    offset = Node.endOfWhiteSpace(src, offset);
+    offset = Node$1.endOfWhiteSpace(src, offset);
     offset = this.parseComment(offset);
 
     if (!this.hasComment || this.valueRange.isEmpty()) {
@@ -5155,39 +3747,25 @@ class PlainValue extends Node {
 
 }
 
-var Char_1 = Char;
-var Node_1 = Node;
-var PlainValue_1 = PlainValue;
-var Range_1 = Range;
-var Type_1 = Type;
-var YAMLError_1 = YAMLError;
-var YAMLReferenceError_1 = YAMLReferenceError;
-var YAMLSemanticError_1 = YAMLSemanticError;
-var YAMLSyntaxError_1 = YAMLSyntaxError;
-var YAMLWarning_1 = YAMLWarning;
-var _defineProperty_1 = _defineProperty;
-var defaultTagPrefix_1 = defaultTagPrefix;
-var defaultTags_1 = defaultTags;
+PlainValueEc8e588e.Char = Char;
+PlainValueEc8e588e.Node = Node$1;
+PlainValueEc8e588e.PlainValue = PlainValue$6;
+PlainValueEc8e588e.Range = Range;
+PlainValueEc8e588e.Type = Type;
+PlainValueEc8e588e.YAMLError = YAMLError;
+PlainValueEc8e588e.YAMLReferenceError = YAMLReferenceError;
+PlainValueEc8e588e.YAMLSemanticError = YAMLSemanticError;
+PlainValueEc8e588e.YAMLSyntaxError = YAMLSyntaxError;
+PlainValueEc8e588e.YAMLWarning = YAMLWarning;
+PlainValueEc8e588e._defineProperty = _defineProperty;
+PlainValueEc8e588e.defaultTagPrefix = defaultTagPrefix;
+PlainValueEc8e588e.defaultTags = defaultTags;
 
-var PlainValueEc8e588e = {
-	Char: Char_1,
-	Node: Node_1,
-	PlainValue: PlainValue_1,
-	Range: Range_1,
-	Type: Type_1,
-	YAMLError: YAMLError_1,
-	YAMLReferenceError: YAMLReferenceError_1,
-	YAMLSemanticError: YAMLSemanticError_1,
-	YAMLSyntaxError: YAMLSyntaxError_1,
-	YAMLWarning: YAMLWarning_1,
-	_defineProperty: _defineProperty_1,
-	defaultTagPrefix: defaultTagPrefix_1,
-	defaultTags: defaultTags_1
-};
+var PlainValue$5 = PlainValueEc8e588e;
 
-class BlankLine extends PlainValueEc8e588e.Node {
+class BlankLine extends PlainValue$5.Node {
   constructor() {
-    super(PlainValueEc8e588e.Type.BLANK_LINE);
+    super(PlainValue$5.Type.BLANK_LINE);
   }
   /* istanbul ignore next */
 
@@ -5208,13 +3786,13 @@ class BlankLine extends PlainValueEc8e588e.Node {
 
   parse(context, start) {
     this.context = context;
-    this.range = new PlainValueEc8e588e.Range(start, start + 1);
+    this.range = new PlainValue$5.Range(start, start + 1);
     return start + 1;
   }
 
 }
 
-class CollectionItem extends PlainValueEc8e588e.Node {
+class CollectionItem extends PlainValue$5.Node {
   constructor(type, props) {
     super(type, props);
     this.node = null;
@@ -5240,9 +3818,9 @@ class CollectionItem extends PlainValueEc8e588e.Node {
       atLineStart,
       lineStart
     } = context;
-    if (!atLineStart && this.type === PlainValueEc8e588e.Type.SEQ_ITEM) this.error = new PlainValueEc8e588e.YAMLSemanticError(this, 'Sequence items must not have preceding content on the same line');
+    if (!atLineStart && this.type === PlainValue$5.Type.SEQ_ITEM) this.error = new PlainValue$5.YAMLSemanticError(this, 'Sequence items must not have preceding content on the same line');
     const indent = atLineStart ? start - lineStart : context.indent;
-    let offset = PlainValueEc8e588e.Node.endOfWhiteSpace(src, start + 1);
+    let offset = PlainValue$5.Node.endOfWhiteSpace(src, start + 1);
     let ch = src[offset];
     const inlineComment = ch === '#';
     const comments = [];
@@ -5250,13 +3828,13 @@ class CollectionItem extends PlainValueEc8e588e.Node {
 
     while (ch === '\n' || ch === '#') {
       if (ch === '#') {
-        const end = PlainValueEc8e588e.Node.endOfLine(src, offset + 1);
-        comments.push(new PlainValueEc8e588e.Range(offset, end));
+        const end = PlainValue$5.Node.endOfLine(src, offset + 1);
+        comments.push(new PlainValue$5.Range(offset, end));
         offset = end;
       } else {
         atLineStart = true;
         lineStart = offset + 1;
-        const wsEnd = PlainValueEc8e588e.Node.endOfWhiteSpace(src, lineStart);
+        const wsEnd = PlainValue$5.Node.endOfWhiteSpace(src, lineStart);
 
         if (src[wsEnd] === '\n' && comments.length === 0) {
           blankLine = new BlankLine();
@@ -5265,13 +3843,13 @@ class CollectionItem extends PlainValueEc8e588e.Node {
           }, lineStart);
         }
 
-        offset = PlainValueEc8e588e.Node.endOfIndent(src, lineStart);
+        offset = PlainValue$5.Node.endOfIndent(src, lineStart);
       }
 
       ch = src[offset];
     }
 
-    if (PlainValueEc8e588e.Node.nextNodeIsIndented(ch, offset - (lineStart + indent), this.type !== PlainValueEc8e588e.Type.SEQ_ITEM)) {
+    if (PlainValue$5.Node.nextNodeIsIndented(ch, offset - (lineStart + indent), this.type !== PlainValue$5.Type.SEQ_ITEM)) {
       this.node = parseNode({
         atLineStart,
         inCollection: false,
@@ -5300,12 +3878,12 @@ class CollectionItem extends PlainValueEc8e588e.Node {
         this.props.push(c);
         offset = c.end;
       } else {
-        offset = PlainValueEc8e588e.Node.endOfLine(src, start + 1);
+        offset = PlainValue$5.Node.endOfLine(src, start + 1);
       }
     }
 
     const end = this.node ? this.node.valueRange.end : offset;
-    this.valueRange = new PlainValueEc8e588e.Range(start, end);
+    this.valueRange = new PlainValue$5.Range(start, end);
     return offset;
   }
 
@@ -5325,14 +3903,14 @@ class CollectionItem extends PlainValueEc8e588e.Node {
     } = this;
     if (value != null) return value;
     const str = node ? src.slice(range.start, node.range.start) + String(node) : src.slice(range.start, range.end);
-    return PlainValueEc8e588e.Node.addStringTerminator(src, range.end, str);
+    return PlainValue$5.Node.addStringTerminator(src, range.end, str);
   }
 
 }
 
-class Comment extends PlainValueEc8e588e.Node {
+class Comment extends PlainValue$5.Node {
   constructor() {
-    super(PlainValueEc8e588e.Type.COMMENT);
+    super(PlainValue$5.Type.COMMENT);
   }
   /**
    * Parses a comment line from the source
@@ -5346,7 +3924,7 @@ class Comment extends PlainValueEc8e588e.Node {
   parse(context, start) {
     this.context = context;
     const offset = this.parseComment(start);
-    this.range = new PlainValueEc8e588e.Range(start, offset);
+    this.range = new PlainValue$5.Range(start, offset);
     return offset;
   }
 
@@ -5357,14 +3935,14 @@ function grabCollectionEndComments(node) {
 
   while (cnode instanceof CollectionItem) cnode = cnode.node;
 
-  if (!(cnode instanceof Collection)) return null;
+  if (!(cnode instanceof Collection$1)) return null;
   const len = cnode.items.length;
   let ci = -1;
 
   for (let i = len - 1; i >= 0; --i) {
     const n = cnode.items[i];
 
-    if (n.type === PlainValueEc8e588e.Type.COMMENT) {
+    if (n.type === PlainValue$5.Type.COMMENT) {
       // Keep sufficiently indented comments with preceding node
       const {
         indent,
@@ -5372,7 +3950,7 @@ function grabCollectionEndComments(node) {
       } = n.context;
       if (indent > 0 && n.range.start >= lineStart + indent) break;
       ci = i;
-    } else if (n.type === PlainValueEc8e588e.Type.BLANK_LINE) ci = i;else break;
+    } else if (n.type === PlainValue$5.Type.BLANK_LINE) ci = i;else break;
   }
 
   if (ci === -1) return null;
@@ -5388,19 +3966,19 @@ function grabCollectionEndComments(node) {
 
   return ca;
 }
-class Collection extends PlainValueEc8e588e.Node {
+class Collection$1 extends PlainValue$5.Node {
   static nextContentHasIndent(src, offset, indent) {
-    const lineStart = PlainValueEc8e588e.Node.endOfLine(src, offset) + 1;
-    offset = PlainValueEc8e588e.Node.endOfWhiteSpace(src, lineStart);
+    const lineStart = PlainValue$5.Node.endOfLine(src, offset) + 1;
+    offset = PlainValue$5.Node.endOfWhiteSpace(src, lineStart);
     const ch = src[offset];
     if (!ch) return false;
     if (offset >= lineStart + indent) return true;
     if (ch !== '#' && ch !== '\n') return false;
-    return Collection.nextContentHasIndent(src, offset, indent);
+    return Collection$1.nextContentHasIndent(src, offset, indent);
   }
 
   constructor(firstItem) {
-    super(firstItem.type === PlainValueEc8e588e.Type.SEQ_ITEM ? PlainValueEc8e588e.Type.SEQ : PlainValueEc8e588e.Type.MAP);
+    super(firstItem.type === PlainValue$5.Type.SEQ_ITEM ? PlainValue$5.Type.SEQ : PlainValue$5.Type.MAP);
 
     for (let i = firstItem.props.length - 1; i >= 0; --i) {
       if (firstItem.props[i].start < firstItem.context.lineStart) {
@@ -5436,17 +4014,17 @@ class Collection extends PlainValueEc8e588e.Node {
     } = context; // It's easier to recalculate lineStart here rather than tracking down the
     // last context from which to read it -- eemeli/yaml#2
 
-    let lineStart = PlainValueEc8e588e.Node.startOfLine(src, start);
+    let lineStart = PlainValue$5.Node.startOfLine(src, start);
     const firstItem = this.items[0]; // First-item context needs to be correct for later comment handling
     // -- eemeli/yaml#17
 
     firstItem.context.parent = this;
-    this.valueRange = PlainValueEc8e588e.Range.copy(firstItem.valueRange);
+    this.valueRange = PlainValue$5.Range.copy(firstItem.valueRange);
     const indent = firstItem.range.start - firstItem.context.lineStart;
     let offset = start;
-    offset = PlainValueEc8e588e.Node.normalizeOffset(src, offset);
+    offset = PlainValue$5.Node.normalizeOffset(src, offset);
     let ch = src[offset];
-    let atLineStart = PlainValueEc8e588e.Node.endOfWhiteSpace(src, lineStart) === offset;
+    let atLineStart = PlainValue$5.Node.endOfWhiteSpace(src, lineStart) === offset;
     let prevIncludesTrailingLines = false;
 
     while (ch) {
@@ -5466,7 +4044,7 @@ class Collection extends PlainValueEc8e588e.Node {
           this.items.push(blankLine);
           offset -= 1; // blankLine.parse() consumes terminal newline
         } else if (ch === '#') {
-          if (offset < lineStart + indent && !Collection.nextContentHasIndent(src, offset, indent)) {
+          if (offset < lineStart + indent && !Collection$1.nextContentHasIndent(src, offset, indent)) {
             return offset;
           }
 
@@ -5486,10 +4064,10 @@ class Collection extends PlainValueEc8e588e.Node {
         }
 
         lineStart = offset + 1;
-        offset = PlainValueEc8e588e.Node.endOfIndent(src, lineStart);
+        offset = PlainValue$5.Node.endOfIndent(src, lineStart);
 
-        if (PlainValueEc8e588e.Node.atBlank(src, offset)) {
-          const wsEnd = PlainValueEc8e588e.Node.endOfWhiteSpace(src, offset);
+        if (PlainValue$5.Node.atBlank(src, offset)) {
+          const wsEnd = PlainValue$5.Node.endOfWhiteSpace(src, offset);
           const next = src[wsEnd];
 
           if (!next || next === '\n' || next === '#') {
@@ -5511,11 +4089,11 @@ class Collection extends PlainValueEc8e588e.Node {
           break;
         } else if (!this.error) {
           const msg = 'All collection items must start at the same column';
-          this.error = new PlainValueEc8e588e.YAMLSyntaxError(this, msg);
+          this.error = new PlainValue$5.YAMLSyntaxError(this, msg);
         }
       }
 
-      if (firstItem.type === PlainValueEc8e588e.Type.SEQ_ITEM) {
+      if (firstItem.type === PlainValue$5.Type.SEQ_ITEM) {
         if (ch !== '-') {
           if (lineStart > start) offset = lineStart;
           break;
@@ -5526,7 +4104,7 @@ class Collection extends PlainValueEc8e588e.Node {
 
         if (!next || next === '\n' || next === '\t' || next === ' ') {
           const msg = 'A collection cannot be both a mapping and a sequence';
-          this.error = new PlainValueEc8e588e.YAMLSyntaxError(this, msg);
+          this.error = new PlainValue$5.YAMLSyntaxError(this, msg);
         }
       }
 
@@ -5541,7 +4119,7 @@ class Collection extends PlainValueEc8e588e.Node {
 
       this.items.push(node);
       this.valueRange.end = node.valueRange.end;
-      offset = PlainValueEc8e588e.Node.normalizeOffset(src, node.range.end);
+      offset = PlainValue$5.Node.normalizeOffset(src, node.range.end);
       ch = src[offset];
       atLineStart = false;
       prevIncludesTrailingLines = node.includesTrailingLines; // Need to reset lineStart and atLineStart here if preceding node's range
@@ -5597,14 +4175,14 @@ class Collection extends PlainValueEc8e588e.Node {
       str += String(item);
     }
 
-    return PlainValueEc8e588e.Node.addStringTerminator(src, range.end, str);
+    return PlainValue$5.Node.addStringTerminator(src, range.end, str);
   }
 
 }
 
-class Directive extends PlainValueEc8e588e.Node {
+class Directive extends PlainValue$5.Node {
   constructor() {
-    super(PlainValueEc8e588e.Type.DIRECTIVE);
+    super(PlainValue$5.Type.DIRECTIVE);
     this.name = null;
   }
 
@@ -5635,7 +4213,7 @@ class Directive extends PlainValueEc8e588e.Node {
 
     while (ch && ch !== '\n' && ch !== '#') ch = src[offset += 1];
 
-    this.valueRange = new PlainValueEc8e588e.Range(start, offset);
+    this.valueRange = new PlainValue$5.Range(start, offset);
     return offset;
   }
 
@@ -5644,21 +4222,21 @@ class Directive extends PlainValueEc8e588e.Node {
     let offset = this.parseName(start + 1);
     offset = this.parseParameters(offset);
     offset = this.parseComment(offset);
-    this.range = new PlainValueEc8e588e.Range(start, offset);
+    this.range = new PlainValue$5.Range(start, offset);
     return offset;
   }
 
 }
 
-class Document extends PlainValueEc8e588e.Node {
+class Document$3 extends PlainValue$5.Node {
   static startCommentOrEndBlankLine(src, start) {
-    const offset = PlainValueEc8e588e.Node.endOfWhiteSpace(src, start);
+    const offset = PlainValue$5.Node.endOfWhiteSpace(src, start);
     const ch = src[offset];
     return ch === '#' || ch === '\n' ? offset : start;
   }
 
   constructor() {
-    super(PlainValueEc8e588e.Type.DOCUMENT);
+    super(PlainValue$5.Type.DOCUMENT);
     this.directives = null;
     this.contents = null;
     this.directivesEndMarker = null;
@@ -5674,8 +4252,8 @@ class Document extends PlainValueEc8e588e.Node {
     let hasDirectives = false;
     let offset = start;
 
-    while (!PlainValueEc8e588e.Node.atDocumentBoundary(src, offset, PlainValueEc8e588e.Char.DIRECTIVES_END)) {
-      offset = Document.startCommentOrEndBlankLine(src, offset);
+    while (!PlainValue$5.Node.atDocumentBoundary(src, offset, PlainValue$5.Char.DIRECTIVES_END)) {
+      offset = Document$3.startCommentOrEndBlankLine(src, offset);
 
       switch (src[offset]) {
         case '\n':
@@ -5721,7 +4299,7 @@ class Document extends PlainValueEc8e588e.Node {
 
         default:
           if (hasDirectives) {
-            this.error = new PlainValueEc8e588e.YAMLSemanticError(this, 'Missing directives-end indicator line');
+            this.error = new PlainValue$5.YAMLSemanticError(this, 'Missing directives-end indicator line');
           } else if (this.directives.length > 0) {
             this.contents = this.directives;
             this.directives = [];
@@ -5732,12 +4310,12 @@ class Document extends PlainValueEc8e588e.Node {
     }
 
     if (src[offset]) {
-      this.directivesEndMarker = new PlainValueEc8e588e.Range(offset, offset + 3);
+      this.directivesEndMarker = new PlainValue$5.Range(offset, offset + 3);
       return offset + 3;
     }
 
     if (hasDirectives) {
-      this.error = new PlainValueEc8e588e.YAMLSemanticError(this, 'Missing directives-end indicator line');
+      this.error = new PlainValue$5.YAMLSemanticError(this, 'Missing directives-end indicator line');
     } else if (this.directives.length > 0) {
       this.contents = this.directives;
       this.directives = [];
@@ -5756,11 +4334,11 @@ class Document extends PlainValueEc8e588e.Node {
 
     while (src[lineStart - 1] === '-') lineStart -= 1;
 
-    let offset = PlainValueEc8e588e.Node.endOfWhiteSpace(src, start);
+    let offset = PlainValue$5.Node.endOfWhiteSpace(src, start);
     let atLineStart = lineStart === start;
-    this.valueRange = new PlainValueEc8e588e.Range(offset);
+    this.valueRange = new PlainValue$5.Range(offset);
 
-    while (!PlainValueEc8e588e.Node.atDocumentBoundary(src, offset, PlainValueEc8e588e.Char.DOCUMENT_END)) {
+    while (!PlainValue$5.Node.atDocumentBoundary(src, offset, PlainValue$5.Char.DOCUMENT_END)) {
       switch (src[offset]) {
         case '\n':
           if (atLineStart) {
@@ -5793,7 +4371,7 @@ class Document extends PlainValueEc8e588e.Node {
 
         default:
           {
-            const iEnd = PlainValueEc8e588e.Node.endOfIndent(src, offset);
+            const iEnd = PlainValue$5.Node.endOfIndent(src, offset);
             const context = {
               atLineStart,
               indent: -1,
@@ -5813,17 +4391,17 @@ class Document extends PlainValueEc8e588e.Node {
           }
       }
 
-      offset = Document.startCommentOrEndBlankLine(src, offset);
+      offset = Document$3.startCommentOrEndBlankLine(src, offset);
     }
 
     this.valueRange.end = offset;
 
     if (src[offset]) {
-      this.documentEndMarker = new PlainValueEc8e588e.Range(offset, offset + 3);
+      this.documentEndMarker = new PlainValue$5.Range(offset, offset + 3);
       offset += 3;
 
       if (src[offset]) {
-        offset = PlainValueEc8e588e.Node.endOfWhiteSpace(src, offset);
+        offset = PlainValue$5.Node.endOfWhiteSpace(src, offset);
 
         if (src[offset] === '#') {
           const comment = new Comment();
@@ -5842,7 +4420,7 @@ class Document extends PlainValueEc8e588e.Node {
             break;
 
           default:
-            this.error = new PlainValueEc8e588e.YAMLSyntaxError(this, 'Document end marker line cannot have a non-comment suffix');
+            this.error = new PlainValue$5.YAMLSyntaxError(this, 'Document end marker line cannot have a non-comment suffix');
         }
       }
     }
@@ -5892,7 +4470,7 @@ class Document extends PlainValueEc8e588e.Node {
     let str = directives.join('');
 
     if (contents.length > 0) {
-      if (directives.length > 0 || contents[0].type === PlainValueEc8e588e.Type.COMMENT) str += '---\n';
+      if (directives.length > 0 || contents[0].type === PlainValue$5.Type.COMMENT) str += '---\n';
       str += contents.join('');
     }
 
@@ -5902,7 +4480,7 @@ class Document extends PlainValueEc8e588e.Node {
 
 }
 
-class Alias extends PlainValueEc8e588e.Node {
+class Alias$1 extends PlainValue$5.Node {
   /**
    * Parses an *alias from the source
    *
@@ -5915,9 +4493,9 @@ class Alias extends PlainValueEc8e588e.Node {
     const {
       src
     } = context;
-    let offset = PlainValueEc8e588e.Node.endOfIdentifier(src, start + 1);
-    this.valueRange = new PlainValueEc8e588e.Range(start + 1, offset);
-    offset = PlainValueEc8e588e.Node.endOfWhiteSpace(src, offset);
+    let offset = PlainValue$5.Node.endOfIdentifier(src, start + 1);
+    this.valueRange = new PlainValue$5.Range(start + 1, offset);
+    offset = PlainValue$5.Node.endOfWhiteSpace(src, offset);
     offset = this.parseComment(offset);
     return offset;
   }
@@ -5929,7 +4507,7 @@ const Chomp = {
   KEEP: 'KEEP',
   STRIP: 'STRIP'
 };
-class BlockValue extends PlainValueEc8e588e.Node {
+class BlockValue extends PlainValue$5.Node {
   constructor(type, props) {
     super(type, props);
     this.blockIndent = null;
@@ -5978,7 +4556,7 @@ class BlockValue extends PlainValueEc8e588e.Node {
     }
 
     const bi = indent + this.blockIndent;
-    const folded = this.type === PlainValueEc8e588e.Type.BLOCK_FOLDED;
+    const folded = this.type === PlainValue$5.Type.BLOCK_FOLDED;
     let atStart = true;
     let str = '';
     let sep = '';
@@ -5995,7 +4573,7 @@ class BlockValue extends PlainValueEc8e588e.Node {
       if (ch === '\n') {
         if (sep === '\n') str += '\n';else sep = '\n';
       } else {
-        const lineEnd = PlainValueEc8e588e.Node.endOfLine(src, i);
+        const lineEnd = PlainValue$5.Node.endOfLine(src, i);
         const line = src.slice(i, lineEnd);
         i = lineEnd;
 
@@ -6052,7 +4630,7 @@ class BlockValue extends PlainValueEc8e588e.Node {
 
         default:
           this.blockIndent = Number(bi) || null;
-          this.header = new PlainValueEc8e588e.Range(start, offset);
+          this.header = new PlainValue$5.Range(start, offset);
           return offset;
       }
 
@@ -6072,8 +4650,8 @@ class BlockValue extends PlainValueEc8e588e.Node {
 
     for (let ch = src[offset]; ch === '\n'; ch = src[offset]) {
       offset += 1;
-      if (PlainValueEc8e588e.Node.atDocumentBoundary(src, offset)) break;
-      const end = PlainValueEc8e588e.Node.endOfBlockIndent(src, indent, offset); // should not include tab?
+      if (PlainValue$5.Node.atDocumentBoundary(src, offset)) break;
+      const end = PlainValue$5.Node.endOfBlockIndent(src, indent, offset); // should not include tab?
 
       if (end === null) break;
       const ch = src[end];
@@ -6085,7 +4663,7 @@ class BlockValue extends PlainValueEc8e588e.Node {
           // first line with non-whitespace content
           if (lineIndent < minBlockIndent) {
             const msg = 'Block scalars with more-indented leading empty lines must use an explicit indentation indicator';
-            this.error = new PlainValueEc8e588e.YAMLSemanticError(this, msg);
+            this.error = new PlainValue$5.YAMLSemanticError(this, msg);
           }
 
           this.blockIndent = lineIndent;
@@ -6099,14 +4677,14 @@ class BlockValue extends PlainValueEc8e588e.Node {
         if (!this.error) {
           const src = explicit ? 'explicit indentation indicator' : 'first line';
           const msg = `Block scalars must not be less indented than their ${src}`;
-          this.error = new PlainValueEc8e588e.YAMLSemanticError(this, msg);
+          this.error = new PlainValue$5.YAMLSemanticError(this, msg);
         }
       }
 
       if (src[end] === '\n') {
         offset = end;
       } else {
-        offset = valueEnd = PlainValueEc8e588e.Node.endOfLine(src, end);
+        offset = valueEnd = PlainValue$5.Node.endOfLine(src, end);
       }
     }
 
@@ -6114,7 +4692,7 @@ class BlockValue extends PlainValueEc8e588e.Node {
       offset = src[valueEnd] ? valueEnd + 1 : valueEnd;
     }
 
-    this.valueRange = new PlainValueEc8e588e.Range(start + 1, offset);
+    this.valueRange = new PlainValue$5.Range(start + 1, offset);
     return offset;
   }
   /**
@@ -6145,7 +4723,7 @@ class BlockValue extends PlainValueEc8e588e.Node {
       src
     } = context;
     let offset = this.parseBlockHeader(start);
-    offset = PlainValueEc8e588e.Node.endOfWhiteSpace(src, offset);
+    offset = PlainValue$5.Node.endOfWhiteSpace(src, offset);
     offset = this.parseComment(offset);
     offset = this.parseBlockValue(offset);
     return offset;
@@ -6158,7 +4736,7 @@ class BlockValue extends PlainValueEc8e588e.Node {
 
 }
 
-class FlowCollection extends PlainValueEc8e588e.Node {
+class FlowCollection extends PlainValue$5.Node {
   constructor(type, props) {
     super(type, props);
     this.items = null;
@@ -6166,7 +4744,7 @@ class FlowCollection extends PlainValueEc8e588e.Node {
 
   prevNodeIsJsonLike(idx = this.items.length) {
     const node = this.items[idx - 1];
-    return !!node && (node.jsonLike || node.type === PlainValueEc8e588e.Type.COMMENT && this.prevNodeIsJsonLike(idx - 1));
+    return !!node && (node.jsonLike || node.type === PlainValue$5.Type.COMMENT && this.prevNodeIsJsonLike(idx - 1));
   }
   /**
    * @param {ParseContext} context
@@ -6191,7 +4769,7 @@ class FlowCollection extends PlainValueEc8e588e.Node {
       char,
       offset: start
     }];
-    let offset = PlainValueEc8e588e.Node.endOfWhiteSpace(src, start + 1);
+    let offset = PlainValue$5.Node.endOfWhiteSpace(src, start + 1);
     char = src[offset];
 
     while (char && char !== ']' && char !== '}') {
@@ -6199,7 +4777,7 @@ class FlowCollection extends PlainValueEc8e588e.Node {
         case '\n':
           {
             lineStart = offset + 1;
-            const wsEnd = PlainValueEc8e588e.Node.endOfWhiteSpace(src, lineStart);
+            const wsEnd = PlainValue$5.Node.endOfWhiteSpace(src, lineStart);
 
             if (src[wsEnd] === '\n') {
               const blankLine = new BlankLine();
@@ -6209,14 +4787,14 @@ class FlowCollection extends PlainValueEc8e588e.Node {
               this.items.push(blankLine);
             }
 
-            offset = PlainValueEc8e588e.Node.endOfIndent(src, lineStart);
+            offset = PlainValue$5.Node.endOfIndent(src, lineStart);
 
             if (offset <= lineStart + indent) {
               char = src[offset];
 
               if (offset < lineStart + indent || char !== ']' && char !== '}') {
                 const msg = 'Insufficient indentation in flow collection';
-                this.error = new PlainValueEc8e588e.YAMLSemanticError(this, msg);
+                this.error = new PlainValue$5.YAMLSemanticError(this, msg);
               }
             }
           }
@@ -6272,27 +4850,27 @@ class FlowCollection extends PlainValueEc8e588e.Node {
 
             if (!node) {
               // at next document start
-              this.valueRange = new PlainValueEc8e588e.Range(start, offset);
+              this.valueRange = new PlainValue$5.Range(start, offset);
               return offset;
             }
 
             this.items.push(node);
-            offset = PlainValueEc8e588e.Node.normalizeOffset(src, node.range.end);
+            offset = PlainValue$5.Node.normalizeOffset(src, node.range.end);
           }
       }
 
-      offset = PlainValueEc8e588e.Node.endOfWhiteSpace(src, offset);
+      offset = PlainValue$5.Node.endOfWhiteSpace(src, offset);
       char = src[offset];
     }
 
-    this.valueRange = new PlainValueEc8e588e.Range(start, offset + 1);
+    this.valueRange = new PlainValue$5.Range(start, offset + 1);
 
     if (char) {
       this.items.push({
         char,
         offset
       });
-      offset = PlainValueEc8e588e.Node.endOfWhiteSpace(src, offset + 1);
+      offset = PlainValue$5.Node.endOfWhiteSpace(src, offset + 1);
       offset = this.parseComment(offset);
     }
 
@@ -6302,7 +4880,7 @@ class FlowCollection extends PlainValueEc8e588e.Node {
   setOrigRanges(cr, offset) {
     offset = super.setOrigRanges(cr, offset);
     this.items.forEach(node => {
-      if (node instanceof PlainValueEc8e588e.Node) {
+      if (node instanceof PlainValue$5.Node) {
         offset = node.setOrigRanges(cr, offset);
       } else if (cr.length === 0) {
         node.origOffset = node.offset;
@@ -6330,7 +4908,7 @@ class FlowCollection extends PlainValueEc8e588e.Node {
       value
     } = this;
     if (value != null) return value;
-    const nodes = items.filter(item => item instanceof PlainValueEc8e588e.Node);
+    const nodes = items.filter(item => item instanceof PlainValue$5.Node);
     let str = '';
     let prevEnd = range.start;
     nodes.forEach(node => {
@@ -6346,12 +4924,12 @@ class FlowCollection extends PlainValueEc8e588e.Node {
       }
     });
     str += src.slice(prevEnd, range.end);
-    return PlainValueEc8e588e.Node.addStringTerminator(src, range.end, str);
+    return PlainValue$5.Node.addStringTerminator(src, range.end, str);
   }
 
 }
 
-class QuoteDouble extends PlainValueEc8e588e.Node {
+class QuoteDouble extends PlainValue$5.Node {
   static endOfQuote(src, offset) {
     let ch = src[offset];
 
@@ -6378,7 +4956,7 @@ class QuoteDouble extends PlainValueEc8e588e.Node {
       indent,
       src
     } = this.context;
-    if (src[end - 1] !== '"') errors.push(new PlainValueEc8e588e.YAMLSyntaxError(this, 'Missing closing "quote')); // Using String#replace is too painful with escaped newlines preceded by
+    if (src[end - 1] !== '"') errors.push(new PlainValue$5.YAMLSyntaxError(this, 'Missing closing "quote')); // Using String#replace is too painful with escaped newlines preceded by
     // escaped backslashes; also, this should be faster.
 
     let str = '';
@@ -6387,15 +4965,15 @@ class QuoteDouble extends PlainValueEc8e588e.Node {
       const ch = src[i];
 
       if (ch === '\n') {
-        if (PlainValueEc8e588e.Node.atDocumentBoundary(src, i + 1)) errors.push(new PlainValueEc8e588e.YAMLSemanticError(this, 'Document boundary indicators are not allowed within string values'));
+        if (PlainValue$5.Node.atDocumentBoundary(src, i + 1)) errors.push(new PlainValue$5.YAMLSemanticError(this, 'Document boundary indicators are not allowed within string values'));
         const {
           fold,
           offset,
           error
-        } = PlainValueEc8e588e.Node.foldNewline(src, i, indent);
+        } = PlainValue$5.Node.foldNewline(src, i, indent);
         str += fold;
         i = offset;
-        if (error) errors.push(new PlainValueEc8e588e.YAMLSemanticError(this, 'Multi-line double-quoted string needs to be sufficiently indented'));
+        if (error) errors.push(new PlainValue$5.YAMLSemanticError(this, 'Multi-line double-quoted string needs to be sufficiently indented'));
       } else if (ch === '\\') {
         i += 1;
 
@@ -6507,7 +5085,7 @@ class QuoteDouble extends PlainValueEc8e588e.Node {
             break;
 
           default:
-            errors.push(new PlainValueEc8e588e.YAMLSyntaxError(this, `Invalid escape sequence ${src.substr(i - 1, 2)}`));
+            errors.push(new PlainValue$5.YAMLSyntaxError(this, `Invalid escape sequence ${src.substr(i - 1, 2)}`));
             str += '\\' + src[i];
         }
       } else if (ch === ' ' || ch === '\t') {
@@ -6541,7 +5119,7 @@ class QuoteDouble extends PlainValueEc8e588e.Node {
     const code = ok ? parseInt(cc, 16) : NaN;
 
     if (isNaN(code)) {
-      errors.push(new PlainValueEc8e588e.YAMLSyntaxError(this, `Invalid escape sequence ${src.substr(offset - 2, length + 2)}`));
+      errors.push(new PlainValue$5.YAMLSyntaxError(this, `Invalid escape sequence ${src.substr(offset - 2, length + 2)}`));
       return src.substr(offset - 2, length + 2);
     }
 
@@ -6562,15 +5140,15 @@ class QuoteDouble extends PlainValueEc8e588e.Node {
       src
     } = context;
     let offset = QuoteDouble.endOfQuote(src, start + 1);
-    this.valueRange = new PlainValueEc8e588e.Range(start, offset);
-    offset = PlainValueEc8e588e.Node.endOfWhiteSpace(src, offset);
+    this.valueRange = new PlainValue$5.Range(start, offset);
+    offset = PlainValue$5.Node.endOfWhiteSpace(src, offset);
     offset = this.parseComment(offset);
     return offset;
   }
 
 }
 
-class QuoteSingle extends PlainValueEc8e588e.Node {
+class QuoteSingle extends PlainValue$5.Node {
   static endOfQuote(src, offset) {
     let ch = src[offset];
 
@@ -6601,26 +5179,26 @@ class QuoteSingle extends PlainValueEc8e588e.Node {
       indent,
       src
     } = this.context;
-    if (src[end - 1] !== "'") errors.push(new PlainValueEc8e588e.YAMLSyntaxError(this, "Missing closing 'quote"));
+    if (src[end - 1] !== "'") errors.push(new PlainValue$5.YAMLSyntaxError(this, "Missing closing 'quote"));
     let str = '';
 
     for (let i = start + 1; i < end - 1; ++i) {
       const ch = src[i];
 
       if (ch === '\n') {
-        if (PlainValueEc8e588e.Node.atDocumentBoundary(src, i + 1)) errors.push(new PlainValueEc8e588e.YAMLSemanticError(this, 'Document boundary indicators are not allowed within string values'));
+        if (PlainValue$5.Node.atDocumentBoundary(src, i + 1)) errors.push(new PlainValue$5.YAMLSemanticError(this, 'Document boundary indicators are not allowed within string values'));
         const {
           fold,
           offset,
           error
-        } = PlainValueEc8e588e.Node.foldNewline(src, i, indent);
+        } = PlainValue$5.Node.foldNewline(src, i, indent);
         str += fold;
         i = offset;
-        if (error) errors.push(new PlainValueEc8e588e.YAMLSemanticError(this, 'Multi-line single-quoted string needs to be sufficiently indented'));
+        if (error) errors.push(new PlainValue$5.YAMLSemanticError(this, 'Multi-line single-quoted string needs to be sufficiently indented'));
       } else if (ch === "'") {
         str += ch;
         i += 1;
-        if (src[i] !== "'") errors.push(new PlainValueEc8e588e.YAMLSyntaxError(this, 'Unescaped single quote? This should not happen.'));
+        if (src[i] !== "'") errors.push(new PlainValue$5.YAMLSyntaxError(this, 'Unescaped single quote? This should not happen.'));
       } else if (ch === ' ' || ch === '\t') {
         // trim trailing whitespace
         const wsStart = i;
@@ -6657,8 +5235,8 @@ class QuoteSingle extends PlainValueEc8e588e.Node {
       src
     } = context;
     let offset = QuoteSingle.endOfQuote(src, start + 1);
-    this.valueRange = new PlainValueEc8e588e.Range(start, offset);
-    offset = PlainValueEc8e588e.Node.endOfWhiteSpace(src, offset);
+    this.valueRange = new PlainValue$5.Range(start, offset);
+    offset = PlainValue$5.Node.endOfWhiteSpace(src, offset);
     offset = this.parseComment(offset);
     return offset;
   }
@@ -6667,30 +5245,30 @@ class QuoteSingle extends PlainValueEc8e588e.Node {
 
 function createNewNode(type, props) {
   switch (type) {
-    case PlainValueEc8e588e.Type.ALIAS:
-      return new Alias(type, props);
+    case PlainValue$5.Type.ALIAS:
+      return new Alias$1(type, props);
 
-    case PlainValueEc8e588e.Type.BLOCK_FOLDED:
-    case PlainValueEc8e588e.Type.BLOCK_LITERAL:
+    case PlainValue$5.Type.BLOCK_FOLDED:
+    case PlainValue$5.Type.BLOCK_LITERAL:
       return new BlockValue(type, props);
 
-    case PlainValueEc8e588e.Type.FLOW_MAP:
-    case PlainValueEc8e588e.Type.FLOW_SEQ:
+    case PlainValue$5.Type.FLOW_MAP:
+    case PlainValue$5.Type.FLOW_SEQ:
       return new FlowCollection(type, props);
 
-    case PlainValueEc8e588e.Type.MAP_KEY:
-    case PlainValueEc8e588e.Type.MAP_VALUE:
-    case PlainValueEc8e588e.Type.SEQ_ITEM:
+    case PlainValue$5.Type.MAP_KEY:
+    case PlainValue$5.Type.MAP_VALUE:
+    case PlainValue$5.Type.SEQ_ITEM:
       return new CollectionItem(type, props);
 
-    case PlainValueEc8e588e.Type.COMMENT:
-    case PlainValueEc8e588e.Type.PLAIN:
-      return new PlainValueEc8e588e.PlainValue(type, props);
+    case PlainValue$5.Type.COMMENT:
+    case PlainValue$5.Type.PLAIN:
+      return new PlainValue$5.PlainValue(type, props);
 
-    case PlainValueEc8e588e.Type.QUOTE_DOUBLE:
+    case PlainValue$5.Type.QUOTE_DOUBLE:
       return new QuoteDouble(type, props);
 
-    case PlainValueEc8e588e.Type.QUOTE_SINGLE:
+    case PlainValue$5.Type.QUOTE_SINGLE:
       return new QuoteSingle(type, props);
 
     /* istanbul ignore next */
@@ -6715,37 +5293,37 @@ class ParseContext {
   static parseType(src, offset, inFlow) {
     switch (src[offset]) {
       case '*':
-        return PlainValueEc8e588e.Type.ALIAS;
+        return PlainValue$5.Type.ALIAS;
 
       case '>':
-        return PlainValueEc8e588e.Type.BLOCK_FOLDED;
+        return PlainValue$5.Type.BLOCK_FOLDED;
 
       case '|':
-        return PlainValueEc8e588e.Type.BLOCK_LITERAL;
+        return PlainValue$5.Type.BLOCK_LITERAL;
 
       case '{':
-        return PlainValueEc8e588e.Type.FLOW_MAP;
+        return PlainValue$5.Type.FLOW_MAP;
 
       case '[':
-        return PlainValueEc8e588e.Type.FLOW_SEQ;
+        return PlainValue$5.Type.FLOW_SEQ;
 
       case '?':
-        return !inFlow && PlainValueEc8e588e.Node.atBlank(src, offset + 1, true) ? PlainValueEc8e588e.Type.MAP_KEY : PlainValueEc8e588e.Type.PLAIN;
+        return !inFlow && PlainValue$5.Node.atBlank(src, offset + 1, true) ? PlainValue$5.Type.MAP_KEY : PlainValue$5.Type.PLAIN;
 
       case ':':
-        return !inFlow && PlainValueEc8e588e.Node.atBlank(src, offset + 1, true) ? PlainValueEc8e588e.Type.MAP_VALUE : PlainValueEc8e588e.Type.PLAIN;
+        return !inFlow && PlainValue$5.Node.atBlank(src, offset + 1, true) ? PlainValue$5.Type.MAP_VALUE : PlainValue$5.Type.PLAIN;
 
       case '-':
-        return !inFlow && PlainValueEc8e588e.Node.atBlank(src, offset + 1, true) ? PlainValueEc8e588e.Type.SEQ_ITEM : PlainValueEc8e588e.Type.PLAIN;
+        return !inFlow && PlainValue$5.Node.atBlank(src, offset + 1, true) ? PlainValue$5.Type.SEQ_ITEM : PlainValue$5.Type.PLAIN;
 
       case '"':
-        return PlainValueEc8e588e.Type.QUOTE_DOUBLE;
+        return PlainValue$5.Type.QUOTE_DOUBLE;
 
       case "'":
-        return PlainValueEc8e588e.Type.QUOTE_SINGLE;
+        return PlainValue$5.Type.QUOTE_SINGLE;
 
       default:
-        return PlainValueEc8e588e.Type.PLAIN;
+        return PlainValue$5.Type.PLAIN;
     }
   }
 
@@ -6757,8 +5335,8 @@ class ParseContext {
     lineStart,
     parent
   } = {}) {
-    PlainValueEc8e588e._defineProperty(this, "parseNode", (overlay, start) => {
-      if (PlainValueEc8e588e.Node.atDocumentBoundary(this.src, start)) return null;
+    PlainValue$5._defineProperty(this, "parseNode", (overlay, start) => {
+      if (PlainValue$5.Node.atDocumentBoundary(this.src, start)) return null;
       const context = new ParseContext(this, overlay);
       const {
         props,
@@ -6767,7 +5345,7 @@ class ParseContext {
       } = context.parseProps(start);
       const node = createNewNode(type, props);
       let offset = node.parse(context, valueStart);
-      node.range = new PlainValueEc8e588e.Range(start, offset);
+      node.range = new PlainValue$5.Range(start, offset);
       /* istanbul ignore if */
 
       if (offset <= start) {
@@ -6780,13 +5358,13 @@ class ParseContext {
       }
 
       if (context.nodeStartsCollection(node)) {
-        if (!node.error && !context.atLineStart && context.parent.type === PlainValueEc8e588e.Type.DOCUMENT) {
-          node.error = new PlainValueEc8e588e.YAMLSyntaxError(node, 'Block collection must not have preceding content here (e.g. directives-end indicator)');
+        if (!node.error && !context.atLineStart && context.parent.type === PlainValue$5.Type.DOCUMENT) {
+          node.error = new PlainValue$5.YAMLSyntaxError(node, 'Block collection must not have preceding content here (e.g. directives-end indicator)');
         }
 
-        const collection = new Collection(node);
+        const collection = new Collection$1(node);
         offset = collection.parse(new ParseContext(context), offset);
-        collection.range = new PlainValueEc8e588e.Range(start, offset);
+        collection.range = new PlainValue$5.Range(start, offset);
         return collection;
       }
 
@@ -6814,7 +5392,7 @@ class ParseContext {
 
     let offset = node.range.end;
     if (src[offset] === '\n' || src[offset - 1] === '\n') return false;
-    offset = PlainValueEc8e588e.Node.endOfWhiteSpace(src, offset);
+    offset = PlainValue$5.Node.endOfWhiteSpace(src, offset);
     return src[offset] === ':';
   } // Anchor and tag are before type, which determines the node implementation
   // class; hence this intermediate step.
@@ -6828,45 +5406,51 @@ class ParseContext {
     } = this;
     const props = [];
     let lineHasProps = false;
-    offset = this.atLineStart ? PlainValueEc8e588e.Node.endOfIndent(src, offset) : PlainValueEc8e588e.Node.endOfWhiteSpace(src, offset);
+    offset = this.atLineStart ? PlainValue$5.Node.endOfIndent(src, offset) : PlainValue$5.Node.endOfWhiteSpace(src, offset);
     let ch = src[offset];
 
-    while (ch === PlainValueEc8e588e.Char.ANCHOR || ch === PlainValueEc8e588e.Char.COMMENT || ch === PlainValueEc8e588e.Char.TAG || ch === '\n') {
+    while (ch === PlainValue$5.Char.ANCHOR || ch === PlainValue$5.Char.COMMENT || ch === PlainValue$5.Char.TAG || ch === '\n') {
       if (ch === '\n') {
-        const lineStart = offset + 1;
-        const inEnd = PlainValueEc8e588e.Node.endOfIndent(src, lineStart);
+        let inEnd = offset;
+        let lineStart;
+
+        do {
+          lineStart = inEnd + 1;
+          inEnd = PlainValue$5.Node.endOfIndent(src, lineStart);
+        } while (src[inEnd] === '\n');
+
         const indentDiff = inEnd - (lineStart + this.indent);
-        const noIndicatorAsIndent = parent.type === PlainValueEc8e588e.Type.SEQ_ITEM && parent.context.atLineStart;
-        if (!PlainValueEc8e588e.Node.nextNodeIsIndented(src[inEnd], indentDiff, !noIndicatorAsIndent)) break;
+        const noIndicatorAsIndent = parent.type === PlainValue$5.Type.SEQ_ITEM && parent.context.atLineStart;
+        if (src[inEnd] !== '#' && !PlainValue$5.Node.nextNodeIsIndented(src[inEnd], indentDiff, !noIndicatorAsIndent)) break;
         this.atLineStart = true;
         this.lineStart = lineStart;
         lineHasProps = false;
         offset = inEnd;
-      } else if (ch === PlainValueEc8e588e.Char.COMMENT) {
-        const end = PlainValueEc8e588e.Node.endOfLine(src, offset + 1);
-        props.push(new PlainValueEc8e588e.Range(offset, end));
+      } else if (ch === PlainValue$5.Char.COMMENT) {
+        const end = PlainValue$5.Node.endOfLine(src, offset + 1);
+        props.push(new PlainValue$5.Range(offset, end));
         offset = end;
       } else {
-        let end = PlainValueEc8e588e.Node.endOfIdentifier(src, offset + 1);
+        let end = PlainValue$5.Node.endOfIdentifier(src, offset + 1);
 
-        if (ch === PlainValueEc8e588e.Char.TAG && src[end] === ',' && /^[a-zA-Z0-9-]+\.[a-zA-Z0-9-]+,\d\d\d\d(-\d\d){0,2}\/\S/.test(src.slice(offset + 1, end + 13))) {
+        if (ch === PlainValue$5.Char.TAG && src[end] === ',' && /^[a-zA-Z0-9-]+\.[a-zA-Z0-9-]+,\d\d\d\d(-\d\d){0,2}\/\S/.test(src.slice(offset + 1, end + 13))) {
           // Let's presume we're dealing with a YAML 1.0 domain tag here, rather
           // than an empty but 'foo.bar' private-tagged node in a flow collection
           // followed without whitespace by a plain string starting with a year
           // or date divided by something.
-          end = PlainValueEc8e588e.Node.endOfIdentifier(src, end + 5);
+          end = PlainValue$5.Node.endOfIdentifier(src, end + 5);
         }
 
-        props.push(new PlainValueEc8e588e.Range(offset, end));
+        props.push(new PlainValue$5.Range(offset, end));
         lineHasProps = true;
-        offset = PlainValueEc8e588e.Node.endOfWhiteSpace(src, end);
+        offset = PlainValue$5.Node.endOfWhiteSpace(src, end);
       }
 
       ch = src[offset];
     } // '- &a : b' has an anchor on an empty node
 
 
-    if (lineHasProps && ch === ':' && PlainValueEc8e588e.Node.atBlank(src, offset + 1, true)) offset -= 1;
+    if (lineHasProps && ch === ':' && PlainValue$5.Node.atBlank(src, offset + 1, true)) offset -= 1;
     const type = ParseContext.parseType(src, offset, inFlow);
     return {
       props,
@@ -6885,7 +5469,7 @@ class ParseContext {
 }
 
 // Published as 'yaml/parse-cst'
-function parse(src) {
+function parse$1(src) {
   const cr = [];
 
   if (src.indexOf('\r') !== -1) {
@@ -6899,7 +5483,7 @@ function parse(src) {
   let offset = 0;
 
   do {
-    const doc = new Document();
+    const doc = new Document$3();
     const context = new ParseContext({
       src
     });
@@ -6927,11 +5511,13 @@ function parse(src) {
   return documents;
 }
 
-var parse_1 = parse;
+parseCst$1.parse = parse$1;
 
-var parseCst = {
-	parse: parse_1
-};
+var Document9b4560a1 = {};
+
+var resolveSeqD03cb037 = {};
+
+var PlainValue$4 = PlainValueEc8e588e;
 
 function addCommentBefore(str, indent, comment) {
   if (!comment) return str;
@@ -6942,7 +5528,7 @@ function addComment(str, indent, comment) {
   return !comment ? str : comment.indexOf('\n') === -1 ? `${str} #${comment}` : `${str}\n` + comment.replace(/^/gm, `${indent || ''}#`);
 }
 
-class Node$1 {}
+class Node {}
 
 function toJSON(value, arg, ctx) {
   if (Array.isArray(value)) return value.map((v, i) => toJSON(v, String(i), ctx));
@@ -6962,7 +5548,7 @@ function toJSON(value, arg, ctx) {
   return value;
 }
 
-class Scalar extends Node$1 {
+class Scalar extends Node {
   constructor(value) {
     super();
     this.value = value;
@@ -6983,9 +5569,21 @@ function collectionFromPath(schema, path, value) {
 
   for (let i = path.length - 1; i >= 0; --i) {
     const k = path[i];
-    const o = Number.isInteger(k) && k >= 0 ? [] : {};
-    o[k] = v;
-    v = o;
+
+    if (Number.isInteger(k) && k >= 0) {
+      const a = [];
+      a[k] = v;
+      v = a;
+    } else {
+      const o = {};
+      Object.defineProperty(o, k, {
+        value: v,
+        writable: true,
+        enumerable: true,
+        configurable: true
+      });
+      v = o;
+    }
   }
 
   return schema.createNode(v, false);
@@ -6993,11 +5591,11 @@ function collectionFromPath(schema, path, value) {
 
 
 const isEmptyPath = path => path == null || typeof path === 'object' && path[Symbol.iterator]().next().done;
-class Collection$1 extends Node$1 {
+class Collection extends Node {
   constructor(schema) {
     super();
 
-    PlainValueEc8e588e._defineProperty(this, "items", []);
+    PlainValue$4._defineProperty(this, "items", []);
 
     this.schema = schema;
   }
@@ -7006,19 +5604,19 @@ class Collection$1 extends Node$1 {
     if (isEmptyPath(path)) this.add(value);else {
       const [key, ...rest] = path;
       const node = this.get(key, true);
-      if (node instanceof Collection$1) node.addIn(rest, value);else if (node === undefined && this.schema) this.set(key, collectionFromPath(this.schema, rest, value));else throw new Error(`Expected YAML collection at ${key}. Remaining path: ${rest}`);
+      if (node instanceof Collection) node.addIn(rest, value);else if (node === undefined && this.schema) this.set(key, collectionFromPath(this.schema, rest, value));else throw new Error(`Expected YAML collection at ${key}. Remaining path: ${rest}`);
     }
   }
 
   deleteIn([key, ...rest]) {
     if (rest.length === 0) return this.delete(key);
     const node = this.get(key, true);
-    if (node instanceof Collection$1) return node.deleteIn(rest);else throw new Error(`Expected YAML collection at ${key}. Remaining path: ${rest}`);
+    if (node instanceof Collection) return node.deleteIn(rest);else throw new Error(`Expected YAML collection at ${key}. Remaining path: ${rest}`);
   }
 
   getIn([key, ...rest], keepScalar) {
     const node = this.get(key, true);
-    if (rest.length === 0) return !keepScalar && node instanceof Scalar ? node.value : node;else return node instanceof Collection$1 ? node.getIn(rest, keepScalar) : undefined;
+    if (rest.length === 0) return !keepScalar && node instanceof Scalar ? node.value : node;else return node instanceof Collection ? node.getIn(rest, keepScalar) : undefined;
   }
 
   hasAllNullValues() {
@@ -7032,7 +5630,7 @@ class Collection$1 extends Node$1 {
   hasIn([key, ...rest]) {
     if (rest.length === 0) return this.has(key);
     const node = this.get(key, true);
-    return node instanceof Collection$1 ? node.hasIn(rest) : false;
+    return node instanceof Collection ? node.hasIn(rest) : false;
   }
 
   setIn([key, ...rest], value) {
@@ -7040,7 +5638,7 @@ class Collection$1 extends Node$1 {
       this.set(key, value);
     } else {
       const node = this.get(key, true);
-      if (node instanceof Collection$1) node.setIn(rest, value);else if (node === undefined && this.schema) this.set(key, collectionFromPath(this.schema, rest, value));else throw new Error(`Expected YAML collection at ${key}. Remaining path: ${rest}`);
+      if (node instanceof Collection) node.setIn(rest, value);else if (node === undefined && this.schema) this.set(key, collectionFromPath(this.schema, rest, value));else throw new Error(`Expected YAML collection at ${key}. Remaining path: ${rest}`);
     }
   } // overridden in implementations
 
@@ -7062,7 +5660,7 @@ class Collection$1 extends Node$1 {
       indentStep,
       stringify
     } = ctx;
-    const inFlow = this.type === PlainValueEc8e588e.Type.FLOW_MAP || this.type === PlainValueEc8e588e.Type.FLOW_SEQ || ctx.inFlow;
+    const inFlow = this.type === PlainValue$4.Type.FLOW_MAP || this.type === PlainValue$4.Type.FLOW_SEQ || ctx.inFlow;
     if (inFlow) itemIndent += indentStep;
     const allNullValues = isMap && this.hasAllNullValues();
     ctx = Object.assign({}, ctx, {
@@ -7114,7 +5712,7 @@ class Collection$1 extends Node$1 {
       } = flowChars;
       const strings = nodes.map(n => n.str);
 
-      if (hasItemWithNewLine || strings.reduce((sum, str) => sum + str.length + 2, 2) > Collection$1.maxFlowStringSingleLineLength) {
+      if (hasItemWithNewLine || strings.reduce((sum, str) => sum + str.length + 2, 2) > Collection.maxFlowStringSingleLineLength) {
         str = start;
 
         for (const s of strings) {
@@ -7142,7 +5740,7 @@ class Collection$1 extends Node$1 {
 
 }
 
-PlainValueEc8e588e._defineProperty(Collection$1, "maxFlowStringSingleLineLength", 60);
+PlainValue$4._defineProperty(Collection, "maxFlowStringSingleLineLength", 60);
 
 function asItemIndex(key) {
   let idx = key instanceof Scalar ? key.value : key;
@@ -7150,7 +5748,7 @@ function asItemIndex(key) {
   return Number.isInteger(idx) && idx >= 0 ? idx : null;
 }
 
-class YAMLSeq extends Collection$1 {
+class YAMLSeq extends Collection {
   add(value) {
     this.items.push(value);
   }
@@ -7208,8 +5806,8 @@ class YAMLSeq extends Collection$1 {
 const stringifyKey = (key, jsKey, ctx) => {
   if (jsKey === null) return '';
   if (typeof jsKey !== 'object') return String(jsKey);
-  if (key instanceof Node$1 && ctx && ctx.doc) return key.toString({
-    anchors: {},
+  if (key instanceof Node && ctx && ctx.doc) return key.toString({
+    anchors: Object.create(null),
     doc: ctx.doc,
     indent: '',
     indentStep: ctx.indentStep,
@@ -7220,7 +5818,7 @@ const stringifyKey = (key, jsKey, ctx) => {
   return JSON.stringify(jsKey);
 };
 
-class Pair extends Node$1 {
+class Pair extends Node {
   constructor(key, value = null) {
     super();
     this.key = key;
@@ -7229,12 +5827,12 @@ class Pair extends Node$1 {
   }
 
   get commentBefore() {
-    return this.key instanceof Node$1 ? this.key.commentBefore : undefined;
+    return this.key instanceof Node ? this.key.commentBefore : undefined;
   }
 
   set commentBefore(cb) {
     if (this.key == null) this.key = new Scalar(null);
-    if (this.key instanceof Node$1) this.key.commentBefore = cb;else {
+    if (this.key instanceof Node) this.key.commentBefore = cb;else {
       const msg = 'Pair.commentBefore is an alias for Pair.key.commentBefore. To set it, the key must be a Node.';
       throw new Error(msg);
     }
@@ -7250,7 +5848,13 @@ class Pair extends Node$1 {
       map.add(key);
     } else {
       const stringKey = stringifyKey(this.key, key, ctx);
-      map[stringKey] = toJSON(this.value, stringKey, ctx);
+      const value = toJSON(this.value, stringKey, ctx);
+      if (stringKey in map) Object.defineProperty(map, stringKey, {
+        value,
+        writable: true,
+        enumerable: true,
+        configurable: true
+      });else map[stringKey] = value;
     }
 
     return map;
@@ -7272,20 +5876,20 @@ class Pair extends Node$1 {
       key,
       value
     } = this;
-    let keyComment = key instanceof Node$1 && key.comment;
+    let keyComment = key instanceof Node && key.comment;
 
     if (simpleKeys) {
       if (keyComment) {
         throw new Error('With simple keys, key nodes cannot have comments');
       }
 
-      if (key instanceof Collection$1) {
+      if (key instanceof Collection) {
         const msg = 'With simple keys, collection cannot be used as a key value';
         throw new Error(msg);
       }
     }
 
-    const explicitKey = !simpleKeys && (!key || keyComment || key instanceof Collection$1 || key.type === PlainValueEc8e588e.Type.BLOCK_FOLDED || key.type === PlainValueEc8e588e.Type.BLOCK_LITERAL);
+    let explicitKey = !simpleKeys && (!key || keyComment || (key instanceof Node ? key instanceof Collection || key.type === PlainValue$4.Type.BLOCK_FOLDED || key.type === PlainValue$4.Type.BLOCK_LITERAL : typeof key === 'object'));
     const {
       doc,
       indent,
@@ -7300,13 +5904,18 @@ class Pair extends Node$1 {
     let str = stringify(key, ctx, () => keyComment = null, () => chompKeep = true);
     str = addComment(str, ctx.indent, keyComment);
 
+    if (!explicitKey && str.length > 1024) {
+      if (simpleKeys) throw new Error('With simple keys, single line scalar must not span more than 1024 characters');
+      explicitKey = true;
+    }
+
     if (ctx.allNullValues && !simpleKeys) {
       if (this.comment) {
         str = addComment(str, ctx.indent, this.comment);
         if (onComment) onComment();
       } else if (chompKeep && !keyComment && onChompKeep) onChompKeep();
 
-      return ctx.inFlow ? str : `? ${str}`;
+      return ctx.inFlow && !explicitKey ? str : `? ${str}`;
     }
 
     str = explicitKey ? `? ${str}\n${indent}:` : `${str}:`;
@@ -7320,7 +5929,7 @@ class Pair extends Node$1 {
     let vcb = '';
     let valueComment = null;
 
-    if (value instanceof Node$1) {
+    if (value instanceof Node) {
       if (value.spaceBefore) vcb = '\n';
 
       if (value.commentBefore) {
@@ -7337,7 +5946,7 @@ class Pair extends Node$1 {
     if (!explicitKey && !this.comment && value instanceof Scalar) ctx.indentAtStart = str.length + 1;
     chompKeep = false;
 
-    if (!indentSeq && indentSize >= 2 && !ctx.inFlow && !explicitKey && value instanceof YAMLSeq && value.type !== PlainValueEc8e588e.Type.FLOW_SEQ && !value.tag && !doc.anchors.getName(value)) {
+    if (!indentSeq && indentSize >= 2 && !ctx.inFlow && !explicitKey && value instanceof YAMLSeq && value.type !== PlainValue$4.Type.FLOW_SEQ && !value.tag && !doc.anchors.getName(value)) {
       // If indentSeq === false, consider '- ' as part of indentation where possible
       ctx.indent = ctx.indent.substr(2);
     }
@@ -7347,10 +5956,10 @@ class Pair extends Node$1 {
 
     if (vcb || this.comment) {
       ws = `${vcb}\n${ctx.indent}`;
-    } else if (!explicitKey && value instanceof Collection$1) {
+    } else if (!explicitKey && value instanceof Collection) {
       const flow = valueStr[0] === '[' || valueStr[0] === '{';
       if (!flow || valueStr.includes('\n')) ws = `\n${ctx.indent}`;
-    }
+    } else if (valueStr[0] === '\n') ws = '';
 
     if (chompKeep && !valueComment && onChompKeep) onChompKeep();
     return addComment(str + ws + valueStr, ctx.indent, valueComment);
@@ -7358,16 +5967,16 @@ class Pair extends Node$1 {
 
 }
 
-PlainValueEc8e588e._defineProperty(Pair, "Type", {
+PlainValue$4._defineProperty(Pair, "Type", {
   PAIR: 'PAIR',
   MERGE_PAIR: 'MERGE_PAIR'
 });
 
 const getAliasCount = (node, anchors) => {
-  if (node instanceof Alias$1) {
+  if (node instanceof Alias) {
     const anchor = anchors.get(node.source);
     return anchor.count * anchor.aliasCount;
-  } else if (node instanceof Collection$1) {
+  } else if (node instanceof Collection) {
     let count = 0;
 
     for (const item of node.items) {
@@ -7385,7 +5994,7 @@ const getAliasCount = (node, anchors) => {
   return 1;
 };
 
-class Alias$1 extends Node$1 {
+class Alias extends Node {
   static stringify({
     range,
     source
@@ -7405,7 +6014,7 @@ class Alias$1 extends Node$1 {
   constructor(source) {
     super();
     this.source = source;
-    this.type = PlainValueEc8e588e.Type.ALIAS;
+    this.type = PlainValue$4.Type.ALIAS;
   }
 
   set tag(t) {
@@ -7423,7 +6032,7 @@ class Alias$1 extends Node$1 {
 
     if (!anchor || anchor.res === undefined) {
       const msg = 'This should not happen: Alias anchor was not resolved?';
-      if (this.cstNode) throw new PlainValueEc8e588e.YAMLReferenceError(this.cstNode, msg);else throw new ReferenceError(msg);
+      if (this.cstNode) throw new PlainValue$4.YAMLReferenceError(this.cstNode, msg);else throw new ReferenceError(msg);
     }
 
     if (maxAliasCount >= 0) {
@@ -7432,7 +6041,7 @@ class Alias$1 extends Node$1 {
 
       if (anchor.count * anchor.aliasCount > maxAliasCount) {
         const msg = 'Excessive alias count indicates a resource exhaustion attack';
-        if (this.cstNode) throw new PlainValueEc8e588e.YAMLReferenceError(this.cstNode, msg);else throw new ReferenceError(msg);
+        if (this.cstNode) throw new PlainValue$4.YAMLReferenceError(this.cstNode, msg);else throw new ReferenceError(msg);
       }
     }
 
@@ -7442,12 +6051,12 @@ class Alias$1 extends Node$1 {
 
 
   toString(ctx) {
-    return Alias$1.stringify(this, ctx);
+    return Alias.stringify(this, ctx);
   }
 
 }
 
-PlainValueEc8e588e._defineProperty(Alias$1, "default", true);
+PlainValue$4._defineProperty(Alias, "default", true);
 
 function findPair(items, key) {
   const k = key instanceof Scalar ? key.value : key;
@@ -7461,7 +6070,7 @@ function findPair(items, key) {
 
   return undefined;
 }
-class YAMLMap extends Collection$1 {
+class YAMLMap extends Collection {
   add(pair, overwrite) {
     if (!pair) pair = new Pair(pair);else if (!(pair instanceof Pair)) pair = new Pair(pair.key || pair, pair.value);
     const prev = findPair(this.items, pair.key);
@@ -7574,8 +6183,13 @@ class Merge extends Pair {
           if (!map.has(key)) map.set(key, value);
         } else if (map instanceof Set) {
           map.add(key);
-        } else {
-          if (!Object.prototype.hasOwnProperty.call(map, key)) map[key] = value;
+        } else if (!Object.prototype.hasOwnProperty.call(map, key)) {
+          Object.defineProperty(map, key, {
+            value,
+            writable: true,
+            enumerable: true,
+            configurable: true
+          });
         }
       }
     }
@@ -7595,7 +6209,7 @@ class Merge extends Pair {
 }
 
 const binaryOptions = {
-  defaultType: PlainValueEc8e588e.Type.BLOCK_LITERAL,
+  defaultType: PlainValue$4.Type.BLOCK_LITERAL,
   lineWidth: 76
 };
 const boolOptions = {
@@ -7609,7 +6223,7 @@ const nullOptions = {
   nullStr: 'null'
 };
 const strOptions = {
-  defaultType: PlainValueEc8e588e.Type.PLAIN,
+  defaultType: PlainValue$4.Type.PLAIN,
   doubleQuoted: {
     jsonEncoding: false,
     minMultiLineLength: 40
@@ -7675,7 +6289,7 @@ const consumeMoreIndentedLines = (text, i) => {
  *   the first line, defaulting to `indent.length`
  * @param {number} [options.lineWidth=80]
  * @param {number} [options.minContentWidth=20] Allow highly indented lines to
- *   stretch the line width
+ *   stretch the line width or indent content from the start
  * @param {function} options.onFold Called once if the text is folded
  * @param {function} options.onFold Called once if any line of text exceeds
  *   lineWidth characters
@@ -7694,11 +6308,18 @@ function foldFlowLines(text, indent, mode, {
   if (text.length <= endStep) return text;
   const folds = [];
   const escapedFolds = {};
-  let end = lineWidth - (typeof indentAtStart === 'number' ? indentAtStart : indent.length);
+  let end = lineWidth - indent.length;
+
+  if (typeof indentAtStart === 'number') {
+    if (indentAtStart > lineWidth - Math.max(2, minContentWidth)) folds.push(0);else end = lineWidth - indentAtStart;
+  }
+
   let split = undefined;
   let prev = undefined;
   let overflow = false;
   let i = -1;
+  let escStart = -1;
+  let escEnd = -1;
 
   if (mode === FOLD_BLOCK) {
     i = consumeMoreIndentedLines(text, i);
@@ -7707,6 +6328,8 @@ function foldFlowLines(text, indent, mode, {
 
   for (let ch; ch = text[i += 1];) {
     if (mode === FOLD_QUOTED && ch === '\\') {
+      escStart = i;
+
       switch (text[i + 1]) {
         case 'x':
           i += 3;
@@ -7723,6 +6346,8 @@ function foldFlowLines(text, indent, mode, {
         default:
           i += 1;
       }
+
+      escEnd = i;
     }
 
     if (ch === '\n') {
@@ -7747,12 +6372,15 @@ function foldFlowLines(text, indent, mode, {
             prev = ch;
             ch = text[i += 1];
             overflow = true;
-          } // i - 2 accounts for not-dropped last char + newline-escaping \
+          } // Account for newline escape, but don't break preceding escape
 
 
-          folds.push(i - 2);
-          escapedFolds[i - 2] = true;
-          end = i - 2 + endStep;
+          const j = i > escEnd + 1 ? i - 2 : escStart - 1; // Bail out if lineWidth & minContentWidth are shorter than an escape string
+
+          if (escapedFolds[j]) return text;
+          folds.push(j);
+          escapedFolds[j] = true;
+          end = j + endStep;
           split = undefined;
         } else {
           overflow = true;
@@ -7771,8 +6399,10 @@ function foldFlowLines(text, indent, mode, {
   for (let i = 0; i < folds.length; ++i) {
     const fold = folds[i];
     const end = folds[i + 1] || text.length;
-    if (mode === FOLD_QUOTED && escapedFolds[fold]) res += `${text[fold]}\\`;
-    res += `\n${indent}${text.slice(fold + 1, end)}`;
+    if (fold === 0) res = `\n${indent}${text.slice(0, end)}`;else {
+      if (mode === FOLD_QUOTED && escapedFolds[fold]) res += `${text[fold]}\\`;
+      res += `\n${indent}${text.slice(fold + 1, end)}`;
+    }
   }
 
   return res;
@@ -7788,7 +6418,9 @@ const getFoldOptions = ({
 
 const containsDocumentMarker = str => /^(%|---|\.\.\.)/m.test(str);
 
-function lineLengthOverLimit(str, limit) {
+function lineLengthOverLimit(str, lineWidth, indentLength) {
+  if (!lineWidth || lineWidth < 0) return false;
+  const limit = lineWidth - indentLength;
   const strLen = str.length;
   if (strLen <= limit) return false;
 
@@ -7931,7 +6563,7 @@ function blockString({
   const indent = ctx.indent || (ctx.forceBlockIndent || containsDocumentMarker(value) ? '  ' : '');
   const indentSize = indent ? '2' : '1'; // root is at -1
 
-  const literal = type === PlainValueEc8e588e.Type.BLOCK_FOLDED ? false : type === PlainValueEc8e588e.Type.BLOCK_LITERAL ? true : !lineLengthOverLimit(value, strOptions.fold.lineWidth - indent.length);
+  const literal = type === PlainValue$4.Type.BLOCK_FOLDED ? false : type === PlainValue$4.Type.BLOCK_LITERAL ? true : !lineLengthOverLimit(value, strOptions.fold.lineWidth, indent.length);
   let header = literal ? '|' : '>';
   if (!value) return header + '\n';
   let wsStart = '';
@@ -8010,7 +6642,7 @@ function plainString(item, ctx, onComment, onChompKeep) {
     return implicitKey || inFlow || value.indexOf('\n') === -1 ? value.indexOf('"') !== -1 && value.indexOf("'") === -1 ? singleQuotedString(value, ctx) : doubleQuotedString(value, ctx) : blockString(item, ctx, onComment, onChompKeep);
   }
 
-  if (!implicitKey && !inFlow && type !== PlainValueEc8e588e.Type.PLAIN && value.indexOf('\n') !== -1) {
+  if (!implicitKey && !inFlow && type !== PlainValue$4.Type.PLAIN && value.indexOf('\n') !== -1) {
     // Where allowed & type not set explicitly, prefer block style for multiline strings
     return blockString(item, ctx, onComment, onChompKeep);
   }
@@ -8064,17 +6696,17 @@ function stringifyString(item, ctx, onComment, onChompKeep) {
 
   const _stringify = _type => {
     switch (_type) {
-      case PlainValueEc8e588e.Type.BLOCK_FOLDED:
-      case PlainValueEc8e588e.Type.BLOCK_LITERAL:
+      case PlainValue$4.Type.BLOCK_FOLDED:
+      case PlainValue$4.Type.BLOCK_LITERAL:
         return blockString(item, ctx, onComment, onChompKeep);
 
-      case PlainValueEc8e588e.Type.QUOTE_DOUBLE:
+      case PlainValue$4.Type.QUOTE_DOUBLE:
         return doubleQuotedString(value, ctx);
 
-      case PlainValueEc8e588e.Type.QUOTE_SINGLE:
+      case PlainValue$4.Type.QUOTE_SINGLE:
         return singleQuotedString(value, ctx);
 
-      case PlainValueEc8e588e.Type.PLAIN:
+      case PlainValue$4.Type.PLAIN:
         return plainString(item, ctx, onComment, onChompKeep);
 
       default:
@@ -8082,12 +6714,12 @@ function stringifyString(item, ctx, onComment, onChompKeep) {
     }
   };
 
-  if (type !== PlainValueEc8e588e.Type.QUOTE_DOUBLE && /[\x00-\x08\x0b-\x1f\x7f-\x9f]/.test(value)) {
+  if (type !== PlainValue$4.Type.QUOTE_DOUBLE && /[\x00-\x08\x0b-\x1f\x7f-\x9f]/.test(value)) {
     // force double quotes on control characters
-    type = PlainValueEc8e588e.Type.QUOTE_DOUBLE;
-  } else if ((implicitKey || inFlow) && (type === PlainValueEc8e588e.Type.BLOCK_FOLDED || type === PlainValueEc8e588e.Type.BLOCK_LITERAL)) {
+    type = PlainValue$4.Type.QUOTE_DOUBLE;
+  } else if ((implicitKey || inFlow) && (type === PlainValue$4.Type.BLOCK_FOLDED || type === PlainValue$4.Type.BLOCK_LITERAL)) {
     // should not happen; blocks are not valid inside flow containers
-    type = PlainValueEc8e588e.Type.QUOTE_DOUBLE;
+    type = PlainValue$4.Type.QUOTE_DOUBLE;
   }
 
   let res = _stringify(type);
@@ -8130,18 +6762,18 @@ function checkFlowCollectionEnd(errors, cst) {
   let char, name;
 
   switch (cst.type) {
-    case PlainValueEc8e588e.Type.FLOW_MAP:
+    case PlainValue$4.Type.FLOW_MAP:
       char = '}';
       name = 'flow map';
       break;
 
-    case PlainValueEc8e588e.Type.FLOW_SEQ:
+    case PlainValue$4.Type.FLOW_SEQ:
       char = ']';
       name = 'flow sequence';
       break;
 
     default:
-      errors.push(new PlainValueEc8e588e.YAMLSemanticError(cst, 'Not a flow collection!?'));
+      errors.push(new PlainValue$4.YAMLSemanticError(cst, 'Not a flow collection!?'));
       return;
   }
 
@@ -8150,7 +6782,7 @@ function checkFlowCollectionEnd(errors, cst) {
   for (let i = cst.items.length - 1; i >= 0; --i) {
     const item = cst.items[i];
 
-    if (!item || item.type !== PlainValueEc8e588e.Type.COMMENT) {
+    if (!item || item.type !== PlainValue$4.Type.COMMENT) {
       lastItem = item;
       break;
     }
@@ -8161,10 +6793,10 @@ function checkFlowCollectionEnd(errors, cst) {
     let err;
 
     if (typeof lastItem.offset === 'number') {
-      err = new PlainValueEc8e588e.YAMLSemanticError(cst, msg);
+      err = new PlainValue$4.YAMLSemanticError(cst, msg);
       err.offset = lastItem.offset + 1;
     } else {
-      err = new PlainValueEc8e588e.YAMLSemanticError(lastItem, msg);
+      err = new PlainValue$4.YAMLSemanticError(lastItem, msg);
       if (lastItem.range && lastItem.range.end) err.offset = lastItem.range.end - lastItem.range.start;
     }
 
@@ -8176,13 +6808,13 @@ function checkFlowCommentSpace(errors, comment) {
 
   if (prev !== '\n' && prev !== '\t' && prev !== ' ') {
     const msg = 'Comments must be separated from other tokens by white space characters';
-    errors.push(new PlainValueEc8e588e.YAMLSemanticError(comment, msg));
+    errors.push(new PlainValue$4.YAMLSemanticError(comment, msg));
   }
 }
 function getLongKeyError(source, key) {
   const sk = String(key);
   const k = sk.substr(0, 8) + '...' + sk.substr(-8);
-  return new PlainValueEc8e588e.YAMLSemanticError(source, `The "${k}" key is too long`);
+  return new PlainValue$4.YAMLSemanticError(source, `The "${k}" key is too long`);
 }
 function resolveComments(collection, comments) {
   for (const {
@@ -8230,14 +6862,14 @@ function resolveTagHandle(doc, node) {
   if (!prefix) {
     const dtp = doc.getDefaults().tagPrefixes;
     if (dtp) prefix = dtp.find(p => p.handle === handle);
-    if (!prefix) throw new PlainValueEc8e588e.YAMLSemanticError(node, `The ${handle} tag handle is non-default and was not declared.`);
+    if (!prefix) throw new PlainValue$4.YAMLSemanticError(node, `The ${handle} tag handle is non-default and was not declared.`);
   }
 
-  if (!suffix) throw new PlainValueEc8e588e.YAMLSemanticError(node, `The ${handle} tag has no suffix.`);
+  if (!suffix) throw new PlainValue$4.YAMLSemanticError(node, `The ${handle} tag has no suffix.`);
 
   if (handle === '!' && (doc.version || doc.options.version) === '1.0') {
     if (suffix[0] === '^') {
-      doc.warnings.push(new PlainValueEc8e588e.YAMLWarning(node, 'YAML 1.0 ^ tag expansion is not supported'));
+      doc.warnings.push(new PlainValue$4.YAMLWarning(node, 'YAML 1.0 ^ tag expansion is not supported'));
       return suffix;
     }
 
@@ -8268,7 +6900,7 @@ function resolveTagName(doc, node) {
     if (verbatim) {
       if (verbatim !== '!' && verbatim !== '!!') return verbatim;
       const msg = `Verbatim tags aren't resolved, so ${verbatim} is invalid.`;
-      doc.errors.push(new PlainValueEc8e588e.YAMLSemanticError(node, msg));
+      doc.errors.push(new PlainValue$4.YAMLSemanticError(node, msg));
     } else if (handle === '!' && !suffix) {
       nonSpecific = true;
     } else {
@@ -8281,22 +6913,22 @@ function resolveTagName(doc, node) {
   }
 
   switch (type) {
-    case PlainValueEc8e588e.Type.BLOCK_FOLDED:
-    case PlainValueEc8e588e.Type.BLOCK_LITERAL:
-    case PlainValueEc8e588e.Type.QUOTE_DOUBLE:
-    case PlainValueEc8e588e.Type.QUOTE_SINGLE:
-      return PlainValueEc8e588e.defaultTags.STR;
+    case PlainValue$4.Type.BLOCK_FOLDED:
+    case PlainValue$4.Type.BLOCK_LITERAL:
+    case PlainValue$4.Type.QUOTE_DOUBLE:
+    case PlainValue$4.Type.QUOTE_SINGLE:
+      return PlainValue$4.defaultTags.STR;
 
-    case PlainValueEc8e588e.Type.FLOW_MAP:
-    case PlainValueEc8e588e.Type.MAP:
-      return PlainValueEc8e588e.defaultTags.MAP;
+    case PlainValue$4.Type.FLOW_MAP:
+    case PlainValue$4.Type.MAP:
+      return PlainValue$4.defaultTags.MAP;
 
-    case PlainValueEc8e588e.Type.FLOW_SEQ:
-    case PlainValueEc8e588e.Type.SEQ:
-      return PlainValueEc8e588e.defaultTags.SEQ;
+    case PlainValue$4.Type.FLOW_SEQ:
+    case PlainValue$4.Type.SEQ:
+      return PlainValue$4.defaultTags.SEQ;
 
-    case PlainValueEc8e588e.Type.PLAIN:
-      return nonSpecific ? PlainValueEc8e588e.defaultTags.STR : null;
+    case PlainValue$4.Type.PLAIN:
+      return nonSpecific ? PlainValue$4.defaultTags.STR : null;
 
     default:
       return null;
@@ -8313,7 +6945,7 @@ function resolveByTagName(doc, node, tagName) {
     if (tag.tag === tagName) {
       if (tag.test) matchWithTest.push(tag);else {
         const res = tag.resolve(doc, node);
-        return res instanceof Collection$1 ? res : new Scalar(res);
+        return res instanceof Collection ? res : new Scalar(res);
       }
     }
   }
@@ -8327,16 +6959,16 @@ function getFallbackTagName({
   type
 }) {
   switch (type) {
-    case PlainValueEc8e588e.Type.FLOW_MAP:
-    case PlainValueEc8e588e.Type.MAP:
-      return PlainValueEc8e588e.defaultTags.MAP;
+    case PlainValue$4.Type.FLOW_MAP:
+    case PlainValue$4.Type.MAP:
+      return PlainValue$4.defaultTags.MAP;
 
-    case PlainValueEc8e588e.Type.FLOW_SEQ:
-    case PlainValueEc8e588e.Type.SEQ:
-      return PlainValueEc8e588e.defaultTags.SEQ;
+    case PlainValue$4.Type.FLOW_SEQ:
+    case PlainValue$4.Type.SEQ:
+      return PlainValue$4.defaultTags.SEQ;
 
     default:
-      return PlainValueEc8e588e.defaultTags.STR;
+      return PlainValue$4.defaultTags.STR;
   }
 }
 
@@ -8359,12 +6991,12 @@ function resolveTag(doc, node, tagName) {
     const fallback = getFallbackTagName(node);
     if (!fallback) throw new Error(`The tag ${tagName} is unavailable`);
     const msg = `The tag ${tagName} is unavailable, falling back to ${fallback}`;
-    doc.warnings.push(new PlainValueEc8e588e.YAMLWarning(node, msg));
+    doc.warnings.push(new PlainValue$4.YAMLWarning(node, msg));
     const res = resolveByTagName(doc, node, fallback);
     res.tag = tagName;
     return res;
   } catch (error) {
-    const refError = new PlainValueEc8e588e.YAMLReferenceError(node, error.message);
+    const refError = new PlainValue$4.YAMLReferenceError(node, error.message);
     refError.stack = error.stack;
     doc.errors.push(refError);
     return null;
@@ -8376,7 +7008,7 @@ const isCollectionItem = node => {
   const {
     type
   } = node;
-  return type === PlainValueEc8e588e.Type.MAP_KEY || type === PlainValueEc8e588e.Type.MAP_VALUE || type === PlainValueEc8e588e.Type.SEQ_ITEM;
+  return type === PlainValue$4.Type.MAP_KEY || type === PlainValue$4.Type.MAP_VALUE || type === PlainValue$4.Type.SEQ_ITEM;
 };
 
 function resolveNodeProps(errors, node) {
@@ -8393,11 +7025,11 @@ function resolveNodeProps(errors, node) {
     end
   } of props) {
     switch (node.context.src[start]) {
-      case PlainValueEc8e588e.Char.COMMENT:
+      case PlainValue$4.Char.COMMENT:
         {
           if (!node.commentHasRequiredWhitespace(start)) {
             const msg = 'Comments must be separated from other tokens by white space characters';
-            errors.push(new PlainValueEc8e588e.YAMLSemanticError(node, msg));
+            errors.push(new PlainValue$4.YAMLSemanticError(node, msg));
           }
 
           const {
@@ -8410,19 +7042,19 @@ function resolveNodeProps(errors, node) {
         }
       // Actual anchor & tag resolution is handled by schema, here we just complain
 
-      case PlainValueEc8e588e.Char.ANCHOR:
+      case PlainValue$4.Char.ANCHOR:
         if (hasAnchor) {
           const msg = 'A node can have at most one anchor';
-          errors.push(new PlainValueEc8e588e.YAMLSemanticError(node, msg));
+          errors.push(new PlainValue$4.YAMLSemanticError(node, msg));
         }
 
         hasAnchor = true;
         break;
 
-      case PlainValueEc8e588e.Char.TAG:
+      case PlainValue$4.Char.TAG:
         if (hasTag) {
           const msg = 'A node can have at most one tag';
-          errors.push(new PlainValueEc8e588e.YAMLSemanticError(node, msg));
+          errors.push(new PlainValue$4.YAMLSemanticError(node, msg));
         }
 
         hasTag = true;
@@ -8444,18 +7076,18 @@ function resolveNodeValue(doc, node) {
     schema
   } = doc;
 
-  if (node.type === PlainValueEc8e588e.Type.ALIAS) {
+  if (node.type === PlainValue$4.Type.ALIAS) {
     const name = node.rawValue;
     const src = anchors.getNode(name);
 
     if (!src) {
       const msg = `Aliased anchor not found: ${name}`;
-      errors.push(new PlainValueEc8e588e.YAMLReferenceError(node, msg));
+      errors.push(new PlainValue$4.YAMLReferenceError(node, msg));
       return null;
     } // Lazy resolution for circular references
 
 
-    const res = new Alias$1(src);
+    const res = new Alias(src);
 
     anchors._cstAliases.push(res);
 
@@ -8465,9 +7097,9 @@ function resolveNodeValue(doc, node) {
   const tagName = resolveTagName(doc, node);
   if (tagName) return resolveTag(doc, node, tagName);
 
-  if (node.type !== PlainValueEc8e588e.Type.PLAIN) {
+  if (node.type !== PlainValue$4.Type.PLAIN) {
     const msg = `Failed to resolve ${node.type} node here`;
-    errors.push(new PlainValueEc8e588e.YAMLSyntaxError(node, msg));
+    errors.push(new PlainValue$4.YAMLSyntaxError(node, msg));
     return null;
   }
 
@@ -8506,9 +7138,9 @@ function resolveNode(doc, node) {
     anchors.map[name] = node;
   }
 
-  if (node.type === PlainValueEc8e588e.Type.ALIAS && (hasAnchor || hasTag)) {
+  if (node.type === PlainValue$4.Type.ALIAS && (hasAnchor || hasTag)) {
     const msg = 'An alias node must not specify any properties';
-    doc.errors.push(new PlainValueEc8e588e.YAMLSemanticError(node, msg));
+    doc.errors.push(new PlainValue$4.YAMLSemanticError(node, msg));
   }
 
   const res = resolveNodeValue(doc, node);
@@ -8531,16 +7163,16 @@ function resolveNode(doc, node) {
 }
 
 function resolveMap(doc, cst) {
-  if (cst.type !== PlainValueEc8e588e.Type.MAP && cst.type !== PlainValueEc8e588e.Type.FLOW_MAP) {
+  if (cst.type !== PlainValue$4.Type.MAP && cst.type !== PlainValue$4.Type.FLOW_MAP) {
     const msg = `A ${cst.type} node cannot be resolved as a mapping`;
-    doc.errors.push(new PlainValueEc8e588e.YAMLSyntaxError(cst, msg));
+    doc.errors.push(new PlainValue$4.YAMLSyntaxError(cst, msg));
     return null;
   }
 
   const {
     comments,
     items
-  } = cst.type === PlainValueEc8e588e.Type.FLOW_MAP ? resolveFlowMapItems(doc, cst) : resolveBlockMapItems(doc, cst);
+  } = cst.type === PlainValue$4.Type.FLOW_MAP ? resolveFlowMapItems(doc, cst) : resolveBlockMapItems(doc, cst);
   const map = new YAMLMap();
   map.items = items;
   resolveComments(map, comments);
@@ -8550,26 +7182,26 @@ function resolveMap(doc, cst) {
     const {
       key: iKey
     } = items[i];
-    if (iKey instanceof Collection$1) hasCollectionKey = true;
+    if (iKey instanceof Collection) hasCollectionKey = true;
 
     if (doc.schema.merge && iKey && iKey.value === MERGE_KEY) {
       items[i] = new Merge(items[i]);
       const sources = items[i].value.items;
       let error = null;
       sources.some(node => {
-        if (node instanceof Alias$1) {
+        if (node instanceof Alias) {
           // During parsing, alias sources are CST nodes; to account for
           // circular references their resolved values can't be used here.
           const {
             type
           } = node.source;
-          if (type === PlainValueEc8e588e.Type.MAP || type === PlainValueEc8e588e.Type.FLOW_MAP) return false;
+          if (type === PlainValue$4.Type.MAP || type === PlainValue$4.Type.FLOW_MAP) return false;
           return error = 'Merge nodes aliases can only point to maps';
         }
 
         return error = 'Merge nodes can only have Alias nodes as values';
       });
-      if (error) doc.errors.push(new PlainValueEc8e588e.YAMLSemanticError(cst, error));
+      if (error) doc.errors.push(new PlainValue$4.YAMLSemanticError(cst, error));
     } else {
       for (let j = i + 1; j < items.length; ++j) {
         const {
@@ -8578,7 +7210,7 @@ function resolveMap(doc, cst) {
 
         if (iKey === jKey || iKey && jKey && Object.prototype.hasOwnProperty.call(iKey, 'value') && iKey.value === jKey.value) {
           const msg = `Map keys must be unique; "${iKey}" is repeated`;
-          doc.errors.push(new PlainValueEc8e588e.YAMLSemanticError(cst, msg));
+          doc.errors.push(new PlainValue$4.YAMLSemanticError(cst, msg));
           break;
         }
       }
@@ -8587,7 +7219,7 @@ function resolveMap(doc, cst) {
 
   if (hasCollectionKey && !doc.options.mapAsMap) {
     const warn = 'Keys with collection values will be stringified as YAML due to JS Object restrictions. Use mapAsMap: true to avoid this.';
-    doc.warnings.push(new PlainValueEc8e588e.YAMLWarning(cst, warn));
+    doc.warnings.push(new PlainValue$4.YAMLWarning(cst, warn));
   }
 
   cst.resolved = map;
@@ -8607,7 +7239,7 @@ const valueHasPairComment = ({
     start
   } = props[0];
   if (node && start > node.valueRange.start) return false;
-  if (src[start] !== PlainValueEc8e588e.Char.COMMENT) return false;
+  if (src[start] !== PlainValue$4.Char.COMMENT) return false;
 
   for (let i = lineStart; i < start; ++i) if (src[i] === '\n') return false;
 
@@ -8616,7 +7248,7 @@ const valueHasPairComment = ({
 
 function resolvePairComment(item, pair) {
   if (!valueHasPairComment(item)) return;
-  const comment = item.getPropValue(0, PlainValueEc8e588e.Char.COMMENT, true);
+  const comment = item.getPropValue(0, PlainValue$4.Char.COMMENT, true);
   let found = false;
   const cb = pair.value.commentBefore;
 
@@ -8645,14 +7277,14 @@ function resolveBlockMapItems(doc, cst) {
     const item = cst.items[i];
 
     switch (item.type) {
-      case PlainValueEc8e588e.Type.BLANK_LINE:
+      case PlainValue$4.Type.BLANK_LINE:
         comments.push({
           afterKey: !!key,
           before: items.length
         });
         break;
 
-      case PlainValueEc8e588e.Type.COMMENT:
+      case PlainValue$4.Type.COMMENT:
         comments.push({
           afterKey: !!key,
           before: items.length,
@@ -8660,21 +7292,21 @@ function resolveBlockMapItems(doc, cst) {
         });
         break;
 
-      case PlainValueEc8e588e.Type.MAP_KEY:
+      case PlainValue$4.Type.MAP_KEY:
         if (key !== undefined) items.push(new Pair(key));
         if (item.error) doc.errors.push(item.error);
         key = resolveNode(doc, item.node);
         keyStart = null;
         break;
 
-      case PlainValueEc8e588e.Type.MAP_VALUE:
+      case PlainValue$4.Type.MAP_VALUE:
         {
           if (key === undefined) key = null;
           if (item.error) doc.errors.push(item.error);
 
-          if (!item.context.atLineStart && item.node && item.node.type === PlainValueEc8e588e.Type.MAP && !item.node.context.atLineStart) {
+          if (!item.context.atLineStart && item.node && item.node.type === PlainValue$4.Type.MAP && !item.node.context.atLineStart) {
             const msg = 'Nested mappings are not allowed in compact mappings';
-            doc.errors.push(new PlainValueEc8e588e.YAMLSemanticError(item.node, msg));
+            doc.errors.push(new PlainValue$4.YAMLSemanticError(item.node, msg));
           }
 
           let valueNode = item.node;
@@ -8683,7 +7315,7 @@ function resolveBlockMapItems(doc, cst) {
             // Comments on an empty mapping value need to be preserved, so we
             // need to construct a minimal empty node here to use instead of the
             // missing `item.node`. -- eemeli/yaml#19
-            valueNode = new PlainValueEc8e588e.PlainValue(PlainValueEc8e588e.Type.PLAIN, []);
+            valueNode = new PlainValue$4.PlainValue(PlainValue$4.Type.PLAIN, []);
             valueNode.context = {
               parent: item,
               src: item.context.src
@@ -8728,17 +7360,17 @@ function resolveBlockMapItems(doc, cst) {
           const nextItem = cst.items[j];
 
           switch (nextItem && nextItem.type) {
-            case PlainValueEc8e588e.Type.BLANK_LINE:
-            case PlainValueEc8e588e.Type.COMMENT:
+            case PlainValue$4.Type.BLANK_LINE:
+            case PlainValue$4.Type.COMMENT:
               continue next;
 
-            case PlainValueEc8e588e.Type.MAP_VALUE:
+            case PlainValue$4.Type.MAP_VALUE:
               break next;
 
             default:
               {
                 const msg = 'Implicit map keys need to be followed by map values';
-                doc.errors.push(new PlainValueEc8e588e.YAMLSemanticError(item, msg));
+                doc.errors.push(new PlainValue$4.YAMLSemanticError(item, msg));
                 break next;
               }
           }
@@ -8746,7 +7378,7 @@ function resolveBlockMapItems(doc, cst) {
 
         if (item.valueRangeContainsNewline) {
           const msg = 'Implicit map keys need to be on a single line';
-          doc.errors.push(new PlainValueEc8e588e.YAMLSemanticError(item, msg));
+          doc.errors.push(new PlainValue$4.YAMLSemanticError(item, msg));
         }
 
     }
@@ -8813,15 +7445,15 @@ function resolveFlowMapItems(doc, cst) {
       }
 
       const msg = `Flow map contains an unexpected ${char}`;
-      const err = new PlainValueEc8e588e.YAMLSyntaxError(cst, msg);
+      const err = new PlainValue$4.YAMLSyntaxError(cst, msg);
       err.offset = offset;
       doc.errors.push(err);
-    } else if (item.type === PlainValueEc8e588e.Type.BLANK_LINE) {
+    } else if (item.type === PlainValue$4.Type.BLANK_LINE) {
       comments.push({
         afterKey: !!key,
         before: items.length
       });
-    } else if (item.type === PlainValueEc8e588e.Type.COMMENT) {
+    } else if (item.type === PlainValue$4.Type.COMMENT) {
       checkFlowCommentSpace(doc.errors, item);
       comments.push({
         afterKey: !!key,
@@ -8829,10 +7461,10 @@ function resolveFlowMapItems(doc, cst) {
         comment: item.comment
       });
     } else if (key === undefined) {
-      if (next === ',') doc.errors.push(new PlainValueEc8e588e.YAMLSemanticError(item, 'Separator , missing in flow map'));
+      if (next === ',') doc.errors.push(new PlainValue$4.YAMLSemanticError(item, 'Separator , missing in flow map'));
       key = resolveNode(doc, item);
     } else {
-      if (next !== ',') doc.errors.push(new PlainValueEc8e588e.YAMLSemanticError(item, 'Indicator : missing in flow map entry'));
+      if (next !== ',') doc.errors.push(new PlainValue$4.YAMLSemanticError(item, 'Indicator : missing in flow map entry'));
       items.push(new Pair(key, resolveNode(doc, item)));
       key = undefined;
       explicitKey = false;
@@ -8847,24 +7479,24 @@ function resolveFlowMapItems(doc, cst) {
   };
 }
 
-function resolveSeq(doc, cst) {
-  if (cst.type !== PlainValueEc8e588e.Type.SEQ && cst.type !== PlainValueEc8e588e.Type.FLOW_SEQ) {
+function resolveSeq$3(doc, cst) {
+  if (cst.type !== PlainValue$4.Type.SEQ && cst.type !== PlainValue$4.Type.FLOW_SEQ) {
     const msg = `A ${cst.type} node cannot be resolved as a sequence`;
-    doc.errors.push(new PlainValueEc8e588e.YAMLSyntaxError(cst, msg));
+    doc.errors.push(new PlainValue$4.YAMLSyntaxError(cst, msg));
     return null;
   }
 
   const {
     comments,
     items
-  } = cst.type === PlainValueEc8e588e.Type.FLOW_SEQ ? resolveFlowSeqItems(doc, cst) : resolveBlockSeqItems(doc, cst);
+  } = cst.type === PlainValue$4.Type.FLOW_SEQ ? resolveFlowSeqItems(doc, cst) : resolveBlockSeqItems(doc, cst);
   const seq = new YAMLSeq();
   seq.items = items;
   resolveComments(seq, comments);
 
-  if (!doc.options.mapAsMap && items.some(it => it instanceof Pair && it.key instanceof Collection$1)) {
+  if (!doc.options.mapAsMap && items.some(it => it instanceof Pair && it.key instanceof Collection)) {
     const warn = 'Keys with collection values will be stringified as YAML due to JS Object restrictions. Use mapAsMap: true to avoid this.';
-    doc.warnings.push(new PlainValueEc8e588e.YAMLWarning(cst, warn));
+    doc.warnings.push(new PlainValue$4.YAMLWarning(cst, warn));
   }
 
   cst.resolved = seq;
@@ -8879,33 +7511,33 @@ function resolveBlockSeqItems(doc, cst) {
     const item = cst.items[i];
 
     switch (item.type) {
-      case PlainValueEc8e588e.Type.BLANK_LINE:
+      case PlainValue$4.Type.BLANK_LINE:
         comments.push({
           before: items.length
         });
         break;
 
-      case PlainValueEc8e588e.Type.COMMENT:
+      case PlainValue$4.Type.COMMENT:
         comments.push({
           comment: item.comment,
           before: items.length
         });
         break;
 
-      case PlainValueEc8e588e.Type.SEQ_ITEM:
+      case PlainValue$4.Type.SEQ_ITEM:
         if (item.error) doc.errors.push(item.error);
         items.push(resolveNode(doc, item.node));
 
         if (item.hasProps) {
           const msg = 'Sequence items cannot have tags or anchors before the - indicator';
-          doc.errors.push(new PlainValueEc8e588e.YAMLSemanticError(item, msg));
+          doc.errors.push(new PlainValue$4.YAMLSemanticError(item, msg));
         }
 
         break;
 
       default:
         if (item.error) doc.errors.push(item.error);
-        doc.errors.push(new PlainValueEc8e588e.YAMLSyntaxError(item, `Unexpected ${item.type} node in sequence`));
+        doc.errors.push(new PlainValue$4.YAMLSyntaxError(item, `Unexpected ${item.type} node in sequence`));
     }
   }
 
@@ -8951,7 +7583,7 @@ function resolveFlowSeqItems(doc, cst) {
 
           if (key instanceof Pair) {
             const msg = 'Chaining flow sequence pairs is invalid';
-            const err = new PlainValueEc8e588e.YAMLSemanticError(cst, msg);
+            const err = new PlainValue$4.YAMLSemanticError(cst, msg);
             err.offset = offset;
             doc.errors.push(err);
           }
@@ -8965,7 +7597,7 @@ function resolveFlowSeqItems(doc, cst) {
 
             for (let i = keyStart; i < keyEnd; ++i) if (src[i] === '\n') {
               const msg = 'Implicit keys of flow sequence pairs need to be on a single line';
-              doc.errors.push(new PlainValueEc8e588e.YAMLSemanticError(prevItem, msg));
+              doc.errors.push(new PlainValue$4.YAMLSemanticError(prevItem, msg));
               break;
             }
           }
@@ -8978,15 +7610,15 @@ function resolveFlowSeqItems(doc, cst) {
         next = null;
       } else if (next === '[' || char !== ']' || i < cst.items.length - 1) {
         const msg = `Flow sequence contains an unexpected ${char}`;
-        const err = new PlainValueEc8e588e.YAMLSyntaxError(cst, msg);
+        const err = new PlainValue$4.YAMLSyntaxError(cst, msg);
         err.offset = offset;
         doc.errors.push(err);
       }
-    } else if (item.type === PlainValueEc8e588e.Type.BLANK_LINE) {
+    } else if (item.type === PlainValue$4.Type.BLANK_LINE) {
       comments.push({
         before: items.length
       });
-    } else if (item.type === PlainValueEc8e588e.Type.COMMENT) {
+    } else if (item.type === PlainValue$4.Type.COMMENT) {
       checkFlowCommentSpace(doc.errors, item);
       comments.push({
         comment: item.comment,
@@ -8995,7 +7627,7 @@ function resolveFlowSeqItems(doc, cst) {
     } else {
       if (next) {
         const msg = `Expected a ${next} in flow sequence`;
-        doc.errors.push(new PlainValueEc8e588e.YAMLSemanticError(item, msg));
+        doc.errors.push(new PlainValue$4.YAMLSemanticError(item, msg));
       }
 
       const value = resolveNode(doc, item);
@@ -9021,55 +7653,36 @@ function resolveFlowSeqItems(doc, cst) {
   };
 }
 
-var Alias_1 = Alias$1;
-var Collection_1 = Collection$1;
-var Merge_1 = Merge;
-var Node_1$1 = Node$1;
-var Pair_1 = Pair;
-var Scalar_1 = Scalar;
-var YAMLMap_1 = YAMLMap;
-var YAMLSeq_1 = YAMLSeq;
-var addComment_1 = addComment;
-var binaryOptions_1 = binaryOptions;
-var boolOptions_1 = boolOptions;
-var findPair_1 = findPair;
-var intOptions_1 = intOptions;
-var isEmptyPath_1 = isEmptyPath;
-var nullOptions_1 = nullOptions;
-var resolveMap_1 = resolveMap;
-var resolveNode_1 = resolveNode;
-var resolveSeq_1 = resolveSeq;
-var resolveString_1 = resolveString;
-var strOptions_1 = strOptions;
-var stringifyNumber_1 = stringifyNumber;
-var stringifyString_1 = stringifyString;
-var toJSON_1 = toJSON;
+resolveSeqD03cb037.Alias = Alias;
+resolveSeqD03cb037.Collection = Collection;
+resolveSeqD03cb037.Merge = Merge;
+resolveSeqD03cb037.Node = Node;
+resolveSeqD03cb037.Pair = Pair;
+resolveSeqD03cb037.Scalar = Scalar;
+resolveSeqD03cb037.YAMLMap = YAMLMap;
+resolveSeqD03cb037.YAMLSeq = YAMLSeq;
+resolveSeqD03cb037.addComment = addComment;
+resolveSeqD03cb037.binaryOptions = binaryOptions;
+resolveSeqD03cb037.boolOptions = boolOptions;
+resolveSeqD03cb037.findPair = findPair;
+resolveSeqD03cb037.intOptions = intOptions;
+resolveSeqD03cb037.isEmptyPath = isEmptyPath;
+resolveSeqD03cb037.nullOptions = nullOptions;
+resolveSeqD03cb037.resolveMap = resolveMap;
+resolveSeqD03cb037.resolveNode = resolveNode;
+resolveSeqD03cb037.resolveSeq = resolveSeq$3;
+resolveSeqD03cb037.resolveString = resolveString;
+resolveSeqD03cb037.strOptions = strOptions;
+resolveSeqD03cb037.stringifyNumber = stringifyNumber;
+resolveSeqD03cb037.stringifyString = stringifyString;
+resolveSeqD03cb037.toJSON = toJSON;
 
-var resolveSeq4a68b39b = {
-	Alias: Alias_1,
-	Collection: Collection_1,
-	Merge: Merge_1,
-	Node: Node_1$1,
-	Pair: Pair_1,
-	Scalar: Scalar_1,
-	YAMLMap: YAMLMap_1,
-	YAMLSeq: YAMLSeq_1,
-	addComment: addComment_1,
-	binaryOptions: binaryOptions_1,
-	boolOptions: boolOptions_1,
-	findPair: findPair_1,
-	intOptions: intOptions_1,
-	isEmptyPath: isEmptyPath_1,
-	nullOptions: nullOptions_1,
-	resolveMap: resolveMap_1,
-	resolveNode: resolveNode_1,
-	resolveSeq: resolveSeq_1,
-	resolveString: resolveString_1,
-	strOptions: strOptions_1,
-	stringifyNumber: stringifyNumber_1,
-	stringifyString: stringifyString_1,
-	toJSON: toJSON_1
-};
+var Schema88e323a7 = {};
+
+var warnings1000a372 = {};
+
+var PlainValue$3 = PlainValueEc8e588e;
+var resolveSeq$2 = resolveSeqD03cb037;
 
 /* global atob, btoa, Buffer */
 const binary = {
@@ -9087,7 +7700,7 @@ const binary = {
    *   document.querySelector('#photo').src = URL.createObjectURL(blob)
    */
   resolve: (doc, node) => {
-    const src = resolveSeq4a68b39b.resolveString(doc, node);
+    const src = resolveSeq$2.resolveString(doc, node);
 
     if (typeof Buffer === 'function') {
       return Buffer.from(src, 'base64');
@@ -9101,11 +7714,11 @@ const binary = {
       return buffer;
     } else {
       const msg = 'This environment does not support reading binary tags; either Buffer or atob is required';
-      doc.errors.push(new PlainValueEc8e588e.YAMLReferenceError(node, msg));
+      doc.errors.push(new PlainValue$3.YAMLReferenceError(node, msg));
       return null;
     }
   },
-  options: resolveSeq4a68b39b.binaryOptions,
+  options: resolveSeq$2.binaryOptions,
   stringify: ({
     comment,
     type,
@@ -9125,14 +7738,14 @@ const binary = {
       throw new Error('This environment does not support writing binary tags; either Buffer or btoa is required');
     }
 
-    if (!type) type = resolveSeq4a68b39b.binaryOptions.defaultType;
+    if (!type) type = resolveSeq$2.binaryOptions.defaultType;
 
-    if (type === PlainValueEc8e588e.Type.QUOTE_DOUBLE) {
+    if (type === PlainValue$3.Type.QUOTE_DOUBLE) {
       value = src;
     } else {
       const {
         lineWidth
-      } = resolveSeq4a68b39b.binaryOptions;
+      } = resolveSeq$2.binaryOptions;
       const n = Math.ceil(src.length / lineWidth);
       const lines = new Array(n);
 
@@ -9140,10 +7753,10 @@ const binary = {
         lines[i] = src.substr(o, lineWidth);
       }
 
-      value = lines.join(type === PlainValueEc8e588e.Type.BLOCK_LITERAL ? '\n' : ' ');
+      value = lines.join(type === PlainValue$3.Type.BLOCK_LITERAL ? '\n' : ' ');
     }
 
-    return resolveSeq4a68b39b.stringifyString({
+    return resolveSeq$2.stringifyString({
       comment,
       type,
       value
@@ -9152,28 +7765,28 @@ const binary = {
 };
 
 function parsePairs(doc, cst) {
-  const seq = resolveSeq4a68b39b.resolveSeq(doc, cst);
+  const seq = resolveSeq$2.resolveSeq(doc, cst);
 
   for (let i = 0; i < seq.items.length; ++i) {
     let item = seq.items[i];
-    if (item instanceof resolveSeq4a68b39b.Pair) continue;else if (item instanceof resolveSeq4a68b39b.YAMLMap) {
+    if (item instanceof resolveSeq$2.Pair) continue;else if (item instanceof resolveSeq$2.YAMLMap) {
       if (item.items.length > 1) {
         const msg = 'Each pair must have its own sequence indicator';
-        throw new PlainValueEc8e588e.YAMLSemanticError(cst, msg);
+        throw new PlainValue$3.YAMLSemanticError(cst, msg);
       }
 
-      const pair = item.items[0] || new resolveSeq4a68b39b.Pair();
+      const pair = item.items[0] || new resolveSeq$2.Pair();
       if (item.commentBefore) pair.commentBefore = pair.commentBefore ? `${item.commentBefore}\n${pair.commentBefore}` : item.commentBefore;
       if (item.comment) pair.comment = pair.comment ? `${item.comment}\n${pair.comment}` : item.comment;
       item = pair;
     }
-    seq.items[i] = item instanceof resolveSeq4a68b39b.Pair ? item : new resolveSeq4a68b39b.Pair(item);
+    seq.items[i] = item instanceof resolveSeq$2.Pair ? item : new resolveSeq$2.Pair(item);
   }
 
   return seq;
 }
 function createPairs(schema, iterable, ctx) {
-  const pairs = new resolveSeq4a68b39b.YAMLSeq(schema);
+  const pairs = new resolveSeq$2.YAMLSeq(schema);
   pairs.tag = 'tag:yaml.org,2002:pairs';
 
   for (const it of iterable) {
@@ -9208,19 +7821,19 @@ const pairs = {
   createNode: createPairs
 };
 
-class YAMLOMap extends resolveSeq4a68b39b.YAMLSeq {
+class YAMLOMap extends resolveSeq$2.YAMLSeq {
   constructor() {
     super();
 
-    PlainValueEc8e588e._defineProperty(this, "add", resolveSeq4a68b39b.YAMLMap.prototype.add.bind(this));
+    PlainValue$3._defineProperty(this, "add", resolveSeq$2.YAMLMap.prototype.add.bind(this));
 
-    PlainValueEc8e588e._defineProperty(this, "delete", resolveSeq4a68b39b.YAMLMap.prototype.delete.bind(this));
+    PlainValue$3._defineProperty(this, "delete", resolveSeq$2.YAMLMap.prototype.delete.bind(this));
 
-    PlainValueEc8e588e._defineProperty(this, "get", resolveSeq4a68b39b.YAMLMap.prototype.get.bind(this));
+    PlainValue$3._defineProperty(this, "get", resolveSeq$2.YAMLMap.prototype.get.bind(this));
 
-    PlainValueEc8e588e._defineProperty(this, "has", resolveSeq4a68b39b.YAMLMap.prototype.has.bind(this));
+    PlainValue$3._defineProperty(this, "has", resolveSeq$2.YAMLMap.prototype.has.bind(this));
 
-    PlainValueEc8e588e._defineProperty(this, "set", resolveSeq4a68b39b.YAMLMap.prototype.set.bind(this));
+    PlainValue$3._defineProperty(this, "set", resolveSeq$2.YAMLMap.prototype.set.bind(this));
 
     this.tag = YAMLOMap.tag;
   }
@@ -9232,11 +7845,11 @@ class YAMLOMap extends resolveSeq4a68b39b.YAMLSeq {
     for (const pair of this.items) {
       let key, value;
 
-      if (pair instanceof resolveSeq4a68b39b.Pair) {
-        key = resolveSeq4a68b39b.toJSON(pair.key, '', ctx);
-        value = resolveSeq4a68b39b.toJSON(pair.value, key, ctx);
+      if (pair instanceof resolveSeq$2.Pair) {
+        key = resolveSeq$2.toJSON(pair.key, '', ctx);
+        value = resolveSeq$2.toJSON(pair.value, key, ctx);
       } else {
-        key = resolveSeq4a68b39b.toJSON(pair, '', ctx);
+        key = resolveSeq$2.toJSON(pair, '', ctx);
       }
 
       if (map.has(key)) throw new Error('Ordered maps must not include duplicate keys');
@@ -9248,7 +7861,7 @@ class YAMLOMap extends resolveSeq4a68b39b.YAMLSeq {
 
 }
 
-PlainValueEc8e588e._defineProperty(YAMLOMap, "tag", 'tag:yaml.org,2002:omap');
+PlainValue$3._defineProperty(YAMLOMap, "tag", 'tag:yaml.org,2002:omap');
 
 function parseOMap(doc, cst) {
   const pairs = parsePairs(doc, cst);
@@ -9257,10 +7870,10 @@ function parseOMap(doc, cst) {
   for (const {
     key
   } of pairs.items) {
-    if (key instanceof resolveSeq4a68b39b.Scalar) {
+    if (key instanceof resolveSeq$2.Scalar) {
       if (seenKeys.includes(key.value)) {
         const msg = 'Ordered maps must not include duplicate keys';
-        throw new PlainValueEc8e588e.YAMLSemanticError(cst, msg);
+        throw new PlainValue$3.YAMLSemanticError(cst, msg);
       } else {
         seenKeys.push(key.value);
       }
@@ -9286,31 +7899,31 @@ const omap = {
   createNode: createOMap
 };
 
-class YAMLSet extends resolveSeq4a68b39b.YAMLMap {
+class YAMLSet extends resolveSeq$2.YAMLMap {
   constructor() {
     super();
     this.tag = YAMLSet.tag;
   }
 
   add(key) {
-    const pair = key instanceof resolveSeq4a68b39b.Pair ? key : new resolveSeq4a68b39b.Pair(key);
-    const prev = resolveSeq4a68b39b.findPair(this.items, pair.key);
+    const pair = key instanceof resolveSeq$2.Pair ? key : new resolveSeq$2.Pair(key);
+    const prev = resolveSeq$2.findPair(this.items, pair.key);
     if (!prev) this.items.push(pair);
   }
 
   get(key, keepPair) {
-    const pair = resolveSeq4a68b39b.findPair(this.items, key);
-    return !keepPair && pair instanceof resolveSeq4a68b39b.Pair ? pair.key instanceof resolveSeq4a68b39b.Scalar ? pair.key.value : pair.key : pair;
+    const pair = resolveSeq$2.findPair(this.items, key);
+    return !keepPair && pair instanceof resolveSeq$2.Pair ? pair.key instanceof resolveSeq$2.Scalar ? pair.key.value : pair.key : pair;
   }
 
   set(key, value) {
     if (typeof value !== 'boolean') throw new Error(`Expected boolean value for set(key, value) in a YAML set, not ${typeof value}`);
-    const prev = resolveSeq4a68b39b.findPair(this.items, key);
+    const prev = resolveSeq$2.findPair(this.items, key);
 
     if (prev && !value) {
       this.items.splice(this.items.indexOf(prev), 1);
     } else if (!prev && value) {
-      this.items.push(new resolveSeq4a68b39b.Pair(key));
+      this.items.push(new resolveSeq$2.Pair(key));
     }
   }
 
@@ -9325,11 +7938,11 @@ class YAMLSet extends resolveSeq4a68b39b.YAMLMap {
 
 }
 
-PlainValueEc8e588e._defineProperty(YAMLSet, "tag", 'tag:yaml.org,2002:set');
+PlainValue$3._defineProperty(YAMLSet, "tag", 'tag:yaml.org,2002:set');
 
 function parseSet(doc, cst) {
-  const map = resolveSeq4a68b39b.resolveMap(doc, cst);
-  if (!map.hasAllNullValues()) throw new PlainValueEc8e588e.YAMLSemanticError(cst, 'Set items must all have null values');
+  const map = resolveSeq$2.resolveMap(doc, cst);
+  if (!map.hasAllNullValues()) throw new PlainValue$3.YAMLSemanticError(cst, 'Set items must all have null values');
   return Object.assign(new YAMLSet(), map);
 }
 
@@ -9359,7 +7972,7 @@ const parseSexagesimal = (sign, parts) => {
 const stringifySexagesimal = ({
   value
 }) => {
-  if (isNaN(value) || !isFinite(value)) return resolveSeq4a68b39b.stringifyNumber(value);
+  if (isNaN(value) || !isFinite(value)) return resolveSeq$2.stringifyNumber(value);
   let sign = '';
 
   if (value < 0) {
@@ -9472,32 +8085,23 @@ function warnOptionDeprecation(name, alternative) {
   }
 }
 
-var binary_1 = binary;
-var floatTime_1 = floatTime;
-var intTime_1 = intTime;
-var omap_1 = omap;
-var pairs_1 = pairs;
-var set_1 = set;
-var timestamp_1 = timestamp;
-var warn_1 = warn;
-var warnFileDeprecation_1 = warnFileDeprecation;
-var warnOptionDeprecation_1 = warnOptionDeprecation;
+warnings1000a372.binary = binary;
+warnings1000a372.floatTime = floatTime;
+warnings1000a372.intTime = intTime;
+warnings1000a372.omap = omap;
+warnings1000a372.pairs = pairs;
+warnings1000a372.set = set;
+warnings1000a372.timestamp = timestamp;
+warnings1000a372.warn = warn;
+warnings1000a372.warnFileDeprecation = warnFileDeprecation;
+warnings1000a372.warnOptionDeprecation = warnOptionDeprecation;
 
-var warnings39684f17 = {
-	binary: binary_1,
-	floatTime: floatTime_1,
-	intTime: intTime_1,
-	omap: omap_1,
-	pairs: pairs_1,
-	set: set_1,
-	timestamp: timestamp_1,
-	warn: warn_1,
-	warnFileDeprecation: warnFileDeprecation_1,
-	warnOptionDeprecation: warnOptionDeprecation_1
-};
+var PlainValue$2 = PlainValueEc8e588e;
+var resolveSeq$1 = resolveSeqD03cb037;
+var warnings$1 = warnings1000a372;
 
 function createMap(schema, obj, ctx) {
-  const map = new resolveSeq4a68b39b.YAMLMap(schema);
+  const map = new resolveSeq$1.YAMLMap(schema);
 
   if (obj instanceof Map) {
     for (const [key, value] of obj) map.items.push(schema.createPair(key, value, ctx));
@@ -9515,13 +8119,13 @@ function createMap(schema, obj, ctx) {
 const map = {
   createNode: createMap,
   default: true,
-  nodeClass: resolveSeq4a68b39b.YAMLMap,
+  nodeClass: resolveSeq$1.YAMLMap,
   tag: 'tag:yaml.org,2002:map',
-  resolve: resolveSeq4a68b39b.resolveMap
+  resolve: resolveSeq$1.resolveMap
 };
 
 function createSeq(schema, obj, ctx) {
-  const seq = new resolveSeq4a68b39b.YAMLSeq(schema);
+  const seq = new resolveSeq$1.YAMLSeq(schema);
 
   if (obj && obj[Symbol.iterator]) {
     for (const it of obj) {
@@ -9536,52 +8140,52 @@ function createSeq(schema, obj, ctx) {
 const seq = {
   createNode: createSeq,
   default: true,
-  nodeClass: resolveSeq4a68b39b.YAMLSeq,
+  nodeClass: resolveSeq$1.YAMLSeq,
   tag: 'tag:yaml.org,2002:seq',
-  resolve: resolveSeq4a68b39b.resolveSeq
+  resolve: resolveSeq$1.resolveSeq
 };
 
 const string = {
   identify: value => typeof value === 'string',
   default: true,
   tag: 'tag:yaml.org,2002:str',
-  resolve: resolveSeq4a68b39b.resolveString,
+  resolve: resolveSeq$1.resolveString,
 
   stringify(item, ctx, onComment, onChompKeep) {
     ctx = Object.assign({
       actualString: true
     }, ctx);
-    return resolveSeq4a68b39b.stringifyString(item, ctx, onComment, onChompKeep);
+    return resolveSeq$1.stringifyString(item, ctx, onComment, onChompKeep);
   },
 
-  options: resolveSeq4a68b39b.strOptions
+  options: resolveSeq$1.strOptions
 };
 
 const failsafe = [map, seq, string];
 
 /* global BigInt */
 
-const intIdentify = value => typeof value === 'bigint' || Number.isInteger(value);
+const intIdentify$2 = value => typeof value === 'bigint' || Number.isInteger(value);
 
-const intResolve = (src, part, radix) => resolveSeq4a68b39b.intOptions.asBigInt ? BigInt(src) : parseInt(part, radix);
+const intResolve$1 = (src, part, radix) => resolveSeq$1.intOptions.asBigInt ? BigInt(src) : parseInt(part, radix);
 
-function intStringify(node, radix, prefix) {
+function intStringify$1(node, radix, prefix) {
   const {
     value
   } = node;
-  if (intIdentify(value) && value >= 0) return prefix + value.toString(radix);
-  return resolveSeq4a68b39b.stringifyNumber(node);
+  if (intIdentify$2(value) && value >= 0) return prefix + value.toString(radix);
+  return resolveSeq$1.stringifyNumber(node);
 }
 
 const nullObj = {
   identify: value => value == null,
-  createNode: (schema, value, ctx) => ctx.wrapScalars ? new resolveSeq4a68b39b.Scalar(null) : null,
+  createNode: (schema, value, ctx) => ctx.wrapScalars ? new resolveSeq$1.Scalar(null) : null,
   default: true,
   tag: 'tag:yaml.org,2002:null',
   test: /^(?:~|[Nn]ull|NULL)?$/,
   resolve: () => null,
-  options: resolveSeq4a68b39b.nullOptions,
-  stringify: () => resolveSeq4a68b39b.nullOptions.nullStr
+  options: resolveSeq$1.nullOptions,
+  stringify: () => resolveSeq$1.nullOptions.nullStr
 };
 const boolObj = {
   identify: value => typeof value === 'boolean',
@@ -9589,39 +8193,39 @@ const boolObj = {
   tag: 'tag:yaml.org,2002:bool',
   test: /^(?:[Tt]rue|TRUE|[Ff]alse|FALSE)$/,
   resolve: str => str[0] === 't' || str[0] === 'T',
-  options: resolveSeq4a68b39b.boolOptions,
+  options: resolveSeq$1.boolOptions,
   stringify: ({
     value
-  }) => value ? resolveSeq4a68b39b.boolOptions.trueStr : resolveSeq4a68b39b.boolOptions.falseStr
+  }) => value ? resolveSeq$1.boolOptions.trueStr : resolveSeq$1.boolOptions.falseStr
 };
 const octObj = {
-  identify: value => intIdentify(value) && value >= 0,
+  identify: value => intIdentify$2(value) && value >= 0,
   default: true,
   tag: 'tag:yaml.org,2002:int',
   format: 'OCT',
   test: /^0o([0-7]+)$/,
-  resolve: (str, oct) => intResolve(str, oct, 8),
-  options: resolveSeq4a68b39b.intOptions,
-  stringify: node => intStringify(node, 8, '0o')
+  resolve: (str, oct) => intResolve$1(str, oct, 8),
+  options: resolveSeq$1.intOptions,
+  stringify: node => intStringify$1(node, 8, '0o')
 };
 const intObj = {
-  identify: intIdentify,
+  identify: intIdentify$2,
   default: true,
   tag: 'tag:yaml.org,2002:int',
   test: /^[-+]?[0-9]+$/,
-  resolve: str => intResolve(str, str, 10),
-  options: resolveSeq4a68b39b.intOptions,
-  stringify: resolveSeq4a68b39b.stringifyNumber
+  resolve: str => intResolve$1(str, str, 10),
+  options: resolveSeq$1.intOptions,
+  stringify: resolveSeq$1.stringifyNumber
 };
 const hexObj = {
-  identify: value => intIdentify(value) && value >= 0,
+  identify: value => intIdentify$2(value) && value >= 0,
   default: true,
   tag: 'tag:yaml.org,2002:int',
   format: 'HEX',
   test: /^0x([0-9a-fA-F]+)$/,
-  resolve: (str, hex) => intResolve(str, hex, 16),
-  options: resolveSeq4a68b39b.intOptions,
-  stringify: node => intStringify(node, 16, '0x')
+  resolve: (str, hex) => intResolve$1(str, hex, 16),
+  options: resolveSeq$1.intOptions,
+  stringify: node => intStringify$1(node, 16, '0x')
 };
 const nanObj = {
   identify: value => typeof value === 'number',
@@ -9629,7 +8233,7 @@ const nanObj = {
   tag: 'tag:yaml.org,2002:float',
   test: /^(?:[-+]?\.inf|(\.nan))$/i,
   resolve: (str, nan) => nan ? NaN : str[0] === '-' ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY,
-  stringify: resolveSeq4a68b39b.stringifyNumber
+  stringify: resolveSeq$1.stringifyNumber
 };
 const expObj = {
   identify: value => typeof value === 'number',
@@ -9650,12 +8254,12 @@ const floatObj = {
 
   resolve(str, frac1, frac2) {
     const frac = frac1 || frac2;
-    const node = new resolveSeq4a68b39b.Scalar(parseFloat(str));
+    const node = new resolveSeq$1.Scalar(parseFloat(str));
     if (frac && frac[frac.length - 1] === '0') node.minFractionDigits = frac.length;
     return node;
   },
 
-  stringify: resolveSeq4a68b39b.stringifyNumber
+  stringify: resolveSeq$1.stringifyNumber
 };
 const core = failsafe.concat([nullObj, boolObj, octObj, intObj, hexObj, nanObj, expObj, floatObj]);
 
@@ -9671,11 +8275,11 @@ const json = [map, seq, {
   identify: value => typeof value === 'string',
   default: true,
   tag: 'tag:yaml.org,2002:str',
-  resolve: resolveSeq4a68b39b.resolveString,
+  resolve: resolveSeq$1.resolveString,
   stringify: stringifyJSON
 }, {
   identify: value => value == null,
-  createNode: (schema, value, ctx) => ctx.wrapScalars ? new resolveSeq4a68b39b.Scalar(null) : null,
+  createNode: (schema, value, ctx) => ctx.wrapScalars ? new resolveSeq$1.Scalar(null) : null,
   default: true,
   tag: 'tag:yaml.org,2002:null',
   test: /^null$/,
@@ -9693,7 +8297,7 @@ const json = [map, seq, {
   default: true,
   tag: 'tag:yaml.org,2002:int',
   test: /^-?(?:0|[1-9][0-9]*)$/,
-  resolve: str => resolveSeq4a68b39b.intOptions.asBigInt ? BigInt(str) : parseInt(str, 10),
+  resolve: str => resolveSeq$1.intOptions.asBigInt ? BigInt(str) : parseInt(str, 10),
   stringify: ({
     value
   }) => intIdentify$1(value) ? value.toString() : JSON.stringify(value)
@@ -9714,14 +8318,14 @@ json.scalarFallback = str => {
 
 const boolStringify = ({
   value
-}) => value ? resolveSeq4a68b39b.boolOptions.trueStr : resolveSeq4a68b39b.boolOptions.falseStr;
+}) => value ? resolveSeq$1.boolOptions.trueStr : resolveSeq$1.boolOptions.falseStr;
 
-const intIdentify$2 = value => typeof value === 'bigint' || Number.isInteger(value);
+const intIdentify = value => typeof value === 'bigint' || Number.isInteger(value);
 
-function intResolve$1(sign, src, radix) {
+function intResolve(sign, src, radix) {
   let str = src.replace(/_/g, '');
 
-  if (resolveSeq4a68b39b.intOptions.asBigInt) {
+  if (resolveSeq$1.intOptions.asBigInt) {
     switch (radix) {
       case 2:
         str = `0b${str}`;
@@ -9744,35 +8348,35 @@ function intResolve$1(sign, src, radix) {
   return sign === '-' ? -1 * n : n;
 }
 
-function intStringify$1(node, radix, prefix) {
+function intStringify(node, radix, prefix) {
   const {
     value
   } = node;
 
-  if (intIdentify$2(value)) {
+  if (intIdentify(value)) {
     const str = value.toString(radix);
     return value < 0 ? '-' + prefix + str.substr(1) : prefix + str;
   }
 
-  return resolveSeq4a68b39b.stringifyNumber(node);
+  return resolveSeq$1.stringifyNumber(node);
 }
 
 const yaml11 = failsafe.concat([{
   identify: value => value == null,
-  createNode: (schema, value, ctx) => ctx.wrapScalars ? new resolveSeq4a68b39b.Scalar(null) : null,
+  createNode: (schema, value, ctx) => ctx.wrapScalars ? new resolveSeq$1.Scalar(null) : null,
   default: true,
   tag: 'tag:yaml.org,2002:null',
   test: /^(?:~|[Nn]ull|NULL)?$/,
   resolve: () => null,
-  options: resolveSeq4a68b39b.nullOptions,
-  stringify: () => resolveSeq4a68b39b.nullOptions.nullStr
+  options: resolveSeq$1.nullOptions,
+  stringify: () => resolveSeq$1.nullOptions.nullStr
 }, {
   identify: value => typeof value === 'boolean',
   default: true,
   tag: 'tag:yaml.org,2002:bool',
   test: /^(?:Y|y|[Yy]es|YES|[Tt]rue|TRUE|[Oo]n|ON)$/,
   resolve: () => true,
-  options: resolveSeq4a68b39b.boolOptions,
+  options: resolveSeq$1.boolOptions,
   stringify: boolStringify
 }, {
   identify: value => typeof value === 'boolean',
@@ -9780,46 +8384,46 @@ const yaml11 = failsafe.concat([{
   tag: 'tag:yaml.org,2002:bool',
   test: /^(?:N|n|[Nn]o|NO|[Ff]alse|FALSE|[Oo]ff|OFF)$/i,
   resolve: () => false,
-  options: resolveSeq4a68b39b.boolOptions,
+  options: resolveSeq$1.boolOptions,
   stringify: boolStringify
 }, {
-  identify: intIdentify$2,
+  identify: intIdentify,
   default: true,
   tag: 'tag:yaml.org,2002:int',
   format: 'BIN',
   test: /^([-+]?)0b([0-1_]+)$/,
-  resolve: (str, sign, bin) => intResolve$1(sign, bin, 2),
-  stringify: node => intStringify$1(node, 2, '0b')
+  resolve: (str, sign, bin) => intResolve(sign, bin, 2),
+  stringify: node => intStringify(node, 2, '0b')
 }, {
-  identify: intIdentify$2,
+  identify: intIdentify,
   default: true,
   tag: 'tag:yaml.org,2002:int',
   format: 'OCT',
   test: /^([-+]?)0([0-7_]+)$/,
-  resolve: (str, sign, oct) => intResolve$1(sign, oct, 8),
-  stringify: node => intStringify$1(node, 8, '0')
+  resolve: (str, sign, oct) => intResolve(sign, oct, 8),
+  stringify: node => intStringify(node, 8, '0')
 }, {
-  identify: intIdentify$2,
+  identify: intIdentify,
   default: true,
   tag: 'tag:yaml.org,2002:int',
   test: /^([-+]?)([0-9][0-9_]*)$/,
-  resolve: (str, sign, abs) => intResolve$1(sign, abs, 10),
-  stringify: resolveSeq4a68b39b.stringifyNumber
+  resolve: (str, sign, abs) => intResolve(sign, abs, 10),
+  stringify: resolveSeq$1.stringifyNumber
 }, {
-  identify: intIdentify$2,
+  identify: intIdentify,
   default: true,
   tag: 'tag:yaml.org,2002:int',
   format: 'HEX',
   test: /^([-+]?)0x([0-9a-fA-F_]+)$/,
-  resolve: (str, sign, hex) => intResolve$1(sign, hex, 16),
-  stringify: node => intStringify$1(node, 16, '0x')
+  resolve: (str, sign, hex) => intResolve(sign, hex, 16),
+  stringify: node => intStringify(node, 16, '0x')
 }, {
   identify: value => typeof value === 'number',
   default: true,
   tag: 'tag:yaml.org,2002:float',
   test: /^(?:[-+]?\.inf|(\.nan))$/i,
   resolve: (str, nan) => nan ? NaN : str[0] === '-' ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY,
-  stringify: resolveSeq4a68b39b.stringifyNumber
+  stringify: resolveSeq$1.stringifyNumber
 }, {
   identify: value => typeof value === 'number',
   default: true,
@@ -9837,7 +8441,7 @@ const yaml11 = failsafe.concat([{
   test: /^[-+]?(?:[0-9][0-9_]*)?\.([0-9_]*)$/,
 
   resolve(str, frac) {
-    const node = new resolveSeq4a68b39b.Scalar(parseFloat(str.replace(/_/g, '')));
+    const node = new resolveSeq$1.Scalar(parseFloat(str.replace(/_/g, '')));
 
     if (frac) {
       const f = frac.replace(/_/g, '');
@@ -9847,8 +8451,8 @@ const yaml11 = failsafe.concat([{
     return node;
   },
 
-  stringify: resolveSeq4a68b39b.stringifyNumber
-}], warnings39684f17.binary, warnings39684f17.omap, warnings39684f17.pairs, warnings39684f17.set, warnings39684f17.intTime, warnings39684f17.floatTime, warnings39684f17.timestamp);
+  stringify: resolveSeq$1.stringifyNumber
+}], warnings$1.binary, warnings$1.omap, warnings$1.pairs, warnings$1.set, warnings$1.intTime, warnings$1.floatTime, warnings$1.timestamp);
 
 const schemas = {
   core,
@@ -9857,23 +8461,23 @@ const schemas = {
   yaml11
 };
 const tags = {
-  binary: warnings39684f17.binary,
+  binary: warnings$1.binary,
   bool: boolObj,
   float: floatObj,
   floatExp: expObj,
   floatNaN: nanObj,
-  floatTime: warnings39684f17.floatTime,
+  floatTime: warnings$1.floatTime,
   int: intObj,
   intHex: hexObj,
   intOct: octObj,
-  intTime: warnings39684f17.intTime,
+  intTime: warnings$1.intTime,
   map,
   null: nullObj,
-  omap: warnings39684f17.omap,
-  pairs: warnings39684f17.pairs,
+  omap: warnings$1.omap,
+  pairs: warnings$1.pairs,
   seq,
-  set: warnings39684f17.set,
-  timestamp: warnings39684f17.timestamp
+  set: warnings$1.set,
+  timestamp: warnings$1.timestamp
 };
 
 function findTagObject(value, tagName, tags) {
@@ -9888,8 +8492,8 @@ function findTagObject(value, tagName, tags) {
   return tags.find(t => (t.identify && t.identify(value) || t.class && value instanceof t.class) && !t.format);
 }
 
-function createNode(value, tagName, ctx) {
-  if (value instanceof resolveSeq4a68b39b.Node) return value;
+function createNode$1(value, tagName, ctx) {
+  if (value instanceof resolveSeq$1.Node) return value;
   const {
     defaultPrefix,
     onTagObj,
@@ -9902,7 +8506,7 @@ function createNode(value, tagName, ctx) {
 
   if (!tagObj) {
     if (typeof value.toJSON === 'function') value = value.toJSON();
-    if (typeof value !== 'object') return wrapScalars ? new resolveSeq4a68b39b.Scalar(value) : value;
+    if (!value || typeof value !== 'object') return wrapScalars ? new resolveSeq$1.Scalar(value) : value;
     tagObj = value instanceof Map ? map : value[Symbol.iterator] ? seq : map;
   }
 
@@ -9913,13 +8517,16 @@ function createNode(value, tagName, ctx) {
   // after first. The `obj` wrapper allows for circular references to resolve.
 
 
-  const obj = {};
+  const obj = {
+    value: undefined,
+    node: undefined
+  };
 
   if (value && typeof value === 'object' && prevObjects) {
     const prev = prevObjects.get(value);
 
     if (prev) {
-      const alias = new resolveSeq4a68b39b.Alias(prev); // leaves source dirty; must be cleaned by caller
+      const alias = new resolveSeq$1.Alias(prev); // leaves source dirty; must be cleaned by caller
 
       ctx.aliasNodes.push(alias); // defined along with prevObjects
 
@@ -9930,8 +8537,8 @@ function createNode(value, tagName, ctx) {
     prevObjects.set(value, obj);
   }
 
-  obj.node = tagObj.createNode ? tagObj.createNode(ctx.schema, value, ctx) : wrapScalars ? new resolveSeq4a68b39b.Scalar(value) : value;
-  if (tagName && obj.node instanceof resolveSeq4a68b39b.Node) obj.node.tag = tagName;
+  obj.node = tagObj.createNode ? tagObj.createNode(ctx.schema, value, ctx) : wrapScalars ? new resolveSeq$1.Scalar(value) : value;
+  if (tagName && obj.node instanceof resolveSeq$1.Node) obj.node.tag = tagName;
   return obj.node;
 }
 
@@ -9969,7 +8576,7 @@ function getSchemaTags(schemas, knownTags, customTags, schemaId) {
 
 const sortMapEntriesByKey = (a, b) => a.key < b.key ? -1 : a.key > b.key ? 1 : 0;
 
-class Schema {
+class Schema$2 {
   // TODO: remove in v2
   // TODO: remove in v2
   constructor({
@@ -9982,18 +8589,18 @@ class Schema {
     this.merge = !!merge;
     this.name = schema;
     this.sortMapEntries = sortMapEntries === true ? sortMapEntriesByKey : sortMapEntries || null;
-    if (!customTags && deprecatedCustomTags) warnings39684f17.warnOptionDeprecation('tags', 'customTags');
+    if (!customTags && deprecatedCustomTags) warnings$1.warnOptionDeprecation('tags', 'customTags');
     this.tags = getSchemaTags(schemas, tags, customTags || deprecatedCustomTags, schema);
   }
 
   createNode(value, wrapScalars, tagName, ctx) {
     const baseCtx = {
-      defaultPrefix: Schema.defaultPrefix,
+      defaultPrefix: Schema$2.defaultPrefix,
       schema: this,
       wrapScalars
     };
     const createCtx = ctx ? Object.assign(ctx, baseCtx) : baseCtx;
-    return createNode(value, tagName, createCtx);
+    return createNode$1(value, tagName, createCtx);
   }
 
   createPair(key, value, ctx) {
@@ -10002,20 +8609,20 @@ class Schema {
     };
     const k = this.createNode(key, ctx.wrapScalars, null, ctx);
     const v = this.createNode(value, ctx.wrapScalars, null, ctx);
-    return new resolveSeq4a68b39b.Pair(k, v);
+    return new resolveSeq$1.Pair(k, v);
   }
 
 }
 
-PlainValueEc8e588e._defineProperty(Schema, "defaultPrefix", PlainValueEc8e588e.defaultTagPrefix);
+PlainValue$2._defineProperty(Schema$2, "defaultPrefix", PlainValue$2.defaultTagPrefix);
 
-PlainValueEc8e588e._defineProperty(Schema, "defaultTags", PlainValueEc8e588e.defaultTags);
+PlainValue$2._defineProperty(Schema$2, "defaultTags", PlainValue$2.defaultTags);
 
-var Schema_1 = Schema;
+Schema88e323a7.Schema = Schema$2;
 
-var Schema42e9705c = {
-	Schema: Schema_1
-};
+var PlainValue$1 = PlainValueEc8e588e;
+var resolveSeq = resolveSeqD03cb037;
+var Schema$1 = Schema88e323a7;
 
 const defaultOptions = {
   anchorPrefix: 'a',
@@ -10034,43 +8641,43 @@ const defaultOptions = {
 };
 const scalarOptions = {
   get binary() {
-    return resolveSeq4a68b39b.binaryOptions;
+    return resolveSeq.binaryOptions;
   },
 
   set binary(opt) {
-    Object.assign(resolveSeq4a68b39b.binaryOptions, opt);
+    Object.assign(resolveSeq.binaryOptions, opt);
   },
 
   get bool() {
-    return resolveSeq4a68b39b.boolOptions;
+    return resolveSeq.boolOptions;
   },
 
   set bool(opt) {
-    Object.assign(resolveSeq4a68b39b.boolOptions, opt);
+    Object.assign(resolveSeq.boolOptions, opt);
   },
 
   get int() {
-    return resolveSeq4a68b39b.intOptions;
+    return resolveSeq.intOptions;
   },
 
   set int(opt) {
-    Object.assign(resolveSeq4a68b39b.intOptions, opt);
+    Object.assign(resolveSeq.intOptions, opt);
   },
 
   get null() {
-    return resolveSeq4a68b39b.nullOptions;
+    return resolveSeq.nullOptions;
   },
 
   set null(opt) {
-    Object.assign(resolveSeq4a68b39b.nullOptions, opt);
+    Object.assign(resolveSeq.nullOptions, opt);
   },
 
   get str() {
-    return resolveSeq4a68b39b.strOptions;
+    return resolveSeq.strOptions;
   },
 
   set str(opt) {
-    Object.assign(resolveSeq4a68b39b.strOptions, opt);
+    Object.assign(resolveSeq.strOptions, opt);
   }
 
 };
@@ -10080,13 +8687,13 @@ const documentOptions = {
     merge: true,
     tagPrefixes: [{
       handle: '!',
-      prefix: PlainValueEc8e588e.defaultTagPrefix
+      prefix: PlainValue$1.defaultTagPrefix
     }, {
       handle: '!!',
       prefix: 'tag:private.yaml.org,2002:'
     }]
   },
-  '1.1': {
+  1.1: {
     schema: 'yaml-1.1',
     merge: true,
     tagPrefixes: [{
@@ -10094,10 +8701,10 @@ const documentOptions = {
       prefix: '!'
     }, {
       handle: '!!',
-      prefix: PlainValueEc8e588e.defaultTagPrefix
+      prefix: PlainValue$1.defaultTagPrefix
     }]
   },
-  '1.2': {
+  1.2: {
     schema: 'core',
     merge: false,
     tagPrefixes: [{
@@ -10105,7 +8712,7 @@ const documentOptions = {
       prefix: '!'
     }, {
       handle: '!!',
-      prefix: PlainValueEc8e588e.defaultTagPrefix
+      prefix: PlainValue$1.defaultTagPrefix
     }]
   }
 };
@@ -10138,7 +8745,7 @@ function stringifyTag(doc, tag) {
 }
 
 function getTagObject(tags, item) {
-  if (item instanceof resolveSeq4a68b39b.Alias) return resolveSeq4a68b39b.Alias;
+  if (item instanceof resolveSeq.Alias) return resolveSeq.Alias;
 
   if (item.tag) {
     const match = tags.filter(t => t.tag === item.tag);
@@ -10147,7 +8754,7 @@ function getTagObject(tags, item) {
 
   let tagObj, obj;
 
-  if (item instanceof resolveSeq4a68b39b.Scalar) {
+  if (item instanceof resolveSeq.Scalar) {
     obj = item.value; // TODO: deprecate/remove class check
 
     const match = tags.filter(t => t.identify && t.identify(obj) || t.class && obj instanceof t.class);
@@ -10187,14 +8794,14 @@ function stringifyProps(node, tagObj, {
   return props.join(' ');
 }
 
-function stringify(item, ctx, onComment, onChompKeep) {
+function stringify$1(item, ctx, onComment, onChompKeep) {
   const {
     anchors,
     schema
   } = ctx.doc;
   let tagObj;
 
-  if (!(item instanceof resolveSeq4a68b39b.Node)) {
+  if (!(item instanceof resolveSeq.Node)) {
     const createCtx = {
       aliasNodes: [],
       onTagObj: o => tagObj = o,
@@ -10213,37 +8820,37 @@ function stringify(item, ctx, onComment, onChompKeep) {
     }
   }
 
-  if (item instanceof resolveSeq4a68b39b.Pair) return item.toString(ctx, onComment, onChompKeep);
+  if (item instanceof resolveSeq.Pair) return item.toString(ctx, onComment, onChompKeep);
   if (!tagObj) tagObj = getTagObject(schema.tags, item);
   const props = stringifyProps(item, tagObj, ctx);
   if (props.length > 0) ctx.indentAtStart = (ctx.indentAtStart || 0) + props.length + 1;
-  const str = typeof tagObj.stringify === 'function' ? tagObj.stringify(item, ctx, onComment, onChompKeep) : item instanceof resolveSeq4a68b39b.Scalar ? resolveSeq4a68b39b.stringifyString(item, ctx, onComment, onChompKeep) : item.toString(ctx, onComment, onChompKeep);
+  const str = typeof tagObj.stringify === 'function' ? tagObj.stringify(item, ctx, onComment, onChompKeep) : item instanceof resolveSeq.Scalar ? resolveSeq.stringifyString(item, ctx, onComment, onChompKeep) : item.toString(ctx, onComment, onChompKeep);
   if (!props) return str;
-  return item instanceof resolveSeq4a68b39b.Scalar || str[0] === '{' || str[0] === '[' ? `${props} ${str}` : `${props}\n${ctx.indent}${str}`;
+  return item instanceof resolveSeq.Scalar || str[0] === '{' || str[0] === '[' ? `${props} ${str}` : `${props}\n${ctx.indent}${str}`;
 }
 
 class Anchors {
   static validAnchorNode(node) {
-    return node instanceof resolveSeq4a68b39b.Scalar || node instanceof resolveSeq4a68b39b.YAMLSeq || node instanceof resolveSeq4a68b39b.YAMLMap;
+    return node instanceof resolveSeq.Scalar || node instanceof resolveSeq.YAMLSeq || node instanceof resolveSeq.YAMLMap;
   }
 
   constructor(prefix) {
-    PlainValueEc8e588e._defineProperty(this, "map", {});
+    PlainValue$1._defineProperty(this, "map", Object.create(null));
 
     this.prefix = prefix;
   }
 
   createAlias(node, name) {
     this.setAnchor(node, name);
-    return new resolveSeq4a68b39b.Alias(node);
+    return new resolveSeq.Alias(node);
   }
 
   createMergePair(...sources) {
-    const merge = new resolveSeq4a68b39b.Merge();
+    const merge = new resolveSeq.Merge();
     merge.value.items = sources.map(s => {
-      if (s instanceof resolveSeq4a68b39b.Alias) {
-        if (s.source instanceof resolveSeq4a68b39b.YAMLMap) return s;
-      } else if (s instanceof resolveSeq4a68b39b.YAMLMap) {
+      if (s instanceof resolveSeq.Alias) {
+        if (s.source instanceof resolveSeq.YAMLMap) return s;
+      } else if (s instanceof resolveSeq.YAMLMap) {
         return this.createAlias(s);
       }
 
@@ -10335,13 +8942,13 @@ const visit = (node, tags) => {
       tag
     } = node;
 
-    if (node instanceof resolveSeq4a68b39b.Collection) {
+    if (node instanceof resolveSeq.Collection) {
       if (tag) tags[tag] = true;
       node.items.forEach(n => visit(n, tags));
-    } else if (node instanceof resolveSeq4a68b39b.Pair) {
+    } else if (node instanceof resolveSeq.Pair) {
       visit(node.key, tags);
       visit(node.value, tags);
-    } else if (node instanceof resolveSeq4a68b39b.Scalar) {
+    } else if (node instanceof resolveSeq.Scalar) {
       if (tag) tags[tag] = true;
     }
   }
@@ -10363,11 +8970,11 @@ function parseContents(doc, contents) {
     if (node.valueRange) {
       if (body !== undefined) {
         const msg = 'Document contains trailing content not separated by a ... or --- line';
-        doc.errors.push(new PlainValueEc8e588e.YAMLSyntaxError(node, msg));
+        doc.errors.push(new PlainValue$1.YAMLSyntaxError(node, msg));
         break;
       }
 
-      const res = resolveSeq4a68b39b.resolveNode(doc, node);
+      const res = resolveSeq.resolveNode(doc, node);
 
       if (spaceBefore) {
         res.spaceBefore = true;
@@ -10378,7 +8985,7 @@ function parseContents(doc, contents) {
     } else if (node.comment !== null) {
       const cc = body === undefined ? comments.before : comments.after;
       cc.push(node.comment);
-    } else if (node.type === PlainValueEc8e588e.Type.BLANK_LINE) {
+    } else if (node.type === PlainValue$1.Type.BLANK_LINE) {
       spaceBefore = true;
 
       if (body === undefined && comments.before.length > 0 && !doc.commentBefore) {
@@ -10397,7 +9004,7 @@ function parseContents(doc, contents) {
     const cb = comments.before.join('\n');
 
     if (cb) {
-      const cbNode = body instanceof resolveSeq4a68b39b.Collection && body.items[0] ? body.items[0] : body;
+      const cbNode = body instanceof resolveSeq.Collection && body.items[0] ? body.items[0] : body;
       cbNode.commentBefore = cbNode.commentBefore ? `${cb}\n${cbNode.commentBefore}` : cb;
     }
 
@@ -10412,12 +9019,12 @@ function resolveTagDirective({
 
   if (!handle || !prefix) {
     const msg = 'Insufficient parameters given for %TAG directive';
-    throw new PlainValueEc8e588e.YAMLSemanticError(directive, msg);
+    throw new PlainValue$1.YAMLSemanticError(directive, msg);
   }
 
   if (tagPrefixes.some(p => p.handle === handle)) {
     const msg = 'The %TAG directive must only be given at most once per handle in the same document.';
-    throw new PlainValueEc8e588e.YAMLSemanticError(directive, msg);
+    throw new PlainValue$1.YAMLSemanticError(directive, msg);
   }
 
   return {
@@ -10432,13 +9039,13 @@ function resolveYamlDirective(doc, directive) {
 
   if (!version) {
     const msg = 'Insufficient parameters given for %YAML directive';
-    throw new PlainValueEc8e588e.YAMLSemanticError(directive, msg);
+    throw new PlainValue$1.YAMLSemanticError(directive, msg);
   }
 
   if (!documentOptions[version]) {
     const v0 = doc.version || doc.options.version;
     const msg = `Document will be parsed as YAML ${v0} rather than YAML ${version}`;
-    doc.warnings.push(new PlainValueEc8e588e.YAMLWarning(directive, msg));
+    doc.warnings.push(new PlainValue$1.YAMLWarning(directive, msg));
   }
 
   return version;
@@ -10469,7 +9076,7 @@ function parseDirectives(doc, directives, prevDoc) {
       case 'YAML:1.0':
         if (doc.version) {
           const msg = 'The %YAML directive must only be given at most once per document.';
-          doc.errors.push(new PlainValueEc8e588e.YAMLSemanticError(directive, msg));
+          doc.errors.push(new PlainValue$1.YAMLSemanticError(directive, msg));
         }
 
         try {
@@ -10484,7 +9091,7 @@ function parseDirectives(doc, directives, prevDoc) {
       default:
         if (name) {
           const msg = `YAML only supports %TAG and %YAML directives, and not %${name}`;
-          doc.warnings.push(new PlainValueEc8e588e.YAMLWarning(directive, msg));
+          doc.warnings.push(new PlainValue$1.YAMLWarning(directive, msg));
         }
 
     }
@@ -10509,11 +9116,11 @@ function parseDirectives(doc, directives, prevDoc) {
 }
 
 function assertCollection(contents) {
-  if (contents instanceof resolveSeq4a68b39b.Collection) return true;
+  if (contents instanceof resolveSeq.Collection) return true;
   throw new Error('Expected a YAML collection as document contents');
 }
 
-class Document$1 {
+class Document$2 {
   constructor(options) {
     this.anchors = new Anchors(options.anchorPrefix);
     this.commentBefore = null;
@@ -10544,7 +9151,7 @@ class Document$1 {
   }
 
   deleteIn(path) {
-    if (resolveSeq4a68b39b.isEmptyPath(path)) {
+    if (resolveSeq.isEmptyPath(path)) {
       if (this.contents == null) return false;
       this.contents = null;
       return true;
@@ -10555,25 +9162,25 @@ class Document$1 {
   }
 
   getDefaults() {
-    return Document$1.defaults[this.version] || Document$1.defaults[this.options.version] || {};
+    return Document$2.defaults[this.version] || Document$2.defaults[this.options.version] || {};
   }
 
   get(key, keepScalar) {
-    return this.contents instanceof resolveSeq4a68b39b.Collection ? this.contents.get(key, keepScalar) : undefined;
+    return this.contents instanceof resolveSeq.Collection ? this.contents.get(key, keepScalar) : undefined;
   }
 
   getIn(path, keepScalar) {
-    if (resolveSeq4a68b39b.isEmptyPath(path)) return !keepScalar && this.contents instanceof resolveSeq4a68b39b.Scalar ? this.contents.value : this.contents;
-    return this.contents instanceof resolveSeq4a68b39b.Collection ? this.contents.getIn(path, keepScalar) : undefined;
+    if (resolveSeq.isEmptyPath(path)) return !keepScalar && this.contents instanceof resolveSeq.Scalar ? this.contents.value : this.contents;
+    return this.contents instanceof resolveSeq.Collection ? this.contents.getIn(path, keepScalar) : undefined;
   }
 
   has(key) {
-    return this.contents instanceof resolveSeq4a68b39b.Collection ? this.contents.has(key) : false;
+    return this.contents instanceof resolveSeq.Collection ? this.contents.has(key) : false;
   }
 
   hasIn(path) {
-    if (resolveSeq4a68b39b.isEmptyPath(path)) return this.contents !== undefined;
-    return this.contents instanceof resolveSeq4a68b39b.Collection ? this.contents.hasIn(path) : false;
+    if (resolveSeq.isEmptyPath(path)) return this.contents !== undefined;
+    return this.contents instanceof resolveSeq.Collection ? this.contents.hasIn(path) : false;
   }
 
   set(key, value) {
@@ -10582,7 +9189,7 @@ class Document$1 {
   }
 
   setIn(path, value) {
-    if (resolveSeq4a68b39b.isEmptyPath(path)) this.contents = value;else {
+    if (resolveSeq.isEmptyPath(path)) this.contents = value;else {
       assertCollection(this.contents);
       this.contents.setIn(path, value);
     }
@@ -10601,7 +9208,7 @@ class Document$1 {
 
     if (Array.isArray(customTags)) this.options.customTags = customTags;
     const opt = Object.assign({}, this.getDefaults(), this.options);
-    this.schema = new Schema42e9705c.Schema(opt);
+    this.schema = new Schema$1.Schema(opt);
   }
 
   parse(node, prevDoc) {
@@ -10629,16 +9236,16 @@ class Document$1 {
     this.anchors.resolveNodes();
 
     if (this.options.prettyErrors) {
-      for (const error of this.errors) if (error instanceof PlainValueEc8e588e.YAMLError) error.makePretty();
+      for (const error of this.errors) if (error instanceof PlainValue$1.YAMLError) error.makePretty();
 
-      for (const warn of this.warnings) if (warn instanceof PlainValueEc8e588e.YAMLError) warn.makePretty();
+      for (const warn of this.warnings) if (warn instanceof PlainValue$1.YAMLError) warn.makePretty();
     }
 
     return this;
   }
 
   listNonDefaultTags() {
-    return listTagNames(this.contents).filter(t => t.indexOf(Schema42e9705c.Schema.defaultPrefix) !== 0);
+    return listTagNames(this.contents).filter(t => t.indexOf(Schema$1.Schema.defaultPrefix) !== 0);
   }
 
   setTagPrefix(handle, prefix) {
@@ -10661,14 +9268,14 @@ class Document$1 {
       mapAsMap,
       maxAliasCount
     } = this.options;
-    const keep = keepBlobsInJSON && (typeof arg !== 'string' || !(this.contents instanceof resolveSeq4a68b39b.Scalar));
+    const keep = keepBlobsInJSON && (typeof arg !== 'string' || !(this.contents instanceof resolveSeq.Scalar));
     const ctx = {
       doc: this,
       indentStep: '  ',
       keep,
       mapAsMap: keep && !!mapAsMap,
       maxAliasCount,
-      stringify // Requiring directly in Pair would create circular dependencies
+      stringify: stringify$1 // Requiring directly in Pair would create circular dependencies
 
     };
     const anchorNames = Object.keys(this.anchors.map);
@@ -10677,7 +9284,7 @@ class Document$1 {
       aliasCount: 0,
       count: 1
     }]));
-    const res = resolveSeq4a68b39b.toJSON(this.contents, arg, ctx);
+    const res = resolveSeq.toJSON(this.contents, arg, ctx);
     if (typeof onAnchor === 'function' && ctx.anchors) for (const {
       count,
       res
@@ -10727,18 +9334,18 @@ class Document$1 {
     }
 
     const ctx = {
-      anchors: {},
+      anchors: Object.create(null),
       doc: this,
       indent: '',
       indentStep: ' '.repeat(indentSize),
-      stringify // Requiring directly in nodes would create circular dependencies
+      stringify: stringify$1 // Requiring directly in nodes would create circular dependencies
 
     };
     let chompKeep = false;
     let contentComment = null;
 
     if (this.contents) {
-      if (this.contents instanceof resolveSeq4a68b39b.Node) {
+      if (this.contents instanceof resolveSeq.Node) {
         if (this.contents.spaceBefore && (hasDirectives || this.directivesEndMarker)) lines.push('');
         if (this.contents.commentBefore) lines.push(this.contents.commentBefore.replace(/^/gm, '#')); // top-level block scalars need to be indented if followed by a comment
 
@@ -10747,10 +9354,10 @@ class Document$1 {
       }
 
       const onChompKeep = contentComment ? null : () => chompKeep = true;
-      const body = stringify(this.contents, ctx, () => contentComment = null, onChompKeep);
-      lines.push(resolveSeq4a68b39b.addComment(body, '', contentComment));
+      const body = stringify$1(this.contents, ctx, () => contentComment = null, onChompKeep);
+      lines.push(resolveSeq.addComment(body, '', contentComment));
     } else if (this.contents !== undefined) {
-      lines.push(stringify(this.contents, ctx));
+      lines.push(stringify$1(this.contents, ctx));
     }
 
     if (this.comment) {
@@ -10763,32 +9370,33 @@ class Document$1 {
 
 }
 
-PlainValueEc8e588e._defineProperty(Document$1, "defaults", documentOptions);
+PlainValue$1._defineProperty(Document$2, "defaults", documentOptions);
 
-var Document_1 = Document$1;
-var defaultOptions_1 = defaultOptions;
-var scalarOptions_1 = scalarOptions;
+Document9b4560a1.Document = Document$2;
+Document9b4560a1.defaultOptions = defaultOptions;
+Document9b4560a1.scalarOptions = scalarOptions;
 
-var Document2cf6b08c = {
-	Document: Document_1,
-	defaultOptions: defaultOptions_1,
-	scalarOptions: scalarOptions_1
-};
+var parseCst = parseCst$1;
+var Document$1 = Document9b4560a1;
+var Schema = Schema88e323a7;
+var PlainValue = PlainValueEc8e588e;
+var warnings = warnings1000a372;
 
-function createNode$1(value, wrapScalars = true, tag) {
+
+function createNode(value, wrapScalars = true, tag) {
   if (tag === undefined && typeof wrapScalars === 'string') {
     tag = wrapScalars;
     wrapScalars = true;
   }
 
-  const options = Object.assign({}, Document2cf6b08c.Document.defaults[Document2cf6b08c.defaultOptions.version], Document2cf6b08c.defaultOptions);
-  const schema = new Schema42e9705c.Schema(options);
+  const options = Object.assign({}, Document$1.Document.defaults[Document$1.defaultOptions.version], Document$1.defaultOptions);
+  const schema = new Schema.Schema(options);
   return schema.createNode(value, wrapScalars, tag);
 }
 
-class Document$2 extends Document2cf6b08c.Document {
+class Document extends Document$1.Document {
   constructor(options) {
-    super(Object.assign({}, Document2cf6b08c.defaultOptions, options));
+    super(Object.assign({}, Document$1.defaultOptions, options));
   }
 
 }
@@ -10798,7 +9406,7 @@ function parseAllDocuments(src, options) {
   let prev;
 
   for (const cstDoc of parseCst.parse(src)) {
-    const doc = new Document$2(options);
+    const doc = new Document(options);
     doc.parse(cstDoc, prev);
     stream.push(doc);
     prev = doc;
@@ -10809,46 +9417,42 @@ function parseAllDocuments(src, options) {
 
 function parseDocument(src, options) {
   const cst = parseCst.parse(src);
-  const doc = new Document$2(options).parse(cst[0]);
+  const doc = new Document(options).parse(cst[0]);
 
   if (cst.length > 1) {
     const errMsg = 'Source contains multiple documents; please use YAML.parseAllDocuments()';
-    doc.errors.unshift(new PlainValueEc8e588e.YAMLSemanticError(cst[1], errMsg));
+    doc.errors.unshift(new PlainValue.YAMLSemanticError(cst[1], errMsg));
   }
 
   return doc;
 }
 
-function parse$1(src, options) {
+function parse(src, options) {
   const doc = parseDocument(src, options);
-  doc.warnings.forEach(warning => warnings39684f17.warn(warning));
+  doc.warnings.forEach(warning => warnings.warn(warning));
   if (doc.errors.length > 0) throw doc.errors[0];
   return doc.toJSON();
 }
 
-function stringify$1(value, options) {
-  const doc = new Document$2(options);
+function stringify(value, options) {
+  const doc = new Document(options);
   doc.contents = value;
   return String(doc);
 }
 
 const YAML = {
-  createNode: createNode$1,
-  defaultOptions: Document2cf6b08c.defaultOptions,
-  Document: Document$2,
-  parse: parse$1,
+  createNode,
+  defaultOptions: Document$1.defaultOptions,
+  Document,
+  parse,
   parseAllDocuments,
   parseCST: parseCst.parse,
   parseDocument,
-  scalarOptions: Document2cf6b08c.scalarOptions,
-  stringify: stringify$1
+  scalarOptions: Document$1.scalarOptions,
+  stringify
 };
 
-var YAML_1 = YAML;
-
-var dist = {
-	YAML: YAML_1
-};
+dist.YAML = YAML;
 
 var yaml = dist.YAML;
 
@@ -10864,7 +9468,7 @@ function getLongestString(input) {
  */
 function toDotEnv(input) {
     return Object.keys(input).map(function (key) {
-        return key + "='" + input[key] + "'";
+        return "".concat(key, "='").concat(input[key], "'");
     }).join('\n');
 }
 /**
@@ -10879,7 +9483,7 @@ function toPHP(input, prettyPrint) {
         var whitespace = prettyPrint
             ? ' '.repeat(maxLength - key.length)
             : '';
-        return "define('" + key + "', " + whitespace + "'" + input[key] + "');";
+        return "define('".concat(key, "', ").concat(whitespace, "'").concat(input[key], "');");
     }).join('\n');
 }
 /**
@@ -10891,3010 +9495,34 @@ function toYAML(input) {
     return yaml.stringify(input);
 }
 
-/** Detect free variable `global` from Node.js. */
+var src = {};
 
-var freeGlobal = typeof commonjsGlobal == 'object' && commonjsGlobal && commonjsGlobal.Object === Object && commonjsGlobal;
+var createStream$1 = {};
 
-var _freeGlobal = freeGlobal;
+var alignTableData$1 = {};
 
-/** Detect free variable `self`. */
-var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
+var alignString$1 = {};
 
-/** Used as a reference to the global object. */
-var root = _freeGlobal || freeSelf || Function('return this')();
+var stringWidth$1 = {exports: {}};
 
-var _root = root;
-
-/** Built-in value references. */
-var Symbol$1 = _root.Symbol;
-
-var _Symbol = Symbol$1;
-
-/** Used for built-in method references. */
-var objectProto = Object.prototype;
-
-/** Used to check objects for own properties. */
-var hasOwnProperty = objectProto.hasOwnProperty;
-
-/**
- * Used to resolve the
- * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
- * of values.
- */
-var nativeObjectToString = objectProto.toString;
-
-/** Built-in value references. */
-var symToStringTag = _Symbol ? _Symbol.toStringTag : undefined;
-
-/**
- * A specialized version of `baseGetTag` which ignores `Symbol.toStringTag` values.
- *
- * @private
- * @param {*} value The value to query.
- * @returns {string} Returns the raw `toStringTag`.
- */
-function getRawTag(value) {
-  var isOwn = hasOwnProperty.call(value, symToStringTag),
-      tag = value[symToStringTag];
-
-  try {
-    value[symToStringTag] = undefined;
-    var unmasked = true;
-  } catch (e) {}
-
-  var result = nativeObjectToString.call(value);
-  if (unmasked) {
-    if (isOwn) {
-      value[symToStringTag] = tag;
-    } else {
-      delete value[symToStringTag];
-    }
-  }
-  return result;
-}
-
-var _getRawTag = getRawTag;
-
-/** Used for built-in method references. */
-var objectProto$1 = Object.prototype;
-
-/**
- * Used to resolve the
- * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
- * of values.
- */
-var nativeObjectToString$1 = objectProto$1.toString;
-
-/**
- * Converts `value` to a string using `Object.prototype.toString`.
- *
- * @private
- * @param {*} value The value to convert.
- * @returns {string} Returns the converted string.
- */
-function objectToString(value) {
-  return nativeObjectToString$1.call(value);
-}
-
-var _objectToString = objectToString;
-
-/** `Object#toString` result references. */
-var nullTag = '[object Null]',
-    undefinedTag = '[object Undefined]';
-
-/** Built-in value references. */
-var symToStringTag$1 = _Symbol ? _Symbol.toStringTag : undefined;
-
-/**
- * The base implementation of `getTag` without fallbacks for buggy environments.
- *
- * @private
- * @param {*} value The value to query.
- * @returns {string} Returns the `toStringTag`.
- */
-function baseGetTag(value) {
-  if (value == null) {
-    return value === undefined ? undefinedTag : nullTag;
-  }
-  return (symToStringTag$1 && symToStringTag$1 in Object(value))
-    ? _getRawTag(value)
-    : _objectToString(value);
-}
-
-var _baseGetTag = baseGetTag;
-
-/**
- * Checks if `value` is the
- * [language type](http://www.ecma-international.org/ecma-262/7.0/#sec-ecmascript-language-types)
- * of `Object`. (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
- *
- * @static
- * @memberOf _
- * @since 0.1.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is an object, else `false`.
- * @example
- *
- * _.isObject({});
- * // => true
- *
- * _.isObject([1, 2, 3]);
- * // => true
- *
- * _.isObject(_.noop);
- * // => true
- *
- * _.isObject(null);
- * // => false
- */
-function isObject(value) {
-  var type = typeof value;
-  return value != null && (type == 'object' || type == 'function');
-}
-
-var isObject_1 = isObject;
-
-/** `Object#toString` result references. */
-var asyncTag = '[object AsyncFunction]',
-    funcTag = '[object Function]',
-    genTag = '[object GeneratorFunction]',
-    proxyTag = '[object Proxy]';
-
-/**
- * Checks if `value` is classified as a `Function` object.
- *
- * @static
- * @memberOf _
- * @since 0.1.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a function, else `false`.
- * @example
- *
- * _.isFunction(_);
- * // => true
- *
- * _.isFunction(/abc/);
- * // => false
- */
-function isFunction(value) {
-  if (!isObject_1(value)) {
-    return false;
-  }
-  // The use of `Object#toString` avoids issues with the `typeof` operator
-  // in Safari 9 which returns 'object' for typed arrays and other constructors.
-  var tag = _baseGetTag(value);
-  return tag == funcTag || tag == genTag || tag == asyncTag || tag == proxyTag;
-}
-
-var isFunction_1 = isFunction;
-
-/** Used to detect overreaching core-js shims. */
-var coreJsData = _root['__core-js_shared__'];
-
-var _coreJsData = coreJsData;
-
-/** Used to detect methods masquerading as native. */
-var maskSrcKey = (function() {
-  var uid = /[^.]+$/.exec(_coreJsData && _coreJsData.keys && _coreJsData.keys.IE_PROTO || '');
-  return uid ? ('Symbol(src)_1.' + uid) : '';
-}());
-
-/**
- * Checks if `func` has its source masked.
- *
- * @private
- * @param {Function} func The function to check.
- * @returns {boolean} Returns `true` if `func` is masked, else `false`.
- */
-function isMasked(func) {
-  return !!maskSrcKey && (maskSrcKey in func);
-}
-
-var _isMasked = isMasked;
-
-/** Used for built-in method references. */
-var funcProto = Function.prototype;
-
-/** Used to resolve the decompiled source of functions. */
-var funcToString = funcProto.toString;
-
-/**
- * Converts `func` to its source code.
- *
- * @private
- * @param {Function} func The function to convert.
- * @returns {string} Returns the source code.
- */
-function toSource(func) {
-  if (func != null) {
-    try {
-      return funcToString.call(func);
-    } catch (e) {}
-    try {
-      return (func + '');
-    } catch (e) {}
-  }
-  return '';
-}
-
-var _toSource = toSource;
-
-/**
- * Used to match `RegExp`
- * [syntax characters](http://ecma-international.org/ecma-262/7.0/#sec-patterns).
- */
-var reRegExpChar = /[\\^$.*+?()[\]{}|]/g;
-
-/** Used to detect host constructors (Safari). */
-var reIsHostCtor = /^\[object .+?Constructor\]$/;
-
-/** Used for built-in method references. */
-var funcProto$1 = Function.prototype,
-    objectProto$2 = Object.prototype;
-
-/** Used to resolve the decompiled source of functions. */
-var funcToString$1 = funcProto$1.toString;
-
-/** Used to check objects for own properties. */
-var hasOwnProperty$1 = objectProto$2.hasOwnProperty;
-
-/** Used to detect if a method is native. */
-var reIsNative = RegExp('^' +
-  funcToString$1.call(hasOwnProperty$1).replace(reRegExpChar, '\\$&')
-  .replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, '$1.*?') + '$'
-);
-
-/**
- * The base implementation of `_.isNative` without bad shim checks.
- *
- * @private
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a native function,
- *  else `false`.
- */
-function baseIsNative(value) {
-  if (!isObject_1(value) || _isMasked(value)) {
-    return false;
-  }
-  var pattern = isFunction_1(value) ? reIsNative : reIsHostCtor;
-  return pattern.test(_toSource(value));
-}
-
-var _baseIsNative = baseIsNative;
-
-/**
- * Gets the value at `key` of `object`.
- *
- * @private
- * @param {Object} [object] The object to query.
- * @param {string} key The key of the property to get.
- * @returns {*} Returns the property value.
- */
-function getValue(object, key) {
-  return object == null ? undefined : object[key];
-}
-
-var _getValue = getValue;
-
-/**
- * Gets the native function at `key` of `object`.
- *
- * @private
- * @param {Object} object The object to query.
- * @param {string} key The key of the method to get.
- * @returns {*} Returns the function if it's native, else `undefined`.
- */
-function getNative(object, key) {
-  var value = _getValue(object, key);
-  return _baseIsNative(value) ? value : undefined;
-}
-
-var _getNative = getNative;
-
-var defineProperty = (function() {
-  try {
-    var func = _getNative(Object, 'defineProperty');
-    func({}, '', {});
-    return func;
-  } catch (e) {}
-}());
-
-var _defineProperty$1 = defineProperty;
-
-/**
- * The base implementation of `assignValue` and `assignMergeValue` without
- * value checks.
- *
- * @private
- * @param {Object} object The object to modify.
- * @param {string} key The key of the property to assign.
- * @param {*} value The value to assign.
- */
-function baseAssignValue(object, key, value) {
-  if (key == '__proto__' && _defineProperty$1) {
-    _defineProperty$1(object, key, {
-      'configurable': true,
-      'enumerable': true,
-      'value': value,
-      'writable': true
-    });
-  } else {
-    object[key] = value;
-  }
-}
-
-var _baseAssignValue = baseAssignValue;
-
-/**
- * Creates a base function for methods like `_.forIn` and `_.forOwn`.
- *
- * @private
- * @param {boolean} [fromRight] Specify iterating from right to left.
- * @returns {Function} Returns the new base function.
- */
-function createBaseFor(fromRight) {
-  return function(object, iteratee, keysFunc) {
-    var index = -1,
-        iterable = Object(object),
-        props = keysFunc(object),
-        length = props.length;
-
-    while (length--) {
-      var key = props[fromRight ? length : ++index];
-      if (iteratee(iterable[key], key, iterable) === false) {
-        break;
-      }
-    }
-    return object;
-  };
-}
-
-var _createBaseFor = createBaseFor;
-
-/**
- * The base implementation of `baseForOwn` which iterates over `object`
- * properties returned by `keysFunc` and invokes `iteratee` for each property.
- * Iteratee functions may exit iteration early by explicitly returning `false`.
- *
- * @private
- * @param {Object} object The object to iterate over.
- * @param {Function} iteratee The function invoked per iteration.
- * @param {Function} keysFunc The function to get the keys of `object`.
- * @returns {Object} Returns `object`.
- */
-var baseFor = _createBaseFor();
-
-var _baseFor = baseFor;
-
-/**
- * The base implementation of `_.times` without support for iteratee shorthands
- * or max array length checks.
- *
- * @private
- * @param {number} n The number of times to invoke `iteratee`.
- * @param {Function} iteratee The function invoked per iteration.
- * @returns {Array} Returns the array of results.
- */
-function baseTimes(n, iteratee) {
-  var index = -1,
-      result = Array(n);
-
-  while (++index < n) {
-    result[index] = iteratee(index);
-  }
-  return result;
-}
-
-var _baseTimes = baseTimes;
-
-/**
- * Checks if `value` is object-like. A value is object-like if it's not `null`
- * and has a `typeof` result of "object".
- *
- * @static
- * @memberOf _
- * @since 4.0.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
- * @example
- *
- * _.isObjectLike({});
- * // => true
- *
- * _.isObjectLike([1, 2, 3]);
- * // => true
- *
- * _.isObjectLike(_.noop);
- * // => false
- *
- * _.isObjectLike(null);
- * // => false
- */
-function isObjectLike(value) {
-  return value != null && typeof value == 'object';
-}
-
-var isObjectLike_1 = isObjectLike;
-
-/** `Object#toString` result references. */
-var argsTag = '[object Arguments]';
-
-/**
- * The base implementation of `_.isArguments`.
- *
- * @private
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is an `arguments` object,
- */
-function baseIsArguments(value) {
-  return isObjectLike_1(value) && _baseGetTag(value) == argsTag;
-}
-
-var _baseIsArguments = baseIsArguments;
-
-/** Used for built-in method references. */
-var objectProto$3 = Object.prototype;
-
-/** Used to check objects for own properties. */
-var hasOwnProperty$2 = objectProto$3.hasOwnProperty;
-
-/** Built-in value references. */
-var propertyIsEnumerable = objectProto$3.propertyIsEnumerable;
-
-/**
- * Checks if `value` is likely an `arguments` object.
- *
- * @static
- * @memberOf _
- * @since 0.1.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is an `arguments` object,
- *  else `false`.
- * @example
- *
- * _.isArguments(function() { return arguments; }());
- * // => true
- *
- * _.isArguments([1, 2, 3]);
- * // => false
- */
-var isArguments = _baseIsArguments(function() { return arguments; }()) ? _baseIsArguments : function(value) {
-  return isObjectLike_1(value) && hasOwnProperty$2.call(value, 'callee') &&
-    !propertyIsEnumerable.call(value, 'callee');
-};
-
-var isArguments_1 = isArguments;
-
-/**
- * Checks if `value` is classified as an `Array` object.
- *
- * @static
- * @memberOf _
- * @since 0.1.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is an array, else `false`.
- * @example
- *
- * _.isArray([1, 2, 3]);
- * // => true
- *
- * _.isArray(document.body.children);
- * // => false
- *
- * _.isArray('abc');
- * // => false
- *
- * _.isArray(_.noop);
- * // => false
- */
-var isArray$1 = Array.isArray;
-
-var isArray_1 = isArray$1;
-
-/**
- * This method returns `false`.
- *
- * @static
- * @memberOf _
- * @since 4.13.0
- * @category Util
- * @returns {boolean} Returns `false`.
- * @example
- *
- * _.times(2, _.stubFalse);
- * // => [false, false]
- */
-function stubFalse() {
-  return false;
-}
-
-var stubFalse_1 = stubFalse;
-
-var isBuffer_1 = createCommonjsModule(function (module, exports) {
-/** Detect free variable `exports`. */
-var freeExports =  exports && !exports.nodeType && exports;
-
-/** Detect free variable `module`. */
-var freeModule = freeExports && 'object' == 'object' && module && !module.nodeType && module;
-
-/** Detect the popular CommonJS extension `module.exports`. */
-var moduleExports = freeModule && freeModule.exports === freeExports;
-
-/** Built-in value references. */
-var Buffer = moduleExports ? _root.Buffer : undefined;
-
-/* Built-in method references for those with the same name as other `lodash` methods. */
-var nativeIsBuffer = Buffer ? Buffer.isBuffer : undefined;
-
-/**
- * Checks if `value` is a buffer.
- *
- * @static
- * @memberOf _
- * @since 4.3.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a buffer, else `false`.
- * @example
- *
- * _.isBuffer(new Buffer(2));
- * // => true
- *
- * _.isBuffer(new Uint8Array(2));
- * // => false
- */
-var isBuffer = nativeIsBuffer || stubFalse_1;
-
-module.exports = isBuffer;
-});
-
-/** Used as references for various `Number` constants. */
-var MAX_SAFE_INTEGER = 9007199254740991;
-
-/** Used to detect unsigned integer values. */
-var reIsUint = /^(?:0|[1-9]\d*)$/;
-
-/**
- * Checks if `value` is a valid array-like index.
- *
- * @private
- * @param {*} value The value to check.
- * @param {number} [length=MAX_SAFE_INTEGER] The upper bounds of a valid index.
- * @returns {boolean} Returns `true` if `value` is a valid index, else `false`.
- */
-function isIndex(value, length) {
-  var type = typeof value;
-  length = length == null ? MAX_SAFE_INTEGER : length;
-
-  return !!length &&
-    (type == 'number' ||
-      (type != 'symbol' && reIsUint.test(value))) &&
-        (value > -1 && value % 1 == 0 && value < length);
-}
-
-var _isIndex = isIndex;
-
-/** Used as references for various `Number` constants. */
-var MAX_SAFE_INTEGER$1 = 9007199254740991;
-
-/**
- * Checks if `value` is a valid array-like length.
- *
- * **Note:** This method is loosely based on
- * [`ToLength`](http://ecma-international.org/ecma-262/7.0/#sec-tolength).
- *
- * @static
- * @memberOf _
- * @since 4.0.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a valid length, else `false`.
- * @example
- *
- * _.isLength(3);
- * // => true
- *
- * _.isLength(Number.MIN_VALUE);
- * // => false
- *
- * _.isLength(Infinity);
- * // => false
- *
- * _.isLength('3');
- * // => false
- */
-function isLength(value) {
-  return typeof value == 'number' &&
-    value > -1 && value % 1 == 0 && value <= MAX_SAFE_INTEGER$1;
-}
-
-var isLength_1 = isLength;
-
-/** `Object#toString` result references. */
-var argsTag$1 = '[object Arguments]',
-    arrayTag = '[object Array]',
-    boolTag = '[object Boolean]',
-    dateTag = '[object Date]',
-    errorTag = '[object Error]',
-    funcTag$1 = '[object Function]',
-    mapTag = '[object Map]',
-    numberTag = '[object Number]',
-    objectTag = '[object Object]',
-    regexpTag = '[object RegExp]',
-    setTag = '[object Set]',
-    stringTag = '[object String]',
-    weakMapTag = '[object WeakMap]';
-
-var arrayBufferTag = '[object ArrayBuffer]',
-    dataViewTag = '[object DataView]',
-    float32Tag = '[object Float32Array]',
-    float64Tag = '[object Float64Array]',
-    int8Tag = '[object Int8Array]',
-    int16Tag = '[object Int16Array]',
-    int32Tag = '[object Int32Array]',
-    uint8Tag = '[object Uint8Array]',
-    uint8ClampedTag = '[object Uint8ClampedArray]',
-    uint16Tag = '[object Uint16Array]',
-    uint32Tag = '[object Uint32Array]';
-
-/** Used to identify `toStringTag` values of typed arrays. */
-var typedArrayTags = {};
-typedArrayTags[float32Tag] = typedArrayTags[float64Tag] =
-typedArrayTags[int8Tag] = typedArrayTags[int16Tag] =
-typedArrayTags[int32Tag] = typedArrayTags[uint8Tag] =
-typedArrayTags[uint8ClampedTag] = typedArrayTags[uint16Tag] =
-typedArrayTags[uint32Tag] = true;
-typedArrayTags[argsTag$1] = typedArrayTags[arrayTag] =
-typedArrayTags[arrayBufferTag] = typedArrayTags[boolTag] =
-typedArrayTags[dataViewTag] = typedArrayTags[dateTag] =
-typedArrayTags[errorTag] = typedArrayTags[funcTag$1] =
-typedArrayTags[mapTag] = typedArrayTags[numberTag] =
-typedArrayTags[objectTag] = typedArrayTags[regexpTag] =
-typedArrayTags[setTag] = typedArrayTags[stringTag] =
-typedArrayTags[weakMapTag] = false;
-
-/**
- * The base implementation of `_.isTypedArray` without Node.js optimizations.
- *
- * @private
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a typed array, else `false`.
- */
-function baseIsTypedArray(value) {
-  return isObjectLike_1(value) &&
-    isLength_1(value.length) && !!typedArrayTags[_baseGetTag(value)];
-}
-
-var _baseIsTypedArray = baseIsTypedArray;
-
-/**
- * The base implementation of `_.unary` without support for storing metadata.
- *
- * @private
- * @param {Function} func The function to cap arguments for.
- * @returns {Function} Returns the new capped function.
- */
-function baseUnary(func) {
-  return function(value) {
-    return func(value);
-  };
-}
-
-var _baseUnary = baseUnary;
-
-var _nodeUtil = createCommonjsModule(function (module, exports) {
-/** Detect free variable `exports`. */
-var freeExports =  exports && !exports.nodeType && exports;
-
-/** Detect free variable `module`. */
-var freeModule = freeExports && 'object' == 'object' && module && !module.nodeType && module;
-
-/** Detect the popular CommonJS extension `module.exports`. */
-var moduleExports = freeModule && freeModule.exports === freeExports;
-
-/** Detect free variable `process` from Node.js. */
-var freeProcess = moduleExports && _freeGlobal.process;
-
-/** Used to access faster Node.js helpers. */
-var nodeUtil = (function() {
-  try {
-    // Use `util.types` for Node.js 10+.
-    var types = freeModule && freeModule.require && freeModule.require('util').types;
-
-    if (types) {
-      return types;
-    }
-
-    // Legacy `process.binding('util')` for Node.js < 10.
-    return freeProcess && freeProcess.binding && freeProcess.binding('util');
-  } catch (e) {}
-}());
-
-module.exports = nodeUtil;
-});
-
-/* Node.js helper references. */
-var nodeIsTypedArray = _nodeUtil && _nodeUtil.isTypedArray;
-
-/**
- * Checks if `value` is classified as a typed array.
- *
- * @static
- * @memberOf _
- * @since 3.0.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a typed array, else `false`.
- * @example
- *
- * _.isTypedArray(new Uint8Array);
- * // => true
- *
- * _.isTypedArray([]);
- * // => false
- */
-var isTypedArray = nodeIsTypedArray ? _baseUnary(nodeIsTypedArray) : _baseIsTypedArray;
-
-var isTypedArray_1 = isTypedArray;
-
-/** Used for built-in method references. */
-var objectProto$4 = Object.prototype;
-
-/** Used to check objects for own properties. */
-var hasOwnProperty$3 = objectProto$4.hasOwnProperty;
-
-/**
- * Creates an array of the enumerable property names of the array-like `value`.
- *
- * @private
- * @param {*} value The value to query.
- * @param {boolean} inherited Specify returning inherited property names.
- * @returns {Array} Returns the array of property names.
- */
-function arrayLikeKeys(value, inherited) {
-  var isArr = isArray_1(value),
-      isArg = !isArr && isArguments_1(value),
-      isBuff = !isArr && !isArg && isBuffer_1(value),
-      isType = !isArr && !isArg && !isBuff && isTypedArray_1(value),
-      skipIndexes = isArr || isArg || isBuff || isType,
-      result = skipIndexes ? _baseTimes(value.length, String) : [],
-      length = result.length;
-
-  for (var key in value) {
-    if ((inherited || hasOwnProperty$3.call(value, key)) &&
-        !(skipIndexes && (
-           // Safari 9 has enumerable `arguments.length` in strict mode.
-           key == 'length' ||
-           // Node.js 0.10 has enumerable non-index properties on buffers.
-           (isBuff && (key == 'offset' || key == 'parent')) ||
-           // PhantomJS 2 has enumerable non-index properties on typed arrays.
-           (isType && (key == 'buffer' || key == 'byteLength' || key == 'byteOffset')) ||
-           // Skip index properties.
-           _isIndex(key, length)
-        ))) {
-      result.push(key);
-    }
-  }
-  return result;
-}
-
-var _arrayLikeKeys = arrayLikeKeys;
-
-/** Used for built-in method references. */
-var objectProto$5 = Object.prototype;
-
-/**
- * Checks if `value` is likely a prototype object.
- *
- * @private
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a prototype, else `false`.
- */
-function isPrototype(value) {
-  var Ctor = value && value.constructor,
-      proto = (typeof Ctor == 'function' && Ctor.prototype) || objectProto$5;
-
-  return value === proto;
-}
-
-var _isPrototype = isPrototype;
-
-/**
- * Creates a unary function that invokes `func` with its argument transformed.
- *
- * @private
- * @param {Function} func The function to wrap.
- * @param {Function} transform The argument transform.
- * @returns {Function} Returns the new function.
- */
-function overArg(func, transform) {
-  return function(arg) {
-    return func(transform(arg));
-  };
-}
-
-var _overArg = overArg;
-
-/* Built-in method references for those with the same name as other `lodash` methods. */
-var nativeKeys = _overArg(Object.keys, Object);
-
-var _nativeKeys = nativeKeys;
-
-/** Used for built-in method references. */
-var objectProto$6 = Object.prototype;
-
-/** Used to check objects for own properties. */
-var hasOwnProperty$4 = objectProto$6.hasOwnProperty;
-
-/**
- * The base implementation of `_.keys` which doesn't treat sparse arrays as dense.
- *
- * @private
- * @param {Object} object The object to query.
- * @returns {Array} Returns the array of property names.
- */
-function baseKeys(object) {
-  if (!_isPrototype(object)) {
-    return _nativeKeys(object);
-  }
-  var result = [];
-  for (var key in Object(object)) {
-    if (hasOwnProperty$4.call(object, key) && key != 'constructor') {
-      result.push(key);
-    }
-  }
-  return result;
-}
-
-var _baseKeys = baseKeys;
-
-/**
- * Checks if `value` is array-like. A value is considered array-like if it's
- * not a function and has a `value.length` that's an integer greater than or
- * equal to `0` and less than or equal to `Number.MAX_SAFE_INTEGER`.
- *
- * @static
- * @memberOf _
- * @since 4.0.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is array-like, else `false`.
- * @example
- *
- * _.isArrayLike([1, 2, 3]);
- * // => true
- *
- * _.isArrayLike(document.body.children);
- * // => true
- *
- * _.isArrayLike('abc');
- * // => true
- *
- * _.isArrayLike(_.noop);
- * // => false
- */
-function isArrayLike(value) {
-  return value != null && isLength_1(value.length) && !isFunction_1(value);
-}
-
-var isArrayLike_1 = isArrayLike;
-
-/**
- * Creates an array of the own enumerable property names of `object`.
- *
- * **Note:** Non-object values are coerced to objects. See the
- * [ES spec](http://ecma-international.org/ecma-262/7.0/#sec-object.keys)
- * for more details.
- *
- * @static
- * @since 0.1.0
- * @memberOf _
- * @category Object
- * @param {Object} object The object to query.
- * @returns {Array} Returns the array of property names.
- * @example
- *
- * function Foo() {
- *   this.a = 1;
- *   this.b = 2;
- * }
- *
- * Foo.prototype.c = 3;
- *
- * _.keys(new Foo);
- * // => ['a', 'b'] (iteration order is not guaranteed)
- *
- * _.keys('hi');
- * // => ['0', '1']
- */
-function keys(object) {
-  return isArrayLike_1(object) ? _arrayLikeKeys(object) : _baseKeys(object);
-}
-
-var keys_1 = keys;
-
-/**
- * The base implementation of `_.forOwn` without support for iteratee shorthands.
- *
- * @private
- * @param {Object} object The object to iterate over.
- * @param {Function} iteratee The function invoked per iteration.
- * @returns {Object} Returns `object`.
- */
-function baseForOwn(object, iteratee) {
-  return object && _baseFor(object, iteratee, keys_1);
-}
-
-var _baseForOwn = baseForOwn;
-
-/**
- * Removes all key-value entries from the list cache.
- *
- * @private
- * @name clear
- * @memberOf ListCache
- */
-function listCacheClear() {
-  this.__data__ = [];
-  this.size = 0;
-}
-
-var _listCacheClear = listCacheClear;
-
-/**
- * Performs a
- * [`SameValueZero`](http://ecma-international.org/ecma-262/7.0/#sec-samevaluezero)
- * comparison between two values to determine if they are equivalent.
- *
- * @static
- * @memberOf _
- * @since 4.0.0
- * @category Lang
- * @param {*} value The value to compare.
- * @param {*} other The other value to compare.
- * @returns {boolean} Returns `true` if the values are equivalent, else `false`.
- * @example
- *
- * var object = { 'a': 1 };
- * var other = { 'a': 1 };
- *
- * _.eq(object, object);
- * // => true
- *
- * _.eq(object, other);
- * // => false
- *
- * _.eq('a', 'a');
- * // => true
- *
- * _.eq('a', Object('a'));
- * // => false
- *
- * _.eq(NaN, NaN);
- * // => true
- */
-function eq(value, other) {
-  return value === other || (value !== value && other !== other);
-}
-
-var eq_1 = eq;
-
-/**
- * Gets the index at which the `key` is found in `array` of key-value pairs.
- *
- * @private
- * @param {Array} array The array to inspect.
- * @param {*} key The key to search for.
- * @returns {number} Returns the index of the matched value, else `-1`.
- */
-function assocIndexOf(array, key) {
-  var length = array.length;
-  while (length--) {
-    if (eq_1(array[length][0], key)) {
-      return length;
-    }
-  }
-  return -1;
-}
-
-var _assocIndexOf = assocIndexOf;
-
-/** Used for built-in method references. */
-var arrayProto = Array.prototype;
-
-/** Built-in value references. */
-var splice = arrayProto.splice;
-
-/**
- * Removes `key` and its value from the list cache.
- *
- * @private
- * @name delete
- * @memberOf ListCache
- * @param {string} key The key of the value to remove.
- * @returns {boolean} Returns `true` if the entry was removed, else `false`.
- */
-function listCacheDelete(key) {
-  var data = this.__data__,
-      index = _assocIndexOf(data, key);
-
-  if (index < 0) {
-    return false;
-  }
-  var lastIndex = data.length - 1;
-  if (index == lastIndex) {
-    data.pop();
-  } else {
-    splice.call(data, index, 1);
-  }
-  --this.size;
-  return true;
-}
-
-var _listCacheDelete = listCacheDelete;
-
-/**
- * Gets the list cache value for `key`.
- *
- * @private
- * @name get
- * @memberOf ListCache
- * @param {string} key The key of the value to get.
- * @returns {*} Returns the entry value.
- */
-function listCacheGet(key) {
-  var data = this.__data__,
-      index = _assocIndexOf(data, key);
-
-  return index < 0 ? undefined : data[index][1];
-}
-
-var _listCacheGet = listCacheGet;
-
-/**
- * Checks if a list cache value for `key` exists.
- *
- * @private
- * @name has
- * @memberOf ListCache
- * @param {string} key The key of the entry to check.
- * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
- */
-function listCacheHas(key) {
-  return _assocIndexOf(this.__data__, key) > -1;
-}
-
-var _listCacheHas = listCacheHas;
-
-/**
- * Sets the list cache `key` to `value`.
- *
- * @private
- * @name set
- * @memberOf ListCache
- * @param {string} key The key of the value to set.
- * @param {*} value The value to set.
- * @returns {Object} Returns the list cache instance.
- */
-function listCacheSet(key, value) {
-  var data = this.__data__,
-      index = _assocIndexOf(data, key);
-
-  if (index < 0) {
-    ++this.size;
-    data.push([key, value]);
-  } else {
-    data[index][1] = value;
-  }
-  return this;
-}
-
-var _listCacheSet = listCacheSet;
-
-/**
- * Creates an list cache object.
- *
- * @private
- * @constructor
- * @param {Array} [entries] The key-value pairs to cache.
- */
-function ListCache(entries) {
-  var index = -1,
-      length = entries == null ? 0 : entries.length;
-
-  this.clear();
-  while (++index < length) {
-    var entry = entries[index];
-    this.set(entry[0], entry[1]);
-  }
-}
-
-// Add methods to `ListCache`.
-ListCache.prototype.clear = _listCacheClear;
-ListCache.prototype['delete'] = _listCacheDelete;
-ListCache.prototype.get = _listCacheGet;
-ListCache.prototype.has = _listCacheHas;
-ListCache.prototype.set = _listCacheSet;
-
-var _ListCache = ListCache;
-
-/**
- * Removes all key-value entries from the stack.
- *
- * @private
- * @name clear
- * @memberOf Stack
- */
-function stackClear() {
-  this.__data__ = new _ListCache;
-  this.size = 0;
-}
-
-var _stackClear = stackClear;
-
-/**
- * Removes `key` and its value from the stack.
- *
- * @private
- * @name delete
- * @memberOf Stack
- * @param {string} key The key of the value to remove.
- * @returns {boolean} Returns `true` if the entry was removed, else `false`.
- */
-function stackDelete(key) {
-  var data = this.__data__,
-      result = data['delete'](key);
-
-  this.size = data.size;
-  return result;
-}
-
-var _stackDelete = stackDelete;
-
-/**
- * Gets the stack value for `key`.
- *
- * @private
- * @name get
- * @memberOf Stack
- * @param {string} key The key of the value to get.
- * @returns {*} Returns the entry value.
- */
-function stackGet(key) {
-  return this.__data__.get(key);
-}
-
-var _stackGet = stackGet;
-
-/**
- * Checks if a stack value for `key` exists.
- *
- * @private
- * @name has
- * @memberOf Stack
- * @param {string} key The key of the entry to check.
- * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
- */
-function stackHas(key) {
-  return this.__data__.has(key);
-}
-
-var _stackHas = stackHas;
-
-/* Built-in method references that are verified to be native. */
-var Map$1 = _getNative(_root, 'Map');
-
-var _Map = Map$1;
-
-/* Built-in method references that are verified to be native. */
-var nativeCreate = _getNative(Object, 'create');
-
-var _nativeCreate = nativeCreate;
-
-/**
- * Removes all key-value entries from the hash.
- *
- * @private
- * @name clear
- * @memberOf Hash
- */
-function hashClear() {
-  this.__data__ = _nativeCreate ? _nativeCreate(null) : {};
-  this.size = 0;
-}
-
-var _hashClear = hashClear;
-
-/**
- * Removes `key` and its value from the hash.
- *
- * @private
- * @name delete
- * @memberOf Hash
- * @param {Object} hash The hash to modify.
- * @param {string} key The key of the value to remove.
- * @returns {boolean} Returns `true` if the entry was removed, else `false`.
- */
-function hashDelete(key) {
-  var result = this.has(key) && delete this.__data__[key];
-  this.size -= result ? 1 : 0;
-  return result;
-}
-
-var _hashDelete = hashDelete;
-
-/** Used to stand-in for `undefined` hash values. */
-var HASH_UNDEFINED = '__lodash_hash_undefined__';
-
-/** Used for built-in method references. */
-var objectProto$7 = Object.prototype;
-
-/** Used to check objects for own properties. */
-var hasOwnProperty$5 = objectProto$7.hasOwnProperty;
-
-/**
- * Gets the hash value for `key`.
- *
- * @private
- * @name get
- * @memberOf Hash
- * @param {string} key The key of the value to get.
- * @returns {*} Returns the entry value.
- */
-function hashGet(key) {
-  var data = this.__data__;
-  if (_nativeCreate) {
-    var result = data[key];
-    return result === HASH_UNDEFINED ? undefined : result;
-  }
-  return hasOwnProperty$5.call(data, key) ? data[key] : undefined;
-}
-
-var _hashGet = hashGet;
-
-/** Used for built-in method references. */
-var objectProto$8 = Object.prototype;
-
-/** Used to check objects for own properties. */
-var hasOwnProperty$6 = objectProto$8.hasOwnProperty;
-
-/**
- * Checks if a hash value for `key` exists.
- *
- * @private
- * @name has
- * @memberOf Hash
- * @param {string} key The key of the entry to check.
- * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
- */
-function hashHas(key) {
-  var data = this.__data__;
-  return _nativeCreate ? (data[key] !== undefined) : hasOwnProperty$6.call(data, key);
-}
-
-var _hashHas = hashHas;
-
-/** Used to stand-in for `undefined` hash values. */
-var HASH_UNDEFINED$1 = '__lodash_hash_undefined__';
-
-/**
- * Sets the hash `key` to `value`.
- *
- * @private
- * @name set
- * @memberOf Hash
- * @param {string} key The key of the value to set.
- * @param {*} value The value to set.
- * @returns {Object} Returns the hash instance.
- */
-function hashSet(key, value) {
-  var data = this.__data__;
-  this.size += this.has(key) ? 0 : 1;
-  data[key] = (_nativeCreate && value === undefined) ? HASH_UNDEFINED$1 : value;
-  return this;
-}
-
-var _hashSet = hashSet;
-
-/**
- * Creates a hash object.
- *
- * @private
- * @constructor
- * @param {Array} [entries] The key-value pairs to cache.
- */
-function Hash(entries) {
-  var index = -1,
-      length = entries == null ? 0 : entries.length;
-
-  this.clear();
-  while (++index < length) {
-    var entry = entries[index];
-    this.set(entry[0], entry[1]);
-  }
-}
-
-// Add methods to `Hash`.
-Hash.prototype.clear = _hashClear;
-Hash.prototype['delete'] = _hashDelete;
-Hash.prototype.get = _hashGet;
-Hash.prototype.has = _hashHas;
-Hash.prototype.set = _hashSet;
-
-var _Hash = Hash;
-
-/**
- * Removes all key-value entries from the map.
- *
- * @private
- * @name clear
- * @memberOf MapCache
- */
-function mapCacheClear() {
-  this.size = 0;
-  this.__data__ = {
-    'hash': new _Hash,
-    'map': new (_Map || _ListCache),
-    'string': new _Hash
-  };
-}
-
-var _mapCacheClear = mapCacheClear;
-
-/**
- * Checks if `value` is suitable for use as unique object key.
- *
- * @private
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is suitable, else `false`.
- */
-function isKeyable(value) {
-  var type = typeof value;
-  return (type == 'string' || type == 'number' || type == 'symbol' || type == 'boolean')
-    ? (value !== '__proto__')
-    : (value === null);
-}
-
-var _isKeyable = isKeyable;
-
-/**
- * Gets the data for `map`.
- *
- * @private
- * @param {Object} map The map to query.
- * @param {string} key The reference key.
- * @returns {*} Returns the map data.
- */
-function getMapData(map, key) {
-  var data = map.__data__;
-  return _isKeyable(key)
-    ? data[typeof key == 'string' ? 'string' : 'hash']
-    : data.map;
-}
-
-var _getMapData = getMapData;
-
-/**
- * Removes `key` and its value from the map.
- *
- * @private
- * @name delete
- * @memberOf MapCache
- * @param {string} key The key of the value to remove.
- * @returns {boolean} Returns `true` if the entry was removed, else `false`.
- */
-function mapCacheDelete(key) {
-  var result = _getMapData(this, key)['delete'](key);
-  this.size -= result ? 1 : 0;
-  return result;
-}
-
-var _mapCacheDelete = mapCacheDelete;
-
-/**
- * Gets the map value for `key`.
- *
- * @private
- * @name get
- * @memberOf MapCache
- * @param {string} key The key of the value to get.
- * @returns {*} Returns the entry value.
- */
-function mapCacheGet(key) {
-  return _getMapData(this, key).get(key);
-}
-
-var _mapCacheGet = mapCacheGet;
-
-/**
- * Checks if a map value for `key` exists.
- *
- * @private
- * @name has
- * @memberOf MapCache
- * @param {string} key The key of the entry to check.
- * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
- */
-function mapCacheHas(key) {
-  return _getMapData(this, key).has(key);
-}
-
-var _mapCacheHas = mapCacheHas;
-
-/**
- * Sets the map `key` to `value`.
- *
- * @private
- * @name set
- * @memberOf MapCache
- * @param {string} key The key of the value to set.
- * @param {*} value The value to set.
- * @returns {Object} Returns the map cache instance.
- */
-function mapCacheSet(key, value) {
-  var data = _getMapData(this, key),
-      size = data.size;
-
-  data.set(key, value);
-  this.size += data.size == size ? 0 : 1;
-  return this;
-}
-
-var _mapCacheSet = mapCacheSet;
-
-/**
- * Creates a map cache object to store key-value pairs.
- *
- * @private
- * @constructor
- * @param {Array} [entries] The key-value pairs to cache.
- */
-function MapCache(entries) {
-  var index = -1,
-      length = entries == null ? 0 : entries.length;
-
-  this.clear();
-  while (++index < length) {
-    var entry = entries[index];
-    this.set(entry[0], entry[1]);
-  }
-}
-
-// Add methods to `MapCache`.
-MapCache.prototype.clear = _mapCacheClear;
-MapCache.prototype['delete'] = _mapCacheDelete;
-MapCache.prototype.get = _mapCacheGet;
-MapCache.prototype.has = _mapCacheHas;
-MapCache.prototype.set = _mapCacheSet;
-
-var _MapCache = MapCache;
-
-/** Used as the size to enable large array optimizations. */
-var LARGE_ARRAY_SIZE = 200;
-
-/**
- * Sets the stack `key` to `value`.
- *
- * @private
- * @name set
- * @memberOf Stack
- * @param {string} key The key of the value to set.
- * @param {*} value The value to set.
- * @returns {Object} Returns the stack cache instance.
- */
-function stackSet(key, value) {
-  var data = this.__data__;
-  if (data instanceof _ListCache) {
-    var pairs = data.__data__;
-    if (!_Map || (pairs.length < LARGE_ARRAY_SIZE - 1)) {
-      pairs.push([key, value]);
-      this.size = ++data.size;
-      return this;
-    }
-    data = this.__data__ = new _MapCache(pairs);
-  }
-  data.set(key, value);
-  this.size = data.size;
-  return this;
-}
-
-var _stackSet = stackSet;
-
-/**
- * Creates a stack cache object to store key-value pairs.
- *
- * @private
- * @constructor
- * @param {Array} [entries] The key-value pairs to cache.
- */
-function Stack(entries) {
-  var data = this.__data__ = new _ListCache(entries);
-  this.size = data.size;
-}
-
-// Add methods to `Stack`.
-Stack.prototype.clear = _stackClear;
-Stack.prototype['delete'] = _stackDelete;
-Stack.prototype.get = _stackGet;
-Stack.prototype.has = _stackHas;
-Stack.prototype.set = _stackSet;
-
-var _Stack = Stack;
-
-/** Used to stand-in for `undefined` hash values. */
-var HASH_UNDEFINED$2 = '__lodash_hash_undefined__';
-
-/**
- * Adds `value` to the array cache.
- *
- * @private
- * @name add
- * @memberOf SetCache
- * @alias push
- * @param {*} value The value to cache.
- * @returns {Object} Returns the cache instance.
- */
-function setCacheAdd(value) {
-  this.__data__.set(value, HASH_UNDEFINED$2);
-  return this;
-}
-
-var _setCacheAdd = setCacheAdd;
-
-/**
- * Checks if `value` is in the array cache.
- *
- * @private
- * @name has
- * @memberOf SetCache
- * @param {*} value The value to search for.
- * @returns {number} Returns `true` if `value` is found, else `false`.
- */
-function setCacheHas(value) {
-  return this.__data__.has(value);
-}
-
-var _setCacheHas = setCacheHas;
-
-/**
- *
- * Creates an array cache object to store unique values.
- *
- * @private
- * @constructor
- * @param {Array} [values] The values to cache.
- */
-function SetCache(values) {
-  var index = -1,
-      length = values == null ? 0 : values.length;
-
-  this.__data__ = new _MapCache;
-  while (++index < length) {
-    this.add(values[index]);
-  }
-}
-
-// Add methods to `SetCache`.
-SetCache.prototype.add = SetCache.prototype.push = _setCacheAdd;
-SetCache.prototype.has = _setCacheHas;
-
-var _SetCache = SetCache;
-
-/**
- * A specialized version of `_.some` for arrays without support for iteratee
- * shorthands.
- *
- * @private
- * @param {Array} [array] The array to iterate over.
- * @param {Function} predicate The function invoked per iteration.
- * @returns {boolean} Returns `true` if any element passes the predicate check,
- *  else `false`.
- */
-function arraySome(array, predicate) {
-  var index = -1,
-      length = array == null ? 0 : array.length;
-
-  while (++index < length) {
-    if (predicate(array[index], index, array)) {
-      return true;
-    }
-  }
-  return false;
-}
-
-var _arraySome = arraySome;
-
-/**
- * Checks if a `cache` value for `key` exists.
- *
- * @private
- * @param {Object} cache The cache to query.
- * @param {string} key The key of the entry to check.
- * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
- */
-function cacheHas(cache, key) {
-  return cache.has(key);
-}
-
-var _cacheHas = cacheHas;
-
-/** Used to compose bitmasks for value comparisons. */
-var COMPARE_PARTIAL_FLAG = 1,
-    COMPARE_UNORDERED_FLAG = 2;
-
-/**
- * A specialized version of `baseIsEqualDeep` for arrays with support for
- * partial deep comparisons.
- *
- * @private
- * @param {Array} array The array to compare.
- * @param {Array} other The other array to compare.
- * @param {number} bitmask The bitmask flags. See `baseIsEqual` for more details.
- * @param {Function} customizer The function to customize comparisons.
- * @param {Function} equalFunc The function to determine equivalents of values.
- * @param {Object} stack Tracks traversed `array` and `other` objects.
- * @returns {boolean} Returns `true` if the arrays are equivalent, else `false`.
- */
-function equalArrays(array, other, bitmask, customizer, equalFunc, stack) {
-  var isPartial = bitmask & COMPARE_PARTIAL_FLAG,
-      arrLength = array.length,
-      othLength = other.length;
-
-  if (arrLength != othLength && !(isPartial && othLength > arrLength)) {
-    return false;
-  }
-  // Check that cyclic values are equal.
-  var arrStacked = stack.get(array);
-  var othStacked = stack.get(other);
-  if (arrStacked && othStacked) {
-    return arrStacked == other && othStacked == array;
-  }
-  var index = -1,
-      result = true,
-      seen = (bitmask & COMPARE_UNORDERED_FLAG) ? new _SetCache : undefined;
-
-  stack.set(array, other);
-  stack.set(other, array);
-
-  // Ignore non-index properties.
-  while (++index < arrLength) {
-    var arrValue = array[index],
-        othValue = other[index];
-
-    if (customizer) {
-      var compared = isPartial
-        ? customizer(othValue, arrValue, index, other, array, stack)
-        : customizer(arrValue, othValue, index, array, other, stack);
-    }
-    if (compared !== undefined) {
-      if (compared) {
-        continue;
-      }
-      result = false;
-      break;
-    }
-    // Recursively compare arrays (susceptible to call stack limits).
-    if (seen) {
-      if (!_arraySome(other, function(othValue, othIndex) {
-            if (!_cacheHas(seen, othIndex) &&
-                (arrValue === othValue || equalFunc(arrValue, othValue, bitmask, customizer, stack))) {
-              return seen.push(othIndex);
-            }
-          })) {
-        result = false;
-        break;
-      }
-    } else if (!(
-          arrValue === othValue ||
-            equalFunc(arrValue, othValue, bitmask, customizer, stack)
-        )) {
-      result = false;
-      break;
-    }
-  }
-  stack['delete'](array);
-  stack['delete'](other);
-  return result;
-}
-
-var _equalArrays = equalArrays;
-
-/** Built-in value references. */
-var Uint8Array$1 = _root.Uint8Array;
-
-var _Uint8Array = Uint8Array$1;
-
-/**
- * Converts `map` to its key-value pairs.
- *
- * @private
- * @param {Object} map The map to convert.
- * @returns {Array} Returns the key-value pairs.
- */
-function mapToArray(map) {
-  var index = -1,
-      result = Array(map.size);
-
-  map.forEach(function(value, key) {
-    result[++index] = [key, value];
-  });
-  return result;
-}
-
-var _mapToArray = mapToArray;
-
-/**
- * Converts `set` to an array of its values.
- *
- * @private
- * @param {Object} set The set to convert.
- * @returns {Array} Returns the values.
- */
-function setToArray(set) {
-  var index = -1,
-      result = Array(set.size);
-
-  set.forEach(function(value) {
-    result[++index] = value;
-  });
-  return result;
-}
-
-var _setToArray = setToArray;
-
-/** Used to compose bitmasks for value comparisons. */
-var COMPARE_PARTIAL_FLAG$1 = 1,
-    COMPARE_UNORDERED_FLAG$1 = 2;
-
-/** `Object#toString` result references. */
-var boolTag$1 = '[object Boolean]',
-    dateTag$1 = '[object Date]',
-    errorTag$1 = '[object Error]',
-    mapTag$1 = '[object Map]',
-    numberTag$1 = '[object Number]',
-    regexpTag$1 = '[object RegExp]',
-    setTag$1 = '[object Set]',
-    stringTag$1 = '[object String]',
-    symbolTag = '[object Symbol]';
-
-var arrayBufferTag$1 = '[object ArrayBuffer]',
-    dataViewTag$1 = '[object DataView]';
-
-/** Used to convert symbols to primitives and strings. */
-var symbolProto = _Symbol ? _Symbol.prototype : undefined,
-    symbolValueOf = symbolProto ? symbolProto.valueOf : undefined;
-
-/**
- * A specialized version of `baseIsEqualDeep` for comparing objects of
- * the same `toStringTag`.
- *
- * **Note:** This function only supports comparing values with tags of
- * `Boolean`, `Date`, `Error`, `Number`, `RegExp`, or `String`.
- *
- * @private
- * @param {Object} object The object to compare.
- * @param {Object} other The other object to compare.
- * @param {string} tag The `toStringTag` of the objects to compare.
- * @param {number} bitmask The bitmask flags. See `baseIsEqual` for more details.
- * @param {Function} customizer The function to customize comparisons.
- * @param {Function} equalFunc The function to determine equivalents of values.
- * @param {Object} stack Tracks traversed `object` and `other` objects.
- * @returns {boolean} Returns `true` if the objects are equivalent, else `false`.
- */
-function equalByTag(object, other, tag, bitmask, customizer, equalFunc, stack) {
-  switch (tag) {
-    case dataViewTag$1:
-      if ((object.byteLength != other.byteLength) ||
-          (object.byteOffset != other.byteOffset)) {
-        return false;
-      }
-      object = object.buffer;
-      other = other.buffer;
-
-    case arrayBufferTag$1:
-      if ((object.byteLength != other.byteLength) ||
-          !equalFunc(new _Uint8Array(object), new _Uint8Array(other))) {
-        return false;
-      }
-      return true;
-
-    case boolTag$1:
-    case dateTag$1:
-    case numberTag$1:
-      // Coerce booleans to `1` or `0` and dates to milliseconds.
-      // Invalid dates are coerced to `NaN`.
-      return eq_1(+object, +other);
-
-    case errorTag$1:
-      return object.name == other.name && object.message == other.message;
-
-    case regexpTag$1:
-    case stringTag$1:
-      // Coerce regexes to strings and treat strings, primitives and objects,
-      // as equal. See http://www.ecma-international.org/ecma-262/7.0/#sec-regexp.prototype.tostring
-      // for more details.
-      return object == (other + '');
-
-    case mapTag$1:
-      var convert = _mapToArray;
-
-    case setTag$1:
-      var isPartial = bitmask & COMPARE_PARTIAL_FLAG$1;
-      convert || (convert = _setToArray);
-
-      if (object.size != other.size && !isPartial) {
-        return false;
-      }
-      // Assume cyclic values are equal.
-      var stacked = stack.get(object);
-      if (stacked) {
-        return stacked == other;
-      }
-      bitmask |= COMPARE_UNORDERED_FLAG$1;
-
-      // Recursively compare objects (susceptible to call stack limits).
-      stack.set(object, other);
-      var result = _equalArrays(convert(object), convert(other), bitmask, customizer, equalFunc, stack);
-      stack['delete'](object);
-      return result;
-
-    case symbolTag:
-      if (symbolValueOf) {
-        return symbolValueOf.call(object) == symbolValueOf.call(other);
-      }
-  }
-  return false;
-}
-
-var _equalByTag = equalByTag;
-
-/**
- * Appends the elements of `values` to `array`.
- *
- * @private
- * @param {Array} array The array to modify.
- * @param {Array} values The values to append.
- * @returns {Array} Returns `array`.
- */
-function arrayPush(array, values) {
-  var index = -1,
-      length = values.length,
-      offset = array.length;
-
-  while (++index < length) {
-    array[offset + index] = values[index];
-  }
-  return array;
-}
-
-var _arrayPush = arrayPush;
-
-/**
- * The base implementation of `getAllKeys` and `getAllKeysIn` which uses
- * `keysFunc` and `symbolsFunc` to get the enumerable property names and
- * symbols of `object`.
- *
- * @private
- * @param {Object} object The object to query.
- * @param {Function} keysFunc The function to get the keys of `object`.
- * @param {Function} symbolsFunc The function to get the symbols of `object`.
- * @returns {Array} Returns the array of property names and symbols.
- */
-function baseGetAllKeys(object, keysFunc, symbolsFunc) {
-  var result = keysFunc(object);
-  return isArray_1(object) ? result : _arrayPush(result, symbolsFunc(object));
-}
-
-var _baseGetAllKeys = baseGetAllKeys;
-
-/**
- * A specialized version of `_.filter` for arrays without support for
- * iteratee shorthands.
- *
- * @private
- * @param {Array} [array] The array to iterate over.
- * @param {Function} predicate The function invoked per iteration.
- * @returns {Array} Returns the new filtered array.
- */
-function arrayFilter(array, predicate) {
-  var index = -1,
-      length = array == null ? 0 : array.length,
-      resIndex = 0,
-      result = [];
-
-  while (++index < length) {
-    var value = array[index];
-    if (predicate(value, index, array)) {
-      result[resIndex++] = value;
-    }
-  }
-  return result;
-}
-
-var _arrayFilter = arrayFilter;
-
-/**
- * This method returns a new empty array.
- *
- * @static
- * @memberOf _
- * @since 4.13.0
- * @category Util
- * @returns {Array} Returns the new empty array.
- * @example
- *
- * var arrays = _.times(2, _.stubArray);
- *
- * console.log(arrays);
- * // => [[], []]
- *
- * console.log(arrays[0] === arrays[1]);
- * // => false
- */
-function stubArray() {
-  return [];
-}
-
-var stubArray_1 = stubArray;
-
-/** Used for built-in method references. */
-var objectProto$9 = Object.prototype;
-
-/** Built-in value references. */
-var propertyIsEnumerable$1 = objectProto$9.propertyIsEnumerable;
-
-/* Built-in method references for those with the same name as other `lodash` methods. */
-var nativeGetSymbols = Object.getOwnPropertySymbols;
-
-/**
- * Creates an array of the own enumerable symbols of `object`.
- *
- * @private
- * @param {Object} object The object to query.
- * @returns {Array} Returns the array of symbols.
- */
-var getSymbols = !nativeGetSymbols ? stubArray_1 : function(object) {
-  if (object == null) {
-    return [];
-  }
-  object = Object(object);
-  return _arrayFilter(nativeGetSymbols(object), function(symbol) {
-    return propertyIsEnumerable$1.call(object, symbol);
-  });
-};
-
-var _getSymbols = getSymbols;
-
-/**
- * Creates an array of own enumerable property names and symbols of `object`.
- *
- * @private
- * @param {Object} object The object to query.
- * @returns {Array} Returns the array of property names and symbols.
- */
-function getAllKeys(object) {
-  return _baseGetAllKeys(object, keys_1, _getSymbols);
-}
-
-var _getAllKeys = getAllKeys;
-
-/** Used to compose bitmasks for value comparisons. */
-var COMPARE_PARTIAL_FLAG$2 = 1;
-
-/** Used for built-in method references. */
-var objectProto$a = Object.prototype;
-
-/** Used to check objects for own properties. */
-var hasOwnProperty$7 = objectProto$a.hasOwnProperty;
-
-/**
- * A specialized version of `baseIsEqualDeep` for objects with support for
- * partial deep comparisons.
- *
- * @private
- * @param {Object} object The object to compare.
- * @param {Object} other The other object to compare.
- * @param {number} bitmask The bitmask flags. See `baseIsEqual` for more details.
- * @param {Function} customizer The function to customize comparisons.
- * @param {Function} equalFunc The function to determine equivalents of values.
- * @param {Object} stack Tracks traversed `object` and `other` objects.
- * @returns {boolean} Returns `true` if the objects are equivalent, else `false`.
- */
-function equalObjects(object, other, bitmask, customizer, equalFunc, stack) {
-  var isPartial = bitmask & COMPARE_PARTIAL_FLAG$2,
-      objProps = _getAllKeys(object),
-      objLength = objProps.length,
-      othProps = _getAllKeys(other),
-      othLength = othProps.length;
-
-  if (objLength != othLength && !isPartial) {
-    return false;
-  }
-  var index = objLength;
-  while (index--) {
-    var key = objProps[index];
-    if (!(isPartial ? key in other : hasOwnProperty$7.call(other, key))) {
-      return false;
-    }
-  }
-  // Check that cyclic values are equal.
-  var objStacked = stack.get(object);
-  var othStacked = stack.get(other);
-  if (objStacked && othStacked) {
-    return objStacked == other && othStacked == object;
-  }
-  var result = true;
-  stack.set(object, other);
-  stack.set(other, object);
-
-  var skipCtor = isPartial;
-  while (++index < objLength) {
-    key = objProps[index];
-    var objValue = object[key],
-        othValue = other[key];
-
-    if (customizer) {
-      var compared = isPartial
-        ? customizer(othValue, objValue, key, other, object, stack)
-        : customizer(objValue, othValue, key, object, other, stack);
-    }
-    // Recursively compare objects (susceptible to call stack limits).
-    if (!(compared === undefined
-          ? (objValue === othValue || equalFunc(objValue, othValue, bitmask, customizer, stack))
-          : compared
-        )) {
-      result = false;
-      break;
-    }
-    skipCtor || (skipCtor = key == 'constructor');
-  }
-  if (result && !skipCtor) {
-    var objCtor = object.constructor,
-        othCtor = other.constructor;
-
-    // Non `Object` object instances with different constructors are not equal.
-    if (objCtor != othCtor &&
-        ('constructor' in object && 'constructor' in other) &&
-        !(typeof objCtor == 'function' && objCtor instanceof objCtor &&
-          typeof othCtor == 'function' && othCtor instanceof othCtor)) {
-      result = false;
-    }
-  }
-  stack['delete'](object);
-  stack['delete'](other);
-  return result;
-}
-
-var _equalObjects = equalObjects;
-
-/* Built-in method references that are verified to be native. */
-var DataView = _getNative(_root, 'DataView');
-
-var _DataView = DataView;
-
-/* Built-in method references that are verified to be native. */
-var Promise$1 = _getNative(_root, 'Promise');
-
-var _Promise = Promise$1;
-
-/* Built-in method references that are verified to be native. */
-var Set$1 = _getNative(_root, 'Set');
-
-var _Set = Set$1;
-
-/* Built-in method references that are verified to be native. */
-var WeakMap = _getNative(_root, 'WeakMap');
-
-var _WeakMap = WeakMap;
-
-/** `Object#toString` result references. */
-var mapTag$2 = '[object Map]',
-    objectTag$1 = '[object Object]',
-    promiseTag = '[object Promise]',
-    setTag$2 = '[object Set]',
-    weakMapTag$1 = '[object WeakMap]';
-
-var dataViewTag$2 = '[object DataView]';
-
-/** Used to detect maps, sets, and weakmaps. */
-var dataViewCtorString = _toSource(_DataView),
-    mapCtorString = _toSource(_Map),
-    promiseCtorString = _toSource(_Promise),
-    setCtorString = _toSource(_Set),
-    weakMapCtorString = _toSource(_WeakMap);
-
-/**
- * Gets the `toStringTag` of `value`.
- *
- * @private
- * @param {*} value The value to query.
- * @returns {string} Returns the `toStringTag`.
- */
-var getTag = _baseGetTag;
-
-// Fallback for data views, maps, sets, and weak maps in IE 11 and promises in Node.js < 6.
-if ((_DataView && getTag(new _DataView(new ArrayBuffer(1))) != dataViewTag$2) ||
-    (_Map && getTag(new _Map) != mapTag$2) ||
-    (_Promise && getTag(_Promise.resolve()) != promiseTag) ||
-    (_Set && getTag(new _Set) != setTag$2) ||
-    (_WeakMap && getTag(new _WeakMap) != weakMapTag$1)) {
-  getTag = function(value) {
-    var result = _baseGetTag(value),
-        Ctor = result == objectTag$1 ? value.constructor : undefined,
-        ctorString = Ctor ? _toSource(Ctor) : '';
-
-    if (ctorString) {
-      switch (ctorString) {
-        case dataViewCtorString: return dataViewTag$2;
-        case mapCtorString: return mapTag$2;
-        case promiseCtorString: return promiseTag;
-        case setCtorString: return setTag$2;
-        case weakMapCtorString: return weakMapTag$1;
-      }
-    }
-    return result;
-  };
-}
-
-var _getTag = getTag;
-
-/** Used to compose bitmasks for value comparisons. */
-var COMPARE_PARTIAL_FLAG$3 = 1;
-
-/** `Object#toString` result references. */
-var argsTag$2 = '[object Arguments]',
-    arrayTag$1 = '[object Array]',
-    objectTag$2 = '[object Object]';
-
-/** Used for built-in method references. */
-var objectProto$b = Object.prototype;
-
-/** Used to check objects for own properties. */
-var hasOwnProperty$8 = objectProto$b.hasOwnProperty;
-
-/**
- * A specialized version of `baseIsEqual` for arrays and objects which performs
- * deep comparisons and tracks traversed objects enabling objects with circular
- * references to be compared.
- *
- * @private
- * @param {Object} object The object to compare.
- * @param {Object} other The other object to compare.
- * @param {number} bitmask The bitmask flags. See `baseIsEqual` for more details.
- * @param {Function} customizer The function to customize comparisons.
- * @param {Function} equalFunc The function to determine equivalents of values.
- * @param {Object} [stack] Tracks traversed `object` and `other` objects.
- * @returns {boolean} Returns `true` if the objects are equivalent, else `false`.
- */
-function baseIsEqualDeep(object, other, bitmask, customizer, equalFunc, stack) {
-  var objIsArr = isArray_1(object),
-      othIsArr = isArray_1(other),
-      objTag = objIsArr ? arrayTag$1 : _getTag(object),
-      othTag = othIsArr ? arrayTag$1 : _getTag(other);
-
-  objTag = objTag == argsTag$2 ? objectTag$2 : objTag;
-  othTag = othTag == argsTag$2 ? objectTag$2 : othTag;
-
-  var objIsObj = objTag == objectTag$2,
-      othIsObj = othTag == objectTag$2,
-      isSameTag = objTag == othTag;
-
-  if (isSameTag && isBuffer_1(object)) {
-    if (!isBuffer_1(other)) {
-      return false;
-    }
-    objIsArr = true;
-    objIsObj = false;
-  }
-  if (isSameTag && !objIsObj) {
-    stack || (stack = new _Stack);
-    return (objIsArr || isTypedArray_1(object))
-      ? _equalArrays(object, other, bitmask, customizer, equalFunc, stack)
-      : _equalByTag(object, other, objTag, bitmask, customizer, equalFunc, stack);
-  }
-  if (!(bitmask & COMPARE_PARTIAL_FLAG$3)) {
-    var objIsWrapped = objIsObj && hasOwnProperty$8.call(object, '__wrapped__'),
-        othIsWrapped = othIsObj && hasOwnProperty$8.call(other, '__wrapped__');
-
-    if (objIsWrapped || othIsWrapped) {
-      var objUnwrapped = objIsWrapped ? object.value() : object,
-          othUnwrapped = othIsWrapped ? other.value() : other;
-
-      stack || (stack = new _Stack);
-      return equalFunc(objUnwrapped, othUnwrapped, bitmask, customizer, stack);
-    }
-  }
-  if (!isSameTag) {
-    return false;
-  }
-  stack || (stack = new _Stack);
-  return _equalObjects(object, other, bitmask, customizer, equalFunc, stack);
-}
-
-var _baseIsEqualDeep = baseIsEqualDeep;
-
-/**
- * The base implementation of `_.isEqual` which supports partial comparisons
- * and tracks traversed objects.
- *
- * @private
- * @param {*} value The value to compare.
- * @param {*} other The other value to compare.
- * @param {boolean} bitmask The bitmask flags.
- *  1 - Unordered comparison
- *  2 - Partial comparison
- * @param {Function} [customizer] The function to customize comparisons.
- * @param {Object} [stack] Tracks traversed `value` and `other` objects.
- * @returns {boolean} Returns `true` if the values are equivalent, else `false`.
- */
-function baseIsEqual(value, other, bitmask, customizer, stack) {
-  if (value === other) {
-    return true;
-  }
-  if (value == null || other == null || (!isObjectLike_1(value) && !isObjectLike_1(other))) {
-    return value !== value && other !== other;
-  }
-  return _baseIsEqualDeep(value, other, bitmask, customizer, baseIsEqual, stack);
-}
-
-var _baseIsEqual = baseIsEqual;
-
-/** Used to compose bitmasks for value comparisons. */
-var COMPARE_PARTIAL_FLAG$4 = 1,
-    COMPARE_UNORDERED_FLAG$2 = 2;
-
-/**
- * The base implementation of `_.isMatch` without support for iteratee shorthands.
- *
- * @private
- * @param {Object} object The object to inspect.
- * @param {Object} source The object of property values to match.
- * @param {Array} matchData The property names, values, and compare flags to match.
- * @param {Function} [customizer] The function to customize comparisons.
- * @returns {boolean} Returns `true` if `object` is a match, else `false`.
- */
-function baseIsMatch(object, source, matchData, customizer) {
-  var index = matchData.length,
-      length = index,
-      noCustomizer = !customizer;
-
-  if (object == null) {
-    return !length;
-  }
-  object = Object(object);
-  while (index--) {
-    var data = matchData[index];
-    if ((noCustomizer && data[2])
-          ? data[1] !== object[data[0]]
-          : !(data[0] in object)
-        ) {
-      return false;
-    }
-  }
-  while (++index < length) {
-    data = matchData[index];
-    var key = data[0],
-        objValue = object[key],
-        srcValue = data[1];
-
-    if (noCustomizer && data[2]) {
-      if (objValue === undefined && !(key in object)) {
-        return false;
-      }
-    } else {
-      var stack = new _Stack;
-      if (customizer) {
-        var result = customizer(objValue, srcValue, key, object, source, stack);
-      }
-      if (!(result === undefined
-            ? _baseIsEqual(srcValue, objValue, COMPARE_PARTIAL_FLAG$4 | COMPARE_UNORDERED_FLAG$2, customizer, stack)
-            : result
-          )) {
-        return false;
-      }
-    }
-  }
-  return true;
-}
-
-var _baseIsMatch = baseIsMatch;
-
-/**
- * Checks if `value` is suitable for strict equality comparisons, i.e. `===`.
- *
- * @private
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` if suitable for strict
- *  equality comparisons, else `false`.
- */
-function isStrictComparable(value) {
-  return value === value && !isObject_1(value);
-}
-
-var _isStrictComparable = isStrictComparable;
-
-/**
- * Gets the property names, values, and compare flags of `object`.
- *
- * @private
- * @param {Object} object The object to query.
- * @returns {Array} Returns the match data of `object`.
- */
-function getMatchData(object) {
-  var result = keys_1(object),
-      length = result.length;
-
-  while (length--) {
-    var key = result[length],
-        value = object[key];
-
-    result[length] = [key, value, _isStrictComparable(value)];
-  }
-  return result;
-}
-
-var _getMatchData = getMatchData;
-
-/**
- * A specialized version of `matchesProperty` for source values suitable
- * for strict equality comparisons, i.e. `===`.
- *
- * @private
- * @param {string} key The key of the property to get.
- * @param {*} srcValue The value to match.
- * @returns {Function} Returns the new spec function.
- */
-function matchesStrictComparable(key, srcValue) {
-  return function(object) {
-    if (object == null) {
-      return false;
-    }
-    return object[key] === srcValue &&
-      (srcValue !== undefined || (key in Object(object)));
-  };
-}
-
-var _matchesStrictComparable = matchesStrictComparable;
-
-/**
- * The base implementation of `_.matches` which doesn't clone `source`.
- *
- * @private
- * @param {Object} source The object of property values to match.
- * @returns {Function} Returns the new spec function.
- */
-function baseMatches(source) {
-  var matchData = _getMatchData(source);
-  if (matchData.length == 1 && matchData[0][2]) {
-    return _matchesStrictComparable(matchData[0][0], matchData[0][1]);
-  }
-  return function(object) {
-    return object === source || _baseIsMatch(object, source, matchData);
-  };
-}
-
-var _baseMatches = baseMatches;
-
-/** `Object#toString` result references. */
-var symbolTag$1 = '[object Symbol]';
-
-/**
- * Checks if `value` is classified as a `Symbol` primitive or object.
- *
- * @static
- * @memberOf _
- * @since 4.0.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a symbol, else `false`.
- * @example
- *
- * _.isSymbol(Symbol.iterator);
- * // => true
- *
- * _.isSymbol('abc');
- * // => false
- */
-function isSymbol(value) {
-  return typeof value == 'symbol' ||
-    (isObjectLike_1(value) && _baseGetTag(value) == symbolTag$1);
-}
-
-var isSymbol_1 = isSymbol;
-
-/** Used to match property names within property paths. */
-var reIsDeepProp = /\.|\[(?:[^[\]]*|(["'])(?:(?!\1)[^\\]|\\.)*?\1)\]/,
-    reIsPlainProp = /^\w*$/;
-
-/**
- * Checks if `value` is a property name and not a property path.
- *
- * @private
- * @param {*} value The value to check.
- * @param {Object} [object] The object to query keys on.
- * @returns {boolean} Returns `true` if `value` is a property name, else `false`.
- */
-function isKey(value, object) {
-  if (isArray_1(value)) {
-    return false;
-  }
-  var type = typeof value;
-  if (type == 'number' || type == 'symbol' || type == 'boolean' ||
-      value == null || isSymbol_1(value)) {
-    return true;
-  }
-  return reIsPlainProp.test(value) || !reIsDeepProp.test(value) ||
-    (object != null && value in Object(object));
-}
-
-var _isKey = isKey;
-
-/** Error message constants. */
-var FUNC_ERROR_TEXT = 'Expected a function';
-
-/**
- * Creates a function that memoizes the result of `func`. If `resolver` is
- * provided, it determines the cache key for storing the result based on the
- * arguments provided to the memoized function. By default, the first argument
- * provided to the memoized function is used as the map cache key. The `func`
- * is invoked with the `this` binding of the memoized function.
- *
- * **Note:** The cache is exposed as the `cache` property on the memoized
- * function. Its creation may be customized by replacing the `_.memoize.Cache`
- * constructor with one whose instances implement the
- * [`Map`](http://ecma-international.org/ecma-262/7.0/#sec-properties-of-the-map-prototype-object)
- * method interface of `clear`, `delete`, `get`, `has`, and `set`.
- *
- * @static
- * @memberOf _
- * @since 0.1.0
- * @category Function
- * @param {Function} func The function to have its output memoized.
- * @param {Function} [resolver] The function to resolve the cache key.
- * @returns {Function} Returns the new memoized function.
- * @example
- *
- * var object = { 'a': 1, 'b': 2 };
- * var other = { 'c': 3, 'd': 4 };
- *
- * var values = _.memoize(_.values);
- * values(object);
- * // => [1, 2]
- *
- * values(other);
- * // => [3, 4]
- *
- * object.a = 2;
- * values(object);
- * // => [1, 2]
- *
- * // Modify the result cache.
- * values.cache.set(object, ['a', 'b']);
- * values(object);
- * // => ['a', 'b']
- *
- * // Replace `_.memoize.Cache`.
- * _.memoize.Cache = WeakMap;
- */
-function memoize(func, resolver) {
-  if (typeof func != 'function' || (resolver != null && typeof resolver != 'function')) {
-    throw new TypeError(FUNC_ERROR_TEXT);
-  }
-  var memoized = function() {
-    var args = arguments,
-        key = resolver ? resolver.apply(this, args) : args[0],
-        cache = memoized.cache;
-
-    if (cache.has(key)) {
-      return cache.get(key);
-    }
-    var result = func.apply(this, args);
-    memoized.cache = cache.set(key, result) || cache;
-    return result;
-  };
-  memoized.cache = new (memoize.Cache || _MapCache);
-  return memoized;
-}
-
-// Expose `MapCache`.
-memoize.Cache = _MapCache;
-
-var memoize_1 = memoize;
-
-/** Used as the maximum memoize cache size. */
-var MAX_MEMOIZE_SIZE = 500;
-
-/**
- * A specialized version of `_.memoize` which clears the memoized function's
- * cache when it exceeds `MAX_MEMOIZE_SIZE`.
- *
- * @private
- * @param {Function} func The function to have its output memoized.
- * @returns {Function} Returns the new memoized function.
- */
-function memoizeCapped(func) {
-  var result = memoize_1(func, function(key) {
-    if (cache.size === MAX_MEMOIZE_SIZE) {
-      cache.clear();
-    }
-    return key;
-  });
-
-  var cache = result.cache;
-  return result;
-}
-
-var _memoizeCapped = memoizeCapped;
-
-/** Used to match property names within property paths. */
-var rePropName = /[^.[\]]+|\[(?:(-?\d+(?:\.\d+)?)|(["'])((?:(?!\2)[^\\]|\\.)*?)\2)\]|(?=(?:\.|\[\])(?:\.|\[\]|$))/g;
-
-/** Used to match backslashes in property paths. */
-var reEscapeChar = /\\(\\)?/g;
-
-/**
- * Converts `string` to a property path array.
- *
- * @private
- * @param {string} string The string to convert.
- * @returns {Array} Returns the property path array.
- */
-var stringToPath = _memoizeCapped(function(string) {
-  var result = [];
-  if (string.charCodeAt(0) === 46 /* . */) {
-    result.push('');
-  }
-  string.replace(rePropName, function(match, number, quote, subString) {
-    result.push(quote ? subString.replace(reEscapeChar, '$1') : (number || match));
-  });
-  return result;
-});
-
-var _stringToPath = stringToPath;
-
-/**
- * A specialized version of `_.map` for arrays without support for iteratee
- * shorthands.
- *
- * @private
- * @param {Array} [array] The array to iterate over.
- * @param {Function} iteratee The function invoked per iteration.
- * @returns {Array} Returns the new mapped array.
- */
-function arrayMap(array, iteratee) {
-  var index = -1,
-      length = array == null ? 0 : array.length,
-      result = Array(length);
-
-  while (++index < length) {
-    result[index] = iteratee(array[index], index, array);
-  }
-  return result;
-}
-
-var _arrayMap = arrayMap;
-
-/** Used as references for various `Number` constants. */
-var INFINITY = 1 / 0;
-
-/** Used to convert symbols to primitives and strings. */
-var symbolProto$1 = _Symbol ? _Symbol.prototype : undefined,
-    symbolToString = symbolProto$1 ? symbolProto$1.toString : undefined;
-
-/**
- * The base implementation of `_.toString` which doesn't convert nullish
- * values to empty strings.
- *
- * @private
- * @param {*} value The value to process.
- * @returns {string} Returns the string.
- */
-function baseToString(value) {
-  // Exit early for strings to avoid a performance hit in some environments.
-  if (typeof value == 'string') {
-    return value;
-  }
-  if (isArray_1(value)) {
-    // Recursively convert values (susceptible to call stack limits).
-    return _arrayMap(value, baseToString) + '';
-  }
-  if (isSymbol_1(value)) {
-    return symbolToString ? symbolToString.call(value) : '';
-  }
-  var result = (value + '');
-  return (result == '0' && (1 / value) == -INFINITY) ? '-0' : result;
-}
-
-var _baseToString = baseToString;
-
-/**
- * Converts `value` to a string. An empty string is returned for `null`
- * and `undefined` values. The sign of `-0` is preserved.
- *
- * @static
- * @memberOf _
- * @since 4.0.0
- * @category Lang
- * @param {*} value The value to convert.
- * @returns {string} Returns the converted string.
- * @example
- *
- * _.toString(null);
- * // => ''
- *
- * _.toString(-0);
- * // => '-0'
- *
- * _.toString([1, 2, 3]);
- * // => '1,2,3'
- */
-function toString(value) {
-  return value == null ? '' : _baseToString(value);
-}
-
-var toString_1 = toString;
-
-/**
- * Casts `value` to a path array if it's not one.
- *
- * @private
- * @param {*} value The value to inspect.
- * @param {Object} [object] The object to query keys on.
- * @returns {Array} Returns the cast property path array.
- */
-function castPath(value, object) {
-  if (isArray_1(value)) {
-    return value;
-  }
-  return _isKey(value, object) ? [value] : _stringToPath(toString_1(value));
-}
-
-var _castPath = castPath;
-
-/** Used as references for various `Number` constants. */
-var INFINITY$1 = 1 / 0;
-
-/**
- * Converts `value` to a string key if it's not a string or symbol.
- *
- * @private
- * @param {*} value The value to inspect.
- * @returns {string|symbol} Returns the key.
- */
-function toKey(value) {
-  if (typeof value == 'string' || isSymbol_1(value)) {
-    return value;
-  }
-  var result = (value + '');
-  return (result == '0' && (1 / value) == -INFINITY$1) ? '-0' : result;
-}
-
-var _toKey = toKey;
-
-/**
- * The base implementation of `_.get` without support for default values.
- *
- * @private
- * @param {Object} object The object to query.
- * @param {Array|string} path The path of the property to get.
- * @returns {*} Returns the resolved value.
- */
-function baseGet(object, path) {
-  path = _castPath(path, object);
-
-  var index = 0,
-      length = path.length;
-
-  while (object != null && index < length) {
-    object = object[_toKey(path[index++])];
-  }
-  return (index && index == length) ? object : undefined;
-}
-
-var _baseGet = baseGet;
-
-/**
- * Gets the value at `path` of `object`. If the resolved value is
- * `undefined`, the `defaultValue` is returned in its place.
- *
- * @static
- * @memberOf _
- * @since 3.7.0
- * @category Object
- * @param {Object} object The object to query.
- * @param {Array|string} path The path of the property to get.
- * @param {*} [defaultValue] The value returned for `undefined` resolved values.
- * @returns {*} Returns the resolved value.
- * @example
- *
- * var object = { 'a': [{ 'b': { 'c': 3 } }] };
- *
- * _.get(object, 'a[0].b.c');
- * // => 3
- *
- * _.get(object, ['a', '0', 'b', 'c']);
- * // => 3
- *
- * _.get(object, 'a.b.c', 'default');
- * // => 'default'
- */
-function get(object, path, defaultValue) {
-  var result = object == null ? undefined : _baseGet(object, path);
-  return result === undefined ? defaultValue : result;
-}
-
-var get_1 = get;
-
-/**
- * The base implementation of `_.hasIn` without support for deep paths.
- *
- * @private
- * @param {Object} [object] The object to query.
- * @param {Array|string} key The key to check.
- * @returns {boolean} Returns `true` if `key` exists, else `false`.
- */
-function baseHasIn(object, key) {
-  return object != null && key in Object(object);
-}
-
-var _baseHasIn = baseHasIn;
-
-/**
- * Checks if `path` exists on `object`.
- *
- * @private
- * @param {Object} object The object to query.
- * @param {Array|string} path The path to check.
- * @param {Function} hasFunc The function to check properties.
- * @returns {boolean} Returns `true` if `path` exists, else `false`.
- */
-function hasPath(object, path, hasFunc) {
-  path = _castPath(path, object);
-
-  var index = -1,
-      length = path.length,
-      result = false;
-
-  while (++index < length) {
-    var key = _toKey(path[index]);
-    if (!(result = object != null && hasFunc(object, key))) {
-      break;
-    }
-    object = object[key];
-  }
-  if (result || ++index != length) {
-    return result;
-  }
-  length = object == null ? 0 : object.length;
-  return !!length && isLength_1(length) && _isIndex(key, length) &&
-    (isArray_1(object) || isArguments_1(object));
-}
-
-var _hasPath = hasPath;
-
-/**
- * Checks if `path` is a direct or inherited property of `object`.
- *
- * @static
- * @memberOf _
- * @since 4.0.0
- * @category Object
- * @param {Object} object The object to query.
- * @param {Array|string} path The path to check.
- * @returns {boolean} Returns `true` if `path` exists, else `false`.
- * @example
- *
- * var object = _.create({ 'a': _.create({ 'b': 2 }) });
- *
- * _.hasIn(object, 'a');
- * // => true
- *
- * _.hasIn(object, 'a.b');
- * // => true
- *
- * _.hasIn(object, ['a', 'b']);
- * // => true
- *
- * _.hasIn(object, 'b');
- * // => false
- */
-function hasIn(object, path) {
-  return object != null && _hasPath(object, path, _baseHasIn);
-}
-
-var hasIn_1 = hasIn;
-
-/** Used to compose bitmasks for value comparisons. */
-var COMPARE_PARTIAL_FLAG$5 = 1,
-    COMPARE_UNORDERED_FLAG$3 = 2;
-
-/**
- * The base implementation of `_.matchesProperty` which doesn't clone `srcValue`.
- *
- * @private
- * @param {string} path The path of the property to get.
- * @param {*} srcValue The value to match.
- * @returns {Function} Returns the new spec function.
- */
-function baseMatchesProperty(path, srcValue) {
-  if (_isKey(path) && _isStrictComparable(srcValue)) {
-    return _matchesStrictComparable(_toKey(path), srcValue);
-  }
-  return function(object) {
-    var objValue = get_1(object, path);
-    return (objValue === undefined && objValue === srcValue)
-      ? hasIn_1(object, path)
-      : _baseIsEqual(srcValue, objValue, COMPARE_PARTIAL_FLAG$5 | COMPARE_UNORDERED_FLAG$3);
-  };
-}
-
-var _baseMatchesProperty = baseMatchesProperty;
-
-/**
- * This method returns the first argument it receives.
- *
- * @static
- * @since 0.1.0
- * @memberOf _
- * @category Util
- * @param {*} value Any value.
- * @returns {*} Returns `value`.
- * @example
- *
- * var object = { 'a': 1 };
- *
- * console.log(_.identity(object) === object);
- * // => true
- */
-function identity(value) {
-  return value;
-}
-
-var identity_1 = identity;
-
-/**
- * The base implementation of `_.property` without support for deep paths.
- *
- * @private
- * @param {string} key The key of the property to get.
- * @returns {Function} Returns the new accessor function.
- */
-function baseProperty(key) {
-  return function(object) {
-    return object == null ? undefined : object[key];
-  };
-}
-
-var _baseProperty = baseProperty;
-
-/**
- * A specialized version of `baseProperty` which supports deep paths.
- *
- * @private
- * @param {Array|string} path The path of the property to get.
- * @returns {Function} Returns the new accessor function.
- */
-function basePropertyDeep(path) {
-  return function(object) {
-    return _baseGet(object, path);
-  };
-}
-
-var _basePropertyDeep = basePropertyDeep;
-
-/**
- * Creates a function that returns the value at `path` of a given object.
- *
- * @static
- * @memberOf _
- * @since 2.4.0
- * @category Util
- * @param {Array|string} path The path of the property to get.
- * @returns {Function} Returns the new accessor function.
- * @example
- *
- * var objects = [
- *   { 'a': { 'b': 2 } },
- *   { 'a': { 'b': 1 } }
- * ];
- *
- * _.map(objects, _.property('a.b'));
- * // => [2, 1]
- *
- * _.map(_.sortBy(objects, _.property(['a', 'b'])), 'a.b');
- * // => [1, 2]
- */
-function property(path) {
-  return _isKey(path) ? _baseProperty(_toKey(path)) : _basePropertyDeep(path);
-}
-
-var property_1 = property;
-
-/**
- * The base implementation of `_.iteratee`.
- *
- * @private
- * @param {*} [value=_.identity] The value to convert to an iteratee.
- * @returns {Function} Returns the iteratee.
- */
-function baseIteratee(value) {
-  // Don't store the `typeof` result in a variable to avoid a JIT bug in Safari 9.
-  // See https://bugs.webkit.org/show_bug.cgi?id=156034 for more details.
-  if (typeof value == 'function') {
-    return value;
-  }
-  if (value == null) {
-    return identity_1;
-  }
-  if (typeof value == 'object') {
-    return isArray_1(value)
-      ? _baseMatchesProperty(value[0], value[1])
-      : _baseMatches(value);
-  }
-  return property_1(value);
-}
-
-var _baseIteratee = baseIteratee;
-
-/**
- * Creates an object with the same keys as `object` and values generated
- * by running each own enumerable string keyed property of `object` thru
- * `iteratee`. The iteratee is invoked with three arguments:
- * (value, key, object).
- *
- * @static
- * @memberOf _
- * @since 2.4.0
- * @category Object
- * @param {Object} object The object to iterate over.
- * @param {Function} [iteratee=_.identity] The function invoked per iteration.
- * @returns {Object} Returns the new mapped object.
- * @see _.mapKeys
- * @example
- *
- * var users = {
- *   'fred':    { 'user': 'fred',    'age': 40 },
- *   'pebbles': { 'user': 'pebbles', 'age': 1 }
- * };
- *
- * _.mapValues(users, function(o) { return o.age; });
- * // => { 'fred': 40, 'pebbles': 1 } (iteration order is not guaranteed)
- *
- * // The `_.property` iteratee shorthand.
- * _.mapValues(users, 'age');
- * // => { 'fred': 40, 'pebbles': 1 } (iteration order is not guaranteed)
- */
-function mapValues(object, iteratee) {
-  var result = {};
-  iteratee = _baseIteratee(iteratee);
-
-  _baseForOwn(object, function(value, key, object) {
-    _baseAssignValue(result, key, iteratee(value, key, object));
-  });
-  return result;
-}
-
-var mapValues_1 = mapValues;
-
-var ansiRegex = ({onlyFirst = false} = {}) => {
+var ansiRegex$1 = ({onlyFirst = false} = {}) => {
 	const pattern = [
-		'[\\u001B\\u009B][[\\]()#;?]*(?:(?:(?:[a-zA-Z\\d]*(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]*)*)?\\u0007)',
+		'[\\u001B\\u009B][[\\]()#;?]*(?:(?:(?:(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]+)*|[a-zA-Z\\d]+(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]*)*)?\\u0007)',
 		'(?:(?:\\d{1,4}(?:;\\d{0,4})*)?[\\dA-PR-TZcf-ntqry=><~]))'
 	].join('|');
 
 	return new RegExp(pattern, onlyFirst ? undefined : 'g');
 };
 
-var stripAnsi = string => typeof string === 'string' ? string.replace(ansiRegex(), '') : string;
+const ansiRegex = ansiRegex$1;
+
+var stripAnsi$1 = string => typeof string === 'string' ? string.replace(ansiRegex(), '') : string;
+
+var isFullwidthCodePoint$3 = {exports: {}};
 
 /* eslint-disable yoda */
 
-const isFullwidthCodePoint = codePoint => {
+const isFullwidthCodePoint$2 = codePoint => {
 	if (Number.isNaN(codePoint)) {
 		return false;
 	}
@@ -13939,23 +9567,30 @@ const isFullwidthCodePoint = codePoint => {
 	return false;
 };
 
-var isFullwidthCodePoint_1 = isFullwidthCodePoint;
-var _default = isFullwidthCodePoint;
-isFullwidthCodePoint_1.default = _default;
+isFullwidthCodePoint$3.exports = isFullwidthCodePoint$2;
+isFullwidthCodePoint$3.exports.default = isFullwidthCodePoint$2;
 
-var emojiRegex = function () {
+var emojiRegex$1 = function () {
   // https://mths.be/emoji
   return /\uD83C\uDFF4\uDB40\uDC67\uDB40\uDC62(?:\uDB40\uDC65\uDB40\uDC6E\uDB40\uDC67|\uDB40\uDC73\uDB40\uDC63\uDB40\uDC74|\uDB40\uDC77\uDB40\uDC6C\uDB40\uDC73)\uDB40\uDC7F|\uD83D\uDC68(?:\uD83C\uDFFC\u200D(?:\uD83E\uDD1D\u200D\uD83D\uDC68\uD83C\uDFFB|\uD83C[\uDF3E\uDF73\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E[\uDDAF-\uDDB3\uDDBC\uDDBD])|\uD83C\uDFFF\u200D(?:\uD83E\uDD1D\u200D\uD83D\uDC68(?:\uD83C[\uDFFB-\uDFFE])|\uD83C[\uDF3E\uDF73\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E[\uDDAF-\uDDB3\uDDBC\uDDBD])|\uD83C\uDFFE\u200D(?:\uD83E\uDD1D\u200D\uD83D\uDC68(?:\uD83C[\uDFFB-\uDFFD])|\uD83C[\uDF3E\uDF73\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E[\uDDAF-\uDDB3\uDDBC\uDDBD])|\uD83C\uDFFD\u200D(?:\uD83E\uDD1D\u200D\uD83D\uDC68(?:\uD83C[\uDFFB\uDFFC])|\uD83C[\uDF3E\uDF73\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E[\uDDAF-\uDDB3\uDDBC\uDDBD])|\u200D(?:\u2764\uFE0F\u200D(?:\uD83D\uDC8B\u200D)?\uD83D\uDC68|(?:\uD83D[\uDC68\uDC69])\u200D(?:\uD83D\uDC66\u200D\uD83D\uDC66|\uD83D\uDC67\u200D(?:\uD83D[\uDC66\uDC67]))|\uD83D\uDC66\u200D\uD83D\uDC66|\uD83D\uDC67\u200D(?:\uD83D[\uDC66\uDC67])|(?:\uD83D[\uDC68\uDC69])\u200D(?:\uD83D[\uDC66\uDC67])|[\u2695\u2696\u2708]\uFE0F|\uD83D[\uDC66\uDC67]|\uD83C[\uDF3E\uDF73\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E[\uDDAF-\uDDB3\uDDBC\uDDBD])|(?:\uD83C\uDFFB\u200D[\u2695\u2696\u2708]|\uD83C\uDFFF\u200D[\u2695\u2696\u2708]|\uD83C\uDFFE\u200D[\u2695\u2696\u2708]|\uD83C\uDFFD\u200D[\u2695\u2696\u2708]|\uD83C\uDFFC\u200D[\u2695\u2696\u2708])\uFE0F|\uD83C\uDFFB\u200D(?:\uD83C[\uDF3E\uDF73\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E[\uDDAF-\uDDB3\uDDBC\uDDBD])|\uD83C[\uDFFB-\uDFFF])|(?:\uD83E\uDDD1\uD83C\uDFFB\u200D\uD83E\uDD1D\u200D\uD83E\uDDD1|\uD83D\uDC69\uD83C\uDFFC\u200D\uD83E\uDD1D\u200D\uD83D\uDC69)\uD83C\uDFFB|\uD83E\uDDD1(?:\uD83C\uDFFF\u200D\uD83E\uDD1D\u200D\uD83E\uDDD1(?:\uD83C[\uDFFB-\uDFFF])|\u200D\uD83E\uDD1D\u200D\uD83E\uDDD1)|(?:\uD83E\uDDD1\uD83C\uDFFE\u200D\uD83E\uDD1D\u200D\uD83E\uDDD1|\uD83D\uDC69\uD83C\uDFFF\u200D\uD83E\uDD1D\u200D(?:\uD83D[\uDC68\uDC69]))(?:\uD83C[\uDFFB-\uDFFE])|(?:\uD83E\uDDD1\uD83C\uDFFC\u200D\uD83E\uDD1D\u200D\uD83E\uDDD1|\uD83D\uDC69\uD83C\uDFFD\u200D\uD83E\uDD1D\u200D\uD83D\uDC69)(?:\uD83C[\uDFFB\uDFFC])|\uD83D\uDC69(?:\uD83C\uDFFE\u200D(?:\uD83E\uDD1D\u200D\uD83D\uDC68(?:\uD83C[\uDFFB-\uDFFD\uDFFF])|\uD83C[\uDF3E\uDF73\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E[\uDDAF-\uDDB3\uDDBC\uDDBD])|\uD83C\uDFFC\u200D(?:\uD83E\uDD1D\u200D\uD83D\uDC68(?:\uD83C[\uDFFB\uDFFD-\uDFFF])|\uD83C[\uDF3E\uDF73\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E[\uDDAF-\uDDB3\uDDBC\uDDBD])|\uD83C\uDFFB\u200D(?:\uD83E\uDD1D\u200D\uD83D\uDC68(?:\uD83C[\uDFFC-\uDFFF])|\uD83C[\uDF3E\uDF73\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E[\uDDAF-\uDDB3\uDDBC\uDDBD])|\uD83C\uDFFD\u200D(?:\uD83E\uDD1D\u200D\uD83D\uDC68(?:\uD83C[\uDFFB\uDFFC\uDFFE\uDFFF])|\uD83C[\uDF3E\uDF73\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E[\uDDAF-\uDDB3\uDDBC\uDDBD])|\u200D(?:\u2764\uFE0F\u200D(?:\uD83D\uDC8B\u200D(?:\uD83D[\uDC68\uDC69])|\uD83D[\uDC68\uDC69])|\uD83C[\uDF3E\uDF73\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E[\uDDAF-\uDDB3\uDDBC\uDDBD])|\uD83C\uDFFF\u200D(?:\uD83C[\uDF3E\uDF73\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E[\uDDAF-\uDDB3\uDDBC\uDDBD]))|\uD83D\uDC69\u200D\uD83D\uDC69\u200D(?:\uD83D\uDC66\u200D\uD83D\uDC66|\uD83D\uDC67\u200D(?:\uD83D[\uDC66\uDC67]))|(?:\uD83E\uDDD1\uD83C\uDFFD\u200D\uD83E\uDD1D\u200D\uD83E\uDDD1|\uD83D\uDC69\uD83C\uDFFE\u200D\uD83E\uDD1D\u200D\uD83D\uDC69)(?:\uD83C[\uDFFB-\uDFFD])|\uD83D\uDC69\u200D\uD83D\uDC66\u200D\uD83D\uDC66|\uD83D\uDC69\u200D\uD83D\uDC69\u200D(?:\uD83D[\uDC66\uDC67])|(?:\uD83D\uDC41\uFE0F\u200D\uD83D\uDDE8|\uD83D\uDC69(?:\uD83C\uDFFF\u200D[\u2695\u2696\u2708]|\uD83C\uDFFE\u200D[\u2695\u2696\u2708]|\uD83C\uDFFC\u200D[\u2695\u2696\u2708]|\uD83C\uDFFB\u200D[\u2695\u2696\u2708]|\uD83C\uDFFD\u200D[\u2695\u2696\u2708]|\u200D[\u2695\u2696\u2708])|(?:(?:\u26F9|\uD83C[\uDFCB\uDFCC]|\uD83D\uDD75)\uFE0F|\uD83D\uDC6F|\uD83E[\uDD3C\uDDDE\uDDDF])\u200D[\u2640\u2642]|(?:\u26F9|\uD83C[\uDFCB\uDFCC]|\uD83D\uDD75)(?:\uD83C[\uDFFB-\uDFFF])\u200D[\u2640\u2642]|(?:\uD83C[\uDFC3\uDFC4\uDFCA]|\uD83D[\uDC6E\uDC71\uDC73\uDC77\uDC81\uDC82\uDC86\uDC87\uDE45-\uDE47\uDE4B\uDE4D\uDE4E\uDEA3\uDEB4-\uDEB6]|\uD83E[\uDD26\uDD37-\uDD39\uDD3D\uDD3E\uDDB8\uDDB9\uDDCD-\uDDCF\uDDD6-\uDDDD])(?:(?:\uD83C[\uDFFB-\uDFFF])\u200D[\u2640\u2642]|\u200D[\u2640\u2642])|\uD83C\uDFF4\u200D\u2620)\uFE0F|\uD83D\uDC69\u200D\uD83D\uDC67\u200D(?:\uD83D[\uDC66\uDC67])|\uD83C\uDFF3\uFE0F\u200D\uD83C\uDF08|\uD83D\uDC15\u200D\uD83E\uDDBA|\uD83D\uDC69\u200D\uD83D\uDC66|\uD83D\uDC69\u200D\uD83D\uDC67|\uD83C\uDDFD\uD83C\uDDF0|\uD83C\uDDF4\uD83C\uDDF2|\uD83C\uDDF6\uD83C\uDDE6|[#\*0-9]\uFE0F\u20E3|\uD83C\uDDE7(?:\uD83C[\uDDE6\uDDE7\uDDE9-\uDDEF\uDDF1-\uDDF4\uDDF6-\uDDF9\uDDFB\uDDFC\uDDFE\uDDFF])|\uD83C\uDDF9(?:\uD83C[\uDDE6\uDDE8\uDDE9\uDDEB-\uDDED\uDDEF-\uDDF4\uDDF7\uDDF9\uDDFB\uDDFC\uDDFF])|\uD83C\uDDEA(?:\uD83C[\uDDE6\uDDE8\uDDEA\uDDEC\uDDED\uDDF7-\uDDFA])|\uD83E\uDDD1(?:\uD83C[\uDFFB-\uDFFF])|\uD83C\uDDF7(?:\uD83C[\uDDEA\uDDF4\uDDF8\uDDFA\uDDFC])|\uD83D\uDC69(?:\uD83C[\uDFFB-\uDFFF])|\uD83C\uDDF2(?:\uD83C[\uDDE6\uDDE8-\uDDED\uDDF0-\uDDFF])|\uD83C\uDDE6(?:\uD83C[\uDDE8-\uDDEC\uDDEE\uDDF1\uDDF2\uDDF4\uDDF6-\uDDFA\uDDFC\uDDFD\uDDFF])|\uD83C\uDDF0(?:\uD83C[\uDDEA\uDDEC-\uDDEE\uDDF2\uDDF3\uDDF5\uDDF7\uDDFC\uDDFE\uDDFF])|\uD83C\uDDED(?:\uD83C[\uDDF0\uDDF2\uDDF3\uDDF7\uDDF9\uDDFA])|\uD83C\uDDE9(?:\uD83C[\uDDEA\uDDEC\uDDEF\uDDF0\uDDF2\uDDF4\uDDFF])|\uD83C\uDDFE(?:\uD83C[\uDDEA\uDDF9])|\uD83C\uDDEC(?:\uD83C[\uDDE6\uDDE7\uDDE9-\uDDEE\uDDF1-\uDDF3\uDDF5-\uDDFA\uDDFC\uDDFE])|\uD83C\uDDF8(?:\uD83C[\uDDE6-\uDDEA\uDDEC-\uDDF4\uDDF7-\uDDF9\uDDFB\uDDFD-\uDDFF])|\uD83C\uDDEB(?:\uD83C[\uDDEE-\uDDF0\uDDF2\uDDF4\uDDF7])|\uD83C\uDDF5(?:\uD83C[\uDDE6\uDDEA-\uDDED\uDDF0-\uDDF3\uDDF7-\uDDF9\uDDFC\uDDFE])|\uD83C\uDDFB(?:\uD83C[\uDDE6\uDDE8\uDDEA\uDDEC\uDDEE\uDDF3\uDDFA])|\uD83C\uDDF3(?:\uD83C[\uDDE6\uDDE8\uDDEA-\uDDEC\uDDEE\uDDF1\uDDF4\uDDF5\uDDF7\uDDFA\uDDFF])|\uD83C\uDDE8(?:\uD83C[\uDDE6\uDDE8\uDDE9\uDDEB-\uDDEE\uDDF0-\uDDF5\uDDF7\uDDFA-\uDDFF])|\uD83C\uDDF1(?:\uD83C[\uDDE6-\uDDE8\uDDEE\uDDF0\uDDF7-\uDDFB\uDDFE])|\uD83C\uDDFF(?:\uD83C[\uDDE6\uDDF2\uDDFC])|\uD83C\uDDFC(?:\uD83C[\uDDEB\uDDF8])|\uD83C\uDDFA(?:\uD83C[\uDDE6\uDDEC\uDDF2\uDDF3\uDDF8\uDDFE\uDDFF])|\uD83C\uDDEE(?:\uD83C[\uDDE8-\uDDEA\uDDF1-\uDDF4\uDDF6-\uDDF9])|\uD83C\uDDEF(?:\uD83C[\uDDEA\uDDF2\uDDF4\uDDF5])|(?:\uD83C[\uDFC3\uDFC4\uDFCA]|\uD83D[\uDC6E\uDC71\uDC73\uDC77\uDC81\uDC82\uDC86\uDC87\uDE45-\uDE47\uDE4B\uDE4D\uDE4E\uDEA3\uDEB4-\uDEB6]|\uD83E[\uDD26\uDD37-\uDD39\uDD3D\uDD3E\uDDB8\uDDB9\uDDCD-\uDDCF\uDDD6-\uDDDD])(?:\uD83C[\uDFFB-\uDFFF])|(?:\u26F9|\uD83C[\uDFCB\uDFCC]|\uD83D\uDD75)(?:\uD83C[\uDFFB-\uDFFF])|(?:[\u261D\u270A-\u270D]|\uD83C[\uDF85\uDFC2\uDFC7]|\uD83D[\uDC42\uDC43\uDC46-\uDC50\uDC66\uDC67\uDC6B-\uDC6D\uDC70\uDC72\uDC74-\uDC76\uDC78\uDC7C\uDC83\uDC85\uDCAA\uDD74\uDD7A\uDD90\uDD95\uDD96\uDE4C\uDE4F\uDEC0\uDECC]|\uD83E[\uDD0F\uDD18-\uDD1C\uDD1E\uDD1F\uDD30-\uDD36\uDDB5\uDDB6\uDDBB\uDDD2-\uDDD5])(?:\uD83C[\uDFFB-\uDFFF])|(?:[\u231A\u231B\u23E9-\u23EC\u23F0\u23F3\u25FD\u25FE\u2614\u2615\u2648-\u2653\u267F\u2693\u26A1\u26AA\u26AB\u26BD\u26BE\u26C4\u26C5\u26CE\u26D4\u26EA\u26F2\u26F3\u26F5\u26FA\u26FD\u2705\u270A\u270B\u2728\u274C\u274E\u2753-\u2755\u2757\u2795-\u2797\u27B0\u27BF\u2B1B\u2B1C\u2B50\u2B55]|\uD83C[\uDC04\uDCCF\uDD8E\uDD91-\uDD9A\uDDE6-\uDDFF\uDE01\uDE1A\uDE2F\uDE32-\uDE36\uDE38-\uDE3A\uDE50\uDE51\uDF00-\uDF20\uDF2D-\uDF35\uDF37-\uDF7C\uDF7E-\uDF93\uDFA0-\uDFCA\uDFCF-\uDFD3\uDFE0-\uDFF0\uDFF4\uDFF8-\uDFFF]|\uD83D[\uDC00-\uDC3E\uDC40\uDC42-\uDCFC\uDCFF-\uDD3D\uDD4B-\uDD4E\uDD50-\uDD67\uDD7A\uDD95\uDD96\uDDA4\uDDFB-\uDE4F\uDE80-\uDEC5\uDECC\uDED0-\uDED2\uDED5\uDEEB\uDEEC\uDEF4-\uDEFA\uDFE0-\uDFEB]|\uD83E[\uDD0D-\uDD3A\uDD3C-\uDD45\uDD47-\uDD71\uDD73-\uDD76\uDD7A-\uDDA2\uDDA5-\uDDAA\uDDAE-\uDDCA\uDDCD-\uDDFF\uDE70-\uDE73\uDE78-\uDE7A\uDE80-\uDE82\uDE90-\uDE95])|(?:[#\*0-9\xA9\xAE\u203C\u2049\u2122\u2139\u2194-\u2199\u21A9\u21AA\u231A\u231B\u2328\u23CF\u23E9-\u23F3\u23F8-\u23FA\u24C2\u25AA\u25AB\u25B6\u25C0\u25FB-\u25FE\u2600-\u2604\u260E\u2611\u2614\u2615\u2618\u261D\u2620\u2622\u2623\u2626\u262A\u262E\u262F\u2638-\u263A\u2640\u2642\u2648-\u2653\u265F\u2660\u2663\u2665\u2666\u2668\u267B\u267E\u267F\u2692-\u2697\u2699\u269B\u269C\u26A0\u26A1\u26AA\u26AB\u26B0\u26B1\u26BD\u26BE\u26C4\u26C5\u26C8\u26CE\u26CF\u26D1\u26D3\u26D4\u26E9\u26EA\u26F0-\u26F5\u26F7-\u26FA\u26FD\u2702\u2705\u2708-\u270D\u270F\u2712\u2714\u2716\u271D\u2721\u2728\u2733\u2734\u2744\u2747\u274C\u274E\u2753-\u2755\u2757\u2763\u2764\u2795-\u2797\u27A1\u27B0\u27BF\u2934\u2935\u2B05-\u2B07\u2B1B\u2B1C\u2B50\u2B55\u3030\u303D\u3297\u3299]|\uD83C[\uDC04\uDCCF\uDD70\uDD71\uDD7E\uDD7F\uDD8E\uDD91-\uDD9A\uDDE6-\uDDFF\uDE01\uDE02\uDE1A\uDE2F\uDE32-\uDE3A\uDE50\uDE51\uDF00-\uDF21\uDF24-\uDF93\uDF96\uDF97\uDF99-\uDF9B\uDF9E-\uDFF0\uDFF3-\uDFF5\uDFF7-\uDFFF]|\uD83D[\uDC00-\uDCFD\uDCFF-\uDD3D\uDD49-\uDD4E\uDD50-\uDD67\uDD6F\uDD70\uDD73-\uDD7A\uDD87\uDD8A-\uDD8D\uDD90\uDD95\uDD96\uDDA4\uDDA5\uDDA8\uDDB1\uDDB2\uDDBC\uDDC2-\uDDC4\uDDD1-\uDDD3\uDDDC-\uDDDE\uDDE1\uDDE3\uDDE8\uDDEF\uDDF3\uDDFA-\uDE4F\uDE80-\uDEC5\uDECB-\uDED2\uDED5\uDEE0-\uDEE5\uDEE9\uDEEB\uDEEC\uDEF0\uDEF3-\uDEFA\uDFE0-\uDFEB]|\uD83E[\uDD0D-\uDD3A\uDD3C-\uDD45\uDD47-\uDD71\uDD73-\uDD76\uDD7A-\uDDA2\uDDA5-\uDDAA\uDDAE-\uDDCA\uDDCD-\uDDFF\uDE70-\uDE73\uDE78-\uDE7A\uDE80-\uDE82\uDE90-\uDE95])\uFE0F|(?:[\u261D\u26F9\u270A-\u270D]|\uD83C[\uDF85\uDFC2-\uDFC4\uDFC7\uDFCA-\uDFCC]|\uD83D[\uDC42\uDC43\uDC46-\uDC50\uDC66-\uDC78\uDC7C\uDC81-\uDC83\uDC85-\uDC87\uDC8F\uDC91\uDCAA\uDD74\uDD75\uDD7A\uDD90\uDD95\uDD96\uDE45-\uDE47\uDE4B-\uDE4F\uDEA3\uDEB4-\uDEB6\uDEC0\uDECC]|\uD83E[\uDD0F\uDD18-\uDD1F\uDD26\uDD30-\uDD39\uDD3C-\uDD3E\uDDB5\uDDB6\uDDB8\uDDB9\uDDBB\uDDCD-\uDDCF\uDDD1-\uDDDD])/g;
 };
 
-const stringWidth = string => {
-	string = string.replace(emojiRegex(), '  ');
+const stripAnsi = stripAnsi$1;
+const isFullwidthCodePoint$1 = isFullwidthCodePoint$3.exports;
+const emojiRegex = emojiRegex$1;
 
+const stringWidth = string => {
 	if (typeof string !== 'string' || string.length === 0) {
 		return 0;
 	}
 
 	string = stripAnsi(string);
+
+	if (string.length === 0) {
+		return 0;
+	}
+
+	string = string.replace(emojiRegex(), '  ');
 
 	let width = 0;
 
@@ -13977,333 +9612,27 @@ const stringWidth = string => {
 			i++;
 		}
 
-		width += isFullwidthCodePoint_1(code) ? 2 : 1;
+		width += isFullwidthCodePoint$1(code) ? 2 : 1;
 	}
 
 	return width;
 };
 
-var stringWidth_1 = stringWidth;
+stringWidth$1.exports = stringWidth;
 // TODO: remove this in the next major version
-var _default$1 = stringWidth;
-stringWidth_1.default = _default$1;
+stringWidth$1.exports.default = stringWidth;
 
-/** `Object#toString` result references. */
-var numberTag$2 = '[object Number]';
-
-/**
- * Checks if `value` is classified as a `Number` primitive or object.
- *
- * **Note:** To exclude `Infinity`, `-Infinity`, and `NaN`, which are
- * classified as numbers, use the `_.isFinite` method.
- *
- * @static
- * @memberOf _
- * @since 0.1.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a number, else `false`.
- * @example
- *
- * _.isNumber(3);
- * // => true
- *
- * _.isNumber(Number.MIN_VALUE);
- * // => true
- *
- * _.isNumber(Infinity);
- * // => true
- *
- * _.isNumber('3');
- * // => false
- */
-function isNumber(value) {
-  return typeof value == 'number' ||
-    (isObjectLike_1(value) && _baseGetTag(value) == numberTag$2);
-}
-
-var isNumber_1 = isNumber;
-
-/** `Object#toString` result references. */
-var stringTag$2 = '[object String]';
-
-/**
- * Checks if `value` is classified as a `String` primitive or object.
- *
- * @static
- * @since 0.1.0
- * @memberOf _
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a string, else `false`.
- * @example
- *
- * _.isString('abc');
- * // => true
- *
- * _.isString(1);
- * // => false
- */
-function isString(value) {
-  return typeof value == 'string' ||
-    (!isArray_1(value) && isObjectLike_1(value) && _baseGetTag(value) == stringTag$2);
-}
-
-var isString_1 = isString;
-
-var alignString_1 = createCommonjsModule(function (module, exports) {
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _isNumber2 = _interopRequireDefault(isNumber_1);
-
-var _isString2 = _interopRequireDefault(isString_1);
-
-var _stringWidth = _interopRequireDefault(stringWidth_1);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-const alignments = ['left', 'right', 'center'];
-/**
- * @param {string} subject
- * @param {number} width
- * @returns {string}
- */
-
-const alignLeft = (subject, width) => {
-  return subject + ' '.repeat(width);
-};
-/**
- * @param {string} subject
- * @param {number} width
- * @returns {string}
- */
-
-
-const alignRight = (subject, width) => {
-  return ' '.repeat(width) + subject;
-};
-/**
- * @param {string} subject
- * @param {number} width
- * @returns {string}
- */
-
-
-const alignCenter = (subject, width) => {
-  let halfWidth;
-  halfWidth = width / 2;
-
-  if (width % 2 === 0) {
-    return ' '.repeat(halfWidth) + subject + ' '.repeat(halfWidth);
-  } else {
-    halfWidth = Math.floor(halfWidth);
-    return ' '.repeat(halfWidth) + subject + ' '.repeat(halfWidth + 1);
-  }
-};
-/**
- * Pads a string to the left and/or right to position the subject
- * text in a desired alignment within a container.
- *
- * @param {string} subject
- * @param {number} containerWidth
- * @param {string} alignment One of the valid options (left, right, center).
- * @returns {string}
- */
-
-
-const alignString = (subject, containerWidth, alignment) => {
-  if (!(0, _isString2.default)(subject)) {
-    throw new TypeError('Subject parameter value must be a string.');
-  }
-
-  if (!(0, _isNumber2.default)(containerWidth)) {
-    throw new TypeError('Container width parameter value must be a number.');
-  }
-
-  const subjectWidth = (0, _stringWidth.default)(subject);
-
-  if (subjectWidth > containerWidth) {
-    // console.log('subjectWidth', subjectWidth, 'containerWidth', containerWidth, 'subject', subject);
-    throw new Error('Subject parameter value width cannot be greater than the container width.');
-  }
-
-  if (!(0, _isString2.default)(alignment)) {
-    throw new TypeError('Alignment parameter value must be a string.');
-  }
-
-  if (!alignments.includes(alignment)) {
-    throw new Error('Alignment parameter value must be a known alignment parameter value (left, right, center).');
-  }
-
-  if (subjectWidth === 0) {
-    return ' '.repeat(containerWidth);
-  }
-
-  const availableWidth = containerWidth - subjectWidth;
-
-  if (alignment === 'left') {
-    return alignLeft(subject, availableWidth);
-  }
-
-  if (alignment === 'right') {
-    return alignRight(subject, availableWidth);
-  }
-
-  return alignCenter(subject, availableWidth);
-};
-
-var _default = alignString;
-exports.default = _default;
-
-});
-
-var alignTableData_1 = createCommonjsModule(function (module, exports) {
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _stringWidth = _interopRequireDefault(stringWidth_1);
-
-var _alignString = _interopRequireDefault(alignString_1);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/**
- * @param {table~row[]} rows
- * @param {object} config
- * @returns {table~row[]}
- */
-const alignTableData = (rows, config) => {
-  return rows.map(cells => {
-    return cells.map((value, index1) => {
-      const column = config.columns[index1];
-
-      if ((0, _stringWidth.default)(value) === column.width) {
-        return value;
-      } else {
-        return (0, _alignString.default)(value, column.width, column.alignment);
-      }
-    });
-  });
-};
-
-var _default = alignTableData;
-exports.default = _default;
-
-});
-
-/**
- * The base implementation of methods like `_.max` and `_.min` which accepts a
- * `comparator` to determine the extremum value.
- *
- * @private
- * @param {Array} array The array to iterate over.
- * @param {Function} iteratee The iteratee invoked per iteration.
- * @param {Function} comparator The comparator used to compare values.
- * @returns {*} Returns the extremum value.
- */
-function baseExtremum(array, iteratee, comparator) {
-  var index = -1,
-      length = array.length;
-
-  while (++index < length) {
-    var value = array[index],
-        current = iteratee(value);
-
-    if (current != null && (computed === undefined
-          ? (current === current && !isSymbol_1(current))
-          : comparator(current, computed)
-        )) {
-      var computed = current,
-          result = value;
-    }
-  }
-  return result;
-}
-
-var _baseExtremum = baseExtremum;
-
-/**
- * The base implementation of `_.gt` which doesn't coerce arguments.
- *
- * @private
- * @param {*} value The value to compare.
- * @param {*} other The other value to compare.
- * @returns {boolean} Returns `true` if `value` is greater than `other`,
- *  else `false`.
- */
-function baseGt(value, other) {
-  return value > other;
-}
-
-var _baseGt = baseGt;
-
-/**
- * Computes the maximum value of `array`. If `array` is empty or falsey,
- * `undefined` is returned.
- *
- * @static
- * @since 0.1.0
- * @memberOf _
- * @category Math
- * @param {Array} array The array to iterate over.
- * @returns {*} Returns the maximum value.
- * @example
- *
- * _.max([4, 2, 8, 6]);
- * // => 8
- *
- * _.max([]);
- * // => undefined
- */
-function max(array) {
-  return (array && array.length)
-    ? _baseExtremum(array, identity_1, _baseGt)
-    : undefined;
-}
-
-var max_1 = max;
-
-/** `Object#toString` result references. */
-var boolTag$2 = '[object Boolean]';
-
-/**
- * Checks if `value` is classified as a boolean primitive or object.
- *
- * @static
- * @memberOf _
- * @since 0.1.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a boolean, else `false`.
- * @example
- *
- * _.isBoolean(false);
- * // => true
- *
- * _.isBoolean(null);
- * // => false
- */
-function isBoolean(value) {
-  return value === true || value === false ||
-    (isObjectLike_1(value) && _baseGetTag(value) == boolTag$2);
-}
-
-var isBoolean_1 = isBoolean;
+var utils = {};
 
 const regex = '[\uD800-\uDBFF][\uDC00-\uDFFF]';
 
-const astralRegex = options => options && options.exact ? new RegExp(`^${regex}$`) : new RegExp(regex, 'g');
+const astralRegex$1 = options => options && options.exact ? new RegExp(`^${regex}$`) : new RegExp(regex, 'g');
 
-var astralRegex_1 = astralRegex;
+var astralRegex_1 = astralRegex$1;
 
-var colorName$1 = {
+var ansiStyles$1 = {exports: {}};
+
+var colorName = {
 	"aliceblue": [240, 248, 255],
 	"antiquewhite": [250, 235, 215],
 	"aqua": [0, 255, 255],
@@ -14457,18 +9786,18 @@ var colorName$1 = {
 /* MIT license */
 
 /* eslint-disable no-mixed-operators */
-
+const cssKeywords = colorName;
 
 // NOTE: conversions should only return primitive values (i.e. arrays, or
 //       values that give correct `typeof` results).
 //       do not use box values types (i.e. Number(), String(), etc.)
 
-const reverseKeywords$1 = {};
-for (const key of Object.keys(colorName$1)) {
-	reverseKeywords$1[colorName$1[key]] = key;
+const reverseKeywords = {};
+for (const key of Object.keys(cssKeywords)) {
+	reverseKeywords[cssKeywords[key]] = key;
 }
 
-const convert$2 = {
+const convert$1 = {
 	rgb: {channels: 3, labels: 'rgb'},
 	hsl: {channels: 3, labels: 'hsl'},
 	hsv: {channels: 3, labels: 'hsv'},
@@ -14486,30 +9815,30 @@ const convert$2 = {
 	gray: {channels: 1, labels: ['gray']}
 };
 
-var conversions$1 = convert$2;
+var conversions$2 = convert$1;
 
 // Hide .channels and .labels properties
-for (const model of Object.keys(convert$2)) {
-	if (!('channels' in convert$2[model])) {
+for (const model of Object.keys(convert$1)) {
+	if (!('channels' in convert$1[model])) {
 		throw new Error('missing channels property: ' + model);
 	}
 
-	if (!('labels' in convert$2[model])) {
+	if (!('labels' in convert$1[model])) {
 		throw new Error('missing channel labels property: ' + model);
 	}
 
-	if (convert$2[model].labels.length !== convert$2[model].channels) {
+	if (convert$1[model].labels.length !== convert$1[model].channels) {
 		throw new Error('channel and label counts mismatch: ' + model);
 	}
 
-	const {channels, labels} = convert$2[model];
-	delete convert$2[model].channels;
-	delete convert$2[model].labels;
-	Object.defineProperty(convert$2[model], 'channels', {value: channels});
-	Object.defineProperty(convert$2[model], 'labels', {value: labels});
+	const {channels, labels} = convert$1[model];
+	delete convert$1[model].channels;
+	delete convert$1[model].labels;
+	Object.defineProperty(convert$1[model], 'channels', {value: channels});
+	Object.defineProperty(convert$1[model], 'labels', {value: labels});
 }
 
-convert$2.rgb.hsl = function (rgb) {
+convert$1.rgb.hsl = function (rgb) {
 	const r = rgb[0] / 255;
 	const g = rgb[1] / 255;
 	const b = rgb[2] / 255;
@@ -14548,7 +9877,7 @@ convert$2.rgb.hsl = function (rgb) {
 	return [h, s * 100, l * 100];
 };
 
-convert$2.rgb.hsv = function (rgb) {
+convert$1.rgb.hsv = function (rgb) {
 	let rdif;
 	let gdif;
 	let bdif;
@@ -14595,11 +9924,11 @@ convert$2.rgb.hsv = function (rgb) {
 	];
 };
 
-convert$2.rgb.hwb = function (rgb) {
+convert$1.rgb.hwb = function (rgb) {
 	const r = rgb[0];
 	const g = rgb[1];
 	let b = rgb[2];
-	const h = convert$2.rgb.hsl(rgb)[0];
+	const h = convert$1.rgb.hsl(rgb)[0];
 	const w = 1 / 255 * Math.min(r, Math.min(g, b));
 
 	b = 1 - 1 / 255 * Math.max(r, Math.max(g, b));
@@ -14607,7 +9936,7 @@ convert$2.rgb.hwb = function (rgb) {
 	return [h, w * 100, b * 100];
 };
 
-convert$2.rgb.cmyk = function (rgb) {
+convert$1.rgb.cmyk = function (rgb) {
 	const r = rgb[0] / 255;
 	const g = rgb[1] / 255;
 	const b = rgb[2] / 255;
@@ -14620,7 +9949,7 @@ convert$2.rgb.cmyk = function (rgb) {
 	return [c * 100, m * 100, y * 100, k * 100];
 };
 
-function comparativeDistance$1(x, y) {
+function comparativeDistance(x, y) {
 	/*
 		See https://en.m.wikipedia.org/wiki/Euclidean_distance#Squared_Euclidean_distance
 	*/
@@ -14631,8 +9960,8 @@ function comparativeDistance$1(x, y) {
 	);
 }
 
-convert$2.rgb.keyword = function (rgb) {
-	const reversed = reverseKeywords$1[rgb];
+convert$1.rgb.keyword = function (rgb) {
+	const reversed = reverseKeywords[rgb];
 	if (reversed) {
 		return reversed;
 	}
@@ -14640,11 +9969,11 @@ convert$2.rgb.keyword = function (rgb) {
 	let currentClosestDistance = Infinity;
 	let currentClosestKeyword;
 
-	for (const keyword of Object.keys(colorName$1)) {
-		const value = colorName$1[keyword];
+	for (const keyword of Object.keys(cssKeywords)) {
+		const value = cssKeywords[keyword];
 
 		// Compute comparative distance
-		const distance = comparativeDistance$1(rgb, value);
+		const distance = comparativeDistance(rgb, value);
 
 		// Check if its less, if so set as closest
 		if (distance < currentClosestDistance) {
@@ -14656,11 +9985,11 @@ convert$2.rgb.keyword = function (rgb) {
 	return currentClosestKeyword;
 };
 
-convert$2.keyword.rgb = function (keyword) {
-	return colorName$1[keyword];
+convert$1.keyword.rgb = function (keyword) {
+	return cssKeywords[keyword];
 };
 
-convert$2.rgb.xyz = function (rgb) {
+convert$1.rgb.xyz = function (rgb) {
 	let r = rgb[0] / 255;
 	let g = rgb[1] / 255;
 	let b = rgb[2] / 255;
@@ -14677,8 +10006,8 @@ convert$2.rgb.xyz = function (rgb) {
 	return [x * 100, y * 100, z * 100];
 };
 
-convert$2.rgb.lab = function (rgb) {
-	const xyz = convert$2.rgb.xyz(rgb);
+convert$1.rgb.lab = function (rgb) {
+	const xyz = convert$1.rgb.xyz(rgb);
 	let x = xyz[0];
 	let y = xyz[1];
 	let z = xyz[2];
@@ -14698,7 +10027,7 @@ convert$2.rgb.lab = function (rgb) {
 	return [l, a, b];
 };
 
-convert$2.hsl.rgb = function (hsl) {
+convert$1.hsl.rgb = function (hsl) {
 	const h = hsl[0] / 360;
 	const s = hsl[1] / 100;
 	const l = hsl[2] / 100;
@@ -14746,7 +10075,7 @@ convert$2.hsl.rgb = function (hsl) {
 	return rgb;
 };
 
-convert$2.hsl.hsv = function (hsl) {
+convert$1.hsl.hsv = function (hsl) {
 	const h = hsl[0];
 	let s = hsl[1] / 100;
 	let l = hsl[2] / 100;
@@ -14762,7 +10091,7 @@ convert$2.hsl.hsv = function (hsl) {
 	return [h, sv * 100, v * 100];
 };
 
-convert$2.hsv.rgb = function (hsv) {
+convert$1.hsv.rgb = function (hsv) {
 	const h = hsv[0] / 60;
 	const s = hsv[1] / 100;
 	let v = hsv[2] / 100;
@@ -14790,7 +10119,7 @@ convert$2.hsv.rgb = function (hsv) {
 	}
 };
 
-convert$2.hsv.hsl = function (hsv) {
+convert$1.hsv.hsl = function (hsv) {
 	const h = hsv[0];
 	const s = hsv[1] / 100;
 	const v = hsv[2] / 100;
@@ -14809,7 +10138,7 @@ convert$2.hsv.hsl = function (hsv) {
 };
 
 // http://dev.w3.org/csswg/css-color/#hwb-to-rgb
-convert$2.hwb.rgb = function (hwb) {
+convert$1.hwb.rgb = function (hwb) {
 	const h = hwb[0] / 360;
 	let wh = hwb[1] / 100;
 	let bl = hwb[2] / 100;
@@ -14851,7 +10180,7 @@ convert$2.hwb.rgb = function (hwb) {
 	return [r * 255, g * 255, b * 255];
 };
 
-convert$2.cmyk.rgb = function (cmyk) {
+convert$1.cmyk.rgb = function (cmyk) {
 	const c = cmyk[0] / 100;
 	const m = cmyk[1] / 100;
 	const y = cmyk[2] / 100;
@@ -14864,7 +10193,7 @@ convert$2.cmyk.rgb = function (cmyk) {
 	return [r * 255, g * 255, b * 255];
 };
 
-convert$2.xyz.rgb = function (xyz) {
+convert$1.xyz.rgb = function (xyz) {
 	const x = xyz[0] / 100;
 	const y = xyz[1] / 100;
 	const z = xyz[2] / 100;
@@ -14896,7 +10225,7 @@ convert$2.xyz.rgb = function (xyz) {
 	return [r * 255, g * 255, b * 255];
 };
 
-convert$2.xyz.lab = function (xyz) {
+convert$1.xyz.lab = function (xyz) {
 	let x = xyz[0];
 	let y = xyz[1];
 	let z = xyz[2];
@@ -14916,7 +10245,7 @@ convert$2.xyz.lab = function (xyz) {
 	return [l, a, b];
 };
 
-convert$2.lab.xyz = function (lab) {
+convert$1.lab.xyz = function (lab) {
 	const l = lab[0];
 	const a = lab[1];
 	const b = lab[2];
@@ -14942,7 +10271,7 @@ convert$2.lab.xyz = function (lab) {
 	return [x, y, z];
 };
 
-convert$2.lab.lch = function (lab) {
+convert$1.lab.lch = function (lab) {
 	const l = lab[0];
 	const a = lab[1];
 	const b = lab[2];
@@ -14960,7 +10289,7 @@ convert$2.lab.lch = function (lab) {
 	return [l, c, h];
 };
 
-convert$2.lch.lab = function (lch) {
+convert$1.lch.lab = function (lch) {
 	const l = lch[0];
 	const c = lch[1];
 	const h = lch[2];
@@ -14972,9 +10301,9 @@ convert$2.lch.lab = function (lch) {
 	return [l, a, b];
 };
 
-convert$2.rgb.ansi16 = function (args, saturation = null) {
+convert$1.rgb.ansi16 = function (args, saturation = null) {
 	const [r, g, b] = args;
-	let value = saturation === null ? convert$2.rgb.hsv(args)[2] : saturation; // Hsv -> ansi16 optimization
+	let value = saturation === null ? convert$1.rgb.hsv(args)[2] : saturation; // Hsv -> ansi16 optimization
 
 	value = Math.round(value / 50);
 
@@ -14994,13 +10323,13 @@ convert$2.rgb.ansi16 = function (args, saturation = null) {
 	return ansi;
 };
 
-convert$2.hsv.ansi16 = function (args) {
+convert$1.hsv.ansi16 = function (args) {
 	// Optimization here; we already know the value and don't need to get
 	// it converted for us.
-	return convert$2.rgb.ansi16(convert$2.hsv.rgb(args), args[2]);
+	return convert$1.rgb.ansi16(convert$1.hsv.rgb(args), args[2]);
 };
 
-convert$2.rgb.ansi256 = function (args) {
+convert$1.rgb.ansi256 = function (args) {
 	const r = args[0];
 	const g = args[1];
 	const b = args[2];
@@ -15027,7 +10356,7 @@ convert$2.rgb.ansi256 = function (args) {
 	return ansi;
 };
 
-convert$2.ansi16.rgb = function (args) {
+convert$1.ansi16.rgb = function (args) {
 	let color = args % 10;
 
 	// Handle greyscale
@@ -15049,7 +10378,7 @@ convert$2.ansi16.rgb = function (args) {
 	return [r, g, b];
 };
 
-convert$2.ansi256.rgb = function (args) {
+convert$1.ansi256.rgb = function (args) {
 	// Handle greyscale
 	if (args >= 232) {
 		const c = (args - 232) * 10 + 8;
@@ -15066,7 +10395,7 @@ convert$2.ansi256.rgb = function (args) {
 	return [r, g, b];
 };
 
-convert$2.rgb.hex = function (args) {
+convert$1.rgb.hex = function (args) {
 	const integer = ((Math.round(args[0]) & 0xFF) << 16)
 		+ ((Math.round(args[1]) & 0xFF) << 8)
 		+ (Math.round(args[2]) & 0xFF);
@@ -15075,7 +10404,7 @@ convert$2.rgb.hex = function (args) {
 	return '000000'.substring(string.length) + string;
 };
 
-convert$2.hex.rgb = function (args) {
+convert$1.hex.rgb = function (args) {
 	const match = args.toString(16).match(/[a-f0-9]{6}|[a-f0-9]{3}/i);
 	if (!match) {
 		return [0, 0, 0];
@@ -15097,7 +10426,7 @@ convert$2.hex.rgb = function (args) {
 	return [r, g, b];
 };
 
-convert$2.rgb.hcg = function (rgb) {
+convert$1.rgb.hcg = function (rgb) {
 	const r = rgb[0] / 255;
 	const g = rgb[1] / 255;
 	const b = rgb[2] / 255;
@@ -15131,7 +10460,7 @@ convert$2.rgb.hcg = function (rgb) {
 	return [hue * 360, chroma * 100, grayscale * 100];
 };
 
-convert$2.hsl.hcg = function (hsl) {
+convert$1.hsl.hcg = function (hsl) {
 	const s = hsl[1] / 100;
 	const l = hsl[2] / 100;
 
@@ -15145,7 +10474,7 @@ convert$2.hsl.hcg = function (hsl) {
 	return [hsl[0], c * 100, f * 100];
 };
 
-convert$2.hsv.hcg = function (hsv) {
+convert$1.hsv.hcg = function (hsv) {
 	const s = hsv[1] / 100;
 	const v = hsv[2] / 100;
 
@@ -15159,7 +10488,7 @@ convert$2.hsv.hcg = function (hsv) {
 	return [hsv[0], c * 100, f * 100];
 };
 
-convert$2.hcg.rgb = function (hcg) {
+convert$1.hcg.rgb = function (hcg) {
 	const h = hcg[0] / 360;
 	const c = hcg[1] / 100;
 	const g = hcg[2] / 100;
@@ -15200,7 +10529,7 @@ convert$2.hcg.rgb = function (hcg) {
 	];
 };
 
-convert$2.hcg.hsv = function (hcg) {
+convert$1.hcg.hsv = function (hcg) {
 	const c = hcg[1] / 100;
 	const g = hcg[2] / 100;
 
@@ -15214,7 +10543,7 @@ convert$2.hcg.hsv = function (hcg) {
 	return [hcg[0], f * 100, v * 100];
 };
 
-convert$2.hcg.hsl = function (hcg) {
+convert$1.hcg.hsl = function (hcg) {
 	const c = hcg[1] / 100;
 	const g = hcg[2] / 100;
 
@@ -15231,14 +10560,14 @@ convert$2.hcg.hsl = function (hcg) {
 	return [hcg[0], s * 100, l * 100];
 };
 
-convert$2.hcg.hwb = function (hcg) {
+convert$1.hcg.hwb = function (hcg) {
 	const c = hcg[1] / 100;
 	const g = hcg[2] / 100;
 	const v = c + g * (1.0 - c);
 	return [hcg[0], (v - c) * 100, (1 - v) * 100];
 };
 
-convert$2.hwb.hcg = function (hwb) {
+convert$1.hwb.hcg = function (hwb) {
 	const w = hwb[1] / 100;
 	const b = hwb[2] / 100;
 	const v = 1 - b;
@@ -15252,37 +10581,37 @@ convert$2.hwb.hcg = function (hwb) {
 	return [hwb[0], c * 100, g * 100];
 };
 
-convert$2.apple.rgb = function (apple) {
+convert$1.apple.rgb = function (apple) {
 	return [(apple[0] / 65535) * 255, (apple[1] / 65535) * 255, (apple[2] / 65535) * 255];
 };
 
-convert$2.rgb.apple = function (rgb) {
+convert$1.rgb.apple = function (rgb) {
 	return [(rgb[0] / 255) * 65535, (rgb[1] / 255) * 65535, (rgb[2] / 255) * 65535];
 };
 
-convert$2.gray.rgb = function (args) {
+convert$1.gray.rgb = function (args) {
 	return [args[0] / 100 * 255, args[0] / 100 * 255, args[0] / 100 * 255];
 };
 
-convert$2.gray.hsl = function (args) {
+convert$1.gray.hsl = function (args) {
 	return [0, 0, args[0]];
 };
 
-convert$2.gray.hsv = convert$2.gray.hsl;
+convert$1.gray.hsv = convert$1.gray.hsl;
 
-convert$2.gray.hwb = function (gray) {
+convert$1.gray.hwb = function (gray) {
 	return [0, 100, gray[0]];
 };
 
-convert$2.gray.cmyk = function (gray) {
+convert$1.gray.cmyk = function (gray) {
 	return [0, 0, 0, gray[0]];
 };
 
-convert$2.gray.lab = function (gray) {
+convert$1.gray.lab = function (gray) {
 	return [gray[0], 0, 0];
 };
 
-convert$2.gray.hex = function (gray) {
+convert$1.gray.hex = function (gray) {
 	const val = Math.round(gray[0] / 100 * 255) & 0xFF;
 	const integer = (val << 16) + (val << 8) + val;
 
@@ -15290,10 +10619,12 @@ convert$2.gray.hex = function (gray) {
 	return '000000'.substring(string.length) + string;
 };
 
-convert$2.rgb.gray = function (rgb) {
+convert$1.rgb.gray = function (rgb) {
 	const val = (rgb[0] + rgb[1] + rgb[2]) / 3;
 	return [val / 255 * 100];
 };
+
+const conversions$1 = conversions$2;
 
 /*
 	This function routes a model to all other models.
@@ -15306,7 +10637,7 @@ convert$2.rgb.gray = function (rgb) {
 	conversions that are not possible simply are not included.
 */
 
-function buildGraph$1() {
+function buildGraph() {
 	const graph = {};
 	// https://jsperf.com/object-keys-vs-for-in-with-closure/3
 	const models = Object.keys(conversions$1);
@@ -15324,8 +10655,8 @@ function buildGraph$1() {
 }
 
 // https://en.wikipedia.org/wiki/Breadth-first_search
-function deriveBFS$1(fromModel) {
-	const graph = buildGraph$1();
+function deriveBFS(fromModel) {
+	const graph = buildGraph();
 	const queue = [fromModel]; // Unshift -> queue -> pop
 
 	graph[fromModel].distance = 0;
@@ -15349,20 +10680,20 @@ function deriveBFS$1(fromModel) {
 	return graph;
 }
 
-function link$1(from, to) {
+function link(from, to) {
 	return function (args) {
 		return to(from(args));
 	};
 }
 
-function wrapConversion$1(toModel, graph) {
+function wrapConversion(toModel, graph) {
 	const path = [graph[toModel].parent, toModel];
 	let fn = conversions$1[graph[toModel].parent][toModel];
 
 	let cur = graph[toModel].parent;
 	while (graph[cur].parent) {
 		path.unshift(graph[cur].parent);
-		fn = link$1(conversions$1[graph[cur].parent][cur], fn);
+		fn = link(conversions$1[graph[cur].parent][cur], fn);
 		cur = graph[cur].parent;
 	}
 
@@ -15371,7 +10702,7 @@ function wrapConversion$1(toModel, graph) {
 }
 
 var route$1 = function (fromModel) {
-	const graph = deriveBFS$1(fromModel);
+	const graph = deriveBFS(fromModel);
 	const conversion = {};
 
 	const models = Object.keys(graph);
@@ -15384,17 +10715,20 @@ var route$1 = function (fromModel) {
 			continue;
 		}
 
-		conversion[toModel] = wrapConversion$1(toModel, graph);
+		conversion[toModel] = wrapConversion(toModel, graph);
 	}
 
 	return conversion;
 };
 
-const convert$3 = {};
+const conversions = conversions$2;
+const route = route$1;
 
-const models$1 = Object.keys(conversions$1);
+const convert = {};
 
-function wrapRaw$1(fn) {
+const models = Object.keys(conversions);
+
+function wrapRaw(fn) {
 	const wrappedFn = function (...args) {
 		const arg0 = args[0];
 		if (arg0 === undefined || arg0 === null) {
@@ -15416,7 +10750,7 @@ function wrapRaw$1(fn) {
 	return wrappedFn;
 }
 
-function wrapRounded$1(fn) {
+function wrapRounded(fn) {
 	const wrappedFn = function (...args) {
 		const arg0 = args[0];
 
@@ -15450,26 +10784,26 @@ function wrapRounded$1(fn) {
 	return wrappedFn;
 }
 
-models$1.forEach(fromModel => {
-	convert$3[fromModel] = {};
+models.forEach(fromModel => {
+	convert[fromModel] = {};
 
-	Object.defineProperty(convert$3[fromModel], 'channels', {value: conversions$1[fromModel].channels});
-	Object.defineProperty(convert$3[fromModel], 'labels', {value: conversions$1[fromModel].labels});
+	Object.defineProperty(convert[fromModel], 'channels', {value: conversions[fromModel].channels});
+	Object.defineProperty(convert[fromModel], 'labels', {value: conversions[fromModel].labels});
 
-	const routes = route$1(fromModel);
+	const routes = route(fromModel);
 	const routeModels = Object.keys(routes);
 
 	routeModels.forEach(toModel => {
 		const fn = routes[toModel];
 
-		convert$3[fromModel][toModel] = wrapRounded$1(fn);
-		convert$3[fromModel][toModel].raw = wrapRaw$1(fn);
+		convert[fromModel][toModel] = wrapRounded(fn);
+		convert[fromModel][toModel].raw = wrapRaw(fn);
 	});
 });
 
-var colorConvert$1 = convert$3;
+var colorConvert = convert;
 
-var ansiStyles$1 = createCommonjsModule(function (module) {
+(function (module) {
 
 const wrapAnsi16 = (fn, offset) => (...args) => {
 	const code = fn(...args);
@@ -15508,16 +10842,16 @@ const setLazyProperty = (object, property, get) => {
 };
 
 /** @type {typeof import('color-convert')} */
-let colorConvert;
+let colorConvert$1;
 const makeDynamicStyles = (wrap, targetSpace, identity, isBackground) => {
-	if (colorConvert === undefined) {
-		colorConvert = colorConvert$1;
+	if (colorConvert$1 === undefined) {
+		colorConvert$1 = colorConvert;
 	}
 
 	const offset = isBackground ? 10 : 0;
 	const styles = {};
 
-	for (const [sourceSpace, suite] of Object.entries(colorConvert)) {
+	for (const [sourceSpace, suite] of Object.entries(colorConvert$1)) {
 		const name = sourceSpace === 'ansi16' ? 'ansi' : sourceSpace;
 		if (sourceSpace === targetSpace) {
 			styles[name] = wrap(identity, offset);
@@ -15632,14 +10966,18 @@ Object.defineProperty(module, 'exports', {
 	enumerable: true,
 	get: assembleStyles
 });
-});
+}(ansiStyles$1));
 
-const ESCAPES$1 = [
+const isFullwidthCodePoint = isFullwidthCodePoint$3.exports;
+const astralRegex = astralRegex_1;
+const ansiStyles = ansiStyles$1.exports;
+
+const ESCAPES = [
 	'\u001B',
 	'\u009B'
 ];
 
-const wrapAnsi = code => `${ESCAPES$1[0]}[${code}m`;
+const wrapAnsi = code => `${ESCAPES[0]}[${code}m`;
 
 const checkAnsi = (ansiCodes, isEscapes, endAnsiCode) => {
 	let output = [];
@@ -15651,7 +10989,7 @@ const checkAnsi = (ansiCodes, isEscapes, endAnsiCode) => {
 			ansiCode = ansiCode.split(';')[0][0] + '0';
 		}
 
-		const item = ansiStyles$1.codes.get(Number.parseInt(ansiCode, 10));
+		const item = ansiStyles.codes.get(Number.parseInt(ansiCode, 10));
 		if (item) {
 			const indexEscape = ansiCodes.indexOf(item.toString());
 			if (indexEscape === -1) {
@@ -15671,7 +11009,7 @@ const checkAnsi = (ansiCodes, isEscapes, endAnsiCode) => {
 		output = output.filter((element, index) => output.indexOf(element) === index);
 
 		if (endAnsiCode !== undefined) {
-			const fistEscapeCode = wrapAnsi(ansiStyles$1.codes.get(Number.parseInt(endAnsiCode, 10)));
+			const fistEscapeCode = wrapAnsi(ansiStyles.codes.get(Number.parseInt(endAnsiCode, 10)));
 			output = output.reduce((current, next) => next === fistEscapeCode ? [next, ...current] : [...current, next], []);
 		}
 	}
@@ -15692,7 +11030,7 @@ var sliceAnsi = (string, begin, end) => {
 	for (const [index, character] of characters.entries()) {
 		let leftEscape = false;
 
-		if (ESCAPES$1.includes(character)) {
+		if (ESCAPES.includes(character)) {
 			const code = /\d[^m]*/.exec(string.slice(index, index + 18));
 			ansiCode = code && code.length > 0 ? code[0] : undefined;
 
@@ -15712,7 +11050,7 @@ var sliceAnsi = (string, begin, end) => {
 			visible++;
 		}
 
-		if (!astralRegex_1({exact: true}).test(character) && isFullwidthCodePoint_1(character.codePointAt())) {
+		if (!astralRegex({exact: true}).test(character) && isFullwidthCodePoint(character.codePointAt())) {
 			visible++;
 
 			if (typeof end !== 'number') {
@@ -15733,19 +11071,350 @@ var sliceAnsi = (string, begin, end) => {
 	return output;
 };
 
-var wrapString_1 = createCommonjsModule(function (module, exports) {
+var getBorderCharacters$1 = {};
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
+/* eslint-disable sort-keys-fix/sort-keys-fix */
+Object.defineProperty(getBorderCharacters$1, "__esModule", { value: true });
+getBorderCharacters$1.getBorderCharacters = void 0;
+const getBorderCharacters = (name) => {
+    if (name === 'honeywell') {
+        return {
+            topBody: '═',
+            topJoin: '╤',
+            topLeft: '╔',
+            topRight: '╗',
+            bottomBody: '═',
+            bottomJoin: '╧',
+            bottomLeft: '╚',
+            bottomRight: '╝',
+            bodyLeft: '║',
+            bodyRight: '║',
+            bodyJoin: '│',
+            headerJoin: '┬',
+            joinBody: '─',
+            joinLeft: '╟',
+            joinRight: '╢',
+            joinJoin: '┼',
+            joinMiddleDown: '┬',
+            joinMiddleUp: '┴',
+            joinMiddleLeft: '┤',
+            joinMiddleRight: '├',
+        };
+    }
+    if (name === 'norc') {
+        return {
+            topBody: '─',
+            topJoin: '┬',
+            topLeft: '┌',
+            topRight: '┐',
+            bottomBody: '─',
+            bottomJoin: '┴',
+            bottomLeft: '└',
+            bottomRight: '┘',
+            bodyLeft: '│',
+            bodyRight: '│',
+            bodyJoin: '│',
+            headerJoin: '┬',
+            joinBody: '─',
+            joinLeft: '├',
+            joinRight: '┤',
+            joinJoin: '┼',
+            joinMiddleDown: '┬',
+            joinMiddleUp: '┴',
+            joinMiddleLeft: '┤',
+            joinMiddleRight: '├',
+        };
+    }
+    if (name === 'ramac') {
+        return {
+            topBody: '-',
+            topJoin: '+',
+            topLeft: '+',
+            topRight: '+',
+            bottomBody: '-',
+            bottomJoin: '+',
+            bottomLeft: '+',
+            bottomRight: '+',
+            bodyLeft: '|',
+            bodyRight: '|',
+            bodyJoin: '|',
+            headerJoin: '+',
+            joinBody: '-',
+            joinLeft: '|',
+            joinRight: '|',
+            joinJoin: '|',
+            joinMiddleDown: '+',
+            joinMiddleUp: '+',
+            joinMiddleLeft: '+',
+            joinMiddleRight: '+',
+        };
+    }
+    if (name === 'void') {
+        return {
+            topBody: '',
+            topJoin: '',
+            topLeft: '',
+            topRight: '',
+            bottomBody: '',
+            bottomJoin: '',
+            bottomLeft: '',
+            bottomRight: '',
+            bodyLeft: '',
+            bodyRight: '',
+            bodyJoin: '',
+            headerJoin: '',
+            joinBody: '',
+            joinLeft: '',
+            joinRight: '',
+            joinJoin: '',
+            joinMiddleDown: '',
+            joinMiddleUp: '',
+            joinMiddleLeft: '',
+            joinMiddleRight: '',
+        };
+    }
+    throw new Error('Unknown border template "' + name + '".');
+};
+getBorderCharacters$1.getBorderCharacters = getBorderCharacters;
 
-var _sliceAnsi = _interopRequireDefault(sliceAnsi);
+(function (exports) {
+var __importDefault = (commonjsGlobal$1 && commonjsGlobal$1.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.isCellInRange = exports.areCellEqual = exports.calculateRangeCoordinate = exports.findOriginalRowIndex = exports.flatten = exports.extractTruncates = exports.sumArray = exports.sequence = exports.distributeUnevenly = exports.countSpaceSequence = exports.groupBySizes = exports.makeBorderConfig = exports.splitAnsi = exports.normalizeString = void 0;
+const slice_ansi_1 = __importDefault(sliceAnsi);
+const string_width_1 = __importDefault(stringWidth$1.exports);
+const strip_ansi_1 = __importDefault(stripAnsi$1);
+const getBorderCharacters_1 = getBorderCharacters$1;
+/**
+ * Converts Windows-style newline to Unix-style
+ *
+ * @internal
+ */
+const normalizeString = (input) => {
+    return input.replace(/\r\n/g, '\n');
+};
+exports.normalizeString = normalizeString;
+/**
+ * Splits ansi string by newlines
+ *
+ * @internal
+ */
+const splitAnsi = (input) => {
+    const lengths = (0, strip_ansi_1.default)(input).split('\n').map(string_width_1.default);
+    const result = [];
+    let startIndex = 0;
+    lengths.forEach((length) => {
+        result.push(length === 0 ? '' : (0, slice_ansi_1.default)(input, startIndex, startIndex + length));
+        // Plus 1 for the newline character itself
+        startIndex += length + 1;
+    });
+    return result;
+};
+exports.splitAnsi = splitAnsi;
+/**
+ * Merges user provided border characters with the default border ("honeywell") characters.
+ *
+ * @internal
+ */
+const makeBorderConfig = (border) => {
+    return {
+        ...(0, getBorderCharacters_1.getBorderCharacters)('honeywell'),
+        ...border,
+    };
+};
+exports.makeBorderConfig = makeBorderConfig;
+/**
+ * Groups the array into sub-arrays by sizes.
+ *
+ * @internal
+ * @example
+ * groupBySizes(['a', 'b', 'c', 'd', 'e'], [2, 1, 2]) = [ ['a', 'b'], ['c'], ['d', 'e'] ]
+ */
+const groupBySizes = (array, sizes) => {
+    let startIndex = 0;
+    return sizes.map((size) => {
+        const group = array.slice(startIndex, startIndex + size);
+        startIndex += size;
+        return group;
+    });
+};
+exports.groupBySizes = groupBySizes;
+/**
+ * Counts the number of continuous spaces in a string
+ *
+ * @internal
+ * @example
+ * countGroupSpaces('a  bc  de f') = 3
+ */
+const countSpaceSequence = (input) => {
+    var _a, _b;
+    return (_b = (_a = input.match(/\s+/g)) === null || _a === void 0 ? void 0 : _a.length) !== null && _b !== void 0 ? _b : 0;
+};
+exports.countSpaceSequence = countSpaceSequence;
+/**
+ * Creates the non-increasing number array given sum and length
+ * whose the difference between maximum and minimum is not greater than 1
+ *
+ * @internal
+ * @example
+ * distributeUnevenly(6, 3) = [2, 2, 2]
+ * distributeUnevenly(8, 3) = [3, 3, 2]
+ */
+const distributeUnevenly = (sum, length) => {
+    const result = Array.from({ length }).fill(Math.floor(sum / length));
+    return result.map((element, index) => {
+        return element + (index < sum % length ? 1 : 0);
+    });
+};
+exports.distributeUnevenly = distributeUnevenly;
+const sequence = (start, end) => {
+    return Array.from({ length: end - start + 1 }, (_, index) => {
+        return index + start;
+    });
+};
+exports.sequence = sequence;
+const sumArray = (array) => {
+    return array.reduce((accumulator, element) => {
+        return accumulator + element;
+    }, 0);
+};
+exports.sumArray = sumArray;
+const extractTruncates = (config) => {
+    return config.columns.map(({ truncate }) => {
+        return truncate;
+    });
+};
+exports.extractTruncates = extractTruncates;
+const flatten = (array) => {
+    return [].concat(...array);
+};
+exports.flatten = flatten;
+const findOriginalRowIndex = (mappedRowHeights, mappedRowIndex) => {
+    const rowIndexMapping = (0, exports.flatten)(mappedRowHeights.map((height, index) => {
+        return Array.from({ length: height }, () => {
+            return index;
+        });
+    }));
+    return rowIndexMapping[mappedRowIndex];
+};
+exports.findOriginalRowIndex = findOriginalRowIndex;
+const calculateRangeCoordinate = (spanningCellConfig) => {
+    const { row, col, colSpan = 1, rowSpan = 1 } = spanningCellConfig;
+    return { bottomRight: { col: col + colSpan - 1,
+            row: row + rowSpan - 1 },
+        topLeft: { col,
+            row } };
+};
+exports.calculateRangeCoordinate = calculateRangeCoordinate;
+const areCellEqual = (cell1, cell2) => {
+    return cell1.row === cell2.row && cell1.col === cell2.col;
+};
+exports.areCellEqual = areCellEqual;
+const isCellInRange = (cell, { topLeft, bottomRight }) => {
+    return (topLeft.row <= cell.row &&
+        cell.row <= bottomRight.row &&
+        topLeft.col <= cell.col &&
+        cell.col <= bottomRight.col);
+};
+exports.isCellInRange = isCellInRange;
 
-var _stringWidth = _interopRequireDefault(stringWidth_1);
+}(utils));
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+var __importDefault$3 = (commonjsGlobal$1 && commonjsGlobal$1.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(alignString$1, "__esModule", { value: true });
+alignString$1.alignString = void 0;
+const string_width_1$1 = __importDefault$3(stringWidth$1.exports);
+const utils_1$e = utils;
+const alignLeft = (subject, width) => {
+    return subject + ' '.repeat(width);
+};
+const alignRight = (subject, width) => {
+    return ' '.repeat(width) + subject;
+};
+const alignCenter = (subject, width) => {
+    return ' '.repeat(Math.floor(width / 2)) + subject + ' '.repeat(Math.ceil(width / 2));
+};
+const alignJustify = (subject, width) => {
+    const spaceSequenceCount = (0, utils_1$e.countSpaceSequence)(subject);
+    if (spaceSequenceCount === 0) {
+        return alignLeft(subject, width);
+    }
+    const addingSpaces = (0, utils_1$e.distributeUnevenly)(width, spaceSequenceCount);
+    if (Math.max(...addingSpaces) > 3) {
+        return alignLeft(subject, width);
+    }
+    let spaceSequenceIndex = 0;
+    return subject.replace(/\s+/g, (groupSpace) => {
+        return groupSpace + ' '.repeat(addingSpaces[spaceSequenceIndex++]);
+    });
+};
+/**
+ * Pads a string to the left and/or right to position the subject
+ * text in a desired alignment within a container.
+ */
+const alignString = (subject, containerWidth, alignment) => {
+    const subjectWidth = (0, string_width_1$1.default)(subject);
+    if (subjectWidth === containerWidth) {
+        return subject;
+    }
+    if (subjectWidth > containerWidth) {
+        throw new Error('Subject parameter value width cannot be greater than the container width.');
+    }
+    if (subjectWidth === 0) {
+        return ' '.repeat(containerWidth);
+    }
+    const availableWidth = containerWidth - subjectWidth;
+    if (alignment === 'left') {
+        return alignLeft(subject, availableWidth);
+    }
+    if (alignment === 'right') {
+        return alignRight(subject, availableWidth);
+    }
+    if (alignment === 'justify') {
+        return alignJustify(subject, availableWidth);
+    }
+    return alignCenter(subject, availableWidth);
+};
+alignString$1.alignString = alignString;
 
+Object.defineProperty(alignTableData$1, "__esModule", { value: true });
+alignTableData$1.alignTableData = void 0;
+const alignString_1$1 = alignString$1;
+const alignTableData = (rows, config) => {
+    return rows.map((row, rowIndex) => {
+        return row.map((cell, cellIndex) => {
+            var _a;
+            const { width, alignment } = config.columns[cellIndex];
+            const containingRange = (_a = config.spanningCellManager) === null || _a === void 0 ? void 0 : _a.getContainingRange({ col: cellIndex,
+                row: rowIndex }, { mapped: true });
+            if (containingRange) {
+                return cell;
+            }
+            return (0, alignString_1$1.alignString)(cell, width, alignment);
+        });
+    });
+};
+alignTableData$1.alignTableData = alignTableData;
+
+var calculateRowHeights$1 = {};
+
+var calculateCellHeight$1 = {};
+
+var wrapCell$1 = {};
+
+var wrapString$1 = {};
+
+var __importDefault$2 = (commonjsGlobal$1 && commonjsGlobal$1.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(wrapString$1, "__esModule", { value: true });
+wrapString$1.wrapString = void 0;
+const slice_ansi_1$1 = __importDefault$2(sliceAnsi);
+const string_width_1 = __importDefault$2(stringWidth$1.exports);
 /**
  * Creates an array of strings split into groups the length of size.
  * This function works with strings that contain ASCII characters.
@@ -15753,1501 +11422,585 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * wrapText is different from would-be "chunk" implementation
  * in that whitespace characters that occur on a chunk size limit are trimmed.
  *
- * @param {string} subject
- * @param {number} size
- * @returns {Array}
  */
 const wrapString = (subject, size) => {
-  let subjectSlice;
-  subjectSlice = subject;
-  const chunks = [];
-
-  do {
-    chunks.push((0, _sliceAnsi.default)(subjectSlice, 0, size));
-    subjectSlice = (0, _sliceAnsi.default)(subjectSlice, size).trim();
-  } while ((0, _stringWidth.default)(subjectSlice));
-
-  return chunks;
+    let subjectSlice = subject;
+    const chunks = [];
+    do {
+        chunks.push((0, slice_ansi_1$1.default)(subjectSlice, 0, size));
+        subjectSlice = (0, slice_ansi_1$1.default)(subjectSlice, size).trim();
+    } while ((0, string_width_1.default)(subjectSlice));
+    return chunks;
 };
+wrapString$1.wrapString = wrapString;
 
-var _default = wrapString;
-exports.default = _default;
+var wrapWord$1 = {};
 
-});
-
-var wrapWord_1 = createCommonjsModule(function (module, exports) {
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _sliceAnsi = _interopRequireDefault(sliceAnsi);
-
-var _stringWidth = _interopRequireDefault(stringWidth_1);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/**
- * @param {string} input
- * @param {number} size
- * @returns {Array}
- */
+var __importDefault$1 = (commonjsGlobal$1 && commonjsGlobal$1.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(wrapWord$1, "__esModule", { value: true });
+wrapWord$1.wrapWord = void 0;
+const slice_ansi_1 = __importDefault$1(sliceAnsi);
+const strip_ansi_1 = __importDefault$1(stripAnsi$1);
+const calculateStringLengths = (input, size) => {
+    let subject = (0, strip_ansi_1.default)(input);
+    const chunks = [];
+    // https://regex101.com/r/gY5kZ1/1
+    const re = new RegExp('(^.{1,' + String(Math.max(size, 1)) + '}(\\s+|$))|(^.{1,' + String(Math.max(size - 1, 1)) + '}(\\\\|/|_|\\.|,|;|-))');
+    do {
+        let chunk;
+        const match = re.exec(subject);
+        if (match) {
+            chunk = match[0];
+            subject = subject.slice(chunk.length);
+            const trimmedLength = chunk.trim().length;
+            const offset = chunk.length - trimmedLength;
+            chunks.push([trimmedLength, offset]);
+        }
+        else {
+            chunk = subject.slice(0, size);
+            subject = subject.slice(size);
+            chunks.push([chunk.length, 0]);
+        }
+    } while (subject.length);
+    return chunks;
+};
 const wrapWord = (input, size) => {
-  let subject;
-  subject = input;
-  const chunks = []; // https://regex101.com/r/gY5kZ1/1
-
-  const re = new RegExp('(^.{1,' + size + '}(\\s+|$))|(^.{1,' + (size - 1) + '}(\\\\|/|_|\\.|,|;|-))');
-
-  do {
-    let chunk;
-    chunk = subject.match(re);
-
-    if (chunk) {
-      chunk = chunk[0];
-      subject = (0, _sliceAnsi.default)(subject, (0, _stringWidth.default)(chunk));
-      chunk = chunk.trim();
-    } else {
-      chunk = (0, _sliceAnsi.default)(subject, 0, size);
-      subject = (0, _sliceAnsi.default)(subject, size);
-    }
-
-    chunks.push(chunk);
-  } while ((0, _stringWidth.default)(subject));
-
-  return chunks;
+    const result = [];
+    let startIndex = 0;
+    calculateStringLengths(input, size).forEach(([length, offset]) => {
+        result.push((0, slice_ansi_1.default)(input, startIndex, startIndex + length));
+        startIndex += length + offset;
+    });
+    return result;
 };
+wrapWord$1.wrapWord = wrapWord;
 
-var _default = wrapWord;
-exports.default = _default;
-
-});
-
-var wrapCell_1 = createCommonjsModule(function (module, exports) {
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _wrapString = _interopRequireDefault(wrapString_1);
-
-var _wrapWord = _interopRequireDefault(wrapWord_1);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
+Object.defineProperty(wrapCell$1, "__esModule", { value: true });
+wrapCell$1.wrapCell = void 0;
+const utils_1$d = utils;
+const wrapString_1 = wrapString$1;
+const wrapWord_1 = wrapWord$1;
 /**
  * Wrap a single cell value into a list of lines
  *
  * Always wraps on newlines, for the remainder uses either word or string wrapping
  * depending on user configuration.
  *
- * @param {string} cellValue
- * @param {number} columnWidth
- * @param {boolean} useWrapWord
- * @returns {Array}
  */
-const wrapCell = (cellValue, columnWidth, useWrapWord) => {
-  // First split on literal newlines
-  const cellLines = cellValue.split('\n'); // Then iterate over the list and word-wrap every remaining line if necessary.
-
-  for (let lineNr = 0; lineNr < cellLines.length;) {
-    let lineChunks;
-
-    if (useWrapWord) {
-      lineChunks = (0, _wrapWord.default)(cellLines[lineNr], columnWidth);
-    } else {
-      lineChunks = (0, _wrapString.default)(cellLines[lineNr], columnWidth);
-    } // Replace our original array element with whatever the wrapping returned
-
-
-    cellLines.splice(lineNr, 1, ...lineChunks);
-    lineNr += lineChunks.length;
-  }
-
-  return cellLines;
+const wrapCell = (cellValue, cellWidth, useWrapWord) => {
+    // First split on literal newlines
+    const cellLines = (0, utils_1$d.splitAnsi)(cellValue);
+    // Then iterate over the list and word-wrap every remaining line if necessary.
+    for (let lineNr = 0; lineNr < cellLines.length;) {
+        let lineChunks;
+        if (useWrapWord) {
+            lineChunks = (0, wrapWord_1.wrapWord)(cellLines[lineNr], cellWidth);
+        }
+        else {
+            lineChunks = (0, wrapString_1.wrapString)(cellLines[lineNr], cellWidth);
+        }
+        // Replace our original array element with whatever the wrapping returned
+        cellLines.splice(lineNr, 1, ...lineChunks);
+        lineNr += lineChunks.length;
+    }
+    return cellLines;
 };
+wrapCell$1.wrapCell = wrapCell;
 
-var _default = wrapCell;
-exports.default = _default;
-
-});
-
-var calculateCellHeight_1 = createCommonjsModule(function (module, exports) {
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _isString2 = _interopRequireDefault(isString_1);
-
-var _wrapCell = _interopRequireDefault(wrapCell_1);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
+Object.defineProperty(calculateCellHeight$1, "__esModule", { value: true });
+calculateCellHeight$1.calculateCellHeight = void 0;
+const wrapCell_1$1 = wrapCell$1;
 /**
- * @param {string} value
- * @param {number} columnWidth
- * @param {boolean} useWrapWord
- * @returns {number}
+ * Calculates height of cell content in regard to its width and word wrapping.
  */
 const calculateCellHeight = (value, columnWidth, useWrapWord = false) => {
-  if (!(0, _isString2.default)(value)) {
-    throw new TypeError('Value must be a string.');
-  }
-
-  if (!Number.isInteger(columnWidth)) {
-    throw new TypeError('Column width must be an integer.');
-  }
-
-  if (columnWidth < 1) {
-    throw new Error('Column width must be greater than 0.');
-  }
-
-  return (0, _wrapCell.default)(value, columnWidth, useWrapWord).length;
+    return (0, wrapCell_1$1.wrapCell)(value, columnWidth, useWrapWord).length;
 };
+calculateCellHeight$1.calculateCellHeight = calculateCellHeight;
 
-var _default = calculateCellHeight;
-exports.default = _default;
-
-});
-
-var calculateRowHeightIndex_1 = createCommonjsModule(function (module, exports) {
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _max2 = _interopRequireDefault(max_1);
-
-var _isBoolean2 = _interopRequireDefault(isBoolean_1);
-
-var _isNumber2 = _interopRequireDefault(isNumber_1);
-
-var _calculateCellHeight = _interopRequireDefault(calculateCellHeight_1);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
+Object.defineProperty(calculateRowHeights$1, "__esModule", { value: true });
+calculateRowHeights$1.calculateRowHeights = void 0;
+const calculateCellHeight_1 = calculateCellHeight$1;
+const utils_1$c = utils;
 /**
- * Calculates the vertical row span index.
- *
- * @param {Array[]} rows
- * @param {object} config
- * @returns {number[]}
+ * Produces an array of values that describe the largest value length (height) in every row.
  */
-const calculateRowHeightIndex = (rows, config) => {
-  const tableWidth = rows[0].length;
-  const rowSpanIndex = [];
-  rows.forEach(cells => {
-    const cellHeightIndex = new Array(tableWidth).fill(1);
-    cells.forEach((value, index1) => {
-      if (!(0, _isNumber2.default)(config.columns[index1].width)) {
-        throw new TypeError('column[index].width must be a number.');
-      }
+const calculateRowHeights = (rows, config) => {
+    const rowHeights = [];
+    for (const [rowIndex, row] of rows.entries()) {
+        let rowHeight = 1;
+        row.forEach((cell, cellIndex) => {
+            var _a;
+            const containingRange = (_a = config.spanningCellManager) === null || _a === void 0 ? void 0 : _a.getContainingRange({ col: cellIndex,
+                row: rowIndex });
+            if (!containingRange) {
+                const cellHeight = (0, calculateCellHeight_1.calculateCellHeight)(cell, config.columns[cellIndex].width, config.columns[cellIndex].wrapWord);
+                rowHeight = Math.max(rowHeight, cellHeight);
+                return;
+            }
+            const { topLeft, bottomRight, height } = containingRange;
+            // bottom-most cell of a range needs to contain all remain lines of spanning cells
+            if (rowIndex === bottomRight.row) {
+                const totalOccupiedSpanningCellHeight = (0, utils_1$c.sumArray)(rowHeights.slice(topLeft.row));
+                const totalHorizontalBorderHeight = bottomRight.row - topLeft.row;
+                const totalHiddenHorizontalBorderHeight = (0, utils_1$c.sequence)(topLeft.row + 1, bottomRight.row).filter((horizontalBorderIndex) => {
+                    var _a;
+                    /* istanbul ignore next */
+                    return !((_a = config.drawHorizontalLine) === null || _a === void 0 ? void 0 : _a.call(config, horizontalBorderIndex, rows.length));
+                }).length;
+                const cellHeight = height - totalOccupiedSpanningCellHeight - totalHorizontalBorderHeight + totalHiddenHorizontalBorderHeight;
+                rowHeight = Math.max(rowHeight, cellHeight);
+            }
+            // otherwise, just depend on other sibling cell heights in the row
+        });
+        rowHeights.push(rowHeight);
+    }
+    return rowHeights;
+};
+calculateRowHeights$1.calculateRowHeights = calculateRowHeights;
 
-      if (!(0, _isBoolean2.default)(config.columns[index1].wrapWord)) {
-        throw new TypeError('column[index].wrapWord must be a boolean.');
-      }
+var drawBorder = {};
 
-      cellHeightIndex[index1] = (0, _calculateCellHeight.default)(value, config.columns[index1].width, config.columns[index1].wrapWord);
+var drawContent$1 = {};
+
+Object.defineProperty(drawContent$1, "__esModule", { value: true });
+drawContent$1.drawContent = void 0;
+const drawContent = (parameters) => {
+    const { contents, separatorGetter, drawSeparator, spanningCellManager, rowIndex, elementType } = parameters;
+    const contentSize = contents.length;
+    const result = [];
+    if (drawSeparator(0, contentSize)) {
+        result.push(separatorGetter(0, contentSize));
+    }
+    contents.forEach((content, contentIndex) => {
+        if (!elementType || elementType === 'border' || elementType === 'row') {
+            result.push(content);
+        }
+        if (elementType === 'cell' && rowIndex === undefined) {
+            result.push(content);
+        }
+        if (elementType === 'cell' && rowIndex !== undefined) {
+            /* istanbul ignore next */
+            const containingRange = spanningCellManager === null || spanningCellManager === void 0 ? void 0 : spanningCellManager.getContainingRange({ col: contentIndex,
+                row: rowIndex });
+            // when drawing content row, just add a cell when it is a normal cell
+            // or belongs to first column of spanning cell
+            if (!containingRange || contentIndex === containingRange.topLeft.col) {
+                result.push(content);
+            }
+        }
+        // Only append the middle separator if the content is not the last
+        if (contentIndex + 1 < contentSize && drawSeparator(contentIndex + 1, contentSize)) {
+            const separator = separatorGetter(contentIndex + 1, contentSize);
+            if (elementType === 'cell' && rowIndex !== undefined) {
+                const currentCell = { col: contentIndex + 1,
+                    row: rowIndex };
+                /* istanbul ignore next */
+                const containingRange = spanningCellManager === null || spanningCellManager === void 0 ? void 0 : spanningCellManager.getContainingRange(currentCell);
+                if (!containingRange || containingRange.topLeft.col === currentCell.col) {
+                    result.push(separator);
+                }
+            }
+            else {
+                result.push(separator);
+            }
+        }
     });
-    rowSpanIndex.push((0, _max2.default)(cellHeightIndex));
-  });
-  return rowSpanIndex;
+    if (drawSeparator(contentSize, contentSize)) {
+        result.push(separatorGetter(contentSize, contentSize));
+    }
+    return result.join('');
 };
+drawContent$1.drawContent = drawContent;
 
-var _default = calculateRowHeightIndex;
-exports.default = _default;
-
-});
-
-var drawBorder_1 = createCommonjsModule(function (module, exports) {
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.drawBorderTop = exports.drawBorderJoin = exports.drawBorderBottom = exports.drawBorder = void 0;
-
-/**
- * @typedef drawBorder~parts
- * @property {string} left
- * @property {string} right
- * @property {string} body
- * @property {string} join
- */
-
-/**
- * @param {number[]} columnSizeIndex
- * @param {drawBorder~parts} parts
- * @returns {string}
- */
-const drawBorder = (columnSizeIndex, parts) => {
-  const columns = columnSizeIndex.map(size => {
-    return parts.body.repeat(size);
-  }).join(parts.join);
-  return parts.left + columns + parts.right + '\n';
+(function (exports) {
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.createTableBorderGetter = exports.drawBorderBottom = exports.drawBorderJoin = exports.drawBorderTop = exports.drawBorder = exports.createSeparatorGetter = exports.drawBorderSegments = void 0;
+const drawContent_1 = drawContent$1;
+const drawBorderSegments = (columnWidths, parameters) => {
+    const { separator, horizontalBorderIndex, spanningCellManager } = parameters;
+    return columnWidths.map((columnWidth, columnIndex) => {
+        const normalSegment = separator.body.repeat(columnWidth);
+        if (horizontalBorderIndex === undefined) {
+            return normalSegment;
+        }
+        /* istanbul ignore next */
+        const range = spanningCellManager === null || spanningCellManager === void 0 ? void 0 : spanningCellManager.getContainingRange({ col: columnIndex,
+            row: horizontalBorderIndex });
+        if (!range) {
+            return normalSegment;
+        }
+        const { topLeft } = range;
+        // draw border segments as usual for top border of spanning cell
+        if (horizontalBorderIndex === topLeft.row) {
+            return normalSegment;
+        }
+        // if for first column/row of spanning cell, just skip
+        if (columnIndex !== topLeft.col) {
+            return '';
+        }
+        return range.extractBorderContent(horizontalBorderIndex);
+    });
 };
-/**
- * @typedef drawBorderTop~parts
- * @property {string} topLeft
- * @property {string} topRight
- * @property {string} topBody
- * @property {string} topJoin
- */
-
-/**
- * @param {number[]} columnSizeIndex
- * @param {drawBorderTop~parts} parts
- * @returns {string}
- */
-
-
+exports.drawBorderSegments = drawBorderSegments;
+const createSeparatorGetter = (dependencies) => {
+    const { separator, spanningCellManager, horizontalBorderIndex, rowCount } = dependencies;
+    // eslint-disable-next-line complexity
+    return (verticalBorderIndex, columnCount) => {
+        const inSameRange = spanningCellManager === null || spanningCellManager === void 0 ? void 0 : spanningCellManager.inSameRange;
+        if (horizontalBorderIndex !== undefined && inSameRange) {
+            const topCell = { col: verticalBorderIndex,
+                row: horizontalBorderIndex - 1 };
+            const leftCell = { col: verticalBorderIndex - 1,
+                row: horizontalBorderIndex };
+            const oppositeCell = { col: verticalBorderIndex - 1,
+                row: horizontalBorderIndex - 1 };
+            const currentCell = { col: verticalBorderIndex,
+                row: horizontalBorderIndex };
+            const pairs = [
+                [oppositeCell, topCell],
+                [topCell, currentCell],
+                [currentCell, leftCell],
+                [leftCell, oppositeCell],
+            ];
+            // left side of horizontal border
+            if (verticalBorderIndex === 0) {
+                if (inSameRange(currentCell, topCell) && separator.bodyJoinOuter) {
+                    return separator.bodyJoinOuter;
+                }
+                return separator.left;
+            }
+            // right side of horizontal border
+            if (verticalBorderIndex === columnCount) {
+                if (inSameRange(oppositeCell, leftCell) && separator.bodyJoinOuter) {
+                    return separator.bodyJoinOuter;
+                }
+                return separator.right;
+            }
+            // top horizontal border
+            if (horizontalBorderIndex === 0) {
+                if (inSameRange(currentCell, leftCell)) {
+                    return separator.body;
+                }
+                return separator.join;
+            }
+            // bottom horizontal border
+            if (horizontalBorderIndex === rowCount) {
+                if (inSameRange(topCell, oppositeCell)) {
+                    return separator.body;
+                }
+                return separator.join;
+            }
+            const sameRangeCount = pairs.map((pair) => {
+                return inSameRange(...pair);
+            }).filter(Boolean).length;
+            // four cells are belongs to different spanning cells
+            if (sameRangeCount === 0) {
+                return separator.join;
+            }
+            // belong to one spanning cell
+            if (sameRangeCount === 4) {
+                return '';
+            }
+            // belongs to two spanning cell
+            if (sameRangeCount === 2) {
+                if (inSameRange(...pairs[1]) && inSameRange(...pairs[3]) && separator.bodyJoinInner) {
+                    return separator.bodyJoinInner;
+                }
+                return separator.body;
+            }
+            /* istanbul ignore next */
+            if (sameRangeCount === 1) {
+                if (!separator.joinRight || !separator.joinLeft || !separator.joinUp || !separator.joinDown) {
+                    throw new Error(`Can not get border separator for position [${horizontalBorderIndex}, ${verticalBorderIndex}]`);
+                }
+                if (inSameRange(...pairs[0])) {
+                    return separator.joinDown;
+                }
+                if (inSameRange(...pairs[1])) {
+                    return separator.joinLeft;
+                }
+                if (inSameRange(...pairs[2])) {
+                    return separator.joinUp;
+                }
+                return separator.joinRight;
+            }
+            /* istanbul ignore next */
+            throw new Error('Invalid case');
+        }
+        if (verticalBorderIndex === 0) {
+            return separator.left;
+        }
+        if (verticalBorderIndex === columnCount) {
+            return separator.right;
+        }
+        return separator.join;
+    };
+};
+exports.createSeparatorGetter = createSeparatorGetter;
+const drawBorder = (columnWidths, parameters) => {
+    const borderSegments = (0, exports.drawBorderSegments)(columnWidths, parameters);
+    const { drawVerticalLine, horizontalBorderIndex, spanningCellManager } = parameters;
+    return (0, drawContent_1.drawContent)({
+        contents: borderSegments,
+        drawSeparator: drawVerticalLine,
+        elementType: 'border',
+        rowIndex: horizontalBorderIndex,
+        separatorGetter: (0, exports.createSeparatorGetter)(parameters),
+        spanningCellManager,
+    }) + '\n';
+};
 exports.drawBorder = drawBorder;
-
-const drawBorderTop = (columnSizeIndex, parts) => {
-  const border = drawBorder(columnSizeIndex, {
-    body: parts.topBody,
-    join: parts.topJoin,
-    left: parts.topLeft,
-    right: parts.topRight
-  });
-
-  if (border === '\n') {
-    return '';
-  }
-
-  return border;
+const drawBorderTop = (columnWidths, parameters) => {
+    const { border } = parameters;
+    const result = (0, exports.drawBorder)(columnWidths, {
+        ...parameters,
+        separator: {
+            body: border.topBody,
+            join: border.topJoin,
+            left: border.topLeft,
+            right: border.topRight,
+        },
+    });
+    if (result === '\n') {
+        return '';
+    }
+    return result;
 };
-/**
- * @typedef drawBorderJoin~parts
- * @property {string} joinLeft
- * @property {string} joinRight
- * @property {string} joinBody
- * @property {string} joinJoin
- */
-
-/**
- * @param {number[]} columnSizeIndex
- * @param {drawBorderJoin~parts} parts
- * @returns {string}
- */
-
-
 exports.drawBorderTop = drawBorderTop;
-
-const drawBorderJoin = (columnSizeIndex, parts) => {
-  return drawBorder(columnSizeIndex, {
-    body: parts.joinBody,
-    join: parts.joinJoin,
-    left: parts.joinLeft,
-    right: parts.joinRight
-  });
+const drawBorderJoin = (columnWidths, parameters) => {
+    const { border } = parameters;
+    return (0, exports.drawBorder)(columnWidths, {
+        ...parameters,
+        separator: {
+            body: border.joinBody,
+            bodyJoinInner: border.bodyJoin,
+            bodyJoinOuter: border.bodyLeft,
+            join: border.joinJoin,
+            joinDown: border.joinMiddleDown,
+            joinLeft: border.joinMiddleLeft,
+            joinRight: border.joinMiddleRight,
+            joinUp: border.joinMiddleUp,
+            left: border.joinLeft,
+            right: border.joinRight,
+        },
+    });
 };
-/**
- * @typedef drawBorderBottom~parts
- * @property {string} topLeft
- * @property {string} topRight
- * @property {string} topBody
- * @property {string} topJoin
- */
-
-/**
- * @param {number[]} columnSizeIndex
- * @param {drawBorderBottom~parts} parts
- * @returns {string}
- */
-
-
 exports.drawBorderJoin = drawBorderJoin;
-
-const drawBorderBottom = (columnSizeIndex, parts) => {
-  return drawBorder(columnSizeIndex, {
-    body: parts.bottomBody,
-    join: parts.bottomJoin,
-    left: parts.bottomLeft,
-    right: parts.bottomRight
-  });
+const drawBorderBottom = (columnWidths, parameters) => {
+    const { border } = parameters;
+    return (0, exports.drawBorder)(columnWidths, {
+        ...parameters,
+        separator: {
+            body: border.bottomBody,
+            join: border.bottomJoin,
+            left: border.bottomLeft,
+            right: border.bottomRight,
+        },
+    });
 };
-
 exports.drawBorderBottom = drawBorderBottom;
+const createTableBorderGetter = (columnWidths, parameters) => {
+    return (index, size) => {
+        const drawBorderParameters = { ...parameters,
+            horizontalBorderIndex: index };
+        if (index === 0) {
+            return (0, exports.drawBorderTop)(columnWidths, drawBorderParameters);
+        }
+        else if (index === size) {
+            return (0, exports.drawBorderBottom)(columnWidths, drawBorderParameters);
+        }
+        return (0, exports.drawBorderJoin)(columnWidths, drawBorderParameters);
+    };
+};
+exports.createTableBorderGetter = createTableBorderGetter;
 
-});
+}(drawBorder));
 
-var drawRow_1 = createCommonjsModule(function (module, exports) {
+var drawRow$1 = {};
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
+Object.defineProperty(drawRow$1, "__esModule", { value: true });
+drawRow$1.drawRow = void 0;
+const drawContent_1$1 = drawContent$1;
+const drawRow = (row, config) => {
+    const { border, drawVerticalLine, rowIndex, spanningCellManager } = config;
+    return (0, drawContent_1$1.drawContent)({
+        contents: row,
+        drawSeparator: drawVerticalLine,
+        elementType: 'cell',
+        rowIndex,
+        separatorGetter: (index, columnCount) => {
+            if (index === 0) {
+                return border.bodyLeft;
+            }
+            if (index === columnCount) {
+                return border.bodyRight;
+            }
+            return border.bodyJoin;
+        },
+        spanningCellManager,
+    }) + '\n';
+};
+drawRow$1.drawRow = drawRow;
 
-/**
- * @typedef {object} drawRow~border
- * @property {string} bodyLeft
- * @property {string} bodyRight
- * @property {string} bodyJoin
- */
+var makeStreamConfig$1 = {};
 
-/**
- * @param {number[]} columns
- * @param {drawRow~border} border
- * @returns {string}
- */
-const drawRow = (columns, border) => {
-  return border.bodyLeft + columns.join(border.bodyJoin) + border.bodyRight + '\n';
+var validateConfig$1 = {};
+
+var validators = {};
+
+var equal$1 = {};
+
+// do not edit .js files directly - edit src/index.jst
+
+
+
+var fastDeepEqual = function equal(a, b) {
+  if (a === b) return true;
+
+  if (a && b && typeof a == 'object' && typeof b == 'object') {
+    if (a.constructor !== b.constructor) return false;
+
+    var length, i, keys;
+    if (Array.isArray(a)) {
+      length = a.length;
+      if (length != b.length) return false;
+      for (i = length; i-- !== 0;)
+        if (!equal(a[i], b[i])) return false;
+      return true;
+    }
+
+
+
+    if (a.constructor === RegExp) return a.source === b.source && a.flags === b.flags;
+    if (a.valueOf !== Object.prototype.valueOf) return a.valueOf() === b.valueOf();
+    if (a.toString !== Object.prototype.toString) return a.toString() === b.toString();
+
+    keys = Object.keys(a);
+    length = keys.length;
+    if (length !== Object.keys(b).length) return false;
+
+    for (i = length; i-- !== 0;)
+      if (!Object.prototype.hasOwnProperty.call(b, keys[i])) return false;
+
+    for (i = length; i-- !== 0;) {
+      var key = keys[i];
+
+      if (!equal(a[key], b[key])) return false;
+    }
+
+    return true;
+  }
+
+  // true if both NaN, false otherwise
+  return a!==a && b!==b;
 };
 
-var _default = drawRow;
-exports.default = _default;
-
-});
-
-/**
- * A specialized version of `_.forEach` for arrays without support for
- * iteratee shorthands.
- *
- * @private
- * @param {Array} [array] The array to iterate over.
- * @param {Function} iteratee The function invoked per iteration.
- * @returns {Array} Returns `array`.
- */
-function arrayEach(array, iteratee) {
-  var index = -1,
-      length = array == null ? 0 : array.length;
-
-  while (++index < length) {
-    if (iteratee(array[index], index, array) === false) {
-      break;
-    }
-  }
-  return array;
-}
-
-var _arrayEach = arrayEach;
-
-/** Used for built-in method references. */
-var objectProto$c = Object.prototype;
-
-/** Used to check objects for own properties. */
-var hasOwnProperty$9 = objectProto$c.hasOwnProperty;
-
-/**
- * Assigns `value` to `key` of `object` if the existing value is not equivalent
- * using [`SameValueZero`](http://ecma-international.org/ecma-262/7.0/#sec-samevaluezero)
- * for equality comparisons.
- *
- * @private
- * @param {Object} object The object to modify.
- * @param {string} key The key of the property to assign.
- * @param {*} value The value to assign.
- */
-function assignValue(object, key, value) {
-  var objValue = object[key];
-  if (!(hasOwnProperty$9.call(object, key) && eq_1(objValue, value)) ||
-      (value === undefined && !(key in object))) {
-    _baseAssignValue(object, key, value);
-  }
-}
-
-var _assignValue = assignValue;
-
-/**
- * Copies properties of `source` to `object`.
- *
- * @private
- * @param {Object} source The object to copy properties from.
- * @param {Array} props The property identifiers to copy.
- * @param {Object} [object={}] The object to copy properties to.
- * @param {Function} [customizer] The function to customize copied values.
- * @returns {Object} Returns `object`.
- */
-function copyObject(source, props, object, customizer) {
-  var isNew = !object;
-  object || (object = {});
-
-  var index = -1,
-      length = props.length;
-
-  while (++index < length) {
-    var key = props[index];
-
-    var newValue = customizer
-      ? customizer(object[key], source[key], key, object, source)
-      : undefined;
-
-    if (newValue === undefined) {
-      newValue = source[key];
-    }
-    if (isNew) {
-      _baseAssignValue(object, key, newValue);
-    } else {
-      _assignValue(object, key, newValue);
-    }
-  }
-  return object;
-}
-
-var _copyObject = copyObject;
-
-/**
- * The base implementation of `_.assign` without support for multiple sources
- * or `customizer` functions.
- *
- * @private
- * @param {Object} object The destination object.
- * @param {Object} source The source object.
- * @returns {Object} Returns `object`.
- */
-function baseAssign(object, source) {
-  return object && _copyObject(source, keys_1(source), object);
-}
-
-var _baseAssign = baseAssign;
-
-/**
- * This function is like
- * [`Object.keys`](http://ecma-international.org/ecma-262/7.0/#sec-object.keys)
- * except that it includes inherited enumerable properties.
- *
- * @private
- * @param {Object} object The object to query.
- * @returns {Array} Returns the array of property names.
- */
-function nativeKeysIn(object) {
-  var result = [];
-  if (object != null) {
-    for (var key in Object(object)) {
-      result.push(key);
-    }
-  }
-  return result;
-}
-
-var _nativeKeysIn = nativeKeysIn;
-
-/** Used for built-in method references. */
-var objectProto$d = Object.prototype;
-
-/** Used to check objects for own properties. */
-var hasOwnProperty$a = objectProto$d.hasOwnProperty;
-
-/**
- * The base implementation of `_.keysIn` which doesn't treat sparse arrays as dense.
- *
- * @private
- * @param {Object} object The object to query.
- * @returns {Array} Returns the array of property names.
- */
-function baseKeysIn(object) {
-  if (!isObject_1(object)) {
-    return _nativeKeysIn(object);
-  }
-  var isProto = _isPrototype(object),
-      result = [];
-
-  for (var key in object) {
-    if (!(key == 'constructor' && (isProto || !hasOwnProperty$a.call(object, key)))) {
-      result.push(key);
-    }
-  }
-  return result;
-}
-
-var _baseKeysIn = baseKeysIn;
-
-/**
- * Creates an array of the own and inherited enumerable property names of `object`.
- *
- * **Note:** Non-object values are coerced to objects.
- *
- * @static
- * @memberOf _
- * @since 3.0.0
- * @category Object
- * @param {Object} object The object to query.
- * @returns {Array} Returns the array of property names.
- * @example
- *
- * function Foo() {
- *   this.a = 1;
- *   this.b = 2;
- * }
- *
- * Foo.prototype.c = 3;
- *
- * _.keysIn(new Foo);
- * // => ['a', 'b', 'c'] (iteration order is not guaranteed)
- */
-function keysIn(object) {
-  return isArrayLike_1(object) ? _arrayLikeKeys(object, true) : _baseKeysIn(object);
-}
-
-var keysIn_1 = keysIn;
-
-/**
- * The base implementation of `_.assignIn` without support for multiple sources
- * or `customizer` functions.
- *
- * @private
- * @param {Object} object The destination object.
- * @param {Object} source The source object.
- * @returns {Object} Returns `object`.
- */
-function baseAssignIn(object, source) {
-  return object && _copyObject(source, keysIn_1(source), object);
-}
-
-var _baseAssignIn = baseAssignIn;
-
-var _cloneBuffer = createCommonjsModule(function (module, exports) {
-/** Detect free variable `exports`. */
-var freeExports =  exports && !exports.nodeType && exports;
-
-/** Detect free variable `module`. */
-var freeModule = freeExports && 'object' == 'object' && module && !module.nodeType && module;
-
-/** Detect the popular CommonJS extension `module.exports`. */
-var moduleExports = freeModule && freeModule.exports === freeExports;
-
-/** Built-in value references. */
-var Buffer = moduleExports ? _root.Buffer : undefined,
-    allocUnsafe = Buffer ? Buffer.allocUnsafe : undefined;
-
-/**
- * Creates a clone of  `buffer`.
- *
- * @private
- * @param {Buffer} buffer The buffer to clone.
- * @param {boolean} [isDeep] Specify a deep clone.
- * @returns {Buffer} Returns the cloned buffer.
- */
-function cloneBuffer(buffer, isDeep) {
-  if (isDeep) {
-    return buffer.slice();
-  }
-  var length = buffer.length,
-      result = allocUnsafe ? allocUnsafe(length) : new buffer.constructor(length);
-
-  buffer.copy(result);
-  return result;
-}
-
-module.exports = cloneBuffer;
-});
-
-/**
- * Copies the values of `source` to `array`.
- *
- * @private
- * @param {Array} source The array to copy values from.
- * @param {Array} [array=[]] The array to copy values to.
- * @returns {Array} Returns `array`.
- */
-function copyArray(source, array) {
-  var index = -1,
-      length = source.length;
-
-  array || (array = Array(length));
-  while (++index < length) {
-    array[index] = source[index];
-  }
-  return array;
-}
-
-var _copyArray = copyArray;
-
-/**
- * Copies own symbols of `source` to `object`.
- *
- * @private
- * @param {Object} source The object to copy symbols from.
- * @param {Object} [object={}] The object to copy symbols to.
- * @returns {Object} Returns `object`.
- */
-function copySymbols(source, object) {
-  return _copyObject(source, _getSymbols(source), object);
-}
-
-var _copySymbols = copySymbols;
-
-/** Built-in value references. */
-var getPrototype = _overArg(Object.getPrototypeOf, Object);
-
-var _getPrototype = getPrototype;
-
-/* Built-in method references for those with the same name as other `lodash` methods. */
-var nativeGetSymbols$1 = Object.getOwnPropertySymbols;
-
-/**
- * Creates an array of the own and inherited enumerable symbols of `object`.
- *
- * @private
- * @param {Object} object The object to query.
- * @returns {Array} Returns the array of symbols.
- */
-var getSymbolsIn = !nativeGetSymbols$1 ? stubArray_1 : function(object) {
-  var result = [];
-  while (object) {
-    _arrayPush(result, _getSymbols(object));
-    object = _getPrototype(object);
-  }
-  return result;
-};
-
-var _getSymbolsIn = getSymbolsIn;
-
-/**
- * Copies own and inherited symbols of `source` to `object`.
- *
- * @private
- * @param {Object} source The object to copy symbols from.
- * @param {Object} [object={}] The object to copy symbols to.
- * @returns {Object} Returns `object`.
- */
-function copySymbolsIn(source, object) {
-  return _copyObject(source, _getSymbolsIn(source), object);
-}
-
-var _copySymbolsIn = copySymbolsIn;
-
-/**
- * Creates an array of own and inherited enumerable property names and
- * symbols of `object`.
- *
- * @private
- * @param {Object} object The object to query.
- * @returns {Array} Returns the array of property names and symbols.
- */
-function getAllKeysIn(object) {
-  return _baseGetAllKeys(object, keysIn_1, _getSymbolsIn);
-}
-
-var _getAllKeysIn = getAllKeysIn;
-
-/** Used for built-in method references. */
-var objectProto$e = Object.prototype;
-
-/** Used to check objects for own properties. */
-var hasOwnProperty$b = objectProto$e.hasOwnProperty;
-
-/**
- * Initializes an array clone.
- *
- * @private
- * @param {Array} array The array to clone.
- * @returns {Array} Returns the initialized clone.
- */
-function initCloneArray(array) {
-  var length = array.length,
-      result = new array.constructor(length);
-
-  // Add properties assigned by `RegExp#exec`.
-  if (length && typeof array[0] == 'string' && hasOwnProperty$b.call(array, 'index')) {
-    result.index = array.index;
-    result.input = array.input;
-  }
-  return result;
-}
-
-var _initCloneArray = initCloneArray;
-
-/**
- * Creates a clone of `arrayBuffer`.
- *
- * @private
- * @param {ArrayBuffer} arrayBuffer The array buffer to clone.
- * @returns {ArrayBuffer} Returns the cloned array buffer.
- */
-function cloneArrayBuffer(arrayBuffer) {
-  var result = new arrayBuffer.constructor(arrayBuffer.byteLength);
-  new _Uint8Array(result).set(new _Uint8Array(arrayBuffer));
-  return result;
-}
-
-var _cloneArrayBuffer = cloneArrayBuffer;
-
-/**
- * Creates a clone of `dataView`.
- *
- * @private
- * @param {Object} dataView The data view to clone.
- * @param {boolean} [isDeep] Specify a deep clone.
- * @returns {Object} Returns the cloned data view.
- */
-function cloneDataView(dataView, isDeep) {
-  var buffer = isDeep ? _cloneArrayBuffer(dataView.buffer) : dataView.buffer;
-  return new dataView.constructor(buffer, dataView.byteOffset, dataView.byteLength);
-}
-
-var _cloneDataView = cloneDataView;
-
-/** Used to match `RegExp` flags from their coerced string values. */
-var reFlags = /\w*$/;
-
-/**
- * Creates a clone of `regexp`.
- *
- * @private
- * @param {Object} regexp The regexp to clone.
- * @returns {Object} Returns the cloned regexp.
- */
-function cloneRegExp(regexp) {
-  var result = new regexp.constructor(regexp.source, reFlags.exec(regexp));
-  result.lastIndex = regexp.lastIndex;
-  return result;
-}
-
-var _cloneRegExp = cloneRegExp;
-
-/** Used to convert symbols to primitives and strings. */
-var symbolProto$2 = _Symbol ? _Symbol.prototype : undefined,
-    symbolValueOf$1 = symbolProto$2 ? symbolProto$2.valueOf : undefined;
-
-/**
- * Creates a clone of the `symbol` object.
- *
- * @private
- * @param {Object} symbol The symbol object to clone.
- * @returns {Object} Returns the cloned symbol object.
- */
-function cloneSymbol(symbol) {
-  return symbolValueOf$1 ? Object(symbolValueOf$1.call(symbol)) : {};
-}
-
-var _cloneSymbol = cloneSymbol;
-
-/**
- * Creates a clone of `typedArray`.
- *
- * @private
- * @param {Object} typedArray The typed array to clone.
- * @param {boolean} [isDeep] Specify a deep clone.
- * @returns {Object} Returns the cloned typed array.
- */
-function cloneTypedArray(typedArray, isDeep) {
-  var buffer = isDeep ? _cloneArrayBuffer(typedArray.buffer) : typedArray.buffer;
-  return new typedArray.constructor(buffer, typedArray.byteOffset, typedArray.length);
-}
-
-var _cloneTypedArray = cloneTypedArray;
-
-/** `Object#toString` result references. */
-var boolTag$3 = '[object Boolean]',
-    dateTag$2 = '[object Date]',
-    mapTag$3 = '[object Map]',
-    numberTag$3 = '[object Number]',
-    regexpTag$2 = '[object RegExp]',
-    setTag$3 = '[object Set]',
-    stringTag$3 = '[object String]',
-    symbolTag$2 = '[object Symbol]';
-
-var arrayBufferTag$2 = '[object ArrayBuffer]',
-    dataViewTag$3 = '[object DataView]',
-    float32Tag$1 = '[object Float32Array]',
-    float64Tag$1 = '[object Float64Array]',
-    int8Tag$1 = '[object Int8Array]',
-    int16Tag$1 = '[object Int16Array]',
-    int32Tag$1 = '[object Int32Array]',
-    uint8Tag$1 = '[object Uint8Array]',
-    uint8ClampedTag$1 = '[object Uint8ClampedArray]',
-    uint16Tag$1 = '[object Uint16Array]',
-    uint32Tag$1 = '[object Uint32Array]';
-
-/**
- * Initializes an object clone based on its `toStringTag`.
- *
- * **Note:** This function only supports cloning values with tags of
- * `Boolean`, `Date`, `Error`, `Map`, `Number`, `RegExp`, `Set`, or `String`.
- *
- * @private
- * @param {Object} object The object to clone.
- * @param {string} tag The `toStringTag` of the object to clone.
- * @param {boolean} [isDeep] Specify a deep clone.
- * @returns {Object} Returns the initialized clone.
- */
-function initCloneByTag(object, tag, isDeep) {
-  var Ctor = object.constructor;
-  switch (tag) {
-    case arrayBufferTag$2:
-      return _cloneArrayBuffer(object);
-
-    case boolTag$3:
-    case dateTag$2:
-      return new Ctor(+object);
-
-    case dataViewTag$3:
-      return _cloneDataView(object, isDeep);
-
-    case float32Tag$1: case float64Tag$1:
-    case int8Tag$1: case int16Tag$1: case int32Tag$1:
-    case uint8Tag$1: case uint8ClampedTag$1: case uint16Tag$1: case uint32Tag$1:
-      return _cloneTypedArray(object, isDeep);
-
-    case mapTag$3:
-      return new Ctor;
-
-    case numberTag$3:
-    case stringTag$3:
-      return new Ctor(object);
-
-    case regexpTag$2:
-      return _cloneRegExp(object);
-
-    case setTag$3:
-      return new Ctor;
-
-    case symbolTag$2:
-      return _cloneSymbol(object);
-  }
-}
-
-var _initCloneByTag = initCloneByTag;
-
-/** Built-in value references. */
-var objectCreate = Object.create;
-
-/**
- * The base implementation of `_.create` without support for assigning
- * properties to the created object.
- *
- * @private
- * @param {Object} proto The object to inherit from.
- * @returns {Object} Returns the new object.
- */
-var baseCreate = (function() {
-  function object() {}
-  return function(proto) {
-    if (!isObject_1(proto)) {
-      return {};
-    }
-    if (objectCreate) {
-      return objectCreate(proto);
-    }
-    object.prototype = proto;
-    var result = new object;
-    object.prototype = undefined;
-    return result;
-  };
-}());
-
-var _baseCreate = baseCreate;
-
-/**
- * Initializes an object clone.
- *
- * @private
- * @param {Object} object The object to clone.
- * @returns {Object} Returns the initialized clone.
- */
-function initCloneObject(object) {
-  return (typeof object.constructor == 'function' && !_isPrototype(object))
-    ? _baseCreate(_getPrototype(object))
-    : {};
-}
-
-var _initCloneObject = initCloneObject;
-
-/** `Object#toString` result references. */
-var mapTag$4 = '[object Map]';
-
-/**
- * The base implementation of `_.isMap` without Node.js optimizations.
- *
- * @private
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a map, else `false`.
- */
-function baseIsMap(value) {
-  return isObjectLike_1(value) && _getTag(value) == mapTag$4;
-}
-
-var _baseIsMap = baseIsMap;
-
-/* Node.js helper references. */
-var nodeIsMap = _nodeUtil && _nodeUtil.isMap;
-
-/**
- * Checks if `value` is classified as a `Map` object.
- *
- * @static
- * @memberOf _
- * @since 4.3.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a map, else `false`.
- * @example
- *
- * _.isMap(new Map);
- * // => true
- *
- * _.isMap(new WeakMap);
- * // => false
- */
-var isMap = nodeIsMap ? _baseUnary(nodeIsMap) : _baseIsMap;
-
-var isMap_1 = isMap;
-
-/** `Object#toString` result references. */
-var setTag$4 = '[object Set]';
-
-/**
- * The base implementation of `_.isSet` without Node.js optimizations.
- *
- * @private
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a set, else `false`.
- */
-function baseIsSet(value) {
-  return isObjectLike_1(value) && _getTag(value) == setTag$4;
-}
-
-var _baseIsSet = baseIsSet;
-
-/* Node.js helper references. */
-var nodeIsSet = _nodeUtil && _nodeUtil.isSet;
-
-/**
- * Checks if `value` is classified as a `Set` object.
- *
- * @static
- * @memberOf _
- * @since 4.3.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a set, else `false`.
- * @example
- *
- * _.isSet(new Set);
- * // => true
- *
- * _.isSet(new WeakSet);
- * // => false
- */
-var isSet = nodeIsSet ? _baseUnary(nodeIsSet) : _baseIsSet;
-
-var isSet_1 = isSet;
-
-/** Used to compose bitmasks for cloning. */
-var CLONE_DEEP_FLAG = 1,
-    CLONE_FLAT_FLAG = 2,
-    CLONE_SYMBOLS_FLAG = 4;
-
-/** `Object#toString` result references. */
-var argsTag$3 = '[object Arguments]',
-    arrayTag$2 = '[object Array]',
-    boolTag$4 = '[object Boolean]',
-    dateTag$3 = '[object Date]',
-    errorTag$2 = '[object Error]',
-    funcTag$2 = '[object Function]',
-    genTag$1 = '[object GeneratorFunction]',
-    mapTag$5 = '[object Map]',
-    numberTag$4 = '[object Number]',
-    objectTag$3 = '[object Object]',
-    regexpTag$3 = '[object RegExp]',
-    setTag$5 = '[object Set]',
-    stringTag$4 = '[object String]',
-    symbolTag$3 = '[object Symbol]',
-    weakMapTag$2 = '[object WeakMap]';
-
-var arrayBufferTag$3 = '[object ArrayBuffer]',
-    dataViewTag$4 = '[object DataView]',
-    float32Tag$2 = '[object Float32Array]',
-    float64Tag$2 = '[object Float64Array]',
-    int8Tag$2 = '[object Int8Array]',
-    int16Tag$2 = '[object Int16Array]',
-    int32Tag$2 = '[object Int32Array]',
-    uint8Tag$2 = '[object Uint8Array]',
-    uint8ClampedTag$2 = '[object Uint8ClampedArray]',
-    uint16Tag$2 = '[object Uint16Array]',
-    uint32Tag$2 = '[object Uint32Array]';
-
-/** Used to identify `toStringTag` values supported by `_.clone`. */
-var cloneableTags = {};
-cloneableTags[argsTag$3] = cloneableTags[arrayTag$2] =
-cloneableTags[arrayBufferTag$3] = cloneableTags[dataViewTag$4] =
-cloneableTags[boolTag$4] = cloneableTags[dateTag$3] =
-cloneableTags[float32Tag$2] = cloneableTags[float64Tag$2] =
-cloneableTags[int8Tag$2] = cloneableTags[int16Tag$2] =
-cloneableTags[int32Tag$2] = cloneableTags[mapTag$5] =
-cloneableTags[numberTag$4] = cloneableTags[objectTag$3] =
-cloneableTags[regexpTag$3] = cloneableTags[setTag$5] =
-cloneableTags[stringTag$4] = cloneableTags[symbolTag$3] =
-cloneableTags[uint8Tag$2] = cloneableTags[uint8ClampedTag$2] =
-cloneableTags[uint16Tag$2] = cloneableTags[uint32Tag$2] = true;
-cloneableTags[errorTag$2] = cloneableTags[funcTag$2] =
-cloneableTags[weakMapTag$2] = false;
-
-/**
- * The base implementation of `_.clone` and `_.cloneDeep` which tracks
- * traversed objects.
- *
- * @private
- * @param {*} value The value to clone.
- * @param {boolean} bitmask The bitmask flags.
- *  1 - Deep clone
- *  2 - Flatten inherited properties
- *  4 - Clone symbols
- * @param {Function} [customizer] The function to customize cloning.
- * @param {string} [key] The key of `value`.
- * @param {Object} [object] The parent object of `value`.
- * @param {Object} [stack] Tracks traversed objects and their clone counterparts.
- * @returns {*} Returns the cloned value.
- */
-function baseClone(value, bitmask, customizer, key, object, stack) {
-  var result,
-      isDeep = bitmask & CLONE_DEEP_FLAG,
-      isFlat = bitmask & CLONE_FLAT_FLAG,
-      isFull = bitmask & CLONE_SYMBOLS_FLAG;
-
-  if (customizer) {
-    result = object ? customizer(value, key, object, stack) : customizer(value);
-  }
-  if (result !== undefined) {
-    return result;
-  }
-  if (!isObject_1(value)) {
-    return value;
-  }
-  var isArr = isArray_1(value);
-  if (isArr) {
-    result = _initCloneArray(value);
-    if (!isDeep) {
-      return _copyArray(value, result);
-    }
-  } else {
-    var tag = _getTag(value),
-        isFunc = tag == funcTag$2 || tag == genTag$1;
-
-    if (isBuffer_1(value)) {
-      return _cloneBuffer(value, isDeep);
-    }
-    if (tag == objectTag$3 || tag == argsTag$3 || (isFunc && !object)) {
-      result = (isFlat || isFunc) ? {} : _initCloneObject(value);
-      if (!isDeep) {
-        return isFlat
-          ? _copySymbolsIn(value, _baseAssignIn(result, value))
-          : _copySymbols(value, _baseAssign(result, value));
-      }
-    } else {
-      if (!cloneableTags[tag]) {
-        return object ? value : {};
-      }
-      result = _initCloneByTag(value, tag, isDeep);
-    }
-  }
-  // Check for circular references and return its corresponding clone.
-  stack || (stack = new _Stack);
-  var stacked = stack.get(value);
-  if (stacked) {
-    return stacked;
-  }
-  stack.set(value, result);
-
-  if (isSet_1(value)) {
-    value.forEach(function(subValue) {
-      result.add(baseClone(subValue, bitmask, customizer, subValue, value, stack));
-    });
-  } else if (isMap_1(value)) {
-    value.forEach(function(subValue, key) {
-      result.set(key, baseClone(subValue, bitmask, customizer, key, value, stack));
-    });
-  }
-
-  var keysFunc = isFull
-    ? (isFlat ? _getAllKeysIn : _getAllKeys)
-    : (isFlat ? keysIn_1 : keys_1);
-
-  var props = isArr ? undefined : keysFunc(value);
-  _arrayEach(props || value, function(subValue, key) {
-    if (props) {
-      key = subValue;
-      subValue = value[key];
-    }
-    // Recursively populate clone (susceptible to call stack limits).
-    _assignValue(result, key, baseClone(subValue, bitmask, customizer, key, value, stack));
-  });
-  return result;
-}
-
-var _baseClone = baseClone;
-
-/** Used to compose bitmasks for cloning. */
-var CLONE_DEEP_FLAG$1 = 1,
-    CLONE_SYMBOLS_FLAG$1 = 4;
-
-/**
- * This method is like `_.clone` except that it recursively clones `value`.
- *
- * @static
- * @memberOf _
- * @since 1.0.0
- * @category Lang
- * @param {*} value The value to recursively clone.
- * @returns {*} Returns the deep cloned value.
- * @see _.clone
- * @example
- *
- * var objects = [{ 'a': 1 }, { 'b': 2 }];
- *
- * var deep = _.cloneDeep(objects);
- * console.log(deep[0] === objects[0]);
- * // => false
- */
-function cloneDeep(value) {
-  return _baseClone(value, CLONE_DEEP_FLAG$1 | CLONE_SYMBOLS_FLAG$1);
-}
-
-var cloneDeep_1 = cloneDeep;
-
-/**
- * Checks if `value` is `undefined`.
- *
- * @static
- * @since 0.1.0
- * @memberOf _
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is `undefined`, else `false`.
- * @example
- *
- * _.isUndefined(void 0);
- * // => true
- *
- * _.isUndefined(null);
- * // => false
- */
-function isUndefined(value) {
-  return value === undefined;
-}
-
-var isUndefined_1 = isUndefined;
-
-/**
- * Casts `value` to `identity` if it's not a function.
- *
- * @private
- * @param {*} value The value to inspect.
- * @returns {Function} Returns cast function.
- */
-function castFunction(value) {
-  return typeof value == 'function' ? value : identity_1;
-}
-
-var _castFunction = castFunction;
-
-/** Used as references for various `Number` constants. */
-var NAN = 0 / 0;
-
-/** Used to match leading and trailing whitespace. */
-var reTrim = /^\s+|\s+$/g;
-
-/** Used to detect bad signed hexadecimal string values. */
-var reIsBadHex = /^[-+]0x[0-9a-f]+$/i;
-
-/** Used to detect binary string values. */
-var reIsBinary = /^0b[01]+$/i;
-
-/** Used to detect octal string values. */
-var reIsOctal = /^0o[0-7]+$/i;
-
-/** Built-in method references without a dependency on `root`. */
-var freeParseInt = parseInt;
-
-/**
- * Converts `value` to a number.
- *
- * @static
- * @memberOf _
- * @since 4.0.0
- * @category Lang
- * @param {*} value The value to process.
- * @returns {number} Returns the number.
- * @example
- *
- * _.toNumber(3.2);
- * // => 3.2
- *
- * _.toNumber(Number.MIN_VALUE);
- * // => 5e-324
- *
- * _.toNumber(Infinity);
- * // => Infinity
- *
- * _.toNumber('3.2');
- * // => 3.2
- */
-function toNumber(value) {
-  if (typeof value == 'number') {
-    return value;
-  }
-  if (isSymbol_1(value)) {
-    return NAN;
-  }
-  if (isObject_1(value)) {
-    var other = typeof value.valueOf == 'function' ? value.valueOf() : value;
-    value = isObject_1(other) ? (other + '') : other;
-  }
-  if (typeof value != 'string') {
-    return value === 0 ? value : +value;
-  }
-  value = value.replace(reTrim, '');
-  var isBinary = reIsBinary.test(value);
-  return (isBinary || reIsOctal.test(value))
-    ? freeParseInt(value.slice(2), isBinary ? 2 : 8)
-    : (reIsBadHex.test(value) ? NAN : +value);
-}
-
-var toNumber_1 = toNumber;
-
-/** Used as references for various `Number` constants. */
-var INFINITY$2 = 1 / 0,
-    MAX_INTEGER = 1.7976931348623157e+308;
-
-/**
- * Converts `value` to a finite number.
- *
- * @static
- * @memberOf _
- * @since 4.12.0
- * @category Lang
- * @param {*} value The value to convert.
- * @returns {number} Returns the converted number.
- * @example
- *
- * _.toFinite(3.2);
- * // => 3.2
- *
- * _.toFinite(Number.MIN_VALUE);
- * // => 5e-324
- *
- * _.toFinite(Infinity);
- * // => 1.7976931348623157e+308
- *
- * _.toFinite('3.2');
- * // => 3.2
- */
-function toFinite(value) {
-  if (!value) {
-    return value === 0 ? value : 0;
-  }
-  value = toNumber_1(value);
-  if (value === INFINITY$2 || value === -INFINITY$2) {
-    var sign = (value < 0 ? -1 : 1);
-    return sign * MAX_INTEGER;
-  }
-  return value === value ? value : 0;
-}
-
-var toFinite_1 = toFinite;
-
-/**
- * Converts `value` to an integer.
- *
- * **Note:** This method is loosely based on
- * [`ToInteger`](http://www.ecma-international.org/ecma-262/7.0/#sec-tointeger).
- *
- * @static
- * @memberOf _
- * @since 4.0.0
- * @category Lang
- * @param {*} value The value to convert.
- * @returns {number} Returns the converted integer.
- * @example
- *
- * _.toInteger(3.2);
- * // => 3
- *
- * _.toInteger(Number.MIN_VALUE);
- * // => 0
- *
- * _.toInteger(Infinity);
- * // => 1.7976931348623157e+308
- *
- * _.toInteger('3.2');
- * // => 3
- */
-function toInteger(value) {
-  var result = toFinite_1(value),
-      remainder = result % 1;
-
-  return result === result ? (remainder ? result - remainder : result) : 0;
-}
-
-var toInteger_1 = toInteger;
-
-/** Used as references for various `Number` constants. */
-var MAX_SAFE_INTEGER$2 = 9007199254740991;
-
-/** Used as references for the maximum length and index of an array. */
-var MAX_ARRAY_LENGTH = 4294967295;
-
-/* Built-in method references for those with the same name as other `lodash` methods. */
-var nativeMin = Math.min;
-
-/**
- * Invokes the iteratee `n` times, returning an array of the results of
- * each invocation. The iteratee is invoked with one argument; (index).
- *
- * @static
- * @since 0.1.0
- * @memberOf _
- * @category Util
- * @param {number} n The number of times to invoke `iteratee`.
- * @param {Function} [iteratee=_.identity] The function invoked per iteration.
- * @returns {Array} Returns the array of results.
- * @example
- *
- * _.times(3, String);
- * // => ['0', '1', '2']
- *
- *  _.times(4, _.constant(0));
- * // => [0, 0, 0, 0]
- */
-function times(n, iteratee) {
-  n = toInteger_1(n);
-  if (n < 1 || n > MAX_SAFE_INTEGER$2) {
-    return [];
-  }
-  var index = MAX_ARRAY_LENGTH,
-      length = nativeMin(n, MAX_ARRAY_LENGTH);
-
-  iteratee = _castFunction(iteratee);
-  n -= MAX_ARRAY_LENGTH;
-
-  var result = _baseTimes(length, iteratee);
-  while (++index < n) {
-    iteratee(index);
-  }
-  return result;
-}
-
-var times_1 = times;
-
-var getBorderCharacters_1 = createCommonjsModule(function (module, exports) {
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-/* eslint-disable sort-keys-fix/sort-keys-fix */
-
-/**
- * @typedef border
- * @property {string} topBody
- * @property {string} topJoin
- * @property {string} topLeft
- * @property {string} topRight
- * @property {string} bottomBody
- * @property {string} bottomJoin
- * @property {string} bottomLeft
- * @property {string} bottomRight
- * @property {string} bodyLeft
- * @property {string} bodyRight
- * @property {string} bodyJoin
- * @property {string} joinBody
- * @property {string} joinLeft
- * @property {string} joinRight
- * @property {string} joinJoin
- */
-
-/**
- * @param {string} name
- * @returns {border}
- */
-const getBorderCharacters = name => {
-  if (name === 'honeywell') {
-    return {
-      topBody: '═',
-      topJoin: '╤',
-      topLeft: '╔',
-      topRight: '╗',
-      bottomBody: '═',
-      bottomJoin: '╧',
-      bottomLeft: '╚',
-      bottomRight: '╝',
-      bodyLeft: '║',
-      bodyRight: '║',
-      bodyJoin: '│',
-      joinBody: '─',
-      joinLeft: '╟',
-      joinRight: '╢',
-      joinJoin: '┼'
-    };
-  }
-
-  if (name === 'norc') {
-    return {
-      topBody: '─',
-      topJoin: '┬',
-      topLeft: '┌',
-      topRight: '┐',
-      bottomBody: '─',
-      bottomJoin: '┴',
-      bottomLeft: '└',
-      bottomRight: '┘',
-      bodyLeft: '│',
-      bodyRight: '│',
-      bodyJoin: '│',
-      joinBody: '─',
-      joinLeft: '├',
-      joinRight: '┤',
-      joinJoin: '┼'
-    };
-  }
-
-  if (name === 'ramac') {
-    return {
-      topBody: '-',
-      topJoin: '+',
-      topLeft: '+',
-      topRight: '+',
-      bottomBody: '-',
-      bottomJoin: '+',
-      bottomLeft: '+',
-      bottomRight: '+',
-      bodyLeft: '|',
-      bodyRight: '|',
-      bodyJoin: '|',
-      joinBody: '-',
-      joinLeft: '|',
-      joinRight: '|',
-      joinJoin: '|'
-    };
-  }
-
-  if (name === 'void') {
-    return {
-      topBody: '',
-      topJoin: '',
-      topLeft: '',
-      topRight: '',
-      bottomBody: '',
-      bottomJoin: '',
-      bottomLeft: '',
-      bottomRight: '',
-      bodyLeft: '',
-      bodyRight: '',
-      bodyJoin: '',
-      joinBody: '',
-      joinLeft: '',
-      joinRight: '',
-      joinJoin: ''
-    };
-  }
-
-  throw new Error('Unknown border template "' + name + '".');
-};
-
-var _default = getBorderCharacters;
-exports.default = _default;
-
-});
-
-var validators = createCommonjsModule(function (module, exports) {
+Object.defineProperty(equal$1, "__esModule", { value: true });
+// https://github.com/ajv-validator/ajv/issues/889
+const equal = fastDeepEqual;
+equal.code = 'require("ajv/dist/runtime/equal").default';
+equal$1.default = equal;
+
+(function (exports) {
 exports["config.json"] = validate43;
+const schema13 = {
+    "$id": "config.json",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+        "border": {
+            "$ref": "shared.json#/definitions/borders"
+        },
+        "header": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "alignment": {
+                    "$ref": "shared.json#/definitions/alignment"
+                },
+                "wrapWord": {
+                    "type": "boolean"
+                },
+                "truncate": {
+                    "type": "integer"
+                },
+                "paddingLeft": {
+                    "type": "integer"
+                },
+                "paddingRight": {
+                    "type": "integer"
+                }
+            },
+            "required": ["content"],
+            "additionalProperties": false
+        },
+        "columns": {
+            "$ref": "shared.json#/definitions/columns"
+        },
+        "columnDefault": {
+            "$ref": "shared.json#/definitions/column"
+        },
+        "drawVerticalLine": {
+            "typeof": "function"
+        },
+        "drawHorizontalLine": {
+            "typeof": "function"
+        },
+        "singleLine": {
+            "typeof": "boolean"
+        },
+        "spanningCells": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "col": {
+                        "type": "integer",
+                        "minimum": 0
+                    },
+                    "row": {
+                        "type": "integer",
+                        "minimum": 0
+                    },
+                    "colSpan": {
+                        "type": "integer",
+                        "minimum": 1
+                    },
+                    "rowSpan": {
+                        "type": "integer",
+                        "minimum": 1
+                    },
+                    "alignment": {
+                        "$ref": "shared.json#/definitions/alignment"
+                    },
+                    "verticalAlignment": {
+                        "$ref": "shared.json#/definitions/verticalAlignment"
+                    },
+                    "wrapWord": {
+                        "type": "boolean"
+                    },
+                    "truncate": {
+                        "type": "integer"
+                    },
+                    "paddingLeft": {
+                        "type": "integer"
+                    },
+                    "paddingRight": {
+                        "type": "integer"
+                    }
+                },
+                "required": ["row", "col"],
+                "additionalProperties": false
+            }
+        }
+    },
+    "additionalProperties": false
+};
 const schema15 = {
     "type": "object",
     "properties": {
@@ -17284,6 +12037,9 @@ const schema15 = {
         "bodyJoin": {
             "$ref": "#/definitions/border"
         },
+        "headerJoin": {
+            "$ref": "#/definitions/border"
+        },
         "joinBody": {
             "$ref": "#/definitions/border"
         },
@@ -17295,32 +12051,40 @@ const schema15 = {
         },
         "joinJoin": {
             "$ref": "#/definitions/border"
+        },
+        "joinMiddleUp": {
+            "$ref": "#/definitions/border"
+        },
+        "joinMiddleDown": {
+            "$ref": "#/definitions/border"
+        },
+        "joinMiddleLeft": {
+            "$ref": "#/definitions/border"
+        },
+        "joinMiddleRight": {
+            "$ref": "#/definitions/border"
         }
     },
     "additionalProperties": false
 };
-
-function validate46(data, {
-    dataPath = "",
-    parentData,
-    parentDataProperty,
-    rootData = data
-} = {}) {
+const func8 = Object.prototype.hasOwnProperty;
+function validate46(data, { instancePath = "", parentData, parentDataProperty, rootData = data } = {}) {
     let vErrors = null;
     let errors = 0;
     if (typeof data !== "string") {
         const err0 = {
-            keyword: "type",
-            dataPath,
+            instancePath,
             schemaPath: "#/type",
+            keyword: "type",
             params: {
                 type: "string"
             },
-            message: "should be string"
+            message: "must be string"
         };
         if (vErrors === null) {
             vErrors = [err0];
-        } else {
+        }
+        else {
             vErrors.push(err0);
         }
         errors++;
@@ -17328,30 +12092,25 @@ function validate46(data, {
     validate46.errors = vErrors;
     return errors === 0;
 }
-
-function validate45(data, {
-    dataPath = "",
-    parentData,
-    parentDataProperty,
-    rootData = data
-} = {}) {
+function validate45(data, { instancePath = "", parentData, parentDataProperty, rootData = data } = {}) {
     let vErrors = null;
     let errors = 0;
     if (data && typeof data == "object" && !Array.isArray(data)) {
         for (const key0 in data) {
-            if (!(schema15.properties.hasOwnProperty(key0))) {
+            if (!(func8.call(schema15.properties, key0))) {
                 const err0 = {
-                    keyword: "additionalProperties",
-                    dataPath,
+                    instancePath,
                     schemaPath: "#/additionalProperties",
+                    keyword: "additionalProperties",
                     params: {
                         additionalProperty: key0
                     },
-                    message: "should NOT have additional properties"
+                    message: "must NOT have additional properties"
                 };
                 if (vErrors === null) {
                     vErrors = [err0];
-                } else {
+                }
+                else {
                     vErrors.push(err0);
                 }
                 errors++;
@@ -17359,182 +12118,239 @@ function validate45(data, {
         }
         if (data.topBody !== undefined) {
             if (!(validate46(data.topBody, {
-                    dataPath: dataPath + "/topBody",
-                    parentData: data,
-                    parentDataProperty: "topBody",
-                    rootData
-                }))) {
+                instancePath: instancePath + "/topBody",
+                parentData: data,
+                parentDataProperty: "topBody",
+                rootData
+            }))) {
                 vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
                 errors = vErrors.length;
             }
         }
         if (data.topJoin !== undefined) {
             if (!(validate46(data.topJoin, {
-                    dataPath: dataPath + "/topJoin",
-                    parentData: data,
-                    parentDataProperty: "topJoin",
-                    rootData
-                }))) {
+                instancePath: instancePath + "/topJoin",
+                parentData: data,
+                parentDataProperty: "topJoin",
+                rootData
+            }))) {
                 vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
                 errors = vErrors.length;
             }
         }
         if (data.topLeft !== undefined) {
             if (!(validate46(data.topLeft, {
-                    dataPath: dataPath + "/topLeft",
-                    parentData: data,
-                    parentDataProperty: "topLeft",
-                    rootData
-                }))) {
+                instancePath: instancePath + "/topLeft",
+                parentData: data,
+                parentDataProperty: "topLeft",
+                rootData
+            }))) {
                 vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
                 errors = vErrors.length;
             }
         }
         if (data.topRight !== undefined) {
             if (!(validate46(data.topRight, {
-                    dataPath: dataPath + "/topRight",
-                    parentData: data,
-                    parentDataProperty: "topRight",
-                    rootData
-                }))) {
+                instancePath: instancePath + "/topRight",
+                parentData: data,
+                parentDataProperty: "topRight",
+                rootData
+            }))) {
                 vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
                 errors = vErrors.length;
             }
         }
         if (data.bottomBody !== undefined) {
             if (!(validate46(data.bottomBody, {
-                    dataPath: dataPath + "/bottomBody",
-                    parentData: data,
-                    parentDataProperty: "bottomBody",
-                    rootData
-                }))) {
+                instancePath: instancePath + "/bottomBody",
+                parentData: data,
+                parentDataProperty: "bottomBody",
+                rootData
+            }))) {
                 vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
                 errors = vErrors.length;
             }
         }
         if (data.bottomJoin !== undefined) {
             if (!(validate46(data.bottomJoin, {
-                    dataPath: dataPath + "/bottomJoin",
-                    parentData: data,
-                    parentDataProperty: "bottomJoin",
-                    rootData
-                }))) {
+                instancePath: instancePath + "/bottomJoin",
+                parentData: data,
+                parentDataProperty: "bottomJoin",
+                rootData
+            }))) {
                 vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
                 errors = vErrors.length;
             }
         }
         if (data.bottomLeft !== undefined) {
             if (!(validate46(data.bottomLeft, {
-                    dataPath: dataPath + "/bottomLeft",
-                    parentData: data,
-                    parentDataProperty: "bottomLeft",
-                    rootData
-                }))) {
+                instancePath: instancePath + "/bottomLeft",
+                parentData: data,
+                parentDataProperty: "bottomLeft",
+                rootData
+            }))) {
                 vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
                 errors = vErrors.length;
             }
         }
         if (data.bottomRight !== undefined) {
             if (!(validate46(data.bottomRight, {
-                    dataPath: dataPath + "/bottomRight",
-                    parentData: data,
-                    parentDataProperty: "bottomRight",
-                    rootData
-                }))) {
+                instancePath: instancePath + "/bottomRight",
+                parentData: data,
+                parentDataProperty: "bottomRight",
+                rootData
+            }))) {
                 vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
                 errors = vErrors.length;
             }
         }
         if (data.bodyLeft !== undefined) {
             if (!(validate46(data.bodyLeft, {
-                    dataPath: dataPath + "/bodyLeft",
-                    parentData: data,
-                    parentDataProperty: "bodyLeft",
-                    rootData
-                }))) {
+                instancePath: instancePath + "/bodyLeft",
+                parentData: data,
+                parentDataProperty: "bodyLeft",
+                rootData
+            }))) {
                 vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
                 errors = vErrors.length;
             }
         }
         if (data.bodyRight !== undefined) {
             if (!(validate46(data.bodyRight, {
-                    dataPath: dataPath + "/bodyRight",
-                    parentData: data,
-                    parentDataProperty: "bodyRight",
-                    rootData
-                }))) {
+                instancePath: instancePath + "/bodyRight",
+                parentData: data,
+                parentDataProperty: "bodyRight",
+                rootData
+            }))) {
                 vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
                 errors = vErrors.length;
             }
         }
         if (data.bodyJoin !== undefined) {
             if (!(validate46(data.bodyJoin, {
-                    dataPath: dataPath + "/bodyJoin",
-                    parentData: data,
-                    parentDataProperty: "bodyJoin",
-                    rootData
-                }))) {
+                instancePath: instancePath + "/bodyJoin",
+                parentData: data,
+                parentDataProperty: "bodyJoin",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.headerJoin !== undefined) {
+            if (!(validate46(data.headerJoin, {
+                instancePath: instancePath + "/headerJoin",
+                parentData: data,
+                parentDataProperty: "headerJoin",
+                rootData
+            }))) {
                 vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
                 errors = vErrors.length;
             }
         }
         if (data.joinBody !== undefined) {
             if (!(validate46(data.joinBody, {
-                    dataPath: dataPath + "/joinBody",
-                    parentData: data,
-                    parentDataProperty: "joinBody",
-                    rootData
-                }))) {
+                instancePath: instancePath + "/joinBody",
+                parentData: data,
+                parentDataProperty: "joinBody",
+                rootData
+            }))) {
                 vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
                 errors = vErrors.length;
             }
         }
         if (data.joinLeft !== undefined) {
             if (!(validate46(data.joinLeft, {
-                    dataPath: dataPath + "/joinLeft",
-                    parentData: data,
-                    parentDataProperty: "joinLeft",
-                    rootData
-                }))) {
+                instancePath: instancePath + "/joinLeft",
+                parentData: data,
+                parentDataProperty: "joinLeft",
+                rootData
+            }))) {
                 vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
                 errors = vErrors.length;
             }
         }
         if (data.joinRight !== undefined) {
             if (!(validate46(data.joinRight, {
-                    dataPath: dataPath + "/joinRight",
-                    parentData: data,
-                    parentDataProperty: "joinRight",
-                    rootData
-                }))) {
+                instancePath: instancePath + "/joinRight",
+                parentData: data,
+                parentDataProperty: "joinRight",
+                rootData
+            }))) {
                 vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
                 errors = vErrors.length;
             }
         }
         if (data.joinJoin !== undefined) {
             if (!(validate46(data.joinJoin, {
-                    dataPath: dataPath + "/joinJoin",
-                    parentData: data,
-                    parentDataProperty: "joinJoin",
-                    rootData
-                }))) {
+                instancePath: instancePath + "/joinJoin",
+                parentData: data,
+                parentDataProperty: "joinJoin",
+                rootData
+            }))) {
                 vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
                 errors = vErrors.length;
             }
         }
-    } else {
+        if (data.joinMiddleUp !== undefined) {
+            if (!(validate46(data.joinMiddleUp, {
+                instancePath: instancePath + "/joinMiddleUp",
+                parentData: data,
+                parentDataProperty: "joinMiddleUp",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.joinMiddleDown !== undefined) {
+            if (!(validate46(data.joinMiddleDown, {
+                instancePath: instancePath + "/joinMiddleDown",
+                parentData: data,
+                parentDataProperty: "joinMiddleDown",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.joinMiddleLeft !== undefined) {
+            if (!(validate46(data.joinMiddleLeft, {
+                instancePath: instancePath + "/joinMiddleLeft",
+                parentData: data,
+                parentDataProperty: "joinMiddleLeft",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.joinMiddleRight !== undefined) {
+            if (!(validate46(data.joinMiddleRight, {
+                instancePath: instancePath + "/joinMiddleRight",
+                parentData: data,
+                parentDataProperty: "joinMiddleRight",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
+                errors = vErrors.length;
+            }
+        }
+    }
+    else {
         const err1 = {
-            keyword: "type",
-            dataPath,
+            instancePath,
             schemaPath: "#/type",
+            keyword: "type",
             params: {
                 type: "object"
             },
-            message: "should be object"
+            message: "must be object"
         };
         if (vErrors === null) {
             vErrors = [err1];
-        } else {
+        }
+        else {
             vErrors.push(err1);
         }
         errors++;
@@ -17542,242 +12358,358 @@ function validate45(data, {
     validate45.errors = vErrors;
     return errors === 0;
 }
-const pattern0 = new RegExp("^[0-9]+$", "u");
-const schema18 = {
-    "type": "object",
-    "properties": {
-        "alignment": {
-            "type": "string",
-            "enum": ["left", "right", "center"]
-        },
-        "width": {
-            "type": "number"
-        },
-        "wrapWord": {
-            "type": "boolean"
-        },
-        "truncate": {
-            "type": "number"
-        },
-        "paddingLeft": {
-            "type": "number"
-        },
-        "paddingRight": {
-            "type": "number"
-        }
-    },
-    "additionalProperties": false
+const schema17 = {
+    "type": "string",
+    "enum": ["left", "right", "center", "justify"]
 };
-
-
-function validate64(data, {
-    dataPath = "",
-    parentData,
-    parentDataProperty,
-    rootData = data
-} = {}) {
+equal$1.default;
+function validate68(data, { instancePath = "", parentData, parentDataProperty, rootData = data } = {}) {
+    let vErrors = null;
+    let errors = 0;
+    if (typeof data !== "string") {
+        const err0 = {
+            instancePath,
+            schemaPath: "#/type",
+            keyword: "type",
+            params: {
+                type: "string"
+            },
+            message: "must be string"
+        };
+        if (vErrors === null) {
+            vErrors = [err0];
+        }
+        else {
+            vErrors.push(err0);
+        }
+        errors++;
+    }
+    if (!((((data === "left") || (data === "right")) || (data === "center")) || (data === "justify"))) {
+        const err1 = {
+            instancePath,
+            schemaPath: "#/enum",
+            keyword: "enum",
+            params: {
+                allowedValues: schema17.enum
+            },
+            message: "must be equal to one of the allowed values"
+        };
+        if (vErrors === null) {
+            vErrors = [err1];
+        }
+        else {
+            vErrors.push(err1);
+        }
+        errors++;
+    }
+    validate68.errors = vErrors;
+    return errors === 0;
+}
+const pattern0 = new RegExp("^[0-9]+$", "u");
+function validate72(data, { instancePath = "", parentData, parentDataProperty, rootData = data } = {}) {
+    let vErrors = null;
+    let errors = 0;
+    if (typeof data !== "string") {
+        const err0 = {
+            instancePath,
+            schemaPath: "#/type",
+            keyword: "type",
+            params: {
+                type: "string"
+            },
+            message: "must be string"
+        };
+        if (vErrors === null) {
+            vErrors = [err0];
+        }
+        else {
+            vErrors.push(err0);
+        }
+        errors++;
+    }
+    if (!((((data === "left") || (data === "right")) || (data === "center")) || (data === "justify"))) {
+        const err1 = {
+            instancePath,
+            schemaPath: "#/enum",
+            keyword: "enum",
+            params: {
+                allowedValues: schema17.enum
+            },
+            message: "must be equal to one of the allowed values"
+        };
+        if (vErrors === null) {
+            vErrors = [err1];
+        }
+        else {
+            vErrors.push(err1);
+        }
+        errors++;
+    }
+    validate72.errors = vErrors;
+    return errors === 0;
+}
+const schema21 = {
+    "type": "string",
+    "enum": ["top", "middle", "bottom"]
+};
+function validate74(data, { instancePath = "", parentData, parentDataProperty, rootData = data } = {}) {
+    let vErrors = null;
+    let errors = 0;
+    if (typeof data !== "string") {
+        const err0 = {
+            instancePath,
+            schemaPath: "#/type",
+            keyword: "type",
+            params: {
+                type: "string"
+            },
+            message: "must be string"
+        };
+        if (vErrors === null) {
+            vErrors = [err0];
+        }
+        else {
+            vErrors.push(err0);
+        }
+        errors++;
+    }
+    if (!(((data === "top") || (data === "middle")) || (data === "bottom"))) {
+        const err1 = {
+            instancePath,
+            schemaPath: "#/enum",
+            keyword: "enum",
+            params: {
+                allowedValues: schema21.enum
+            },
+            message: "must be equal to one of the allowed values"
+        };
+        if (vErrors === null) {
+            vErrors = [err1];
+        }
+        else {
+            vErrors.push(err1);
+        }
+        errors++;
+    }
+    validate74.errors = vErrors;
+    return errors === 0;
+}
+function validate71(data, { instancePath = "", parentData, parentDataProperty, rootData = data } = {}) {
     let vErrors = null;
     let errors = 0;
     if (data && typeof data == "object" && !Array.isArray(data)) {
         for (const key0 in data) {
-            if (!((((((key0 === "alignment") || (key0 === "width")) || (key0 === "wrapWord")) || (key0 === "truncate")) || (key0 === "paddingLeft")) || (key0 === "paddingRight"))) {
+            if (!(((((((key0 === "alignment") || (key0 === "verticalAlignment")) || (key0 === "width")) || (key0 === "wrapWord")) || (key0 === "truncate")) || (key0 === "paddingLeft")) || (key0 === "paddingRight"))) {
                 const err0 = {
-                    keyword: "additionalProperties",
-                    dataPath,
+                    instancePath,
                     schemaPath: "#/additionalProperties",
+                    keyword: "additionalProperties",
                     params: {
                         additionalProperty: key0
                     },
-                    message: "should NOT have additional properties"
+                    message: "must NOT have additional properties"
                 };
                 if (vErrors === null) {
                     vErrors = [err0];
-                } else {
+                }
+                else {
                     vErrors.push(err0);
                 }
                 errors++;
             }
         }
         if (data.alignment !== undefined) {
-            let data0 = data.alignment;
-            if (typeof data0 !== "string") {
+            if (!(validate72(data.alignment, {
+                instancePath: instancePath + "/alignment",
+                parentData: data,
+                parentDataProperty: "alignment",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate72.errors : vErrors.concat(validate72.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.verticalAlignment !== undefined) {
+            if (!(validate74(data.verticalAlignment, {
+                instancePath: instancePath + "/verticalAlignment",
+                parentData: data,
+                parentDataProperty: "verticalAlignment",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate74.errors : vErrors.concat(validate74.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.width !== undefined) {
+            let data2 = data.width;
+            if (!(((typeof data2 == "number") && (!(data2 % 1) && !isNaN(data2))) && (isFinite(data2)))) {
                 const err1 = {
+                    instancePath: instancePath + "/width",
+                    schemaPath: "#/properties/width/type",
                     keyword: "type",
-                    dataPath: dataPath + "/alignment",
-                    schemaPath: "#/properties/alignment/type",
                     params: {
-                        type: "string"
+                        type: "integer"
                     },
-                    message: "should be string"
+                    message: "must be integer"
                 };
                 if (vErrors === null) {
                     vErrors = [err1];
-                } else {
+                }
+                else {
                     vErrors.push(err1);
                 }
                 errors++;
             }
-            if (!(((data0 === "left") || (data0 === "right")) || (data0 === "center"))) {
-                const err2 = {
-                    keyword: "enum",
-                    dataPath: dataPath + "/alignment",
-                    schemaPath: "#/properties/alignment/enum",
-                    params: {
-                        allowedValues: schema18.properties.alignment.enum
-                    },
-                    message: "should be equal to one of the allowed values"
-                };
-                if (vErrors === null) {
-                    vErrors = [err2];
-                } else {
-                    vErrors.push(err2);
+            if ((typeof data2 == "number") && (isFinite(data2))) {
+                if (data2 < 1 || isNaN(data2)) {
+                    const err2 = {
+                        instancePath: instancePath + "/width",
+                        schemaPath: "#/properties/width/minimum",
+                        keyword: "minimum",
+                        params: {
+                            comparison: ">=",
+                            limit: 1
+                        },
+                        message: "must be >= 1"
+                    };
+                    if (vErrors === null) {
+                        vErrors = [err2];
+                    }
+                    else {
+                        vErrors.push(err2);
+                    }
+                    errors++;
                 }
-                errors++;
             }
         }
-        if (data.width !== undefined) {
-            let data1 = data.width;
-            if (!((typeof data1 == "number") && (isFinite(data1)))) {
+        if (data.wrapWord !== undefined) {
+            if (typeof data.wrapWord !== "boolean") {
                 const err3 = {
+                    instancePath: instancePath + "/wrapWord",
+                    schemaPath: "#/properties/wrapWord/type",
                     keyword: "type",
-                    dataPath: dataPath + "/width",
-                    schemaPath: "#/properties/width/type",
                     params: {
-                        type: "number"
+                        type: "boolean"
                     },
-                    message: "should be number"
+                    message: "must be boolean"
                 };
                 if (vErrors === null) {
                     vErrors = [err3];
-                } else {
+                }
+                else {
                     vErrors.push(err3);
                 }
                 errors++;
             }
         }
-        if (data.wrapWord !== undefined) {
-            if (typeof data.wrapWord !== "boolean") {
+        if (data.truncate !== undefined) {
+            let data4 = data.truncate;
+            if (!(((typeof data4 == "number") && (!(data4 % 1) && !isNaN(data4))) && (isFinite(data4)))) {
                 const err4 = {
+                    instancePath: instancePath + "/truncate",
+                    schemaPath: "#/properties/truncate/type",
                     keyword: "type",
-                    dataPath: dataPath + "/wrapWord",
-                    schemaPath: "#/properties/wrapWord/type",
                     params: {
-                        type: "boolean"
+                        type: "integer"
                     },
-                    message: "should be boolean"
+                    message: "must be integer"
                 };
                 if (vErrors === null) {
                     vErrors = [err4];
-                } else {
+                }
+                else {
                     vErrors.push(err4);
                 }
                 errors++;
             }
         }
-        if (data.truncate !== undefined) {
-            let data3 = data.truncate;
-            if (!((typeof data3 == "number") && (isFinite(data3)))) {
+        if (data.paddingLeft !== undefined) {
+            let data5 = data.paddingLeft;
+            if (!(((typeof data5 == "number") && (!(data5 % 1) && !isNaN(data5))) && (isFinite(data5)))) {
                 const err5 = {
+                    instancePath: instancePath + "/paddingLeft",
+                    schemaPath: "#/properties/paddingLeft/type",
                     keyword: "type",
-                    dataPath: dataPath + "/truncate",
-                    schemaPath: "#/properties/truncate/type",
                     params: {
-                        type: "number"
+                        type: "integer"
                     },
-                    message: "should be number"
+                    message: "must be integer"
                 };
                 if (vErrors === null) {
                     vErrors = [err5];
-                } else {
+                }
+                else {
                     vErrors.push(err5);
                 }
                 errors++;
             }
         }
-        if (data.paddingLeft !== undefined) {
-            let data4 = data.paddingLeft;
-            if (!((typeof data4 == "number") && (isFinite(data4)))) {
+        if (data.paddingRight !== undefined) {
+            let data6 = data.paddingRight;
+            if (!(((typeof data6 == "number") && (!(data6 % 1) && !isNaN(data6))) && (isFinite(data6)))) {
                 const err6 = {
+                    instancePath: instancePath + "/paddingRight",
+                    schemaPath: "#/properties/paddingRight/type",
                     keyword: "type",
-                    dataPath: dataPath + "/paddingLeft",
-                    schemaPath: "#/properties/paddingLeft/type",
                     params: {
-                        type: "number"
+                        type: "integer"
                     },
-                    message: "should be number"
+                    message: "must be integer"
                 };
                 if (vErrors === null) {
                     vErrors = [err6];
-                } else {
+                }
+                else {
                     vErrors.push(err6);
                 }
                 errors++;
             }
         }
-        if (data.paddingRight !== undefined) {
-            let data5 = data.paddingRight;
-            if (!((typeof data5 == "number") && (isFinite(data5)))) {
-                const err7 = {
-                    keyword: "type",
-                    dataPath: dataPath + "/paddingRight",
-                    schemaPath: "#/properties/paddingRight/type",
-                    params: {
-                        type: "number"
-                    },
-                    message: "should be number"
-                };
-                if (vErrors === null) {
-                    vErrors = [err7];
-                } else {
-                    vErrors.push(err7);
-                }
-                errors++;
-            }
-        }
-    } else {
-        const err8 = {
-            keyword: "type",
-            dataPath,
+    }
+    else {
+        const err7 = {
+            instancePath,
             schemaPath: "#/type",
+            keyword: "type",
             params: {
                 type: "object"
             },
-            message: "should be object"
+            message: "must be object"
         };
         if (vErrors === null) {
-            vErrors = [err8];
-        } else {
-            vErrors.push(err8);
+            vErrors = [err7];
+        }
+        else {
+            vErrors.push(err7);
         }
         errors++;
     }
-    validate64.errors = vErrors;
+    validate71.errors = vErrors;
     return errors === 0;
 }
-
-function validate63(data, {
-    dataPath = "",
-    parentData,
-    parentDataProperty,
-    rootData = data
-} = {}) {
+function validate70(data, { instancePath = "", parentData, parentDataProperty, rootData = data } = {}) {
     let vErrors = null;
     let errors = 0;
+    const _errs0 = errors;
+    let valid0 = false;
+    let passing0 = null;
+    const _errs1 = errors;
     if (data && typeof data == "object" && !Array.isArray(data)) {
         for (const key0 in data) {
             if (!(pattern0.test(key0))) {
                 const err0 = {
+                    instancePath,
+                    schemaPath: "#/oneOf/0/additionalProperties",
                     keyword: "additionalProperties",
-                    dataPath,
-                    schemaPath: "#/additionalProperties",
                     params: {
                         additionalProperty: key0
                     },
-                    message: "should NOT have additional properties"
+                    message: "must NOT have additional properties"
                 };
                 if (vErrors === null) {
                     vErrors = [err0];
-                } else {
+                }
+                else {
                     vErrors.push(err0);
                 }
                 errors++;
@@ -17785,246 +12717,371 @@ function validate63(data, {
         }
         for (const key1 in data) {
             if (pattern0.test(key1)) {
-                if (!(validate64(data[key1], {
-                        dataPath: dataPath + "/" + key1.replace(/~/g, "~0").replace(/\//g, "~1"),
-                        parentData: data,
-                        parentDataProperty: key1,
-                        rootData
-                    }))) {
-                    vErrors = vErrors === null ? validate64.errors : vErrors.concat(validate64.errors);
+                if (!(validate71(data[key1], {
+                    instancePath: instancePath + "/" + key1.replace(/~/g, "~0").replace(/\//g, "~1"),
+                    parentData: data,
+                    parentDataProperty: key1,
+                    rootData
+                }))) {
+                    vErrors = vErrors === null ? validate71.errors : vErrors.concat(validate71.errors);
                     errors = vErrors.length;
                 }
             }
         }
-    } else {
+    }
+    else {
         const err1 = {
+            instancePath,
+            schemaPath: "#/oneOf/0/type",
             keyword: "type",
-            dataPath,
-            schemaPath: "#/type",
             params: {
                 type: "object"
             },
-            message: "should be object"
+            message: "must be object"
         };
         if (vErrors === null) {
             vErrors = [err1];
-        } else {
+        }
+        else {
             vErrors.push(err1);
         }
         errors++;
     }
-    validate63.errors = vErrors;
+    var _valid0 = _errs1 === errors;
+    if (_valid0) {
+        valid0 = true;
+        passing0 = 0;
+    }
+    const _errs5 = errors;
+    if (Array.isArray(data)) {
+        const len0 = data.length;
+        for (let i0 = 0; i0 < len0; i0++) {
+            if (!(validate71(data[i0], {
+                instancePath: instancePath + "/" + i0,
+                parentData: data,
+                parentDataProperty: i0,
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate71.errors : vErrors.concat(validate71.errors);
+                errors = vErrors.length;
+            }
+        }
+    }
+    else {
+        const err2 = {
+            instancePath,
+            schemaPath: "#/oneOf/1/type",
+            keyword: "type",
+            params: {
+                type: "array"
+            },
+            message: "must be array"
+        };
+        if (vErrors === null) {
+            vErrors = [err2];
+        }
+        else {
+            vErrors.push(err2);
+        }
+        errors++;
+    }
+    var _valid0 = _errs5 === errors;
+    if (_valid0 && valid0) {
+        valid0 = false;
+        passing0 = [passing0, 1];
+    }
+    else {
+        if (_valid0) {
+            valid0 = true;
+            passing0 = 1;
+        }
+    }
+    if (!valid0) {
+        const err3 = {
+            instancePath,
+            schemaPath: "#/oneOf",
+            keyword: "oneOf",
+            params: {
+                passingSchemas: passing0
+            },
+            message: "must match exactly one schema in oneOf"
+        };
+        if (vErrors === null) {
+            vErrors = [err3];
+        }
+        else {
+            vErrors.push(err3);
+        }
+        errors++;
+    }
+    else {
+        errors = _errs0;
+        if (vErrors !== null) {
+            if (_errs0) {
+                vErrors.length = _errs0;
+            }
+            else {
+                vErrors = null;
+            }
+        }
+    }
+    validate70.errors = vErrors;
     return errors === 0;
 }
-
-function validate67(data, {
-    dataPath = "",
-    parentData,
-    parentDataProperty,
-    rootData = data
-} = {}) {
+function validate79(data, { instancePath = "", parentData, parentDataProperty, rootData = data } = {}) {
     let vErrors = null;
     let errors = 0;
     if (data && typeof data == "object" && !Array.isArray(data)) {
         for (const key0 in data) {
-            if (!((((((key0 === "alignment") || (key0 === "width")) || (key0 === "wrapWord")) || (key0 === "truncate")) || (key0 === "paddingLeft")) || (key0 === "paddingRight"))) {
+            if (!(((((((key0 === "alignment") || (key0 === "verticalAlignment")) || (key0 === "width")) || (key0 === "wrapWord")) || (key0 === "truncate")) || (key0 === "paddingLeft")) || (key0 === "paddingRight"))) {
                 const err0 = {
-                    keyword: "additionalProperties",
-                    dataPath,
+                    instancePath,
                     schemaPath: "#/additionalProperties",
+                    keyword: "additionalProperties",
                     params: {
                         additionalProperty: key0
                     },
-                    message: "should NOT have additional properties"
+                    message: "must NOT have additional properties"
                 };
                 if (vErrors === null) {
                     vErrors = [err0];
-                } else {
+                }
+                else {
                     vErrors.push(err0);
                 }
                 errors++;
             }
         }
         if (data.alignment !== undefined) {
-            let data0 = data.alignment;
-            if (typeof data0 !== "string") {
+            if (!(validate72(data.alignment, {
+                instancePath: instancePath + "/alignment",
+                parentData: data,
+                parentDataProperty: "alignment",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate72.errors : vErrors.concat(validate72.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.verticalAlignment !== undefined) {
+            if (!(validate74(data.verticalAlignment, {
+                instancePath: instancePath + "/verticalAlignment",
+                parentData: data,
+                parentDataProperty: "verticalAlignment",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate74.errors : vErrors.concat(validate74.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.width !== undefined) {
+            let data2 = data.width;
+            if (!(((typeof data2 == "number") && (!(data2 % 1) && !isNaN(data2))) && (isFinite(data2)))) {
                 const err1 = {
+                    instancePath: instancePath + "/width",
+                    schemaPath: "#/properties/width/type",
                     keyword: "type",
-                    dataPath: dataPath + "/alignment",
-                    schemaPath: "#/properties/alignment/type",
                     params: {
-                        type: "string"
+                        type: "integer"
                     },
-                    message: "should be string"
+                    message: "must be integer"
                 };
                 if (vErrors === null) {
                     vErrors = [err1];
-                } else {
+                }
+                else {
                     vErrors.push(err1);
                 }
                 errors++;
             }
-            if (!(((data0 === "left") || (data0 === "right")) || (data0 === "center"))) {
-                const err2 = {
-                    keyword: "enum",
-                    dataPath: dataPath + "/alignment",
-                    schemaPath: "#/properties/alignment/enum",
-                    params: {
-                        allowedValues: schema18.properties.alignment.enum
-                    },
-                    message: "should be equal to one of the allowed values"
-                };
-                if (vErrors === null) {
-                    vErrors = [err2];
-                } else {
-                    vErrors.push(err2);
+            if ((typeof data2 == "number") && (isFinite(data2))) {
+                if (data2 < 1 || isNaN(data2)) {
+                    const err2 = {
+                        instancePath: instancePath + "/width",
+                        schemaPath: "#/properties/width/minimum",
+                        keyword: "minimum",
+                        params: {
+                            comparison: ">=",
+                            limit: 1
+                        },
+                        message: "must be >= 1"
+                    };
+                    if (vErrors === null) {
+                        vErrors = [err2];
+                    }
+                    else {
+                        vErrors.push(err2);
+                    }
+                    errors++;
                 }
-                errors++;
             }
         }
-        if (data.width !== undefined) {
-            let data1 = data.width;
-            if (!((typeof data1 == "number") && (isFinite(data1)))) {
+        if (data.wrapWord !== undefined) {
+            if (typeof data.wrapWord !== "boolean") {
                 const err3 = {
+                    instancePath: instancePath + "/wrapWord",
+                    schemaPath: "#/properties/wrapWord/type",
                     keyword: "type",
-                    dataPath: dataPath + "/width",
-                    schemaPath: "#/properties/width/type",
                     params: {
-                        type: "number"
+                        type: "boolean"
                     },
-                    message: "should be number"
+                    message: "must be boolean"
                 };
                 if (vErrors === null) {
                     vErrors = [err3];
-                } else {
+                }
+                else {
                     vErrors.push(err3);
                 }
                 errors++;
             }
         }
-        if (data.wrapWord !== undefined) {
-            if (typeof data.wrapWord !== "boolean") {
+        if (data.truncate !== undefined) {
+            let data4 = data.truncate;
+            if (!(((typeof data4 == "number") && (!(data4 % 1) && !isNaN(data4))) && (isFinite(data4)))) {
                 const err4 = {
+                    instancePath: instancePath + "/truncate",
+                    schemaPath: "#/properties/truncate/type",
                     keyword: "type",
-                    dataPath: dataPath + "/wrapWord",
-                    schemaPath: "#/properties/wrapWord/type",
                     params: {
-                        type: "boolean"
+                        type: "integer"
                     },
-                    message: "should be boolean"
+                    message: "must be integer"
                 };
                 if (vErrors === null) {
                     vErrors = [err4];
-                } else {
+                }
+                else {
                     vErrors.push(err4);
                 }
                 errors++;
             }
         }
-        if (data.truncate !== undefined) {
-            let data3 = data.truncate;
-            if (!((typeof data3 == "number") && (isFinite(data3)))) {
+        if (data.paddingLeft !== undefined) {
+            let data5 = data.paddingLeft;
+            if (!(((typeof data5 == "number") && (!(data5 % 1) && !isNaN(data5))) && (isFinite(data5)))) {
                 const err5 = {
+                    instancePath: instancePath + "/paddingLeft",
+                    schemaPath: "#/properties/paddingLeft/type",
                     keyword: "type",
-                    dataPath: dataPath + "/truncate",
-                    schemaPath: "#/properties/truncate/type",
                     params: {
-                        type: "number"
+                        type: "integer"
                     },
-                    message: "should be number"
+                    message: "must be integer"
                 };
                 if (vErrors === null) {
                     vErrors = [err5];
-                } else {
+                }
+                else {
                     vErrors.push(err5);
                 }
                 errors++;
             }
         }
-        if (data.paddingLeft !== undefined) {
-            let data4 = data.paddingLeft;
-            if (!((typeof data4 == "number") && (isFinite(data4)))) {
+        if (data.paddingRight !== undefined) {
+            let data6 = data.paddingRight;
+            if (!(((typeof data6 == "number") && (!(data6 % 1) && !isNaN(data6))) && (isFinite(data6)))) {
                 const err6 = {
+                    instancePath: instancePath + "/paddingRight",
+                    schemaPath: "#/properties/paddingRight/type",
                     keyword: "type",
-                    dataPath: dataPath + "/paddingLeft",
-                    schemaPath: "#/properties/paddingLeft/type",
                     params: {
-                        type: "number"
+                        type: "integer"
                     },
-                    message: "should be number"
+                    message: "must be integer"
                 };
                 if (vErrors === null) {
                     vErrors = [err6];
-                } else {
+                }
+                else {
                     vErrors.push(err6);
                 }
                 errors++;
             }
         }
-        if (data.paddingRight !== undefined) {
-            let data5 = data.paddingRight;
-            if (!((typeof data5 == "number") && (isFinite(data5)))) {
-                const err7 = {
-                    keyword: "type",
-                    dataPath: dataPath + "/paddingRight",
-                    schemaPath: "#/properties/paddingRight/type",
-                    params: {
-                        type: "number"
-                    },
-                    message: "should be number"
-                };
-                if (vErrors === null) {
-                    vErrors = [err7];
-                } else {
-                    vErrors.push(err7);
-                }
-                errors++;
-            }
-        }
-    } else {
-        const err8 = {
-            keyword: "type",
-            dataPath,
+    }
+    else {
+        const err7 = {
+            instancePath,
             schemaPath: "#/type",
+            keyword: "type",
             params: {
                 type: "object"
             },
-            message: "should be object"
+            message: "must be object"
         };
         if (vErrors === null) {
-            vErrors = [err8];
-        } else {
-            vErrors.push(err8);
+            vErrors = [err7];
+        }
+        else {
+            vErrors.push(err7);
         }
         errors++;
     }
-    validate67.errors = vErrors;
+    validate79.errors = vErrors;
     return errors === 0;
 }
-
-function validate43(data, {
-    dataPath = "",
-    parentData,
-    parentDataProperty,
-    rootData = data
-} = {}) {
+function validate84(data, { instancePath = "", parentData, parentDataProperty, rootData = data } = {}) {
+    let vErrors = null;
+    let errors = 0;
+    if (typeof data !== "string") {
+        const err0 = {
+            instancePath,
+            schemaPath: "#/type",
+            keyword: "type",
+            params: {
+                type: "string"
+            },
+            message: "must be string"
+        };
+        if (vErrors === null) {
+            vErrors = [err0];
+        }
+        else {
+            vErrors.push(err0);
+        }
+        errors++;
+    }
+    if (!(((data === "top") || (data === "middle")) || (data === "bottom"))) {
+        const err1 = {
+            instancePath,
+            schemaPath: "#/enum",
+            keyword: "enum",
+            params: {
+                allowedValues: schema21.enum
+            },
+            message: "must be equal to one of the allowed values"
+        };
+        if (vErrors === null) {
+            vErrors = [err1];
+        }
+        else {
+            vErrors.push(err1);
+        }
+        errors++;
+    }
+    validate84.errors = vErrors;
+    return errors === 0;
+}
+function validate43(data, { instancePath = "", parentData, parentDataProperty, rootData = data } = {}) {
     let vErrors = null;
     let errors = 0;
     if (data && typeof data == "object" && !Array.isArray(data)) {
         for (const key0 in data) {
-            if (!(((((key0 === "border") || (key0 === "columns")) || (key0 === "columnDefault")) || (key0 === "drawHorizontalLine")) || (key0 === "singleLine"))) {
+            if (!((((((((key0 === "border") || (key0 === "header")) || (key0 === "columns")) || (key0 === "columnDefault")) || (key0 === "drawVerticalLine")) || (key0 === "drawHorizontalLine")) || (key0 === "singleLine")) || (key0 === "spanningCells"))) {
                 const err0 = {
-                    keyword: "additionalProperties",
-                    dataPath,
+                    instancePath,
                     schemaPath: "#/additionalProperties",
+                    keyword: "additionalProperties",
                     params: {
                         additionalProperty: key0
                     },
-                    message: "should NOT have additional properties"
+                    message: "must NOT have additional properties"
                 };
                 if (vErrors === null) {
                     vErrors = [err0];
-                } else {
+                }
+                else {
                     vErrors.push(err0);
                 }
                 errors++;
@@ -18032,116 +13089,684 @@ function validate43(data, {
         }
         if (data.border !== undefined) {
             if (!(validate45(data.border, {
-                    dataPath: dataPath + "/border",
-                    parentData: data,
-                    parentDataProperty: "border",
-                    rootData
-                }))) {
+                instancePath: instancePath + "/border",
+                parentData: data,
+                parentDataProperty: "border",
+                rootData
+            }))) {
                 vErrors = vErrors === null ? validate45.errors : vErrors.concat(validate45.errors);
                 errors = vErrors.length;
             }
         }
+        if (data.header !== undefined) {
+            let data1 = data.header;
+            if (data1 && typeof data1 == "object" && !Array.isArray(data1)) {
+                if (data1.content === undefined) {
+                    const err1 = {
+                        instancePath: instancePath + "/header",
+                        schemaPath: "#/properties/header/required",
+                        keyword: "required",
+                        params: {
+                            missingProperty: "content"
+                        },
+                        message: "must have required property '" + "content" + "'"
+                    };
+                    if (vErrors === null) {
+                        vErrors = [err1];
+                    }
+                    else {
+                        vErrors.push(err1);
+                    }
+                    errors++;
+                }
+                for (const key1 in data1) {
+                    if (!((((((key1 === "content") || (key1 === "alignment")) || (key1 === "wrapWord")) || (key1 === "truncate")) || (key1 === "paddingLeft")) || (key1 === "paddingRight"))) {
+                        const err2 = {
+                            instancePath: instancePath + "/header",
+                            schemaPath: "#/properties/header/additionalProperties",
+                            keyword: "additionalProperties",
+                            params: {
+                                additionalProperty: key1
+                            },
+                            message: "must NOT have additional properties"
+                        };
+                        if (vErrors === null) {
+                            vErrors = [err2];
+                        }
+                        else {
+                            vErrors.push(err2);
+                        }
+                        errors++;
+                    }
+                }
+                if (data1.content !== undefined) {
+                    if (typeof data1.content !== "string") {
+                        const err3 = {
+                            instancePath: instancePath + "/header/content",
+                            schemaPath: "#/properties/header/properties/content/type",
+                            keyword: "type",
+                            params: {
+                                type: "string"
+                            },
+                            message: "must be string"
+                        };
+                        if (vErrors === null) {
+                            vErrors = [err3];
+                        }
+                        else {
+                            vErrors.push(err3);
+                        }
+                        errors++;
+                    }
+                }
+                if (data1.alignment !== undefined) {
+                    if (!(validate68(data1.alignment, {
+                        instancePath: instancePath + "/header/alignment",
+                        parentData: data1,
+                        parentDataProperty: "alignment",
+                        rootData
+                    }))) {
+                        vErrors = vErrors === null ? validate68.errors : vErrors.concat(validate68.errors);
+                        errors = vErrors.length;
+                    }
+                }
+                if (data1.wrapWord !== undefined) {
+                    if (typeof data1.wrapWord !== "boolean") {
+                        const err4 = {
+                            instancePath: instancePath + "/header/wrapWord",
+                            schemaPath: "#/properties/header/properties/wrapWord/type",
+                            keyword: "type",
+                            params: {
+                                type: "boolean"
+                            },
+                            message: "must be boolean"
+                        };
+                        if (vErrors === null) {
+                            vErrors = [err4];
+                        }
+                        else {
+                            vErrors.push(err4);
+                        }
+                        errors++;
+                    }
+                }
+                if (data1.truncate !== undefined) {
+                    let data5 = data1.truncate;
+                    if (!(((typeof data5 == "number") && (!(data5 % 1) && !isNaN(data5))) && (isFinite(data5)))) {
+                        const err5 = {
+                            instancePath: instancePath + "/header/truncate",
+                            schemaPath: "#/properties/header/properties/truncate/type",
+                            keyword: "type",
+                            params: {
+                                type: "integer"
+                            },
+                            message: "must be integer"
+                        };
+                        if (vErrors === null) {
+                            vErrors = [err5];
+                        }
+                        else {
+                            vErrors.push(err5);
+                        }
+                        errors++;
+                    }
+                }
+                if (data1.paddingLeft !== undefined) {
+                    let data6 = data1.paddingLeft;
+                    if (!(((typeof data6 == "number") && (!(data6 % 1) && !isNaN(data6))) && (isFinite(data6)))) {
+                        const err6 = {
+                            instancePath: instancePath + "/header/paddingLeft",
+                            schemaPath: "#/properties/header/properties/paddingLeft/type",
+                            keyword: "type",
+                            params: {
+                                type: "integer"
+                            },
+                            message: "must be integer"
+                        };
+                        if (vErrors === null) {
+                            vErrors = [err6];
+                        }
+                        else {
+                            vErrors.push(err6);
+                        }
+                        errors++;
+                    }
+                }
+                if (data1.paddingRight !== undefined) {
+                    let data7 = data1.paddingRight;
+                    if (!(((typeof data7 == "number") && (!(data7 % 1) && !isNaN(data7))) && (isFinite(data7)))) {
+                        const err7 = {
+                            instancePath: instancePath + "/header/paddingRight",
+                            schemaPath: "#/properties/header/properties/paddingRight/type",
+                            keyword: "type",
+                            params: {
+                                type: "integer"
+                            },
+                            message: "must be integer"
+                        };
+                        if (vErrors === null) {
+                            vErrors = [err7];
+                        }
+                        else {
+                            vErrors.push(err7);
+                        }
+                        errors++;
+                    }
+                }
+            }
+            else {
+                const err8 = {
+                    instancePath: instancePath + "/header",
+                    schemaPath: "#/properties/header/type",
+                    keyword: "type",
+                    params: {
+                        type: "object"
+                    },
+                    message: "must be object"
+                };
+                if (vErrors === null) {
+                    vErrors = [err8];
+                }
+                else {
+                    vErrors.push(err8);
+                }
+                errors++;
+            }
+        }
         if (data.columns !== undefined) {
-            if (!(validate63(data.columns, {
-                    dataPath: dataPath + "/columns",
-                    parentData: data,
-                    parentDataProperty: "columns",
-                    rootData
-                }))) {
-                vErrors = vErrors === null ? validate63.errors : vErrors.concat(validate63.errors);
+            if (!(validate70(data.columns, {
+                instancePath: instancePath + "/columns",
+                parentData: data,
+                parentDataProperty: "columns",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate70.errors : vErrors.concat(validate70.errors);
                 errors = vErrors.length;
             }
         }
         if (data.columnDefault !== undefined) {
-            if (!(validate67(data.columnDefault, {
-                    dataPath: dataPath + "/columnDefault",
-                    parentData: data,
-                    parentDataProperty: "columnDefault",
-                    rootData
-                }))) {
-                vErrors = vErrors === null ? validate67.errors : vErrors.concat(validate67.errors);
+            if (!(validate79(data.columnDefault, {
+                instancePath: instancePath + "/columnDefault",
+                parentData: data,
+                parentDataProperty: "columnDefault",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate79.errors : vErrors.concat(validate79.errors);
                 errors = vErrors.length;
+            }
+        }
+        if (data.drawVerticalLine !== undefined) {
+            if (typeof data.drawVerticalLine != "function") {
+                const err9 = {
+                    instancePath: instancePath + "/drawVerticalLine",
+                    schemaPath: "#/properties/drawVerticalLine/typeof",
+                    keyword: "typeof",
+                    params: {},
+                    message: "must pass \"typeof\" keyword validation"
+                };
+                if (vErrors === null) {
+                    vErrors = [err9];
+                }
+                else {
+                    vErrors.push(err9);
+                }
+                errors++;
             }
         }
         if (data.drawHorizontalLine !== undefined) {
             if (typeof data.drawHorizontalLine != "function") {
-                const err1 = {
-                    keyword: "typeof",
-                    dataPath: dataPath + "/drawHorizontalLine",
+                const err10 = {
+                    instancePath: instancePath + "/drawHorizontalLine",
                     schemaPath: "#/properties/drawHorizontalLine/typeof",
+                    keyword: "typeof",
                     params: {},
-                    message: "should pass \"typeof\" keyword validation"
+                    message: "must pass \"typeof\" keyword validation"
                 };
                 if (vErrors === null) {
-                    vErrors = [err1];
-                } else {
-                    vErrors.push(err1);
+                    vErrors = [err10];
+                }
+                else {
+                    vErrors.push(err10);
                 }
                 errors++;
             }
         }
         if (data.singleLine !== undefined) {
             if (typeof data.singleLine != "boolean") {
-                const err2 = {
-                    keyword: "typeof",
-                    dataPath: dataPath + "/singleLine",
+                const err11 = {
+                    instancePath: instancePath + "/singleLine",
                     schemaPath: "#/properties/singleLine/typeof",
+                    keyword: "typeof",
                     params: {},
-                    message: "should pass \"typeof\" keyword validation"
+                    message: "must pass \"typeof\" keyword validation"
                 };
                 if (vErrors === null) {
-                    vErrors = [err2];
-                } else {
-                    vErrors.push(err2);
+                    vErrors = [err11];
+                }
+                else {
+                    vErrors.push(err11);
                 }
                 errors++;
             }
         }
-    } else {
-        const err3 = {
-            keyword: "type",
-            dataPath,
+        if (data.spanningCells !== undefined) {
+            let data13 = data.spanningCells;
+            if (Array.isArray(data13)) {
+                const len0 = data13.length;
+                for (let i0 = 0; i0 < len0; i0++) {
+                    let data14 = data13[i0];
+                    if (data14 && typeof data14 == "object" && !Array.isArray(data14)) {
+                        if (data14.row === undefined) {
+                            const err12 = {
+                                instancePath: instancePath + "/spanningCells/" + i0,
+                                schemaPath: "#/properties/spanningCells/items/required",
+                                keyword: "required",
+                                params: {
+                                    missingProperty: "row"
+                                },
+                                message: "must have required property '" + "row" + "'"
+                            };
+                            if (vErrors === null) {
+                                vErrors = [err12];
+                            }
+                            else {
+                                vErrors.push(err12);
+                            }
+                            errors++;
+                        }
+                        if (data14.col === undefined) {
+                            const err13 = {
+                                instancePath: instancePath + "/spanningCells/" + i0,
+                                schemaPath: "#/properties/spanningCells/items/required",
+                                keyword: "required",
+                                params: {
+                                    missingProperty: "col"
+                                },
+                                message: "must have required property '" + "col" + "'"
+                            };
+                            if (vErrors === null) {
+                                vErrors = [err13];
+                            }
+                            else {
+                                vErrors.push(err13);
+                            }
+                            errors++;
+                        }
+                        for (const key2 in data14) {
+                            if (!(func8.call(schema13.properties.spanningCells.items.properties, key2))) {
+                                const err14 = {
+                                    instancePath: instancePath + "/spanningCells/" + i0,
+                                    schemaPath: "#/properties/spanningCells/items/additionalProperties",
+                                    keyword: "additionalProperties",
+                                    params: {
+                                        additionalProperty: key2
+                                    },
+                                    message: "must NOT have additional properties"
+                                };
+                                if (vErrors === null) {
+                                    vErrors = [err14];
+                                }
+                                else {
+                                    vErrors.push(err14);
+                                }
+                                errors++;
+                            }
+                        }
+                        if (data14.col !== undefined) {
+                            let data15 = data14.col;
+                            if (!(((typeof data15 == "number") && (!(data15 % 1) && !isNaN(data15))) && (isFinite(data15)))) {
+                                const err15 = {
+                                    instancePath: instancePath + "/spanningCells/" + i0 + "/col",
+                                    schemaPath: "#/properties/spanningCells/items/properties/col/type",
+                                    keyword: "type",
+                                    params: {
+                                        type: "integer"
+                                    },
+                                    message: "must be integer"
+                                };
+                                if (vErrors === null) {
+                                    vErrors = [err15];
+                                }
+                                else {
+                                    vErrors.push(err15);
+                                }
+                                errors++;
+                            }
+                            if ((typeof data15 == "number") && (isFinite(data15))) {
+                                if (data15 < 0 || isNaN(data15)) {
+                                    const err16 = {
+                                        instancePath: instancePath + "/spanningCells/" + i0 + "/col",
+                                        schemaPath: "#/properties/spanningCells/items/properties/col/minimum",
+                                        keyword: "minimum",
+                                        params: {
+                                            comparison: ">=",
+                                            limit: 0
+                                        },
+                                        message: "must be >= 0"
+                                    };
+                                    if (vErrors === null) {
+                                        vErrors = [err16];
+                                    }
+                                    else {
+                                        vErrors.push(err16);
+                                    }
+                                    errors++;
+                                }
+                            }
+                        }
+                        if (data14.row !== undefined) {
+                            let data16 = data14.row;
+                            if (!(((typeof data16 == "number") && (!(data16 % 1) && !isNaN(data16))) && (isFinite(data16)))) {
+                                const err17 = {
+                                    instancePath: instancePath + "/spanningCells/" + i0 + "/row",
+                                    schemaPath: "#/properties/spanningCells/items/properties/row/type",
+                                    keyword: "type",
+                                    params: {
+                                        type: "integer"
+                                    },
+                                    message: "must be integer"
+                                };
+                                if (vErrors === null) {
+                                    vErrors = [err17];
+                                }
+                                else {
+                                    vErrors.push(err17);
+                                }
+                                errors++;
+                            }
+                            if ((typeof data16 == "number") && (isFinite(data16))) {
+                                if (data16 < 0 || isNaN(data16)) {
+                                    const err18 = {
+                                        instancePath: instancePath + "/spanningCells/" + i0 + "/row",
+                                        schemaPath: "#/properties/spanningCells/items/properties/row/minimum",
+                                        keyword: "minimum",
+                                        params: {
+                                            comparison: ">=",
+                                            limit: 0
+                                        },
+                                        message: "must be >= 0"
+                                    };
+                                    if (vErrors === null) {
+                                        vErrors = [err18];
+                                    }
+                                    else {
+                                        vErrors.push(err18);
+                                    }
+                                    errors++;
+                                }
+                            }
+                        }
+                        if (data14.colSpan !== undefined) {
+                            let data17 = data14.colSpan;
+                            if (!(((typeof data17 == "number") && (!(data17 % 1) && !isNaN(data17))) && (isFinite(data17)))) {
+                                const err19 = {
+                                    instancePath: instancePath + "/spanningCells/" + i0 + "/colSpan",
+                                    schemaPath: "#/properties/spanningCells/items/properties/colSpan/type",
+                                    keyword: "type",
+                                    params: {
+                                        type: "integer"
+                                    },
+                                    message: "must be integer"
+                                };
+                                if (vErrors === null) {
+                                    vErrors = [err19];
+                                }
+                                else {
+                                    vErrors.push(err19);
+                                }
+                                errors++;
+                            }
+                            if ((typeof data17 == "number") && (isFinite(data17))) {
+                                if (data17 < 1 || isNaN(data17)) {
+                                    const err20 = {
+                                        instancePath: instancePath + "/spanningCells/" + i0 + "/colSpan",
+                                        schemaPath: "#/properties/spanningCells/items/properties/colSpan/minimum",
+                                        keyword: "minimum",
+                                        params: {
+                                            comparison: ">=",
+                                            limit: 1
+                                        },
+                                        message: "must be >= 1"
+                                    };
+                                    if (vErrors === null) {
+                                        vErrors = [err20];
+                                    }
+                                    else {
+                                        vErrors.push(err20);
+                                    }
+                                    errors++;
+                                }
+                            }
+                        }
+                        if (data14.rowSpan !== undefined) {
+                            let data18 = data14.rowSpan;
+                            if (!(((typeof data18 == "number") && (!(data18 % 1) && !isNaN(data18))) && (isFinite(data18)))) {
+                                const err21 = {
+                                    instancePath: instancePath + "/spanningCells/" + i0 + "/rowSpan",
+                                    schemaPath: "#/properties/spanningCells/items/properties/rowSpan/type",
+                                    keyword: "type",
+                                    params: {
+                                        type: "integer"
+                                    },
+                                    message: "must be integer"
+                                };
+                                if (vErrors === null) {
+                                    vErrors = [err21];
+                                }
+                                else {
+                                    vErrors.push(err21);
+                                }
+                                errors++;
+                            }
+                            if ((typeof data18 == "number") && (isFinite(data18))) {
+                                if (data18 < 1 || isNaN(data18)) {
+                                    const err22 = {
+                                        instancePath: instancePath + "/spanningCells/" + i0 + "/rowSpan",
+                                        schemaPath: "#/properties/spanningCells/items/properties/rowSpan/minimum",
+                                        keyword: "minimum",
+                                        params: {
+                                            comparison: ">=",
+                                            limit: 1
+                                        },
+                                        message: "must be >= 1"
+                                    };
+                                    if (vErrors === null) {
+                                        vErrors = [err22];
+                                    }
+                                    else {
+                                        vErrors.push(err22);
+                                    }
+                                    errors++;
+                                }
+                            }
+                        }
+                        if (data14.alignment !== undefined) {
+                            if (!(validate68(data14.alignment, {
+                                instancePath: instancePath + "/spanningCells/" + i0 + "/alignment",
+                                parentData: data14,
+                                parentDataProperty: "alignment",
+                                rootData
+                            }))) {
+                                vErrors = vErrors === null ? validate68.errors : vErrors.concat(validate68.errors);
+                                errors = vErrors.length;
+                            }
+                        }
+                        if (data14.verticalAlignment !== undefined) {
+                            if (!(validate84(data14.verticalAlignment, {
+                                instancePath: instancePath + "/spanningCells/" + i0 + "/verticalAlignment",
+                                parentData: data14,
+                                parentDataProperty: "verticalAlignment",
+                                rootData
+                            }))) {
+                                vErrors = vErrors === null ? validate84.errors : vErrors.concat(validate84.errors);
+                                errors = vErrors.length;
+                            }
+                        }
+                        if (data14.wrapWord !== undefined) {
+                            if (typeof data14.wrapWord !== "boolean") {
+                                const err23 = {
+                                    instancePath: instancePath + "/spanningCells/" + i0 + "/wrapWord",
+                                    schemaPath: "#/properties/spanningCells/items/properties/wrapWord/type",
+                                    keyword: "type",
+                                    params: {
+                                        type: "boolean"
+                                    },
+                                    message: "must be boolean"
+                                };
+                                if (vErrors === null) {
+                                    vErrors = [err23];
+                                }
+                                else {
+                                    vErrors.push(err23);
+                                }
+                                errors++;
+                            }
+                        }
+                        if (data14.truncate !== undefined) {
+                            let data22 = data14.truncate;
+                            if (!(((typeof data22 == "number") && (!(data22 % 1) && !isNaN(data22))) && (isFinite(data22)))) {
+                                const err24 = {
+                                    instancePath: instancePath + "/spanningCells/" + i0 + "/truncate",
+                                    schemaPath: "#/properties/spanningCells/items/properties/truncate/type",
+                                    keyword: "type",
+                                    params: {
+                                        type: "integer"
+                                    },
+                                    message: "must be integer"
+                                };
+                                if (vErrors === null) {
+                                    vErrors = [err24];
+                                }
+                                else {
+                                    vErrors.push(err24);
+                                }
+                                errors++;
+                            }
+                        }
+                        if (data14.paddingLeft !== undefined) {
+                            let data23 = data14.paddingLeft;
+                            if (!(((typeof data23 == "number") && (!(data23 % 1) && !isNaN(data23))) && (isFinite(data23)))) {
+                                const err25 = {
+                                    instancePath: instancePath + "/spanningCells/" + i0 + "/paddingLeft",
+                                    schemaPath: "#/properties/spanningCells/items/properties/paddingLeft/type",
+                                    keyword: "type",
+                                    params: {
+                                        type: "integer"
+                                    },
+                                    message: "must be integer"
+                                };
+                                if (vErrors === null) {
+                                    vErrors = [err25];
+                                }
+                                else {
+                                    vErrors.push(err25);
+                                }
+                                errors++;
+                            }
+                        }
+                        if (data14.paddingRight !== undefined) {
+                            let data24 = data14.paddingRight;
+                            if (!(((typeof data24 == "number") && (!(data24 % 1) && !isNaN(data24))) && (isFinite(data24)))) {
+                                const err26 = {
+                                    instancePath: instancePath + "/spanningCells/" + i0 + "/paddingRight",
+                                    schemaPath: "#/properties/spanningCells/items/properties/paddingRight/type",
+                                    keyword: "type",
+                                    params: {
+                                        type: "integer"
+                                    },
+                                    message: "must be integer"
+                                };
+                                if (vErrors === null) {
+                                    vErrors = [err26];
+                                }
+                                else {
+                                    vErrors.push(err26);
+                                }
+                                errors++;
+                            }
+                        }
+                    }
+                    else {
+                        const err27 = {
+                            instancePath: instancePath + "/spanningCells/" + i0,
+                            schemaPath: "#/properties/spanningCells/items/type",
+                            keyword: "type",
+                            params: {
+                                type: "object"
+                            },
+                            message: "must be object"
+                        };
+                        if (vErrors === null) {
+                            vErrors = [err27];
+                        }
+                        else {
+                            vErrors.push(err27);
+                        }
+                        errors++;
+                    }
+                }
+            }
+            else {
+                const err28 = {
+                    instancePath: instancePath + "/spanningCells",
+                    schemaPath: "#/properties/spanningCells/type",
+                    keyword: "type",
+                    params: {
+                        type: "array"
+                    },
+                    message: "must be array"
+                };
+                if (vErrors === null) {
+                    vErrors = [err28];
+                }
+                else {
+                    vErrors.push(err28);
+                }
+                errors++;
+            }
+        }
+    }
+    else {
+        const err29 = {
+            instancePath,
             schemaPath: "#/type",
+            keyword: "type",
             params: {
                 type: "object"
             },
-            message: "should be object"
+            message: "must be object"
         };
         if (vErrors === null) {
-            vErrors = [err3];
-        } else {
-            vErrors.push(err3);
+            vErrors = [err29];
+        }
+        else {
+            vErrors.push(err29);
         }
         errors++;
     }
     validate43.errors = vErrors;
     return errors === 0;
 }
-exports["streamConfig.json"] = validate69;
-
-function validate70(data, {
-    dataPath = "",
-    parentData,
-    parentDataProperty,
-    rootData = data
-} = {}) {
+exports["streamConfig.json"] = validate86;
+function validate87(data, { instancePath = "", parentData, parentDataProperty, rootData = data } = {}) {
     let vErrors = null;
     let errors = 0;
     if (data && typeof data == "object" && !Array.isArray(data)) {
         for (const key0 in data) {
-            if (!(schema15.properties.hasOwnProperty(key0))) {
+            if (!(func8.call(schema15.properties, key0))) {
                 const err0 = {
-                    keyword: "additionalProperties",
-                    dataPath,
+                    instancePath,
                     schemaPath: "#/additionalProperties",
+                    keyword: "additionalProperties",
                     params: {
                         additionalProperty: key0
                     },
-                    message: "should NOT have additional properties"
+                    message: "must NOT have additional properties"
                 };
                 if (vErrors === null) {
                     vErrors = [err0];
-                } else {
+                }
+                else {
                     vErrors.push(err0);
                 }
                 errors++;
@@ -18149,244 +13774,239 @@ function validate70(data, {
         }
         if (data.topBody !== undefined) {
             if (!(validate46(data.topBody, {
-                    dataPath: dataPath + "/topBody",
-                    parentData: data,
-                    parentDataProperty: "topBody",
-                    rootData
-                }))) {
+                instancePath: instancePath + "/topBody",
+                parentData: data,
+                parentDataProperty: "topBody",
+                rootData
+            }))) {
                 vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
                 errors = vErrors.length;
             }
         }
         if (data.topJoin !== undefined) {
             if (!(validate46(data.topJoin, {
-                    dataPath: dataPath + "/topJoin",
-                    parentData: data,
-                    parentDataProperty: "topJoin",
-                    rootData
-                }))) {
+                instancePath: instancePath + "/topJoin",
+                parentData: data,
+                parentDataProperty: "topJoin",
+                rootData
+            }))) {
                 vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
                 errors = vErrors.length;
             }
         }
         if (data.topLeft !== undefined) {
             if (!(validate46(data.topLeft, {
-                    dataPath: dataPath + "/topLeft",
-                    parentData: data,
-                    parentDataProperty: "topLeft",
-                    rootData
-                }))) {
+                instancePath: instancePath + "/topLeft",
+                parentData: data,
+                parentDataProperty: "topLeft",
+                rootData
+            }))) {
                 vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
                 errors = vErrors.length;
             }
         }
         if (data.topRight !== undefined) {
             if (!(validate46(data.topRight, {
-                    dataPath: dataPath + "/topRight",
-                    parentData: data,
-                    parentDataProperty: "topRight",
-                    rootData
-                }))) {
+                instancePath: instancePath + "/topRight",
+                parentData: data,
+                parentDataProperty: "topRight",
+                rootData
+            }))) {
                 vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
                 errors = vErrors.length;
             }
         }
         if (data.bottomBody !== undefined) {
             if (!(validate46(data.bottomBody, {
-                    dataPath: dataPath + "/bottomBody",
-                    parentData: data,
-                    parentDataProperty: "bottomBody",
-                    rootData
-                }))) {
+                instancePath: instancePath + "/bottomBody",
+                parentData: data,
+                parentDataProperty: "bottomBody",
+                rootData
+            }))) {
                 vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
                 errors = vErrors.length;
             }
         }
         if (data.bottomJoin !== undefined) {
             if (!(validate46(data.bottomJoin, {
-                    dataPath: dataPath + "/bottomJoin",
-                    parentData: data,
-                    parentDataProperty: "bottomJoin",
-                    rootData
-                }))) {
+                instancePath: instancePath + "/bottomJoin",
+                parentData: data,
+                parentDataProperty: "bottomJoin",
+                rootData
+            }))) {
                 vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
                 errors = vErrors.length;
             }
         }
         if (data.bottomLeft !== undefined) {
             if (!(validate46(data.bottomLeft, {
-                    dataPath: dataPath + "/bottomLeft",
-                    parentData: data,
-                    parentDataProperty: "bottomLeft",
-                    rootData
-                }))) {
+                instancePath: instancePath + "/bottomLeft",
+                parentData: data,
+                parentDataProperty: "bottomLeft",
+                rootData
+            }))) {
                 vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
                 errors = vErrors.length;
             }
         }
         if (data.bottomRight !== undefined) {
             if (!(validate46(data.bottomRight, {
-                    dataPath: dataPath + "/bottomRight",
-                    parentData: data,
-                    parentDataProperty: "bottomRight",
-                    rootData
-                }))) {
+                instancePath: instancePath + "/bottomRight",
+                parentData: data,
+                parentDataProperty: "bottomRight",
+                rootData
+            }))) {
                 vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
                 errors = vErrors.length;
             }
         }
         if (data.bodyLeft !== undefined) {
             if (!(validate46(data.bodyLeft, {
-                    dataPath: dataPath + "/bodyLeft",
-                    parentData: data,
-                    parentDataProperty: "bodyLeft",
-                    rootData
-                }))) {
+                instancePath: instancePath + "/bodyLeft",
+                parentData: data,
+                parentDataProperty: "bodyLeft",
+                rootData
+            }))) {
                 vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
                 errors = vErrors.length;
             }
         }
         if (data.bodyRight !== undefined) {
             if (!(validate46(data.bodyRight, {
-                    dataPath: dataPath + "/bodyRight",
-                    parentData: data,
-                    parentDataProperty: "bodyRight",
-                    rootData
-                }))) {
+                instancePath: instancePath + "/bodyRight",
+                parentData: data,
+                parentDataProperty: "bodyRight",
+                rootData
+            }))) {
                 vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
                 errors = vErrors.length;
             }
         }
         if (data.bodyJoin !== undefined) {
             if (!(validate46(data.bodyJoin, {
-                    dataPath: dataPath + "/bodyJoin",
-                    parentData: data,
-                    parentDataProperty: "bodyJoin",
-                    rootData
-                }))) {
+                instancePath: instancePath + "/bodyJoin",
+                parentData: data,
+                parentDataProperty: "bodyJoin",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.headerJoin !== undefined) {
+            if (!(validate46(data.headerJoin, {
+                instancePath: instancePath + "/headerJoin",
+                parentData: data,
+                parentDataProperty: "headerJoin",
+                rootData
+            }))) {
                 vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
                 errors = vErrors.length;
             }
         }
         if (data.joinBody !== undefined) {
             if (!(validate46(data.joinBody, {
-                    dataPath: dataPath + "/joinBody",
-                    parentData: data,
-                    parentDataProperty: "joinBody",
-                    rootData
-                }))) {
+                instancePath: instancePath + "/joinBody",
+                parentData: data,
+                parentDataProperty: "joinBody",
+                rootData
+            }))) {
                 vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
                 errors = vErrors.length;
             }
         }
         if (data.joinLeft !== undefined) {
             if (!(validate46(data.joinLeft, {
-                    dataPath: dataPath + "/joinLeft",
-                    parentData: data,
-                    parentDataProperty: "joinLeft",
-                    rootData
-                }))) {
+                instancePath: instancePath + "/joinLeft",
+                parentData: data,
+                parentDataProperty: "joinLeft",
+                rootData
+            }))) {
                 vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
                 errors = vErrors.length;
             }
         }
         if (data.joinRight !== undefined) {
             if (!(validate46(data.joinRight, {
-                    dataPath: dataPath + "/joinRight",
-                    parentData: data,
-                    parentDataProperty: "joinRight",
-                    rootData
-                }))) {
+                instancePath: instancePath + "/joinRight",
+                parentData: data,
+                parentDataProperty: "joinRight",
+                rootData
+            }))) {
                 vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
                 errors = vErrors.length;
             }
         }
         if (data.joinJoin !== undefined) {
             if (!(validate46(data.joinJoin, {
-                    dataPath: dataPath + "/joinJoin",
-                    parentData: data,
-                    parentDataProperty: "joinJoin",
-                    rootData
-                }))) {
+                instancePath: instancePath + "/joinJoin",
+                parentData: data,
+                parentDataProperty: "joinJoin",
+                rootData
+            }))) {
                 vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
                 errors = vErrors.length;
             }
         }
-    } else {
-        const err1 = {
-            keyword: "type",
-            dataPath,
-            schemaPath: "#/type",
-            params: {
-                type: "object"
-            },
-            message: "should be object"
-        };
-        if (vErrors === null) {
-            vErrors = [err1];
-        } else {
-            vErrors.push(err1);
+        if (data.joinMiddleUp !== undefined) {
+            if (!(validate46(data.joinMiddleUp, {
+                instancePath: instancePath + "/joinMiddleUp",
+                parentData: data,
+                parentDataProperty: "joinMiddleUp",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
+                errors = vErrors.length;
+            }
         }
-        errors++;
+        if (data.joinMiddleDown !== undefined) {
+            if (!(validate46(data.joinMiddleDown, {
+                instancePath: instancePath + "/joinMiddleDown",
+                parentData: data,
+                parentDataProperty: "joinMiddleDown",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.joinMiddleLeft !== undefined) {
+            if (!(validate46(data.joinMiddleLeft, {
+                instancePath: instancePath + "/joinMiddleLeft",
+                parentData: data,
+                parentDataProperty: "joinMiddleLeft",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.joinMiddleRight !== undefined) {
+            if (!(validate46(data.joinMiddleRight, {
+                instancePath: instancePath + "/joinMiddleRight",
+                parentData: data,
+                parentDataProperty: "joinMiddleRight",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
+                errors = vErrors.length;
+            }
+        }
     }
-    validate70.errors = vErrors;
-    return errors === 0;
-}
-
-function validate87(data, {
-    dataPath = "",
-    parentData,
-    parentDataProperty,
-    rootData = data
-} = {}) {
-    let vErrors = null;
-    let errors = 0;
-    if (data && typeof data == "object" && !Array.isArray(data)) {
-        for (const key0 in data) {
-            if (!(pattern0.test(key0))) {
-                const err0 = {
-                    keyword: "additionalProperties",
-                    dataPath,
-                    schemaPath: "#/additionalProperties",
-                    params: {
-                        additionalProperty: key0
-                    },
-                    message: "should NOT have additional properties"
-                };
-                if (vErrors === null) {
-                    vErrors = [err0];
-                } else {
-                    vErrors.push(err0);
-                }
-                errors++;
-            }
-        }
-        for (const key1 in data) {
-            if (pattern0.test(key1)) {
-                if (!(validate64(data[key1], {
-                        dataPath: dataPath + "/" + key1.replace(/~/g, "~0").replace(/\//g, "~1"),
-                        parentData: data,
-                        parentDataProperty: key1,
-                        rootData
-                    }))) {
-                    vErrors = vErrors === null ? validate64.errors : vErrors.concat(validate64.errors);
-                    errors = vErrors.length;
-                }
-            }
-        }
-    } else {
+    else {
         const err1 = {
-            keyword: "type",
-            dataPath,
+            instancePath,
             schemaPath: "#/type",
+            keyword: "type",
             params: {
                 type: "object"
             },
-            message: "should be object"
+            message: "must be object"
         };
         if (vErrors === null) {
             vErrors = [err1];
-        } else {
+        }
+        else {
             vErrors.push(err1);
         }
         errors++;
@@ -18394,612 +14014,924 @@ function validate87(data, {
     validate87.errors = vErrors;
     return errors === 0;
 }
-
-function validate90(data, {
-    dataPath = "",
-    parentData,
-    parentDataProperty,
-    rootData = data
-} = {}) {
+function validate109(data, { instancePath = "", parentData, parentDataProperty, rootData = data } = {}) {
+    let vErrors = null;
+    let errors = 0;
+    const _errs0 = errors;
+    let valid0 = false;
+    let passing0 = null;
+    const _errs1 = errors;
+    if (data && typeof data == "object" && !Array.isArray(data)) {
+        for (const key0 in data) {
+            if (!(pattern0.test(key0))) {
+                const err0 = {
+                    instancePath,
+                    schemaPath: "#/oneOf/0/additionalProperties",
+                    keyword: "additionalProperties",
+                    params: {
+                        additionalProperty: key0
+                    },
+                    message: "must NOT have additional properties"
+                };
+                if (vErrors === null) {
+                    vErrors = [err0];
+                }
+                else {
+                    vErrors.push(err0);
+                }
+                errors++;
+            }
+        }
+        for (const key1 in data) {
+            if (pattern0.test(key1)) {
+                if (!(validate71(data[key1], {
+                    instancePath: instancePath + "/" + key1.replace(/~/g, "~0").replace(/\//g, "~1"),
+                    parentData: data,
+                    parentDataProperty: key1,
+                    rootData
+                }))) {
+                    vErrors = vErrors === null ? validate71.errors : vErrors.concat(validate71.errors);
+                    errors = vErrors.length;
+                }
+            }
+        }
+    }
+    else {
+        const err1 = {
+            instancePath,
+            schemaPath: "#/oneOf/0/type",
+            keyword: "type",
+            params: {
+                type: "object"
+            },
+            message: "must be object"
+        };
+        if (vErrors === null) {
+            vErrors = [err1];
+        }
+        else {
+            vErrors.push(err1);
+        }
+        errors++;
+    }
+    var _valid0 = _errs1 === errors;
+    if (_valid0) {
+        valid0 = true;
+        passing0 = 0;
+    }
+    const _errs5 = errors;
+    if (Array.isArray(data)) {
+        const len0 = data.length;
+        for (let i0 = 0; i0 < len0; i0++) {
+            if (!(validate71(data[i0], {
+                instancePath: instancePath + "/" + i0,
+                parentData: data,
+                parentDataProperty: i0,
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate71.errors : vErrors.concat(validate71.errors);
+                errors = vErrors.length;
+            }
+        }
+    }
+    else {
+        const err2 = {
+            instancePath,
+            schemaPath: "#/oneOf/1/type",
+            keyword: "type",
+            params: {
+                type: "array"
+            },
+            message: "must be array"
+        };
+        if (vErrors === null) {
+            vErrors = [err2];
+        }
+        else {
+            vErrors.push(err2);
+        }
+        errors++;
+    }
+    var _valid0 = _errs5 === errors;
+    if (_valid0 && valid0) {
+        valid0 = false;
+        passing0 = [passing0, 1];
+    }
+    else {
+        if (_valid0) {
+            valid0 = true;
+            passing0 = 1;
+        }
+    }
+    if (!valid0) {
+        const err3 = {
+            instancePath,
+            schemaPath: "#/oneOf",
+            keyword: "oneOf",
+            params: {
+                passingSchemas: passing0
+            },
+            message: "must match exactly one schema in oneOf"
+        };
+        if (vErrors === null) {
+            vErrors = [err3];
+        }
+        else {
+            vErrors.push(err3);
+        }
+        errors++;
+    }
+    else {
+        errors = _errs0;
+        if (vErrors !== null) {
+            if (_errs0) {
+                vErrors.length = _errs0;
+            }
+            else {
+                vErrors = null;
+            }
+        }
+    }
+    validate109.errors = vErrors;
+    return errors === 0;
+}
+function validate113(data, { instancePath = "", parentData, parentDataProperty, rootData = data } = {}) {
     let vErrors = null;
     let errors = 0;
     if (data && typeof data == "object" && !Array.isArray(data)) {
         for (const key0 in data) {
-            if (!((((((key0 === "alignment") || (key0 === "width")) || (key0 === "wrapWord")) || (key0 === "truncate")) || (key0 === "paddingLeft")) || (key0 === "paddingRight"))) {
+            if (!(((((((key0 === "alignment") || (key0 === "verticalAlignment")) || (key0 === "width")) || (key0 === "wrapWord")) || (key0 === "truncate")) || (key0 === "paddingLeft")) || (key0 === "paddingRight"))) {
                 const err0 = {
-                    keyword: "additionalProperties",
-                    dataPath,
+                    instancePath,
                     schemaPath: "#/additionalProperties",
+                    keyword: "additionalProperties",
                     params: {
                         additionalProperty: key0
                     },
-                    message: "should NOT have additional properties"
+                    message: "must NOT have additional properties"
                 };
                 if (vErrors === null) {
                     vErrors = [err0];
-                } else {
+                }
+                else {
                     vErrors.push(err0);
                 }
                 errors++;
             }
         }
         if (data.alignment !== undefined) {
-            let data0 = data.alignment;
-            if (typeof data0 !== "string") {
+            if (!(validate72(data.alignment, {
+                instancePath: instancePath + "/alignment",
+                parentData: data,
+                parentDataProperty: "alignment",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate72.errors : vErrors.concat(validate72.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.verticalAlignment !== undefined) {
+            if (!(validate74(data.verticalAlignment, {
+                instancePath: instancePath + "/verticalAlignment",
+                parentData: data,
+                parentDataProperty: "verticalAlignment",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate74.errors : vErrors.concat(validate74.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.width !== undefined) {
+            let data2 = data.width;
+            if (!(((typeof data2 == "number") && (!(data2 % 1) && !isNaN(data2))) && (isFinite(data2)))) {
                 const err1 = {
+                    instancePath: instancePath + "/width",
+                    schemaPath: "#/properties/width/type",
                     keyword: "type",
-                    dataPath: dataPath + "/alignment",
-                    schemaPath: "#/properties/alignment/type",
                     params: {
-                        type: "string"
+                        type: "integer"
                     },
-                    message: "should be string"
+                    message: "must be integer"
                 };
                 if (vErrors === null) {
                     vErrors = [err1];
-                } else {
+                }
+                else {
                     vErrors.push(err1);
                 }
                 errors++;
             }
-            if (!(((data0 === "left") || (data0 === "right")) || (data0 === "center"))) {
-                const err2 = {
-                    keyword: "enum",
-                    dataPath: dataPath + "/alignment",
-                    schemaPath: "#/properties/alignment/enum",
-                    params: {
-                        allowedValues: schema18.properties.alignment.enum
-                    },
-                    message: "should be equal to one of the allowed values"
-                };
-                if (vErrors === null) {
-                    vErrors = [err2];
-                } else {
-                    vErrors.push(err2);
+            if ((typeof data2 == "number") && (isFinite(data2))) {
+                if (data2 < 1 || isNaN(data2)) {
+                    const err2 = {
+                        instancePath: instancePath + "/width",
+                        schemaPath: "#/properties/width/minimum",
+                        keyword: "minimum",
+                        params: {
+                            comparison: ">=",
+                            limit: 1
+                        },
+                        message: "must be >= 1"
+                    };
+                    if (vErrors === null) {
+                        vErrors = [err2];
+                    }
+                    else {
+                        vErrors.push(err2);
+                    }
+                    errors++;
                 }
-                errors++;
             }
         }
-        if (data.width !== undefined) {
-            let data1 = data.width;
-            if (!((typeof data1 == "number") && (isFinite(data1)))) {
+        if (data.wrapWord !== undefined) {
+            if (typeof data.wrapWord !== "boolean") {
                 const err3 = {
+                    instancePath: instancePath + "/wrapWord",
+                    schemaPath: "#/properties/wrapWord/type",
                     keyword: "type",
-                    dataPath: dataPath + "/width",
-                    schemaPath: "#/properties/width/type",
                     params: {
-                        type: "number"
+                        type: "boolean"
                     },
-                    message: "should be number"
+                    message: "must be boolean"
                 };
                 if (vErrors === null) {
                     vErrors = [err3];
-                } else {
+                }
+                else {
                     vErrors.push(err3);
                 }
                 errors++;
             }
         }
-        if (data.wrapWord !== undefined) {
-            if (typeof data.wrapWord !== "boolean") {
+        if (data.truncate !== undefined) {
+            let data4 = data.truncate;
+            if (!(((typeof data4 == "number") && (!(data4 % 1) && !isNaN(data4))) && (isFinite(data4)))) {
                 const err4 = {
+                    instancePath: instancePath + "/truncate",
+                    schemaPath: "#/properties/truncate/type",
                     keyword: "type",
-                    dataPath: dataPath + "/wrapWord",
-                    schemaPath: "#/properties/wrapWord/type",
                     params: {
-                        type: "boolean"
+                        type: "integer"
                     },
-                    message: "should be boolean"
+                    message: "must be integer"
                 };
                 if (vErrors === null) {
                     vErrors = [err4];
-                } else {
+                }
+                else {
                     vErrors.push(err4);
                 }
                 errors++;
             }
         }
-        if (data.truncate !== undefined) {
-            let data3 = data.truncate;
-            if (!((typeof data3 == "number") && (isFinite(data3)))) {
+        if (data.paddingLeft !== undefined) {
+            let data5 = data.paddingLeft;
+            if (!(((typeof data5 == "number") && (!(data5 % 1) && !isNaN(data5))) && (isFinite(data5)))) {
                 const err5 = {
+                    instancePath: instancePath + "/paddingLeft",
+                    schemaPath: "#/properties/paddingLeft/type",
                     keyword: "type",
-                    dataPath: dataPath + "/truncate",
-                    schemaPath: "#/properties/truncate/type",
                     params: {
-                        type: "number"
+                        type: "integer"
                     },
-                    message: "should be number"
+                    message: "must be integer"
                 };
                 if (vErrors === null) {
                     vErrors = [err5];
-                } else {
+                }
+                else {
                     vErrors.push(err5);
                 }
                 errors++;
             }
         }
-        if (data.paddingLeft !== undefined) {
-            let data4 = data.paddingLeft;
-            if (!((typeof data4 == "number") && (isFinite(data4)))) {
+        if (data.paddingRight !== undefined) {
+            let data6 = data.paddingRight;
+            if (!(((typeof data6 == "number") && (!(data6 % 1) && !isNaN(data6))) && (isFinite(data6)))) {
                 const err6 = {
+                    instancePath: instancePath + "/paddingRight",
+                    schemaPath: "#/properties/paddingRight/type",
                     keyword: "type",
-                    dataPath: dataPath + "/paddingLeft",
-                    schemaPath: "#/properties/paddingLeft/type",
                     params: {
-                        type: "number"
+                        type: "integer"
                     },
-                    message: "should be number"
+                    message: "must be integer"
                 };
                 if (vErrors === null) {
                     vErrors = [err6];
-                } else {
+                }
+                else {
                     vErrors.push(err6);
                 }
                 errors++;
             }
         }
-        if (data.paddingRight !== undefined) {
-            let data5 = data.paddingRight;
-            if (!((typeof data5 == "number") && (isFinite(data5)))) {
-                const err7 = {
-                    keyword: "type",
-                    dataPath: dataPath + "/paddingRight",
-                    schemaPath: "#/properties/paddingRight/type",
-                    params: {
-                        type: "number"
-                    },
-                    message: "should be number"
-                };
-                if (vErrors === null) {
-                    vErrors = [err7];
-                } else {
-                    vErrors.push(err7);
-                }
-                errors++;
-            }
-        }
-    } else {
-        const err8 = {
-            keyword: "type",
-            dataPath,
+    }
+    else {
+        const err7 = {
+            instancePath,
             schemaPath: "#/type",
+            keyword: "type",
             params: {
                 type: "object"
             },
-            message: "should be object"
+            message: "must be object"
         };
         if (vErrors === null) {
-            vErrors = [err8];
-        } else {
-            vErrors.push(err8);
+            vErrors = [err7];
+        }
+        else {
+            vErrors.push(err7);
         }
         errors++;
     }
-    validate90.errors = vErrors;
+    validate113.errors = vErrors;
     return errors === 0;
 }
-
-function validate69(data, {
-    dataPath = "",
-    parentData,
-    parentDataProperty,
-    rootData = data
-} = {}) {
+function validate86(data, { instancePath = "", parentData, parentDataProperty, rootData = data } = {}) {
     let vErrors = null;
     let errors = 0;
     if (data && typeof data == "object" && !Array.isArray(data)) {
+        if (data.columnDefault === undefined) {
+            const err0 = {
+                instancePath,
+                schemaPath: "#/required",
+                keyword: "required",
+                params: {
+                    missingProperty: "columnDefault"
+                },
+                message: "must have required property '" + "columnDefault" + "'"
+            };
+            if (vErrors === null) {
+                vErrors = [err0];
+            }
+            else {
+                vErrors.push(err0);
+            }
+            errors++;
+        }
+        if (data.columnCount === undefined) {
+            const err1 = {
+                instancePath,
+                schemaPath: "#/required",
+                keyword: "required",
+                params: {
+                    missingProperty: "columnCount"
+                },
+                message: "must have required property '" + "columnCount" + "'"
+            };
+            if (vErrors === null) {
+                vErrors = [err1];
+            }
+            else {
+                vErrors.push(err1);
+            }
+            errors++;
+        }
         for (const key0 in data) {
-            if (!((((key0 === "border") || (key0 === "columns")) || (key0 === "columnDefault")) || (key0 === "columnCount"))) {
-                const err0 = {
-                    keyword: "additionalProperties",
-                    dataPath,
+            if (!(((((key0 === "border") || (key0 === "columns")) || (key0 === "columnDefault")) || (key0 === "columnCount")) || (key0 === "drawVerticalLine"))) {
+                const err2 = {
+                    instancePath,
                     schemaPath: "#/additionalProperties",
+                    keyword: "additionalProperties",
                     params: {
                         additionalProperty: key0
                     },
-                    message: "should NOT have additional properties"
+                    message: "must NOT have additional properties"
                 };
                 if (vErrors === null) {
-                    vErrors = [err0];
-                } else {
-                    vErrors.push(err0);
+                    vErrors = [err2];
+                }
+                else {
+                    vErrors.push(err2);
                 }
                 errors++;
             }
         }
         if (data.border !== undefined) {
-            if (!(validate70(data.border, {
-                    dataPath: dataPath + "/border",
-                    parentData: data,
-                    parentDataProperty: "border",
-                    rootData
-                }))) {
-                vErrors = vErrors === null ? validate70.errors : vErrors.concat(validate70.errors);
-                errors = vErrors.length;
-            }
-        }
-        if (data.columns !== undefined) {
-            if (!(validate87(data.columns, {
-                    dataPath: dataPath + "/columns",
-                    parentData: data,
-                    parentDataProperty: "columns",
-                    rootData
-                }))) {
+            if (!(validate87(data.border, {
+                instancePath: instancePath + "/border",
+                parentData: data,
+                parentDataProperty: "border",
+                rootData
+            }))) {
                 vErrors = vErrors === null ? validate87.errors : vErrors.concat(validate87.errors);
                 errors = vErrors.length;
             }
         }
+        if (data.columns !== undefined) {
+            if (!(validate109(data.columns, {
+                instancePath: instancePath + "/columns",
+                parentData: data,
+                parentDataProperty: "columns",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate109.errors : vErrors.concat(validate109.errors);
+                errors = vErrors.length;
+            }
+        }
         if (data.columnDefault !== undefined) {
-            if (!(validate90(data.columnDefault, {
-                    dataPath: dataPath + "/columnDefault",
-                    parentData: data,
-                    parentDataProperty: "columnDefault",
-                    rootData
-                }))) {
-                vErrors = vErrors === null ? validate90.errors : vErrors.concat(validate90.errors);
+            if (!(validate113(data.columnDefault, {
+                instancePath: instancePath + "/columnDefault",
+                parentData: data,
+                parentDataProperty: "columnDefault",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate113.errors : vErrors.concat(validate113.errors);
                 errors = vErrors.length;
             }
         }
         if (data.columnCount !== undefined) {
             let data3 = data.columnCount;
-            if (!((typeof data3 == "number") && (isFinite(data3)))) {
-                const err1 = {
-                    keyword: "type",
-                    dataPath: dataPath + "/columnCount",
+            if (!(((typeof data3 == "number") && (!(data3 % 1) && !isNaN(data3))) && (isFinite(data3)))) {
+                const err3 = {
+                    instancePath: instancePath + "/columnCount",
                     schemaPath: "#/properties/columnCount/type",
+                    keyword: "type",
                     params: {
-                        type: "number"
+                        type: "integer"
                     },
-                    message: "should be number"
+                    message: "must be integer"
                 };
                 if (vErrors === null) {
-                    vErrors = [err1];
-                } else {
-                    vErrors.push(err1);
+                    vErrors = [err3];
+                }
+                else {
+                    vErrors.push(err3);
+                }
+                errors++;
+            }
+            if ((typeof data3 == "number") && (isFinite(data3))) {
+                if (data3 < 1 || isNaN(data3)) {
+                    const err4 = {
+                        instancePath: instancePath + "/columnCount",
+                        schemaPath: "#/properties/columnCount/minimum",
+                        keyword: "minimum",
+                        params: {
+                            comparison: ">=",
+                            limit: 1
+                        },
+                        message: "must be >= 1"
+                    };
+                    if (vErrors === null) {
+                        vErrors = [err4];
+                    }
+                    else {
+                        vErrors.push(err4);
+                    }
+                    errors++;
+                }
+            }
+        }
+        if (data.drawVerticalLine !== undefined) {
+            if (typeof data.drawVerticalLine != "function") {
+                const err5 = {
+                    instancePath: instancePath + "/drawVerticalLine",
+                    schemaPath: "#/properties/drawVerticalLine/typeof",
+                    keyword: "typeof",
+                    params: {},
+                    message: "must pass \"typeof\" keyword validation"
+                };
+                if (vErrors === null) {
+                    vErrors = [err5];
+                }
+                else {
+                    vErrors.push(err5);
                 }
                 errors++;
             }
         }
-    } else {
-        const err2 = {
-            keyword: "type",
-            dataPath,
+    }
+    else {
+        const err6 = {
+            instancePath,
             schemaPath: "#/type",
+            keyword: "type",
             params: {
                 type: "object"
             },
-            message: "should be object"
+            message: "must be object"
         };
         if (vErrors === null) {
-            vErrors = [err2];
-        } else {
-            vErrors.push(err2);
+            vErrors = [err6];
+        }
+        else {
+            vErrors.push(err6);
         }
         errors++;
     }
-    validate69.errors = vErrors;
+    validate86.errors = vErrors;
     return errors === 0;
 }
-});
 
-var validateConfig_1 = createCommonjsModule(function (module, exports) {
+}(validators));
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _validators = _interopRequireDefault(validators);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-// eslint-disable-next-line import/default
-
-/**
- * @param {string} schemaId
- * @param {formatData~config} config
- * @returns {undefined}
- */
-const validateConfig = (schemaId, config = {}) => {
-  const validate = _validators.default[schemaId];
-
-  if (!validate(config)) {
-    const errors = validate.errors.map(error => {
-      return {
-        dataPath: error.dataPath,
-        message: error.message,
-        params: error.params,
-        schemaPath: error.schemaPath
-      };
-    });
-    /* eslint-disable no-console */
-
-    console.log('config', config);
-    console.log('errors', errors);
-    /* eslint-enable no-console */
-
-    throw new Error('Invalid config.');
-  }
+var __importDefault = (commonjsGlobal$1 && commonjsGlobal$1.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-
-var _default = validateConfig;
-exports.default = _default;
-
-});
-
-var makeStreamConfig_1 = createCommonjsModule(function (module, exports) {
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _cloneDeep2 = _interopRequireDefault(cloneDeep_1);
-
-var _isUndefined2 = _interopRequireDefault(isUndefined_1);
-
-var _times2 = _interopRequireDefault(times_1);
-
-var _getBorderCharacters = _interopRequireDefault(getBorderCharacters_1);
-
-var _validateConfig = _interopRequireDefault(validateConfig_1);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/**
- * Merges user provided border characters with the default border ("honeywell") characters.
- *
- * @param {object} border
- * @returns {object}
- */
-const makeBorder = (border = {}) => {
-  return Object.assign({}, (0, _getBorderCharacters.default)('honeywell'), border);
+Object.defineProperty(validateConfig$1, "__esModule", { value: true });
+validateConfig$1.validateConfig = void 0;
+const validators_1 = __importDefault(validators);
+const validateConfig = (schemaId, config) => {
+    const validate = validators_1.default[schemaId];
+    if (!validate(config) && validate.errors) {
+        // eslint-disable-next-line promise/prefer-await-to-callbacks
+        const errors = validate.errors.map((error) => {
+            return {
+                message: error.message,
+                params: error.params,
+                schemaPath: error.schemaPath,
+            };
+        });
+        /* eslint-disable no-console */
+        console.log('config', config);
+        console.log('errors', errors);
+        /* eslint-enable no-console */
+        throw new Error('Invalid config.');
+    }
 };
+validateConfig$1.validateConfig = validateConfig;
+
+Object.defineProperty(makeStreamConfig$1, "__esModule", { value: true });
+makeStreamConfig$1.makeStreamConfig = void 0;
+const utils_1$b = utils;
+const validateConfig_1$1 = validateConfig$1;
 /**
  * Creates a configuration for every column using default
  * values for the missing configuration properties.
- *
- * @param {number} columnCount
- * @param {object} columns
- * @param {object} columnDefault
- * @returns {object}
  */
-
-
-const makeColumns = (columnCount, columns = {}, columnDefault = {}) => {
-  (0, _times2.default)(columnCount, index => {
-    if ((0, _isUndefined2.default)(columns[index])) {
-      columns[index] = {};
-    }
-
-    columns[index] = Object.assign({
-      alignment: 'left',
-      paddingLeft: 1,
-      paddingRight: 1,
-      truncate: Number.POSITIVE_INFINITY,
-      wrapWord: false
-    }, columnDefault, columns[index]);
-  });
-  return columns;
+const makeColumnsConfig$1 = (columnCount, columns = {}, columnDefault) => {
+    return Array.from({ length: columnCount }).map((_, index) => {
+        return {
+            alignment: 'left',
+            paddingLeft: 1,
+            paddingRight: 1,
+            truncate: Number.POSITIVE_INFINITY,
+            verticalAlignment: 'top',
+            wrapWord: false,
+            ...columnDefault,
+            ...columns[index],
+        };
+    });
 };
-/**
- * @typedef {object} columnConfig
- * @property {string} alignment
- * @property {number} width
- * @property {number} truncate
- * @property {number} paddingLeft
- * @property {number} paddingRight
- */
-
-/**
- * @typedef {object} streamConfig
- * @property {columnConfig} columnDefault
- * @property {object} border
- * @property {columnConfig[]}
- * @property {number} columnCount Number of columns in the table (required).
- */
-
 /**
  * Makes a new configuration object out of the userConfig object
  * using default values for the missing configuration properties.
- *
- * @param {streamConfig} userConfig
- * @returns {object}
  */
-
-
-const makeStreamConfig = (userConfig = {}) => {
-  (0, _validateConfig.default)('streamConfig.json', userConfig);
-  const config = (0, _cloneDeep2.default)(userConfig);
-
-  if (!config.columnDefault || !config.columnDefault.width) {
-    throw new Error('Must provide config.columnDefault.width when creating a stream.');
-  }
-
-  if (!config.columnCount) {
-    throw new Error('Must provide config.columnCount.');
-  }
-
-  config.border = makeBorder(config.border);
-  config.columns = makeColumns(config.columnCount, config.columns, config.columnDefault);
-  return config;
+const makeStreamConfig = (config) => {
+    (0, validateConfig_1$1.validateConfig)('streamConfig.json', config);
+    if (config.columnDefault.width === undefined) {
+        throw new Error('Must provide config.columnDefault.width when creating a stream.');
+    }
+    return {
+        drawVerticalLine: () => {
+            return true;
+        },
+        ...config,
+        border: (0, utils_1$b.makeBorderConfig)(config.border),
+        columns: makeColumnsConfig$1(config.columnCount, config.columns, config.columnDefault),
+    };
 };
+makeStreamConfig$1.makeStreamConfig = makeStreamConfig;
 
-var _default = makeStreamConfig;
-exports.default = _default;
+var mapDataUsingRowHeights = {};
 
-});
+(function (exports) {
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.mapDataUsingRowHeights = exports.padCellVertically = void 0;
+const utils_1 = utils;
+const wrapCell_1 = wrapCell$1;
+const createEmptyStrings = (length) => {
+    return new Array(length).fill('');
+};
+const padCellVertically = (lines, rowHeight, verticalAlignment) => {
+    const availableLines = rowHeight - lines.length;
+    if (verticalAlignment === 'top') {
+        return [...lines, ...createEmptyStrings(availableLines)];
+    }
+    if (verticalAlignment === 'bottom') {
+        return [...createEmptyStrings(availableLines), ...lines];
+    }
+    return [
+        ...createEmptyStrings(Math.floor(availableLines / 2)),
+        ...lines,
+        ...createEmptyStrings(Math.ceil(availableLines / 2)),
+    ];
+};
+exports.padCellVertically = padCellVertically;
+const mapDataUsingRowHeights = (unmappedRows, rowHeights, config) => {
+    const nColumns = unmappedRows[0].length;
+    const mappedRows = unmappedRows.map((unmappedRow, unmappedRowIndex) => {
+        const outputRowHeight = rowHeights[unmappedRowIndex];
+        const outputRow = Array.from({ length: outputRowHeight }, () => {
+            return new Array(nColumns).fill('');
+        });
+        unmappedRow.forEach((cell, cellIndex) => {
+            var _a;
+            const containingRange = (_a = config.spanningCellManager) === null || _a === void 0 ? void 0 : _a.getContainingRange({ col: cellIndex,
+                row: unmappedRowIndex });
+            if (containingRange) {
+                containingRange.extractCellContent(unmappedRowIndex).forEach((cellLine, cellLineIndex) => {
+                    outputRow[cellLineIndex][cellIndex] = cellLine;
+                });
+                return;
+            }
+            const cellLines = (0, wrapCell_1.wrapCell)(cell, config.columns[cellIndex].width, config.columns[cellIndex].wrapWord);
+            const paddedCellLines = (0, exports.padCellVertically)(cellLines, outputRowHeight, config.columns[cellIndex].verticalAlignment);
+            paddedCellLines.forEach((cellLine, cellLineIndex) => {
+                outputRow[cellLineIndex][cellIndex] = cellLine;
+            });
+        });
+        return outputRow;
+    });
+    return (0, utils_1.flatten)(mappedRows);
+};
+exports.mapDataUsingRowHeights = mapDataUsingRowHeights;
 
-/** Built-in value references. */
-var spreadableSymbol = _Symbol ? _Symbol.isConcatSpreadable : undefined;
+}(mapDataUsingRowHeights));
+
+var padTableData = {};
+
+(function (exports) {
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.padTableData = exports.padString = void 0;
+const padString = (input, paddingLeft, paddingRight) => {
+    return ' '.repeat(paddingLeft) + input + ' '.repeat(paddingRight);
+};
+exports.padString = padString;
+const padTableData = (rows, config) => {
+    return rows.map((cells, rowIndex) => {
+        return cells.map((cell, cellIndex) => {
+            var _a;
+            const containingRange = (_a = config.spanningCellManager) === null || _a === void 0 ? void 0 : _a.getContainingRange({ col: cellIndex,
+                row: rowIndex }, { mapped: true });
+            if (containingRange) {
+                return cell;
+            }
+            const { paddingLeft, paddingRight } = config.columns[cellIndex];
+            return (0, exports.padString)(cell, paddingLeft, paddingRight);
+        });
+    });
+};
+exports.padTableData = padTableData;
+
+}(padTableData));
+
+var stringifyTableData$1 = {};
+
+Object.defineProperty(stringifyTableData$1, "__esModule", { value: true });
+stringifyTableData$1.stringifyTableData = void 0;
+const utils_1$a = utils;
+const stringifyTableData = (rows) => {
+    return rows.map((cells) => {
+        return cells.map((cell) => {
+            return (0, utils_1$a.normalizeString)(String(cell));
+        });
+    });
+};
+stringifyTableData$1.stringifyTableData = stringifyTableData;
+
+var truncateTableData = {};
+
+var lodash_truncate = {exports: {}};
 
 /**
- * Checks if `value` is a flattenable `arguments` object or array.
+ * lodash (Custom Build) <https://lodash.com/>
+ * Build: `lodash modularize exports="npm" -o ./`
+ * Copyright jQuery Foundation and other contributors <https://jquery.org/>
+ * Released under MIT license <https://lodash.com/license>
+ * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+ * Copyright Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+ */
+
+(function (module, exports) {
+/** Used as default options for `_.truncate`. */
+var DEFAULT_TRUNC_LENGTH = 30,
+    DEFAULT_TRUNC_OMISSION = '...';
+
+/** Used as references for various `Number` constants. */
+var INFINITY = 1 / 0,
+    MAX_INTEGER = 1.7976931348623157e+308,
+    NAN = 0 / 0;
+
+/** `Object#toString` result references. */
+var regexpTag = '[object RegExp]',
+    symbolTag = '[object Symbol]';
+
+/** Used to match leading and trailing whitespace. */
+var reTrim = /^\s+|\s+$/g;
+
+/** Used to match `RegExp` flags from their coerced string values. */
+var reFlags = /\w*$/;
+
+/** Used to detect bad signed hexadecimal string values. */
+var reIsBadHex = /^[-+]0x[0-9a-f]+$/i;
+
+/** Used to detect binary string values. */
+var reIsBinary = /^0b[01]+$/i;
+
+/** Used to detect octal string values. */
+var reIsOctal = /^0o[0-7]+$/i;
+
+/** Used to compose unicode character classes. */
+var rsAstralRange = '\\ud800-\\udfff',
+    rsComboMarksRange = '\\u0300-\\u036f\\ufe20-\\ufe23',
+    rsComboSymbolsRange = '\\u20d0-\\u20f0',
+    rsVarRange = '\\ufe0e\\ufe0f';
+
+/** Used to compose unicode capture groups. */
+var rsAstral = '[' + rsAstralRange + ']',
+    rsCombo = '[' + rsComboMarksRange + rsComboSymbolsRange + ']',
+    rsFitz = '\\ud83c[\\udffb-\\udfff]',
+    rsModifier = '(?:' + rsCombo + '|' + rsFitz + ')',
+    rsNonAstral = '[^' + rsAstralRange + ']',
+    rsRegional = '(?:\\ud83c[\\udde6-\\uddff]){2}',
+    rsSurrPair = '[\\ud800-\\udbff][\\udc00-\\udfff]',
+    rsZWJ = '\\u200d';
+
+/** Used to compose unicode regexes. */
+var reOptMod = rsModifier + '?',
+    rsOptVar = '[' + rsVarRange + ']?',
+    rsOptJoin = '(?:' + rsZWJ + '(?:' + [rsNonAstral, rsRegional, rsSurrPair].join('|') + ')' + rsOptVar + reOptMod + ')*',
+    rsSeq = rsOptVar + reOptMod + rsOptJoin,
+    rsSymbol = '(?:' + [rsNonAstral + rsCombo + '?', rsCombo, rsRegional, rsSurrPair, rsAstral].join('|') + ')';
+
+/** Used to match [string symbols](https://mathiasbynens.be/notes/javascript-unicode). */
+var reUnicode = RegExp(rsFitz + '(?=' + rsFitz + ')|' + rsSymbol + rsSeq, 'g');
+
+/** Used to detect strings with [zero-width joiners or code points from the astral planes](http://eev.ee/blog/2015/09/12/dark-corners-of-unicode/). */
+var reHasUnicode = RegExp('[' + rsZWJ + rsAstralRange  + rsComboMarksRange + rsComboSymbolsRange + rsVarRange + ']');
+
+/** Built-in method references without a dependency on `root`. */
+var freeParseInt = parseInt;
+
+/** Detect free variable `global` from Node.js. */
+var freeGlobal = typeof commonjsGlobal$1 == 'object' && commonjsGlobal$1 && commonjsGlobal$1.Object === Object && commonjsGlobal$1;
+
+/** Detect free variable `self`. */
+var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
+
+/** Used as a reference to the global object. */
+var root = freeGlobal || freeSelf || Function('return this')();
+
+/** Detect free variable `exports`. */
+var freeExports = exports && !exports.nodeType && exports;
+
+/** Detect free variable `module`. */
+var freeModule = freeExports && 'object' == 'object' && module && !module.nodeType && module;
+
+/** Detect the popular CommonJS extension `module.exports`. */
+var moduleExports = freeModule && freeModule.exports === freeExports;
+
+/** Detect free variable `process` from Node.js. */
+var freeProcess = moduleExports && freeGlobal.process;
+
+/** Used to access faster Node.js helpers. */
+var nodeUtil = (function() {
+  try {
+    return freeProcess && freeProcess.binding('util');
+  } catch (e) {}
+}());
+
+/* Node.js helper references. */
+var nodeIsRegExp = nodeUtil && nodeUtil.isRegExp;
+
+/**
+ * Gets the size of an ASCII `string`.
  *
  * @private
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is flattenable, else `false`.
+ * @param {string} string The string inspect.
+ * @returns {number} Returns the string size.
  */
-function isFlattenable(value) {
-  return isArray_1(value) || isArguments_1(value) ||
-    !!(spreadableSymbol && value && value[spreadableSymbol]);
+var asciiSize = baseProperty('length');
+
+/**
+ * Converts an ASCII `string` to an array.
+ *
+ * @private
+ * @param {string} string The string to convert.
+ * @returns {Array} Returns the converted array.
+ */
+function asciiToArray(string) {
+  return string.split('');
 }
 
-var _isFlattenable = isFlattenable;
-
 /**
- * The base implementation of `_.flatten` with support for restricting flattening.
+ * The base implementation of `_.property` without support for deep paths.
  *
  * @private
- * @param {Array} array The array to flatten.
- * @param {number} depth The maximum recursion depth.
- * @param {boolean} [predicate=isFlattenable] The function invoked per iteration.
- * @param {boolean} [isStrict] Restrict to values that pass `predicate` checks.
- * @param {Array} [result=[]] The initial result value.
- * @returns {Array} Returns the new flattened array.
+ * @param {string} key The key of the property to get.
+ * @returns {Function} Returns the new accessor function.
  */
-function baseFlatten(array, depth, predicate, isStrict, result) {
-  var index = -1,
-      length = array.length;
+function baseProperty(key) {
+  return function(object) {
+    return object == null ? undefined : object[key];
+  };
+}
 
-  predicate || (predicate = _isFlattenable);
-  result || (result = []);
+/**
+ * The base implementation of `_.unary` without support for storing metadata.
+ *
+ * @private
+ * @param {Function} func The function to cap arguments for.
+ * @returns {Function} Returns the new capped function.
+ */
+function baseUnary(func) {
+  return function(value) {
+    return func(value);
+  };
+}
 
-  while (++index < length) {
-    var value = array[index];
-    if (depth > 0 && predicate(value)) {
-      if (depth > 1) {
-        // Recursively flatten arrays (susceptible to call stack limits).
-        baseFlatten(value, depth - 1, predicate, isStrict, result);
-      } else {
-        _arrayPush(result, value);
-      }
-    } else if (!isStrict) {
-      result[result.length] = value;
-    }
+/**
+ * Checks if `string` contains Unicode symbols.
+ *
+ * @private
+ * @param {string} string The string to inspect.
+ * @returns {boolean} Returns `true` if a symbol is found, else `false`.
+ */
+function hasUnicode(string) {
+  return reHasUnicode.test(string);
+}
+
+/**
+ * Gets the number of symbols in `string`.
+ *
+ * @private
+ * @param {string} string The string to inspect.
+ * @returns {number} Returns the string size.
+ */
+function stringSize(string) {
+  return hasUnicode(string)
+    ? unicodeSize(string)
+    : asciiSize(string);
+}
+
+/**
+ * Converts `string` to an array.
+ *
+ * @private
+ * @param {string} string The string to convert.
+ * @returns {Array} Returns the converted array.
+ */
+function stringToArray(string) {
+  return hasUnicode(string)
+    ? unicodeToArray(string)
+    : asciiToArray(string);
+}
+
+/**
+ * Gets the size of a Unicode `string`.
+ *
+ * @private
+ * @param {string} string The string inspect.
+ * @returns {number} Returns the string size.
+ */
+function unicodeSize(string) {
+  var result = reUnicode.lastIndex = 0;
+  while (reUnicode.test(string)) {
+    result++;
   }
   return result;
 }
 
-var _baseFlatten = baseFlatten;
-
 /**
- * Flattens `array` a single level deep.
+ * Converts a Unicode `string` to an array.
  *
- * @static
- * @memberOf _
- * @since 0.1.0
- * @category Array
- * @param {Array} array The array to flatten.
- * @returns {Array} Returns the new flattened array.
- * @example
- *
- * _.flatten([1, [2, [3, [4]], 5]]);
- * // => [1, 2, [3, [4]], 5]
+ * @private
+ * @param {string} string The string to convert.
+ * @returns {Array} Returns the converted array.
  */
-function flatten(array) {
-  var length = array == null ? 0 : array.length;
-  return length ? _baseFlatten(array, 1) : [];
+function unicodeToArray(string) {
+  return string.match(reUnicode) || [];
 }
 
-var flatten_1 = flatten;
-
-var mapDataUsingRowHeightIndex_1 = createCommonjsModule(function (module, exports) {
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _flatten2 = _interopRequireDefault(flatten_1);
-
-var _times2 = _interopRequireDefault(times_1);
-
-var _wrapCell = _interopRequireDefault(wrapCell_1);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+/** Used for built-in method references. */
+var objectProto = Object.prototype;
 
 /**
- * @param {Array} unmappedRows
- * @param {number[]} rowHeightIndex
- * @param {object} config
- * @returns {Array}
+ * Used to resolve the
+ * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
+ * of values.
  */
-const mapDataUsingRowHeightIndex = (unmappedRows, rowHeightIndex, config) => {
-  const tableWidth = unmappedRows[0].length;
-  const mappedRows = unmappedRows.map((cells, index0) => {
-    const rowHeight = (0, _times2.default)(rowHeightIndex[index0], () => {
-      return new Array(tableWidth).fill('');
-    }); // rowHeight
-    //     [{row index within rowSaw; index2}]
-    //     [{cell index within a virtual row; index1}]
+var objectToString = objectProto.toString;
 
-    cells.forEach((value, index1) => {
-      const cellLines = (0, _wrapCell.default)(value, config.columns[index1].width, config.columns[index1].wrapWord);
-      cellLines.forEach((cellLine, index2) => {
-        rowHeight[index2][index1] = cellLine;
-      });
-    });
-    return rowHeight;
-  });
-  return (0, _flatten2.default)(mappedRows);
-};
+/** Built-in value references. */
+var Symbol = root.Symbol;
 
-var _default = mapDataUsingRowHeightIndex;
-exports.default = _default;
-
-});
-
-var padTableData_1 = createCommonjsModule(function (module, exports) {
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
+/** Used to convert symbols to primitives and strings. */
+var symbolProto = Symbol ? Symbol.prototype : undefined,
+    symbolToString = symbolProto ? symbolProto.toString : undefined;
 
 /**
- * @param {table~row[]} rows
- * @param {object} config
- * @returns {table~row[]}
- */
-const padTableData = (rows, config) => {
-  return rows.map(cells => {
-    return cells.map((value, index1) => {
-      const column = config.columns[index1];
-      return ' '.repeat(column.paddingLeft) + value + ' '.repeat(column.paddingRight);
-    });
-  });
-};
-
-var _default = padTableData;
-exports.default = _default;
-
-});
-
-var stringifyTableData_1 = createCommonjsModule(function (module, exports) {
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-/**
- * Casts all cell values to a string.
+ * The base implementation of `_.isRegExp` without Node.js optimizations.
  *
- * @param {table~row[]} rows
- * @returns {table~row[]}
+ * @private
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a regexp, else `false`.
  */
-const stringifyTableData = rows => {
-  return rows.map(cells => {
-    return cells.map(String);
-  });
-};
-
-var _default = stringifyTableData;
-exports.default = _default;
-
-});
+function baseIsRegExp(value) {
+  return isObject(value) && objectToString.call(value) == regexpTag;
+}
 
 /**
  * The base implementation of `_.slice` without an iteratee call guard.
@@ -19031,7 +14963,25 @@ function baseSlice(array, start, end) {
   return result;
 }
 
-var _baseSlice = baseSlice;
+/**
+ * The base implementation of `_.toString` which doesn't convert nullish
+ * values to empty strings.
+ *
+ * @private
+ * @param {*} value The value to process.
+ * @returns {string} Returns the string.
+ */
+function baseToString(value) {
+  // Exit early for strings to avoid a performance hit in some environments.
+  if (typeof value == 'string') {
+    return value;
+  }
+  if (isSymbol(value)) {
+    return symbolToString ? symbolToString.call(value) : '';
+  }
+  var result = (value + '');
+  return (result == '0' && (1 / value) == -INFINITY) ? '-0' : result;
+}
 
 /**
  * Casts `array` to a slice if it's needed.
@@ -19045,56 +14995,66 @@ var _baseSlice = baseSlice;
 function castSlice(array, start, end) {
   var length = array.length;
   end = end === undefined ? length : end;
-  return (!start && end >= length) ? array : _baseSlice(array, start, end);
+  return (!start && end >= length) ? array : baseSlice(array, start, end);
 }
 
-var _castSlice = castSlice;
-
-/** Used to compose unicode character classes. */
-var rsAstralRange = '\\ud800-\\udfff',
-    rsComboMarksRange = '\\u0300-\\u036f',
-    reComboHalfMarksRange = '\\ufe20-\\ufe2f',
-    rsComboSymbolsRange = '\\u20d0-\\u20ff',
-    rsComboRange = rsComboMarksRange + reComboHalfMarksRange + rsComboSymbolsRange,
-    rsVarRange = '\\ufe0e\\ufe0f';
-
-/** Used to compose unicode capture groups. */
-var rsZWJ = '\\u200d';
-
-/** Used to detect strings with [zero-width joiners or code points from the astral planes](http://eev.ee/blog/2015/09/12/dark-corners-of-unicode/). */
-var reHasUnicode = RegExp('[' + rsZWJ + rsAstralRange  + rsComboRange + rsVarRange + ']');
-
 /**
- * Checks if `string` contains Unicode symbols.
+ * Checks if `value` is the
+ * [language type](http://www.ecma-international.org/ecma-262/7.0/#sec-ecmascript-language-types)
+ * of `Object`. (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
  *
- * @private
- * @param {string} string The string to inspect.
- * @returns {boolean} Returns `true` if a symbol is found, else `false`.
- */
-function hasUnicode(string) {
-  return reHasUnicode.test(string);
-}
-
-var _hasUnicode = hasUnicode;
-
-/** `Object#toString` result references. */
-var regexpTag$4 = '[object RegExp]';
-
-/**
- * The base implementation of `_.isRegExp` without Node.js optimizations.
- *
- * @private
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Lang
  * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a regexp, else `false`.
+ * @returns {boolean} Returns `true` if `value` is an object, else `false`.
+ * @example
+ *
+ * _.isObject({});
+ * // => true
+ *
+ * _.isObject([1, 2, 3]);
+ * // => true
+ *
+ * _.isObject(_.noop);
+ * // => true
+ *
+ * _.isObject(null);
+ * // => false
  */
-function baseIsRegExp(value) {
-  return isObjectLike_1(value) && _baseGetTag(value) == regexpTag$4;
+function isObject(value) {
+  var type = typeof value;
+  return !!value && (type == 'object' || type == 'function');
 }
 
-var _baseIsRegExp = baseIsRegExp;
-
-/* Node.js helper references. */
-var nodeIsRegExp = _nodeUtil && _nodeUtil.isRegExp;
+/**
+ * Checks if `value` is object-like. A value is object-like if it's not `null`
+ * and has a `typeof` result of "object".
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+ * @example
+ *
+ * _.isObjectLike({});
+ * // => true
+ *
+ * _.isObjectLike([1, 2, 3]);
+ * // => true
+ *
+ * _.isObjectLike(_.noop);
+ * // => false
+ *
+ * _.isObjectLike(null);
+ * // => false
+ */
+function isObjectLike(value) {
+  return !!value && typeof value == 'object';
+}
 
 /**
  * Checks if `value` is classified as a `RegExp` object.
@@ -19113,156 +15073,166 @@ var nodeIsRegExp = _nodeUtil && _nodeUtil.isRegExp;
  * _.isRegExp('/abc/');
  * // => false
  */
-var isRegExp = nodeIsRegExp ? _baseUnary(nodeIsRegExp) : _baseIsRegExp;
-
-var isRegExp_1 = isRegExp;
+var isRegExp = nodeIsRegExp ? baseUnary(nodeIsRegExp) : baseIsRegExp;
 
 /**
- * Gets the size of an ASCII `string`.
+ * Checks if `value` is classified as a `Symbol` primitive or object.
  *
- * @private
- * @param {string} string The string inspect.
- * @returns {number} Returns the string size.
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a symbol, else `false`.
+ * @example
+ *
+ * _.isSymbol(Symbol.iterator);
+ * // => true
+ *
+ * _.isSymbol('abc');
+ * // => false
  */
-var asciiSize = _baseProperty('length');
-
-var _asciiSize = asciiSize;
-
-/** Used to compose unicode character classes. */
-var rsAstralRange$1 = '\\ud800-\\udfff',
-    rsComboMarksRange$1 = '\\u0300-\\u036f',
-    reComboHalfMarksRange$1 = '\\ufe20-\\ufe2f',
-    rsComboSymbolsRange$1 = '\\u20d0-\\u20ff',
-    rsComboRange$1 = rsComboMarksRange$1 + reComboHalfMarksRange$1 + rsComboSymbolsRange$1,
-    rsVarRange$1 = '\\ufe0e\\ufe0f';
-
-/** Used to compose unicode capture groups. */
-var rsAstral = '[' + rsAstralRange$1 + ']',
-    rsCombo = '[' + rsComboRange$1 + ']',
-    rsFitz = '\\ud83c[\\udffb-\\udfff]',
-    rsModifier = '(?:' + rsCombo + '|' + rsFitz + ')',
-    rsNonAstral = '[^' + rsAstralRange$1 + ']',
-    rsRegional = '(?:\\ud83c[\\udde6-\\uddff]){2}',
-    rsSurrPair = '[\\ud800-\\udbff][\\udc00-\\udfff]',
-    rsZWJ$1 = '\\u200d';
-
-/** Used to compose unicode regexes. */
-var reOptMod = rsModifier + '?',
-    rsOptVar = '[' + rsVarRange$1 + ']?',
-    rsOptJoin = '(?:' + rsZWJ$1 + '(?:' + [rsNonAstral, rsRegional, rsSurrPair].join('|') + ')' + rsOptVar + reOptMod + ')*',
-    rsSeq = rsOptVar + reOptMod + rsOptJoin,
-    rsSymbol = '(?:' + [rsNonAstral + rsCombo + '?', rsCombo, rsRegional, rsSurrPair, rsAstral].join('|') + ')';
-
-/** Used to match [string symbols](https://mathiasbynens.be/notes/javascript-unicode). */
-var reUnicode = RegExp(rsFitz + '(?=' + rsFitz + ')|' + rsSymbol + rsSeq, 'g');
+function isSymbol(value) {
+  return typeof value == 'symbol' ||
+    (isObjectLike(value) && objectToString.call(value) == symbolTag);
+}
 
 /**
- * Gets the size of a Unicode `string`.
+ * Converts `value` to a finite number.
  *
- * @private
- * @param {string} string The string inspect.
- * @returns {number} Returns the string size.
+ * @static
+ * @memberOf _
+ * @since 4.12.0
+ * @category Lang
+ * @param {*} value The value to convert.
+ * @returns {number} Returns the converted number.
+ * @example
+ *
+ * _.toFinite(3.2);
+ * // => 3.2
+ *
+ * _.toFinite(Number.MIN_VALUE);
+ * // => 5e-324
+ *
+ * _.toFinite(Infinity);
+ * // => 1.7976931348623157e+308
+ *
+ * _.toFinite('3.2');
+ * // => 3.2
  */
-function unicodeSize(string) {
-  var result = reUnicode.lastIndex = 0;
-  while (reUnicode.test(string)) {
-    ++result;
+function toFinite(value) {
+  if (!value) {
+    return value === 0 ? value : 0;
   }
-  return result;
+  value = toNumber(value);
+  if (value === INFINITY || value === -INFINITY) {
+    var sign = (value < 0 ? -1 : 1);
+    return sign * MAX_INTEGER;
+  }
+  return value === value ? value : 0;
 }
-
-var _unicodeSize = unicodeSize;
 
 /**
- * Gets the number of symbols in `string`.
+ * Converts `value` to an integer.
  *
- * @private
- * @param {string} string The string to inspect.
- * @returns {number} Returns the string size.
+ * **Note:** This method is loosely based on
+ * [`ToInteger`](http://www.ecma-international.org/ecma-262/7.0/#sec-tointeger).
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to convert.
+ * @returns {number} Returns the converted integer.
+ * @example
+ *
+ * _.toInteger(3.2);
+ * // => 3
+ *
+ * _.toInteger(Number.MIN_VALUE);
+ * // => 0
+ *
+ * _.toInteger(Infinity);
+ * // => 1.7976931348623157e+308
+ *
+ * _.toInteger('3.2');
+ * // => 3
  */
-function stringSize(string) {
-  return _hasUnicode(string)
-    ? _unicodeSize(string)
-    : _asciiSize(string);
-}
+function toInteger(value) {
+  var result = toFinite(value),
+      remainder = result % 1;
 
-var _stringSize = stringSize;
+  return result === result ? (remainder ? result - remainder : result) : 0;
+}
 
 /**
- * Converts an ASCII `string` to an array.
+ * Converts `value` to a number.
  *
- * @private
- * @param {string} string The string to convert.
- * @returns {Array} Returns the converted array.
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to process.
+ * @returns {number} Returns the number.
+ * @example
+ *
+ * _.toNumber(3.2);
+ * // => 3.2
+ *
+ * _.toNumber(Number.MIN_VALUE);
+ * // => 5e-324
+ *
+ * _.toNumber(Infinity);
+ * // => Infinity
+ *
+ * _.toNumber('3.2');
+ * // => 3.2
  */
-function asciiToArray(string) {
-  return string.split('');
+function toNumber(value) {
+  if (typeof value == 'number') {
+    return value;
+  }
+  if (isSymbol(value)) {
+    return NAN;
+  }
+  if (isObject(value)) {
+    var other = typeof value.valueOf == 'function' ? value.valueOf() : value;
+    value = isObject(other) ? (other + '') : other;
+  }
+  if (typeof value != 'string') {
+    return value === 0 ? value : +value;
+  }
+  value = value.replace(reTrim, '');
+  var isBinary = reIsBinary.test(value);
+  return (isBinary || reIsOctal.test(value))
+    ? freeParseInt(value.slice(2), isBinary ? 2 : 8)
+    : (reIsBadHex.test(value) ? NAN : +value);
 }
-
-var _asciiToArray = asciiToArray;
-
-/** Used to compose unicode character classes. */
-var rsAstralRange$2 = '\\ud800-\\udfff',
-    rsComboMarksRange$2 = '\\u0300-\\u036f',
-    reComboHalfMarksRange$2 = '\\ufe20-\\ufe2f',
-    rsComboSymbolsRange$2 = '\\u20d0-\\u20ff',
-    rsComboRange$2 = rsComboMarksRange$2 + reComboHalfMarksRange$2 + rsComboSymbolsRange$2,
-    rsVarRange$2 = '\\ufe0e\\ufe0f';
-
-/** Used to compose unicode capture groups. */
-var rsAstral$1 = '[' + rsAstralRange$2 + ']',
-    rsCombo$1 = '[' + rsComboRange$2 + ']',
-    rsFitz$1 = '\\ud83c[\\udffb-\\udfff]',
-    rsModifier$1 = '(?:' + rsCombo$1 + '|' + rsFitz$1 + ')',
-    rsNonAstral$1 = '[^' + rsAstralRange$2 + ']',
-    rsRegional$1 = '(?:\\ud83c[\\udde6-\\uddff]){2}',
-    rsSurrPair$1 = '[\\ud800-\\udbff][\\udc00-\\udfff]',
-    rsZWJ$2 = '\\u200d';
-
-/** Used to compose unicode regexes. */
-var reOptMod$1 = rsModifier$1 + '?',
-    rsOptVar$1 = '[' + rsVarRange$2 + ']?',
-    rsOptJoin$1 = '(?:' + rsZWJ$2 + '(?:' + [rsNonAstral$1, rsRegional$1, rsSurrPair$1].join('|') + ')' + rsOptVar$1 + reOptMod$1 + ')*',
-    rsSeq$1 = rsOptVar$1 + reOptMod$1 + rsOptJoin$1,
-    rsSymbol$1 = '(?:' + [rsNonAstral$1 + rsCombo$1 + '?', rsCombo$1, rsRegional$1, rsSurrPair$1, rsAstral$1].join('|') + ')';
-
-/** Used to match [string symbols](https://mathiasbynens.be/notes/javascript-unicode). */
-var reUnicode$1 = RegExp(rsFitz$1 + '(?=' + rsFitz$1 + ')|' + rsSymbol$1 + rsSeq$1, 'g');
 
 /**
- * Converts a Unicode `string` to an array.
+ * Converts `value` to a string. An empty string is returned for `null`
+ * and `undefined` values. The sign of `-0` is preserved.
  *
- * @private
- * @param {string} string The string to convert.
- * @returns {Array} Returns the converted array.
- */
-function unicodeToArray(string) {
-  return string.match(reUnicode$1) || [];
-}
-
-var _unicodeToArray = unicodeToArray;
-
-/**
- * Converts `string` to an array.
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to process.
+ * @returns {string} Returns the string.
+ * @example
  *
- * @private
- * @param {string} string The string to convert.
- * @returns {Array} Returns the converted array.
+ * _.toString(null);
+ * // => ''
+ *
+ * _.toString(-0);
+ * // => '-0'
+ *
+ * _.toString([1, 2, 3]);
+ * // => '1,2,3'
  */
-function stringToArray(string) {
-  return _hasUnicode(string)
-    ? _unicodeToArray(string)
-    : _asciiToArray(string);
+function toString(value) {
+  return value == null ? '' : baseToString(value);
 }
-
-var _stringToArray = stringToArray;
-
-/** Used as default options for `_.truncate`. */
-var DEFAULT_TRUNC_LENGTH = 30,
-    DEFAULT_TRUNC_OMISSION = '...';
-
-/** Used to match `RegExp` flags from their coerced string values. */
-var reFlags$1 = /\w*$/;
 
 /**
  * Truncates `string` if it's longer than the given maximum string length.
@@ -19305,27 +15275,27 @@ function truncate(string, options) {
   var length = DEFAULT_TRUNC_LENGTH,
       omission = DEFAULT_TRUNC_OMISSION;
 
-  if (isObject_1(options)) {
+  if (isObject(options)) {
     var separator = 'separator' in options ? options.separator : separator;
-    length = 'length' in options ? toInteger_1(options.length) : length;
-    omission = 'omission' in options ? _baseToString(options.omission) : omission;
+    length = 'length' in options ? toInteger(options.length) : length;
+    omission = 'omission' in options ? baseToString(options.omission) : omission;
   }
-  string = toString_1(string);
+  string = toString(string);
 
   var strLength = string.length;
-  if (_hasUnicode(string)) {
-    var strSymbols = _stringToArray(string);
+  if (hasUnicode(string)) {
+    var strSymbols = stringToArray(string);
     strLength = strSymbols.length;
   }
   if (length >= strLength) {
     return string;
   }
-  var end = length - _stringSize(omission);
+  var end = length - stringSize(omission);
   if (end < 1) {
     return omission;
   }
   var result = strSymbols
-    ? _castSlice(strSymbols, 0, end).join('')
+    ? castSlice(strSymbols, 0, end).join('')
     : string.slice(0, end);
 
   if (separator === undefined) {
@@ -19334,13 +15304,13 @@ function truncate(string, options) {
   if (strSymbols) {
     end += (result.length - end);
   }
-  if (isRegExp_1(separator)) {
+  if (isRegExp(separator)) {
     if (string.slice(end).search(separator)) {
       var match,
           substring = result;
 
       if (!separator.global) {
-        separator = RegExp(separator.source, toString_1(reFlags$1.exec(separator)) + 'g');
+        separator = RegExp(separator.source, toString(reFlags.exec(separator)) + 'g');
       }
       separator.lastIndex = 0;
       while ((match = separator.exec(substring))) {
@@ -19348,7 +15318,7 @@ function truncate(string, options) {
       }
       result = result.slice(0, newEnd === undefined ? end : newEnd);
     }
-  } else if (string.indexOf(_baseToString(separator), end) != end) {
+  } else if (string.indexOf(baseToString(separator), end) != end) {
     var index = result.lastIndexOf(separator);
     if (index > -1) {
       result = result.slice(0, index);
@@ -19357,610 +15327,609 @@ function truncate(string, options) {
   return result + omission;
 }
 
-var truncate_1 = truncate;
+module.exports = truncate;
+}(lodash_truncate, lodash_truncate.exports));
 
-var truncateTableData_1 = createCommonjsModule(function (module, exports) {
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _truncate2 = _interopRequireDefault(truncate_1);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
+(function (exports) {
+var __importDefault = (commonjsGlobal$1 && commonjsGlobal$1.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.truncateTableData = exports.truncateString = void 0;
+const lodash_truncate_1 = __importDefault(lodash_truncate.exports);
+const truncateString = (input, length) => {
+    return (0, lodash_truncate_1.default)(input, { length,
+        omission: '…' });
+};
+exports.truncateString = truncateString;
 /**
  * @todo Make it work with ASCII content.
- * @param {table~row[]} rows
- * @param {object} config
- * @returns {table~row[]}
  */
-const truncateTableData = (rows, config) => {
-  return rows.map(cells => {
-    return cells.map((content, index) => {
-      return (0, _truncate2.default)(content, {
-        length: config.columns[index].truncate
-      });
+const truncateTableData = (rows, truncates) => {
+    return rows.map((cells) => {
+        return cells.map((cell, cellIndex) => {
+            return (0, exports.truncateString)(cell, truncates[cellIndex]);
+        });
     });
-  });
 };
+exports.truncateTableData = truncateTableData;
 
-var _default = truncateTableData;
-exports.default = _default;
+}(truncateTableData));
 
-});
-
-var createStream_1 = createCommonjsModule(function (module, exports) {
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _mapValues2 = _interopRequireDefault(mapValues_1);
-
-var _alignTableData = _interopRequireDefault(alignTableData_1);
-
-var _calculateRowHeightIndex = _interopRequireDefault(calculateRowHeightIndex_1);
-
-
-
-var _drawRow = _interopRequireDefault(drawRow_1);
-
-var _makeStreamConfig = _interopRequireDefault(makeStreamConfig_1);
-
-var _mapDataUsingRowHeightIndex = _interopRequireDefault(mapDataUsingRowHeightIndex_1);
-
-var _padTableData = _interopRequireDefault(padTableData_1);
-
-var _stringifyTableData = _interopRequireDefault(stringifyTableData_1);
-
-var _truncateTableData = _interopRequireDefault(truncateTableData_1);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/**
- * @param {Array} data
- * @param {object} config
- * @returns {Array}
- */
+Object.defineProperty(createStream$1, "__esModule", { value: true });
+createStream$1.createStream = void 0;
+const alignTableData_1$1 = alignTableData$1;
+const calculateRowHeights_1$1 = calculateRowHeights$1;
+const drawBorder_1$1 = drawBorder;
+const drawRow_1$1 = drawRow$1;
+const makeStreamConfig_1 = makeStreamConfig$1;
+const mapDataUsingRowHeights_1$2 = mapDataUsingRowHeights;
+const padTableData_1$2 = padTableData;
+const stringifyTableData_1$1 = stringifyTableData$1;
+const truncateTableData_1$2 = truncateTableData;
+const utils_1$9 = utils;
 const prepareData = (data, config) => {
-  let rows;
-  rows = (0, _stringifyTableData.default)(data);
-  rows = (0, _truncateTableData.default)(data, config);
-  const rowHeightIndex = (0, _calculateRowHeightIndex.default)(rows, config);
-  rows = (0, _mapDataUsingRowHeightIndex.default)(rows, rowHeightIndex, config);
-  rows = (0, _alignTableData.default)(rows, config);
-  rows = (0, _padTableData.default)(rows, config);
-  return rows;
+    let rows = (0, stringifyTableData_1$1.stringifyTableData)(data);
+    rows = (0, truncateTableData_1$2.truncateTableData)(rows, (0, utils_1$9.extractTruncates)(config));
+    const rowHeights = (0, calculateRowHeights_1$1.calculateRowHeights)(rows, config);
+    rows = (0, mapDataUsingRowHeights_1$2.mapDataUsingRowHeights)(rows, rowHeights, config);
+    rows = (0, alignTableData_1$1.alignTableData)(rows, config);
+    rows = (0, padTableData_1$2.padTableData)(rows, config);
+    return rows;
 };
-/**
- * @param {string[]} row
- * @param {number[]} columnWidthIndex
- * @param {object} config
- * @returns {undefined}
- */
-
-
-const create = (row, columnWidthIndex, config) => {
-  const rows = prepareData([row], config);
-  const body = rows.map(literalRow => {
-    return (0, _drawRow.default)(literalRow, config.border);
-  }).join('');
-  let output;
-  output = '';
-  output += (0, drawBorder_1.drawBorderTop)(columnWidthIndex, config.border);
-  output += body;
-  output += (0, drawBorder_1.drawBorderBottom)(columnWidthIndex, config.border);
-  output = output.trimEnd();
-  process.stdout.write(output);
+const create = (row, columnWidths, config) => {
+    const rows = prepareData([row], config);
+    const body = rows.map((literalRow) => {
+        return (0, drawRow_1$1.drawRow)(literalRow, config);
+    }).join('');
+    let output;
+    output = '';
+    output += (0, drawBorder_1$1.drawBorderTop)(columnWidths, config);
+    output += body;
+    output += (0, drawBorder_1$1.drawBorderBottom)(columnWidths, config);
+    output = output.trimEnd();
+    process.stdout.write(output);
 };
-/**
- * @param {string[]} row
- * @param {number[]} columnWidthIndex
- * @param {object} config
- * @returns {undefined}
- */
-
-
-const append = (row, columnWidthIndex, config) => {
-  const rows = prepareData([row], config);
-  const body = rows.map(literalRow => {
-    return (0, _drawRow.default)(literalRow, config.border);
-  }).join('');
-  let output = '';
-  const bottom = (0, drawBorder_1.drawBorderBottom)(columnWidthIndex, config.border);
-
-  if (bottom !== '\n') {
-    output = '\r\u001B[K';
-  }
-
-  output += (0, drawBorder_1.drawBorderJoin)(columnWidthIndex, config.border);
-  output += body;
-  output += bottom;
-  output = output.trimEnd();
-  process.stdout.write(output);
-};
-/**
- * @param {object} userConfig
- * @returns {object}
- */
-
-
-const createStream = (userConfig = {}) => {
-  const config = (0, _makeStreamConfig.default)(userConfig);
-  const columnWidthIndex = Object.values((0, _mapValues2.default)(config.columns, column => {
-    return column.width + column.paddingLeft + column.paddingRight;
-  }));
-  let empty;
-  empty = true;
-  return {
-    /**
-     * @param {string[]} row
-     * @returns {undefined}
-     */
-    write: row => {
-      if (row.length !== config.columnCount) {
-        throw new Error('Row cell count does not match the config.columnCount.');
-      }
-
-      if (empty) {
-        empty = false;
-        return create(row, columnWidthIndex, config);
-      } else {
-        return append(row, columnWidthIndex, config);
-      }
+const append = (row, columnWidths, config) => {
+    const rows = prepareData([row], config);
+    const body = rows.map((literalRow) => {
+        return (0, drawRow_1$1.drawRow)(literalRow, config);
+    }).join('');
+    let output = '';
+    const bottom = (0, drawBorder_1$1.drawBorderBottom)(columnWidths, config);
+    if (bottom !== '\n') {
+        output = '\r\u001B[K';
     }
-  };
+    output += (0, drawBorder_1$1.drawBorderJoin)(columnWidths, config);
+    output += body;
+    output += bottom;
+    output = output.trimEnd();
+    process.stdout.write(output);
 };
-
-var _default = createStream;
-exports.default = _default;
-
-});
-
-var calculateCellWidthIndex_1 = createCommonjsModule(function (module, exports) {
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _stringWidth = _interopRequireDefault(stringWidth_1);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/**
- * Calculates width of each cell contents.
- *
- * @param {string[]} cells
- * @returns {number[]}
- */
-const calculateCellWidthIndex = cells => {
-  return cells.map(value => {
-    return Math.max(...value.split('\n').map(line => {
-      return (0, _stringWidth.default)(line);
-    }));
-  });
+const createStream = (userConfig) => {
+    const config = (0, makeStreamConfig_1.makeStreamConfig)(userConfig);
+    const columnWidths = Object.values(config.columns).map((column) => {
+        return column.width + column.paddingLeft + column.paddingRight;
+    });
+    let empty = true;
+    return {
+        write: (row) => {
+            if (row.length !== config.columnCount) {
+                throw new Error('Row cell count does not match the config.columnCount.');
+            }
+            if (empty) {
+                empty = false;
+                create(row, columnWidths, config);
+            }
+            else {
+                append(row, columnWidths, config);
+            }
+        },
+    };
 };
+createStream$1.createStream = createStream;
 
-var _default = calculateCellWidthIndex;
-exports.default = _default;
+var table$1 = {};
 
-});
+var calculateOutputColumnWidths$1 = {};
 
-var drawTable_1 = createCommonjsModule(function (module, exports) {
+Object.defineProperty(calculateOutputColumnWidths$1, "__esModule", { value: true });
+calculateOutputColumnWidths$1.calculateOutputColumnWidths = void 0;
+const calculateOutputColumnWidths = (config) => {
+    return config.columns.map((col) => {
+        return col.paddingLeft + col.width + col.paddingRight;
+    });
+};
+calculateOutputColumnWidths$1.calculateOutputColumnWidths = calculateOutputColumnWidths;
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
+var drawTable$1 = {};
 
+Object.defineProperty(drawTable$1, "__esModule", { value: true });
+drawTable$1.drawTable = void 0;
+const drawBorder_1 = drawBorder;
+const drawContent_1 = drawContent$1;
+const drawRow_1 = drawRow$1;
+const utils_1$8 = utils;
+const drawTable = (rows, outputColumnWidths, rowHeights, config) => {
+    const { drawHorizontalLine, singleLine, } = config;
+    const contents = (0, utils_1$8.groupBySizes)(rows, rowHeights).map((group, groupIndex) => {
+        return group.map((row) => {
+            return (0, drawRow_1.drawRow)(row, { ...config,
+                rowIndex: groupIndex });
+        }).join('');
+    });
+    return (0, drawContent_1.drawContent)({ contents,
+        drawSeparator: (index, size) => {
+            // Top/bottom border
+            if (index === 0 || index === size) {
+                return drawHorizontalLine(index, size);
+            }
+            return !singleLine && drawHorizontalLine(index, size);
+        },
+        elementType: 'row',
+        rowIndex: -1,
+        separatorGetter: (0, drawBorder_1.createTableBorderGetter)(outputColumnWidths, { ...config,
+            rowCount: contents.length }),
+        spanningCellManager: config.spanningCellManager });
+};
+drawTable$1.drawTable = drawTable;
 
+var injectHeaderConfig$1 = {};
 
-var _drawRow = _interopRequireDefault(drawRow_1);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/**
- * @param {Array} rows
- * @param {object} border
- * @param {Array} columnSizeIndex
- * @param {Array} rowSpanIndex
- * @param {Function} drawHorizontalLine
- * @param {boolean} singleLine
- * @returns {string}
- */
-const drawTable = (rows, border, columnSizeIndex, rowSpanIndex, drawHorizontalLine, singleLine) => {
-  let output;
-  let realRowIndex;
-  let rowHeight;
-  const rowCount = rows.length;
-  realRowIndex = 0;
-  output = '';
-
-  if (drawHorizontalLine(realRowIndex, rowCount)) {
-    output += (0, drawBorder_1.drawBorderTop)(columnSizeIndex, border);
-  }
-
-  rows.forEach((row, index0) => {
-    output += (0, _drawRow.default)(row, border);
-
-    if (!rowHeight) {
-      rowHeight = rowSpanIndex[realRowIndex];
-      realRowIndex++;
+Object.defineProperty(injectHeaderConfig$1, "__esModule", { value: true });
+injectHeaderConfig$1.injectHeaderConfig = void 0;
+const injectHeaderConfig = (rows, config) => {
+    var _a;
+    let spanningCellConfig = (_a = config.spanningCells) !== null && _a !== void 0 ? _a : [];
+    const headerConfig = config.header;
+    const adjustedRows = [...rows];
+    if (headerConfig) {
+        spanningCellConfig = spanningCellConfig.map(({ row, ...rest }) => {
+            return { ...rest,
+                row: row + 1 };
+        });
+        const { content, ...headerStyles } = headerConfig;
+        spanningCellConfig.unshift({ alignment: 'center',
+            col: 0,
+            colSpan: rows[0].length,
+            paddingLeft: 1,
+            paddingRight: 1,
+            row: 0,
+            wrapWord: false,
+            ...headerStyles });
+        adjustedRows.unshift([content, ...Array.from({ length: rows[0].length - 1 }).fill('')]);
     }
-
-    rowHeight--;
-
-    if (!singleLine && rowHeight === 0 && index0 !== rowCount - 1 && drawHorizontalLine(realRowIndex, rowCount)) {
-      output += (0, drawBorder_1.drawBorderJoin)(columnSizeIndex, border);
-    }
-  });
-
-  if (drawHorizontalLine(realRowIndex, rowCount)) {
-    output += (0, drawBorder_1.drawBorderBottom)(columnSizeIndex, border);
-  }
-
-  return output;
+    return [adjustedRows,
+        spanningCellConfig];
 };
+injectHeaderConfig$1.injectHeaderConfig = injectHeaderConfig;
 
-var _default = drawTable;
-exports.default = _default;
+var makeTableConfig$1 = {};
 
-});
+var calculateMaximumColumnWidths = {};
 
-var calculateMaximumColumnWidthIndex_1 = createCommonjsModule(function (module, exports) {
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _calculateCellWidthIndex = _interopRequireDefault(calculateCellWidthIndex_1);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
+(function (exports) {
+var __importDefault = (commonjsGlobal$1 && commonjsGlobal$1.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.calculateMaximumColumnWidths = exports.calculateMaximumCellWidth = void 0;
+const string_width_1 = __importDefault(stringWidth$1.exports);
+const utils_1 = utils;
+const calculateMaximumCellWidth = (cell) => {
+    return Math.max(...cell.split('\n').map(string_width_1.default));
+};
+exports.calculateMaximumCellWidth = calculateMaximumCellWidth;
 /**
  * Produces an array of values that describe the largest value length (width) in every column.
- *
- * @param {Array[]} rows
- * @returns {number[]}
  */
-const calculateMaximumColumnWidthIndex = rows => {
-  if (!rows[0]) {
-    throw new Error('Dataset must have at least one row.');
-  }
-
-  const columns = new Array(rows[0].length).fill(0);
-  rows.forEach(row => {
-    const columnWidthIndex = (0, _calculateCellWidthIndex.default)(row);
-    columnWidthIndex.forEach((valueWidth, index0) => {
-      if (columns[index0] < valueWidth) {
-        columns[index0] = valueWidth;
-      }
+const calculateMaximumColumnWidths = (rows, spanningCellConfigs = []) => {
+    const columnWidths = new Array(rows[0].length).fill(0);
+    const rangeCoordinates = spanningCellConfigs.map(utils_1.calculateRangeCoordinate);
+    const isSpanningCell = (rowIndex, columnIndex) => {
+        return rangeCoordinates.some((rangeCoordinate) => {
+            return (0, utils_1.isCellInRange)({ col: columnIndex,
+                row: rowIndex }, rangeCoordinate);
+        });
+    };
+    rows.forEach((row, rowIndex) => {
+        row.forEach((cell, cellIndex) => {
+            if (isSpanningCell(rowIndex, cellIndex)) {
+                return;
+            }
+            columnWidths[cellIndex] = Math.max(columnWidths[cellIndex], (0, exports.calculateMaximumCellWidth)(cell));
+        });
     });
-  });
-  return columns;
+    return columnWidths;
 };
+exports.calculateMaximumColumnWidths = calculateMaximumColumnWidths;
 
-var _default = calculateMaximumColumnWidthIndex;
-exports.default = _default;
+}(calculateMaximumColumnWidths));
 
-});
+var spanningCellManager = {};
 
-var makeConfig_1 = createCommonjsModule(function (module, exports) {
+var alignSpanningCell = {};
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _cloneDeep2 = _interopRequireDefault(cloneDeep_1);
-
-var _isUndefined2 = _interopRequireDefault(isUndefined_1);
-
-var _times2 = _interopRequireDefault(times_1);
-
-var _calculateMaximumColumnWidthIndex = _interopRequireDefault(calculateMaximumColumnWidthIndex_1);
-
-var _getBorderCharacters = _interopRequireDefault(getBorderCharacters_1);
-
-var _validateConfig = _interopRequireDefault(validateConfig_1);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
+Object.defineProperty(alignSpanningCell, "__esModule", { value: true });
+alignSpanningCell.alignVerticalRangeContent = alignSpanningCell.wrapRangeContent = void 0;
+const alignString_1 = alignString$1;
+const mapDataUsingRowHeights_1$1 = mapDataUsingRowHeights;
+const padTableData_1$1 = padTableData;
+const truncateTableData_1$1 = truncateTableData;
+const utils_1$7 = utils;
+const wrapCell_1 = wrapCell$1;
 /**
- * Merges user provided border characters with the default border ("honeywell") characters.
- *
- * @param {object} border
- * @returns {object}
+ * Fill content into all cells in range in order to calculate total height
  */
-const makeBorder = (border = {}) => {
-  return Object.assign({}, (0, _getBorderCharacters.default)('honeywell'), border);
+const wrapRangeContent = (rangeConfig, rangeWidth, context) => {
+    const { topLeft, paddingRight, paddingLeft, truncate, wrapWord, alignment } = rangeConfig;
+    const originalContent = context.rows[topLeft.row][topLeft.col];
+    const contentWidth = rangeWidth - paddingLeft - paddingRight;
+    return (0, wrapCell_1.wrapCell)((0, truncateTableData_1$1.truncateString)(originalContent, truncate), contentWidth, wrapWord).map((line) => {
+        const alignedLine = (0, alignString_1.alignString)(line, contentWidth, alignment);
+        return (0, padTableData_1$1.padString)(alignedLine, paddingLeft, paddingRight);
+    });
 };
+alignSpanningCell.wrapRangeContent = wrapRangeContent;
+const alignVerticalRangeContent = (range, content, context) => {
+    const { rows, drawHorizontalLine, rowHeights } = context;
+    const { topLeft, bottomRight, verticalAlignment } = range;
+    // They are empty before calculateRowHeights function run
+    if (rowHeights.length === 0) {
+        return [];
+    }
+    const totalCellHeight = (0, utils_1$7.sumArray)(rowHeights.slice(topLeft.row, bottomRight.row + 1));
+    const totalBorderHeight = bottomRight.row - topLeft.row;
+    const hiddenHorizontalBorderCount = (0, utils_1$7.sequence)(topLeft.row + 1, bottomRight.row).filter((horizontalBorderIndex) => {
+        return !drawHorizontalLine(horizontalBorderIndex, rows.length);
+    }).length;
+    const availableRangeHeight = totalCellHeight + totalBorderHeight - hiddenHorizontalBorderCount;
+    return (0, mapDataUsingRowHeights_1$1.padCellVertically)(content, availableRangeHeight, verticalAlignment).map((line) => {
+        if (line.length === 0) {
+            return ' '.repeat(content[0].length);
+        }
+        return line;
+    });
+};
+alignSpanningCell.alignVerticalRangeContent = alignVerticalRangeContent;
+
+var calculateSpanningCellWidth$1 = {};
+
+Object.defineProperty(calculateSpanningCellWidth$1, "__esModule", { value: true });
+calculateSpanningCellWidth$1.calculateSpanningCellWidth = void 0;
+const utils_1$6 = utils;
+const calculateSpanningCellWidth = (rangeConfig, dependencies) => {
+    const { columnsConfig, drawVerticalLine } = dependencies;
+    const { topLeft, bottomRight } = rangeConfig;
+    const totalWidth = (0, utils_1$6.sumArray)(columnsConfig.slice(topLeft.col, bottomRight.col + 1).map(({ width }) => {
+        return width;
+    }));
+    const totalPadding = topLeft.col === bottomRight.col ?
+        columnsConfig[topLeft.col].paddingRight +
+            columnsConfig[bottomRight.col].paddingLeft :
+        (0, utils_1$6.sumArray)(columnsConfig
+            .slice(topLeft.col, bottomRight.col + 1)
+            .map(({ paddingLeft, paddingRight }) => {
+            return paddingLeft + paddingRight;
+        }));
+    const totalBorderWidths = bottomRight.col - topLeft.col;
+    const totalHiddenVerticalBorders = (0, utils_1$6.sequence)(topLeft.col + 1, bottomRight.col).filter((verticalBorderIndex) => {
+        return !drawVerticalLine(verticalBorderIndex, columnsConfig.length);
+    }).length;
+    return totalWidth + totalPadding + totalBorderWidths - totalHiddenVerticalBorders;
+};
+calculateSpanningCellWidth$1.calculateSpanningCellWidth = calculateSpanningCellWidth;
+
+var makeRangeConfig$1 = {};
+
+Object.defineProperty(makeRangeConfig$1, "__esModule", { value: true });
+makeRangeConfig$1.makeRangeConfig = void 0;
+const utils_1$5 = utils;
+const makeRangeConfig = (spanningCellConfig, columnsConfig) => {
+    var _a;
+    const { topLeft, bottomRight } = (0, utils_1$5.calculateRangeCoordinate)(spanningCellConfig);
+    const cellConfig = {
+        ...columnsConfig[topLeft.col],
+        ...spanningCellConfig,
+        paddingRight: (_a = spanningCellConfig.paddingRight) !== null && _a !== void 0 ? _a : columnsConfig[bottomRight.col].paddingRight,
+    };
+    return { ...cellConfig,
+        bottomRight,
+        topLeft };
+};
+makeRangeConfig$1.makeRangeConfig = makeRangeConfig;
+
+Object.defineProperty(spanningCellManager, "__esModule", { value: true });
+spanningCellManager.createSpanningCellManager = void 0;
+const alignSpanningCell_1 = alignSpanningCell;
+const calculateSpanningCellWidth_1 = calculateSpanningCellWidth$1;
+const makeRangeConfig_1 = makeRangeConfig$1;
+const utils_1$4 = utils;
+const findRangeConfig = (cell, rangeConfigs) => {
+    return rangeConfigs.find((rangeCoordinate) => {
+        return (0, utils_1$4.isCellInRange)(cell, rangeCoordinate);
+    });
+};
+const getContainingRange = (rangeConfig, context) => {
+    const width = (0, calculateSpanningCellWidth_1.calculateSpanningCellWidth)(rangeConfig, context);
+    const wrappedContent = (0, alignSpanningCell_1.wrapRangeContent)(rangeConfig, width, context);
+    const alignedContent = (0, alignSpanningCell_1.alignVerticalRangeContent)(rangeConfig, wrappedContent, context);
+    const getCellContent = (rowIndex) => {
+        const { topLeft } = rangeConfig;
+        const { drawHorizontalLine, rowHeights } = context;
+        const totalWithinHorizontalBorderHeight = rowIndex - topLeft.row;
+        const totalHiddenHorizontalBorderHeight = (0, utils_1$4.sequence)(topLeft.row + 1, rowIndex).filter((index) => {
+            /* istanbul ignore next */
+            return !(drawHorizontalLine === null || drawHorizontalLine === void 0 ? void 0 : drawHorizontalLine(index, rowHeights.length));
+        }).length;
+        const offset = (0, utils_1$4.sumArray)(rowHeights.slice(topLeft.row, rowIndex)) + totalWithinHorizontalBorderHeight - totalHiddenHorizontalBorderHeight;
+        return alignedContent.slice(offset, offset + rowHeights[rowIndex]);
+    };
+    const getBorderContent = (borderIndex) => {
+        const { topLeft } = rangeConfig;
+        const offset = (0, utils_1$4.sumArray)(context.rowHeights.slice(topLeft.row, borderIndex)) + (borderIndex - topLeft.row - 1);
+        return alignedContent[offset];
+    };
+    return {
+        ...rangeConfig,
+        extractBorderContent: getBorderContent,
+        extractCellContent: getCellContent,
+        height: wrappedContent.length,
+        width,
+    };
+};
+const inSameRange = (cell1, cell2, ranges) => {
+    const range1 = findRangeConfig(cell1, ranges);
+    const range2 = findRangeConfig(cell2, ranges);
+    if (range1 && range2) {
+        return (0, utils_1$4.areCellEqual)(range1.topLeft, range2.topLeft);
+    }
+    return false;
+};
+const hashRange = (range) => {
+    const { row, col } = range.topLeft;
+    return `${row}/${col}`;
+};
+const createSpanningCellManager = (parameters) => {
+    const { spanningCellConfigs, columnsConfig } = parameters;
+    const ranges = spanningCellConfigs.map((config) => {
+        return (0, makeRangeConfig_1.makeRangeConfig)(config, columnsConfig);
+    });
+    const rangeCache = {};
+    let rowHeights = [];
+    return { getContainingRange: (cell, options) => {
+            var _a;
+            const originalRow = (options === null || options === void 0 ? void 0 : options.mapped) ? (0, utils_1$4.findOriginalRowIndex)(rowHeights, cell.row) : cell.row;
+            const range = findRangeConfig({ ...cell,
+                row: originalRow }, ranges);
+            if (!range) {
+                return undefined;
+            }
+            if (rowHeights.length === 0) {
+                return getContainingRange(range, { ...parameters,
+                    rowHeights });
+            }
+            const hash = hashRange(range);
+            (_a = rangeCache[hash]) !== null && _a !== void 0 ? _a : (rangeCache[hash] = getContainingRange(range, { ...parameters,
+                rowHeights }));
+            return rangeCache[hash];
+        },
+        inSameRange: (cell1, cell2) => {
+            return inSameRange(cell1, cell2, ranges);
+        },
+        rowHeights,
+        setRowHeights: (_rowHeights) => {
+            rowHeights = _rowHeights;
+        } };
+};
+spanningCellManager.createSpanningCellManager = createSpanningCellManager;
+
+var validateSpanningCellConfig$1 = {};
+
+Object.defineProperty(validateSpanningCellConfig$1, "__esModule", { value: true });
+validateSpanningCellConfig$1.validateSpanningCellConfig = void 0;
+const utils_1$3 = utils;
+const inRange = (start, end, value) => {
+    return start <= value && value <= end;
+};
+const validateSpanningCellConfig = (rows, configs) => {
+    const [nRow, nCol] = [rows.length, rows[0].length];
+    configs.forEach((config, configIndex) => {
+        const { colSpan, rowSpan } = config;
+        if (colSpan === undefined && rowSpan === undefined) {
+            throw new Error(`Expect at least colSpan or rowSpan is provided in config.spanningCells[${configIndex}]`);
+        }
+        if (colSpan !== undefined && colSpan < 1) {
+            throw new Error(`Expect colSpan is not equal zero, instead got: ${colSpan} in config.spanningCells[${configIndex}]`);
+        }
+        if (rowSpan !== undefined && rowSpan < 1) {
+            throw new Error(`Expect rowSpan is not equal zero, instead got: ${rowSpan} in config.spanningCells[${configIndex}]`);
+        }
+    });
+    const rangeCoordinates = configs.map(utils_1$3.calculateRangeCoordinate);
+    rangeCoordinates.forEach(({ topLeft, bottomRight }, rangeIndex) => {
+        if (!inRange(0, nCol - 1, topLeft.col) ||
+            !inRange(0, nRow - 1, topLeft.row) ||
+            !inRange(0, nCol - 1, bottomRight.col) ||
+            !inRange(0, nRow - 1, bottomRight.row)) {
+            throw new Error(`Some cells in config.spanningCells[${rangeIndex}] are out of the table`);
+        }
+    });
+    const configOccupy = Array.from({ length: nRow }, () => {
+        return Array.from({ length: nCol });
+    });
+    rangeCoordinates.forEach(({ topLeft, bottomRight }, rangeIndex) => {
+        (0, utils_1$3.sequence)(topLeft.row, bottomRight.row).forEach((row) => {
+            (0, utils_1$3.sequence)(topLeft.col, bottomRight.col).forEach((col) => {
+                if (configOccupy[row][col] !== undefined) {
+                    throw new Error(`Spanning cells in config.spanningCells[${configOccupy[row][col]}] and config.spanningCells[${rangeIndex}] are overlap each other`);
+                }
+                configOccupy[row][col] = rangeIndex;
+            });
+        });
+    });
+};
+validateSpanningCellConfig$1.validateSpanningCellConfig = validateSpanningCellConfig;
+
+Object.defineProperty(makeTableConfig$1, "__esModule", { value: true });
+makeTableConfig$1.makeTableConfig = void 0;
+const calculateMaximumColumnWidths_1 = calculateMaximumColumnWidths;
+const spanningCellManager_1 = spanningCellManager;
+const utils_1$2 = utils;
+const validateConfig_1 = validateConfig$1;
+const validateSpanningCellConfig_1 = validateSpanningCellConfig$1;
 /**
  * Creates a configuration for every column using default
  * values for the missing configuration properties.
- *
- * @param {Array[]} rows
- * @param {object} columns
- * @param {object} columnDefault
- * @returns {object}
  */
-
-
-const makeColumns = (rows, columns = {}, columnDefault = {}) => {
-  const maximumColumnWidthIndex = (0, _calculateMaximumColumnWidthIndex.default)(rows);
-  (0, _times2.default)(rows[0].length, index => {
-    if ((0, _isUndefined2.default)(columns[index])) {
-      columns[index] = {};
-    }
-
-    columns[index] = Object.assign({
-      alignment: 'left',
-      paddingLeft: 1,
-      paddingRight: 1,
-      truncate: Number.POSITIVE_INFINITY,
-      width: maximumColumnWidthIndex[index],
-      wrapWord: false
-    }, columnDefault, columns[index]);
-  });
-  return columns;
+const makeColumnsConfig = (rows, columns, columnDefault, spanningCellConfigs) => {
+    const columnWidths = (0, calculateMaximumColumnWidths_1.calculateMaximumColumnWidths)(rows, spanningCellConfigs);
+    return rows[0].map((_, columnIndex) => {
+        return {
+            alignment: 'left',
+            paddingLeft: 1,
+            paddingRight: 1,
+            truncate: Number.POSITIVE_INFINITY,
+            verticalAlignment: 'top',
+            width: columnWidths[columnIndex],
+            wrapWord: false,
+            ...columnDefault,
+            ...columns === null || columns === void 0 ? void 0 : columns[columnIndex],
+        };
+    });
 };
 /**
  * Makes a new configuration object out of the userConfig object
  * using default values for the missing configuration properties.
- *
- * @param {Array[]} rows
- * @param {object} userConfig
- * @returns {object}
  */
-
-
-const makeConfig = (rows, userConfig = {}) => {
-  (0, _validateConfig.default)('config.json', userConfig);
-  const config = (0, _cloneDeep2.default)(userConfig);
-  config.border = makeBorder(config.border);
-  config.columns = makeColumns(rows, config.columns, config.columnDefault);
-
-  if (!config.drawHorizontalLine) {
-    /**
-         * @returns {boolean}
-         */
-    config.drawHorizontalLine = () => {
-      return true;
+const makeTableConfig = (rows, config = {}, injectedSpanningCellConfig) => {
+    var _a, _b, _c, _d, _e;
+    (0, validateConfig_1.validateConfig)('config.json', config);
+    (0, validateSpanningCellConfig_1.validateSpanningCellConfig)(rows, (_a = config.spanningCells) !== null && _a !== void 0 ? _a : []);
+    const spanningCellConfigs = (_b = injectedSpanningCellConfig !== null && injectedSpanningCellConfig !== void 0 ? injectedSpanningCellConfig : config.spanningCells) !== null && _b !== void 0 ? _b : [];
+    const columnsConfig = makeColumnsConfig(rows, config.columns, config.columnDefault, spanningCellConfigs);
+    const drawVerticalLine = (_c = config.drawVerticalLine) !== null && _c !== void 0 ? _c : (() => {
+        return true;
+    });
+    const drawHorizontalLine = (_d = config.drawHorizontalLine) !== null && _d !== void 0 ? _d : (() => {
+        return true;
+    });
+    return {
+        ...config,
+        border: (0, utils_1$2.makeBorderConfig)(config.border),
+        columns: columnsConfig,
+        drawHorizontalLine,
+        drawVerticalLine,
+        singleLine: (_e = config.singleLine) !== null && _e !== void 0 ? _e : false,
+        spanningCellManager: (0, spanningCellManager_1.createSpanningCellManager)({
+            columnsConfig,
+            drawHorizontalLine,
+            drawVerticalLine,
+            rows,
+            spanningCellConfigs,
+        }),
     };
-  }
-
-  if (config.singleLine === undefined) {
-    config.singleLine = false;
-  }
-
-  return config;
 };
+makeTableConfig$1.makeTableConfig = makeTableConfig;
 
-var _default = makeConfig;
-exports.default = _default;
+var validateTableData$1 = {};
 
-});
-
-var validateTableData_1 = createCommonjsModule(function (module, exports) {
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-/**
- * @typedef {string} cell
- */
-
-/**
- * @typedef {cell[]} validateData~column
- */
-
-/**
- * @param {column[]} rows
- * @returns {undefined}
- */
-const validateTableData = rows => {
-  if (!Array.isArray(rows)) {
-    throw new TypeError('Table data must be an array.');
-  }
-
-  if (rows.length === 0) {
-    throw new Error('Table must define at least one row.');
-  }
-
-  if (rows[0].length === 0) {
-    throw new Error('Table must define at least one column.');
-  }
-
-  const columnNumber = rows[0].length;
-
-  for (const cells of rows) {
-    if (!Array.isArray(cells)) {
-      throw new TypeError('Table row data must be an array.');
+Object.defineProperty(validateTableData$1, "__esModule", { value: true });
+validateTableData$1.validateTableData = void 0;
+const utils_1$1 = utils;
+const validateTableData = (rows) => {
+    if (!Array.isArray(rows)) {
+        throw new TypeError('Table data must be an array.');
     }
-
-    if (cells.length !== columnNumber) {
-      throw new Error('Table must have a consistent number of cells.');
+    if (rows.length === 0) {
+        throw new Error('Table must define at least one row.');
     }
-
-    for (const cell of cells) {
-      // eslint-disable-next-line no-control-regex
-      if (/[\u0001-\u0006\u0008\u0009\u000B-\u001A]/.test(cell)) {
-        throw new Error('Table data must not contain control characters.');
-      }
+    if (rows[0].length === 0) {
+        throw new Error('Table must define at least one column.');
     }
-  }
+    const columnNumber = rows[0].length;
+    for (const row of rows) {
+        if (!Array.isArray(row)) {
+            throw new TypeError('Table row data must be an array.');
+        }
+        if (row.length !== columnNumber) {
+            throw new Error('Table must have a consistent number of cells.');
+        }
+        for (const cell of row) {
+            // eslint-disable-next-line no-control-regex
+            if (/[\u0001-\u0006\u0008\u0009\u000B-\u001A]/.test((0, utils_1$1.normalizeString)(String(cell)))) {
+                throw new Error('Table data must not contain control characters.');
+            }
+        }
+    }
 };
+validateTableData$1.validateTableData = validateTableData;
 
-var _default = validateTableData;
-exports.default = _default;
-
-});
-
-var table_1 = createCommonjsModule(function (module, exports) {
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _alignTableData = _interopRequireDefault(alignTableData_1);
-
-var _calculateCellWidthIndex = _interopRequireDefault(calculateCellWidthIndex_1);
-
-var _calculateRowHeightIndex = _interopRequireDefault(calculateRowHeightIndex_1);
-
-var _drawTable = _interopRequireDefault(drawTable_1);
-
-var _makeConfig = _interopRequireDefault(makeConfig_1);
-
-var _mapDataUsingRowHeightIndex = _interopRequireDefault(mapDataUsingRowHeightIndex_1);
-
-var _padTableData = _interopRequireDefault(padTableData_1);
-
-var _stringifyTableData = _interopRequireDefault(stringifyTableData_1);
-
-var _truncateTableData = _interopRequireDefault(truncateTableData_1);
-
-var _validateTableData = _interopRequireDefault(validateTableData_1);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/**
- * @typedef {string} table~cell
- */
-
-/**
- * @typedef {table~cell[]} table~row
- */
-
-/**
- * @typedef {object} table~columns
- * @property {string} alignment Cell content alignment (enum: left, center, right) (default: left).
- * @property {number} width Column width (default: auto).
- * @property {number} truncate Number of characters are which the content will be truncated (default: Infinity).
- * @property {boolean} wrapWord When true the text is broken at the nearest space or one of the special characters
- * @property {number} paddingLeft Cell content padding width left (default: 1).
- * @property {number} paddingRight Cell content padding width right (default: 1).
- */
-
-/**
- * @typedef {object} table~border
- * @property {string} topBody
- * @property {string} topJoin
- * @property {string} topLeft
- * @property {string} topRight
- * @property {string} bottomBody
- * @property {string} bottomJoin
- * @property {string} bottomLeft
- * @property {string} bottomRight
- * @property {string} bodyLeft
- * @property {string} bodyRight
- * @property {string} bodyJoin
- * @property {string} joinBody
- * @property {string} joinLeft
- * @property {string} joinRight
- * @property {string} joinJoin
- */
-
-/**
- * Used to tell whether to draw a horizontal line.
- * This callback is called for each non-content line of the table.
- * The default behavior is to always return true.
- *
- * @typedef {Function} drawHorizontalLine
- * @param {number} index
- * @param {number} size
- * @returns {boolean}
- */
-
-/**
- * @typedef {object} table~config
- * @property {table~border} border
- * @property {table~columns[]} columns Column specific configuration.
- * @property {table~columns} columnDefault Default values for all columns. Column specific settings overwrite the default values.
- * @property {table~drawHorizontalLine} drawHorizontalLine
- * @property {table~singleLine} singleLine Horizontal lines inside the table are not drawn.
- */
-
-/**
- * Generates a text table.
- *
- * @param {table~row[]} data
- * @param {table~config} userConfig
- * @returns {string}
- */
+Object.defineProperty(table$1, "__esModule", { value: true });
+table$1.table = void 0;
+const alignTableData_1 = alignTableData$1;
+const calculateOutputColumnWidths_1 = calculateOutputColumnWidths$1;
+const calculateRowHeights_1 = calculateRowHeights$1;
+const drawTable_1 = drawTable$1;
+const injectHeaderConfig_1 = injectHeaderConfig$1;
+const makeTableConfig_1 = makeTableConfig$1;
+const mapDataUsingRowHeights_1 = mapDataUsingRowHeights;
+const padTableData_1 = padTableData;
+const stringifyTableData_1 = stringifyTableData$1;
+const truncateTableData_1 = truncateTableData;
+const utils_1 = utils;
+const validateTableData_1 = validateTableData$1;
 const table = (data, userConfig = {}) => {
-  let rows;
-  (0, _validateTableData.default)(data);
-  rows = (0, _stringifyTableData.default)(data);
-  const config = (0, _makeConfig.default)(rows, userConfig);
-  rows = (0, _truncateTableData.default)(data, config);
-  const rowHeightIndex = (0, _calculateRowHeightIndex.default)(rows, config);
-  rows = (0, _mapDataUsingRowHeightIndex.default)(rows, rowHeightIndex, config);
-  rows = (0, _alignTableData.default)(rows, config);
-  rows = (0, _padTableData.default)(rows, config);
-  const cellWidthIndex = (0, _calculateCellWidthIndex.default)(rows[0]);
-  return (0, _drawTable.default)(rows, config.border, cellWidthIndex, rowHeightIndex, config.drawHorizontalLine, config.singleLine);
+    (0, validateTableData_1.validateTableData)(data);
+    let rows = (0, stringifyTableData_1.stringifyTableData)(data);
+    const [injectedRows, injectedSpanningCellConfig] = (0, injectHeaderConfig_1.injectHeaderConfig)(rows, userConfig);
+    const config = (0, makeTableConfig_1.makeTableConfig)(injectedRows, userConfig, injectedSpanningCellConfig);
+    rows = (0, truncateTableData_1.truncateTableData)(injectedRows, (0, utils_1.extractTruncates)(config));
+    const rowHeights = (0, calculateRowHeights_1.calculateRowHeights)(rows, config);
+    config.spanningCellManager.setRowHeights(rowHeights);
+    rows = (0, mapDataUsingRowHeights_1.mapDataUsingRowHeights)(rows, rowHeights, config);
+    rows = (0, alignTableData_1.alignTableData)(rows, config);
+    rows = (0, padTableData_1.padTableData)(rows, config);
+    const outputColumnWidths = (0, calculateOutputColumnWidths_1.calculateOutputColumnWidths)(config);
+    return (0, drawTable_1.drawTable)(rows, outputColumnWidths, rowHeights, config);
 };
+table$1.table = table;
 
-var _default = table;
-exports.default = _default;
+var api = {};
 
-});
+Object.defineProperty(api, "__esModule", { value: true });
 
-var dist$1 = createCommonjsModule(function (module, exports) {
+(function (exports) {
+var __createBinding = (commonjsGlobal$1 && commonjsGlobal$1.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (commonjsGlobal$1 && commonjsGlobal$1.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.getBorderCharacters = exports.createStream = exports.table = void 0;
+const createStream_1 = createStream$1;
+Object.defineProperty(exports, "createStream", { enumerable: true, get: function () { return createStream_1.createStream; } });
+const getBorderCharacters_1 = getBorderCharacters$1;
+Object.defineProperty(exports, "getBorderCharacters", { enumerable: true, get: function () { return getBorderCharacters_1.getBorderCharacters; } });
+const table_1 = table$1;
+Object.defineProperty(exports, "table", { enumerable: true, get: function () { return table_1.table; } });
+__exportStar(api, exports);
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-Object.defineProperty(exports, "createStream", {
-  enumerable: true,
-  get: function () {
-    return _createStream.default;
-  }
-});
-Object.defineProperty(exports, "getBorderCharacters", {
-  enumerable: true,
-  get: function () {
-    return _getBorderCharacters.default;
-  }
-});
-Object.defineProperty(exports, "table", {
-  enumerable: true,
-  get: function () {
-    return _table.default;
-  }
-});
+}(src));
 
-var _createStream = _interopRequireDefault(createStream_1);
-
-var _getBorderCharacters = _interopRequireDefault(getBorderCharacters_1);
-
-var _table = _interopRequireDefault(table_1);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-});
-
-function _interopDefaultLegacy$1 (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
-
-var nodeCrypto__default = /*#__PURE__*/_interopDefaultLegacy$1(nodeCrypto__default$1['default']);
-
-var commonjsGlobal$1 = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof commonjsGlobal !== 'undefined' ? commonjsGlobal : typeof self !== 'undefined' ? self : {};
+var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
 var win;
 
 if (typeof window !== "undefined") {
     win = window;
-} else if (typeof commonjsGlobal$1 !== "undefined") {
-    win = commonjsGlobal$1;
+} else if (typeof commonjsGlobal !== "undefined") {
+    win = commonjsGlobal;
 } else if (typeof self !== "undefined"){
     win = self;
 } else {
@@ -19969,14 +15938,17 @@ if (typeof window !== "undefined") {
 
 var window_1 = win;
 
+var window$1 = window_1;
+var nodeCrypto = require$$1__default$1["default"];
+
 function getRandomValues(buf) {
-  if (window_1.crypto && window_1.crypto.getRandomValues) {
-    return window_1.crypto.getRandomValues(buf);
+  if (window$1.crypto && window$1.crypto.getRandomValues) {
+    return window$1.crypto.getRandomValues(buf);
   }
-  if (typeof window_1.msCrypto === 'object' && typeof window_1.msCrypto.getRandomValues === 'function') {
-    return window_1.msCrypto.getRandomValues(buf);
+  if (typeof window$1.msCrypto === 'object' && typeof window$1.msCrypto.getRandomValues === 'function') {
+    return window$1.msCrypto.getRandomValues(buf);
   }
-  if (nodeCrypto__default['default'].randomBytes) {
+  if (nodeCrypto.randomBytes) {
     if (!(buf instanceof Uint8Array)) {
       throw new TypeError('expected Uint8Array');
     }
@@ -19989,7 +15961,7 @@ function getRandomValues(buf) {
       e.name = 'QuotaExceededError';
       throw e;
     }
-    var bytes = nodeCrypto__default['default'].randomBytes(buf.length);
+    var bytes = nodeCrypto.randomBytes(buf.length);
     buf.set(bytes);
     return buf;
   }
@@ -20000,7 +15972,7 @@ function getRandomValues(buf) {
 
 var getRandomValues_1 = getRandomValues;
 
-var MINIMUM_KEY_LENGTH = 64;
+var MINIMUM_KEY_LENGTH$1 = 64;
 /**
  * Generate random number
  * @param min - lowest value
@@ -20053,7 +16025,7 @@ function getRandomChar() {
  * @see https://roots.io/salts.html
  */
 function generateSalt(saltLength) {
-    if (saltLength === void 0) { saltLength = MINIMUM_KEY_LENGTH; }
+    if (saltLength === void 0) { saltLength = MINIMUM_KEY_LENGTH$1; }
     return Array.apply(void 0, Array(saltLength)).map(getRandomChar)
         .join('');
 }
@@ -20068,7 +16040,7 @@ var WORDPRESS_KEYS = [
     'LOGGED_IN_SALT',
     'NONCE_SALT',
 ];
-var MINIMUM_KEY_LENGTH$1 = 64;
+var MINIMUM_KEY_LENGTH = 64;
 /**
  * Returns object of default WordPress salts or any string/array of strings
  * @param length - length of the salt, defaults to 64
@@ -20087,15 +16059,13 @@ var wpSalts = function (keys, saltLength) {
     else {
         keys = WORDPRESS_KEYS;
     }
-    saltLength = (saltLength < MINIMUM_KEY_LENGTH$1) ? MINIMUM_KEY_LENGTH$1 : saltLength;
+    saltLength = (saltLength < MINIMUM_KEY_LENGTH) ? MINIMUM_KEY_LENGTH : saltLength;
     keys.map(function (key) { return output[key] = generateSalt(saltLength); });
     return output;
 };
 
-var wpSalts_1 = wpSalts;
-
 // Action
-commander
+program
     .description('CLI tool to generate WordPress salts in various formats')
     .version(pkg.version)
     .arguments('[options]')
@@ -20110,13 +16080,13 @@ commander
     .option('-s, --sort', 'sort keys alphabetically')
     .option('-u, --ugly', 'don\'t align JSON or PHP output')
     .parse(process.argv);
-var options = commander.opts();
+var options = program.opts();
 if (options.indent && options.ugly) {
     console.error(logSymbols.error, 'You cannot combine the indent and ugly flags\n');
     process.exit();
 }
 var indentation;
-Object.freeze(commander);
+Object.freeze(program);
 if (options.indent && !isNaN(options.indent)) {
     indentation = options.indent;
 }
@@ -20129,9 +16099,9 @@ else {
 var saltLength = (options.length)
     ? options.length
     : 64;
-var salts = commander.args.length
-    ? wpSalts_1(commander.args, saltLength)
-    : wpSalts_1('', saltLength);
+var salts = program.args.length
+    ? wpSalts(program.args, saltLength)
+    : wpSalts('', saltLength);
 if (options.sort) {
     salts = sortKeys(salts);
 }
@@ -20151,12 +16121,12 @@ else if (options.php) {
 }
 else {
     var data_1 = [
-        [source.bold('Key'), source.bold('Salt')]
+        [chalk.bold('Key'), chalk.bold('Salt')]
     ];
     Object.keys(salts).forEach(function (key) {
         data_1.push([key, salts[key]]);
     });
-    var output = dist$1.table(data_1, { border: dist$1.getBorderCharacters('norc') });
+    var output = src.table(data_1, { border: src.getBorderCharacters('norc') });
     console.log(output);
 }
 lineBreak(options);
