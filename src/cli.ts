@@ -3,7 +3,7 @@ import pkg from '../package.json';
 // Dependencies
 import chalk from 'chalk';
 import logSymbols from 'log-symbols';
-import program from 'commander';
+import { program } from 'commander';
 import sortKeys from 'sort-keys';
 import * as formatters from './formatters';
 import { table, getBorderCharacters } from 'table';
@@ -11,8 +11,8 @@ import { wpSalts } from 'wp-salts';
 
 // Action
 program
-  .description('CLI tool to generate WordPress salts in various formats')
   .version(pkg.version)
+  .description('CLI tool to generate WordPress salts in various formats')
   .arguments('[options]')
   .usage('[options]')
   .option('-D, --dotenv', 'output as DotENV')
@@ -26,7 +26,7 @@ program
   .option('-u, --ugly', 'don\'t align JSON or PHP output')
   .parse(process.argv);
 
-const options: ProgramOptioms = program.opts();
+const options: ProgramOptions = program.opts();
 
 if (options.indent && options.ugly) {
   console.error(logSymbols.error, 'You cannot combine the indent and ugly flags\n');
@@ -72,7 +72,7 @@ if (options.json) {
 } else if (options.php) {
   console.log(formatters.toPHP(salts, !options.ugly));
 } else {
-  const data: unknown[] = [
+  const data: unknown[][] = [
     [chalk.bold('Key'), chalk.bold('Salt')]
   ];
 

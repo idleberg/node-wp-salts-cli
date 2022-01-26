@@ -1,9 +1,4 @@
-declare module '*.json' {
-  const value: any;
-  export default value;
-}
-
-interface ProgramOptioms {
+interface ProgramOptions {
   dotenv?: boolean;
   json?: boolean;
   php?: boolean;

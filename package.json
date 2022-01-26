@@ -15,11 +15,14 @@
     "test": "ava ./test/*.mjs --verbose",
     "prepare": "husky install"
   },
+  "files": [
+    "bin/"
+  ],
   "bin": {
-    "wp-salts": "./bin/cli.mjs"
+    "wp-salts": "bin/cli.mjs"
   },
   "type": "module",
-  "typings": "./types",
+  "typings": "types/",
   "engines": {
     "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
   },
