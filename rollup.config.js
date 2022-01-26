@@ -6,17 +6,14 @@ import typescript from '@rollup/plugin-typescript';
 const defaults = {
   external: [ 'crypto' ],
   output: {
-    dir: 'bin',
-    format: 'cjs'
+    file: 'bin/cli.mjs',
+    format: 'esm'
   },
   plugins: [
     commonjs(),
     json(),
     nodeResolve(),
-    typescript({
-      allowSyntheticDefaultImports: true,
-      strictNullChecks: true
-    })
+    typescript()
   ]
 };
 

@@ -1,18 +1,10 @@
-'use strict';
-
-var require$$0 = require('events');
-var require$$1 = require('child_process');
-var require$$2 = require('path');
-var require$$3 = require('fs');
-var require$$1$1 = require('crypto');
-
-function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
-
-var require$$0__default = /*#__PURE__*/_interopDefaultLegacy(require$$0);
-var require$$1__default = /*#__PURE__*/_interopDefaultLegacy(require$$1);
-var require$$2__default = /*#__PURE__*/_interopDefaultLegacy(require$$2);
-var require$$3__default = /*#__PURE__*/_interopDefaultLegacy(require$$3);
-var require$$1__default$1 = /*#__PURE__*/_interopDefaultLegacy(require$$1$1);
+import require$$0 from 'os';
+import require$$1 from 'tty';
+import require$$0$1 from 'events';
+import require$$1$1 from 'child_process';
+import require$$2 from 'path';
+import require$$3 from 'fs';
+import require$$1$2 from 'crypto';
 
 var name = "wp-salts-cli";
 var version = "1.3.4";
@@ -27,11 +19,13 @@ var scripts = {
 	lint: "npm-run-all --parallel lint:*",
 	start: "rollup --watch --config",
 	publish: "np --no-yarn",
-	test: "ava ./test/*.js --verbose"
+	test: "ava ./test/*.mjs --verbose",
+	prepare: "husky install"
 };
 var bin = {
-	"wp-salts": "./index.js"
+	"wp-salts": "./bin/cli.mjs"
 };
+var type = "module";
 var typings = "./types";
 var repository = {
 	type: "git",
@@ -45,12 +39,11 @@ var keywords = [
 var author = "";
 var license = "MIT";
 var dependencies = {
-	chalk: "^5.0.0",
-	commander: "^7.0.0",
+	chalk: "^4.0.0",
+	commander: "^8.3.0",
 	"log-symbols": "^5.1.0",
 	"sort-keys": "^5.0.0",
 	table: "^6.0.7",
-	"update-notifier": "^5.0.1",
 	"wp-salts": "^2.0.0",
 	yaml: "^1.10.0"
 };
@@ -62,12 +55,11 @@ var devDependencies = {
 	"@types/node": "^16.0.0",
 	"@typescript-eslint/eslint-plugin": "^5.10.1",
 	"@typescript-eslint/parser": "^5.10.1",
-	ava: "^3.15.0",
+	ava: "^4.0.1",
 	eslint: "^8.7.0",
 	"eslint-plugin-json": "^3.1.0",
-	esm: "^3.2.25",
-	execa: "^5.0.0",
-	husky: "^4.3.8",
+	execa: "^6.0.0",
+	husky: "^7.0.0",
 	"lint-staged": "^12.3.2",
 	np: "^7.2.0",
 	"npm-run-all": "^4.1.5",
@@ -79,22 +71,13 @@ var devDependencies = {
 	tslib: "^2.1.0",
 	typescript: "^4.1.3"
 };
-var ava = {
-	require: [
-		"esm"
-	]
-};
-var husky = {
-	hooks: {
-		"pre-commit": "lint-staged"
-	}
-};
 var pkg = {
 	name: name,
 	version: version,
 	description: description,
 	scripts: scripts,
 	bin: bin,
+	type: type,
 	typings: typings,
 	repository: repository,
 	keywords: keywords,
@@ -102,21 +85,1246 @@ var pkg = {
 	license: license,
 	dependencies: dependencies,
 	devDependencies: devDependencies,
-	ava: ava,
-	husky: husky,
 	"lint-staged": {
 	"*.(json|ts)": "eslint --cache --fix",
 	"*.md": "prettier --write"
 }
 };
 
-const ANSI_BACKGROUND_OFFSET = 10;
+var commonjsGlobal$1 = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
-const wrapAnsi16 = (offset = 0) => code => `\u001B[${code + offset}m`;
+var ansiStyles$3 = {exports: {}};
 
-const wrapAnsi256 = (offset = 0) => code => `\u001B[${38 + offset};5;${code}m`;
+var colorName$1 = {
+	"aliceblue": [240, 248, 255],
+	"antiquewhite": [250, 235, 215],
+	"aqua": [0, 255, 255],
+	"aquamarine": [127, 255, 212],
+	"azure": [240, 255, 255],
+	"beige": [245, 245, 220],
+	"bisque": [255, 228, 196],
+	"black": [0, 0, 0],
+	"blanchedalmond": [255, 235, 205],
+	"blue": [0, 0, 255],
+	"blueviolet": [138, 43, 226],
+	"brown": [165, 42, 42],
+	"burlywood": [222, 184, 135],
+	"cadetblue": [95, 158, 160],
+	"chartreuse": [127, 255, 0],
+	"chocolate": [210, 105, 30],
+	"coral": [255, 127, 80],
+	"cornflowerblue": [100, 149, 237],
+	"cornsilk": [255, 248, 220],
+	"crimson": [220, 20, 60],
+	"cyan": [0, 255, 255],
+	"darkblue": [0, 0, 139],
+	"darkcyan": [0, 139, 139],
+	"darkgoldenrod": [184, 134, 11],
+	"darkgray": [169, 169, 169],
+	"darkgreen": [0, 100, 0],
+	"darkgrey": [169, 169, 169],
+	"darkkhaki": [189, 183, 107],
+	"darkmagenta": [139, 0, 139],
+	"darkolivegreen": [85, 107, 47],
+	"darkorange": [255, 140, 0],
+	"darkorchid": [153, 50, 204],
+	"darkred": [139, 0, 0],
+	"darksalmon": [233, 150, 122],
+	"darkseagreen": [143, 188, 143],
+	"darkslateblue": [72, 61, 139],
+	"darkslategray": [47, 79, 79],
+	"darkslategrey": [47, 79, 79],
+	"darkturquoise": [0, 206, 209],
+	"darkviolet": [148, 0, 211],
+	"deeppink": [255, 20, 147],
+	"deepskyblue": [0, 191, 255],
+	"dimgray": [105, 105, 105],
+	"dimgrey": [105, 105, 105],
+	"dodgerblue": [30, 144, 255],
+	"firebrick": [178, 34, 34],
+	"floralwhite": [255, 250, 240],
+	"forestgreen": [34, 139, 34],
+	"fuchsia": [255, 0, 255],
+	"gainsboro": [220, 220, 220],
+	"ghostwhite": [248, 248, 255],
+	"gold": [255, 215, 0],
+	"goldenrod": [218, 165, 32],
+	"gray": [128, 128, 128],
+	"green": [0, 128, 0],
+	"greenyellow": [173, 255, 47],
+	"grey": [128, 128, 128],
+	"honeydew": [240, 255, 240],
+	"hotpink": [255, 105, 180],
+	"indianred": [205, 92, 92],
+	"indigo": [75, 0, 130],
+	"ivory": [255, 255, 240],
+	"khaki": [240, 230, 140],
+	"lavender": [230, 230, 250],
+	"lavenderblush": [255, 240, 245],
+	"lawngreen": [124, 252, 0],
+	"lemonchiffon": [255, 250, 205],
+	"lightblue": [173, 216, 230],
+	"lightcoral": [240, 128, 128],
+	"lightcyan": [224, 255, 255],
+	"lightgoldenrodyellow": [250, 250, 210],
+	"lightgray": [211, 211, 211],
+	"lightgreen": [144, 238, 144],
+	"lightgrey": [211, 211, 211],
+	"lightpink": [255, 182, 193],
+	"lightsalmon": [255, 160, 122],
+	"lightseagreen": [32, 178, 170],
+	"lightskyblue": [135, 206, 250],
+	"lightslategray": [119, 136, 153],
+	"lightslategrey": [119, 136, 153],
+	"lightsteelblue": [176, 196, 222],
+	"lightyellow": [255, 255, 224],
+	"lime": [0, 255, 0],
+	"limegreen": [50, 205, 50],
+	"linen": [250, 240, 230],
+	"magenta": [255, 0, 255],
+	"maroon": [128, 0, 0],
+	"mediumaquamarine": [102, 205, 170],
+	"mediumblue": [0, 0, 205],
+	"mediumorchid": [186, 85, 211],
+	"mediumpurple": [147, 112, 219],
+	"mediumseagreen": [60, 179, 113],
+	"mediumslateblue": [123, 104, 238],
+	"mediumspringgreen": [0, 250, 154],
+	"mediumturquoise": [72, 209, 204],
+	"mediumvioletred": [199, 21, 133],
+	"midnightblue": [25, 25, 112],
+	"mintcream": [245, 255, 250],
+	"mistyrose": [255, 228, 225],
+	"moccasin": [255, 228, 181],
+	"navajowhite": [255, 222, 173],
+	"navy": [0, 0, 128],
+	"oldlace": [253, 245, 230],
+	"olive": [128, 128, 0],
+	"olivedrab": [107, 142, 35],
+	"orange": [255, 165, 0],
+	"orangered": [255, 69, 0],
+	"orchid": [218, 112, 214],
+	"palegoldenrod": [238, 232, 170],
+	"palegreen": [152, 251, 152],
+	"paleturquoise": [175, 238, 238],
+	"palevioletred": [219, 112, 147],
+	"papayawhip": [255, 239, 213],
+	"peachpuff": [255, 218, 185],
+	"peru": [205, 133, 63],
+	"pink": [255, 192, 203],
+	"plum": [221, 160, 221],
+	"powderblue": [176, 224, 230],
+	"purple": [128, 0, 128],
+	"rebeccapurple": [102, 51, 153],
+	"red": [255, 0, 0],
+	"rosybrown": [188, 143, 143],
+	"royalblue": [65, 105, 225],
+	"saddlebrown": [139, 69, 19],
+	"salmon": [250, 128, 114],
+	"sandybrown": [244, 164, 96],
+	"seagreen": [46, 139, 87],
+	"seashell": [255, 245, 238],
+	"sienna": [160, 82, 45],
+	"silver": [192, 192, 192],
+	"skyblue": [135, 206, 235],
+	"slateblue": [106, 90, 205],
+	"slategray": [112, 128, 144],
+	"slategrey": [112, 128, 144],
+	"snow": [255, 250, 250],
+	"springgreen": [0, 255, 127],
+	"steelblue": [70, 130, 180],
+	"tan": [210, 180, 140],
+	"teal": [0, 128, 128],
+	"thistle": [216, 191, 216],
+	"tomato": [255, 99, 71],
+	"turquoise": [64, 224, 208],
+	"violet": [238, 130, 238],
+	"wheat": [245, 222, 179],
+	"white": [255, 255, 255],
+	"whitesmoke": [245, 245, 245],
+	"yellow": [255, 255, 0],
+	"yellowgreen": [154, 205, 50]
+};
 
-const wrapAnsi16m = (offset = 0) => (red, green, blue) => `\u001B[${38 + offset};2;${red};${green};${blue}m`;
+/* MIT license */
+
+/* eslint-disable no-mixed-operators */
+const cssKeywords$1 = colorName$1;
+
+// NOTE: conversions should only return primitive values (i.e. arrays, or
+//       values that give correct `typeof` results).
+//       do not use box values types (i.e. Number(), String(), etc.)
+
+const reverseKeywords$1 = {};
+for (const key of Object.keys(cssKeywords$1)) {
+	reverseKeywords$1[cssKeywords$1[key]] = key;
+}
+
+const convert$3 = {
+	rgb: {channels: 3, labels: 'rgb'},
+	hsl: {channels: 3, labels: 'hsl'},
+	hsv: {channels: 3, labels: 'hsv'},
+	hwb: {channels: 3, labels: 'hwb'},
+	cmyk: {channels: 4, labels: 'cmyk'},
+	xyz: {channels: 3, labels: 'xyz'},
+	lab: {channels: 3, labels: 'lab'},
+	lch: {channels: 3, labels: 'lch'},
+	hex: {channels: 1, labels: ['hex']},
+	keyword: {channels: 1, labels: ['keyword']},
+	ansi16: {channels: 1, labels: ['ansi16']},
+	ansi256: {channels: 1, labels: ['ansi256']},
+	hcg: {channels: 3, labels: ['h', 'c', 'g']},
+	apple: {channels: 3, labels: ['r16', 'g16', 'b16']},
+	gray: {channels: 1, labels: ['gray']}
+};
+
+var conversions$5 = convert$3;
+
+// Hide .channels and .labels properties
+for (const model of Object.keys(convert$3)) {
+	if (!('channels' in convert$3[model])) {
+		throw new Error('missing channels property: ' + model);
+	}
+
+	if (!('labels' in convert$3[model])) {
+		throw new Error('missing channel labels property: ' + model);
+	}
+
+	if (convert$3[model].labels.length !== convert$3[model].channels) {
+		throw new Error('channel and label counts mismatch: ' + model);
+	}
+
+	const {channels, labels} = convert$3[model];
+	delete convert$3[model].channels;
+	delete convert$3[model].labels;
+	Object.defineProperty(convert$3[model], 'channels', {value: channels});
+	Object.defineProperty(convert$3[model], 'labels', {value: labels});
+}
+
+convert$3.rgb.hsl = function (rgb) {
+	const r = rgb[0] / 255;
+	const g = rgb[1] / 255;
+	const b = rgb[2] / 255;
+	const min = Math.min(r, g, b);
+	const max = Math.max(r, g, b);
+	const delta = max - min;
+	let h;
+	let s;
+
+	if (max === min) {
+		h = 0;
+	} else if (r === max) {
+		h = (g - b) / delta;
+	} else if (g === max) {
+		h = 2 + (b - r) / delta;
+	} else if (b === max) {
+		h = 4 + (r - g) / delta;
+	}
+
+	h = Math.min(h * 60, 360);
+
+	if (h < 0) {
+		h += 360;
+	}
+
+	const l = (min + max) / 2;
+
+	if (max === min) {
+		s = 0;
+	} else if (l <= 0.5) {
+		s = delta / (max + min);
+	} else {
+		s = delta / (2 - max - min);
+	}
+
+	return [h, s * 100, l * 100];
+};
+
+convert$3.rgb.hsv = function (rgb) {
+	let rdif;
+	let gdif;
+	let bdif;
+	let h;
+	let s;
+
+	const r = rgb[0] / 255;
+	const g = rgb[1] / 255;
+	const b = rgb[2] / 255;
+	const v = Math.max(r, g, b);
+	const diff = v - Math.min(r, g, b);
+	const diffc = function (c) {
+		return (v - c) / 6 / diff + 1 / 2;
+	};
+
+	if (diff === 0) {
+		h = 0;
+		s = 0;
+	} else {
+		s = diff / v;
+		rdif = diffc(r);
+		gdif = diffc(g);
+		bdif = diffc(b);
+
+		if (r === v) {
+			h = bdif - gdif;
+		} else if (g === v) {
+			h = (1 / 3) + rdif - bdif;
+		} else if (b === v) {
+			h = (2 / 3) + gdif - rdif;
+		}
+
+		if (h < 0) {
+			h += 1;
+		} else if (h > 1) {
+			h -= 1;
+		}
+	}
+
+	return [
+		h * 360,
+		s * 100,
+		v * 100
+	];
+};
+
+convert$3.rgb.hwb = function (rgb) {
+	const r = rgb[0];
+	const g = rgb[1];
+	let b = rgb[2];
+	const h = convert$3.rgb.hsl(rgb)[0];
+	const w = 1 / 255 * Math.min(r, Math.min(g, b));
+
+	b = 1 - 1 / 255 * Math.max(r, Math.max(g, b));
+
+	return [h, w * 100, b * 100];
+};
+
+convert$3.rgb.cmyk = function (rgb) {
+	const r = rgb[0] / 255;
+	const g = rgb[1] / 255;
+	const b = rgb[2] / 255;
+
+	const k = Math.min(1 - r, 1 - g, 1 - b);
+	const c = (1 - r - k) / (1 - k) || 0;
+	const m = (1 - g - k) / (1 - k) || 0;
+	const y = (1 - b - k) / (1 - k) || 0;
+
+	return [c * 100, m * 100, y * 100, k * 100];
+};
+
+function comparativeDistance$1(x, y) {
+	/*
+		See https://en.m.wikipedia.org/wiki/Euclidean_distance#Squared_Euclidean_distance
+	*/
+	return (
+		((x[0] - y[0]) ** 2) +
+		((x[1] - y[1]) ** 2) +
+		((x[2] - y[2]) ** 2)
+	);
+}
+
+convert$3.rgb.keyword = function (rgb) {
+	const reversed = reverseKeywords$1[rgb];
+	if (reversed) {
+		return reversed;
+	}
+
+	let currentClosestDistance = Infinity;
+	let currentClosestKeyword;
+
+	for (const keyword of Object.keys(cssKeywords$1)) {
+		const value = cssKeywords$1[keyword];
+
+		// Compute comparative distance
+		const distance = comparativeDistance$1(rgb, value);
+
+		// Check if its less, if so set as closest
+		if (distance < currentClosestDistance) {
+			currentClosestDistance = distance;
+			currentClosestKeyword = keyword;
+		}
+	}
+
+	return currentClosestKeyword;
+};
+
+convert$3.keyword.rgb = function (keyword) {
+	return cssKeywords$1[keyword];
+};
+
+convert$3.rgb.xyz = function (rgb) {
+	let r = rgb[0] / 255;
+	let g = rgb[1] / 255;
+	let b = rgb[2] / 255;
+
+	// Assume sRGB
+	r = r > 0.04045 ? (((r + 0.055) / 1.055) ** 2.4) : (r / 12.92);
+	g = g > 0.04045 ? (((g + 0.055) / 1.055) ** 2.4) : (g / 12.92);
+	b = b > 0.04045 ? (((b + 0.055) / 1.055) ** 2.4) : (b / 12.92);
+
+	const x = (r * 0.4124) + (g * 0.3576) + (b * 0.1805);
+	const y = (r * 0.2126) + (g * 0.7152) + (b * 0.0722);
+	const z = (r * 0.0193) + (g * 0.1192) + (b * 0.9505);
+
+	return [x * 100, y * 100, z * 100];
+};
+
+convert$3.rgb.lab = function (rgb) {
+	const xyz = convert$3.rgb.xyz(rgb);
+	let x = xyz[0];
+	let y = xyz[1];
+	let z = xyz[2];
+
+	x /= 95.047;
+	y /= 100;
+	z /= 108.883;
+
+	x = x > 0.008856 ? (x ** (1 / 3)) : (7.787 * x) + (16 / 116);
+	y = y > 0.008856 ? (y ** (1 / 3)) : (7.787 * y) + (16 / 116);
+	z = z > 0.008856 ? (z ** (1 / 3)) : (7.787 * z) + (16 / 116);
+
+	const l = (116 * y) - 16;
+	const a = 500 * (x - y);
+	const b = 200 * (y - z);
+
+	return [l, a, b];
+};
+
+convert$3.hsl.rgb = function (hsl) {
+	const h = hsl[0] / 360;
+	const s = hsl[1] / 100;
+	const l = hsl[2] / 100;
+	let t2;
+	let t3;
+	let val;
+
+	if (s === 0) {
+		val = l * 255;
+		return [val, val, val];
+	}
+
+	if (l < 0.5) {
+		t2 = l * (1 + s);
+	} else {
+		t2 = l + s - l * s;
+	}
+
+	const t1 = 2 * l - t2;
+
+	const rgb = [0, 0, 0];
+	for (let i = 0; i < 3; i++) {
+		t3 = h + 1 / 3 * -(i - 1);
+		if (t3 < 0) {
+			t3++;
+		}
+
+		if (t3 > 1) {
+			t3--;
+		}
+
+		if (6 * t3 < 1) {
+			val = t1 + (t2 - t1) * 6 * t3;
+		} else if (2 * t3 < 1) {
+			val = t2;
+		} else if (3 * t3 < 2) {
+			val = t1 + (t2 - t1) * (2 / 3 - t3) * 6;
+		} else {
+			val = t1;
+		}
+
+		rgb[i] = val * 255;
+	}
+
+	return rgb;
+};
+
+convert$3.hsl.hsv = function (hsl) {
+	const h = hsl[0];
+	let s = hsl[1] / 100;
+	let l = hsl[2] / 100;
+	let smin = s;
+	const lmin = Math.max(l, 0.01);
+
+	l *= 2;
+	s *= (l <= 1) ? l : 2 - l;
+	smin *= lmin <= 1 ? lmin : 2 - lmin;
+	const v = (l + s) / 2;
+	const sv = l === 0 ? (2 * smin) / (lmin + smin) : (2 * s) / (l + s);
+
+	return [h, sv * 100, v * 100];
+};
+
+convert$3.hsv.rgb = function (hsv) {
+	const h = hsv[0] / 60;
+	const s = hsv[1] / 100;
+	let v = hsv[2] / 100;
+	const hi = Math.floor(h) % 6;
+
+	const f = h - Math.floor(h);
+	const p = 255 * v * (1 - s);
+	const q = 255 * v * (1 - (s * f));
+	const t = 255 * v * (1 - (s * (1 - f)));
+	v *= 255;
+
+	switch (hi) {
+		case 0:
+			return [v, t, p];
+		case 1:
+			return [q, v, p];
+		case 2:
+			return [p, v, t];
+		case 3:
+			return [p, q, v];
+		case 4:
+			return [t, p, v];
+		case 5:
+			return [v, p, q];
+	}
+};
+
+convert$3.hsv.hsl = function (hsv) {
+	const h = hsv[0];
+	const s = hsv[1] / 100;
+	const v = hsv[2] / 100;
+	const vmin = Math.max(v, 0.01);
+	let sl;
+	let l;
+
+	l = (2 - s) * v;
+	const lmin = (2 - s) * vmin;
+	sl = s * vmin;
+	sl /= (lmin <= 1) ? lmin : 2 - lmin;
+	sl = sl || 0;
+	l /= 2;
+
+	return [h, sl * 100, l * 100];
+};
+
+// http://dev.w3.org/csswg/css-color/#hwb-to-rgb
+convert$3.hwb.rgb = function (hwb) {
+	const h = hwb[0] / 360;
+	let wh = hwb[1] / 100;
+	let bl = hwb[2] / 100;
+	const ratio = wh + bl;
+	let f;
+
+	// Wh + bl cant be > 1
+	if (ratio > 1) {
+		wh /= ratio;
+		bl /= ratio;
+	}
+
+	const i = Math.floor(6 * h);
+	const v = 1 - bl;
+	f = 6 * h - i;
+
+	if ((i & 0x01) !== 0) {
+		f = 1 - f;
+	}
+
+	const n = wh + f * (v - wh); // Linear interpolation
+
+	let r;
+	let g;
+	let b;
+	/* eslint-disable max-statements-per-line,no-multi-spaces */
+	switch (i) {
+		default:
+		case 6:
+		case 0: r = v;  g = n;  b = wh; break;
+		case 1: r = n;  g = v;  b = wh; break;
+		case 2: r = wh; g = v;  b = n; break;
+		case 3: r = wh; g = n;  b = v; break;
+		case 4: r = n;  g = wh; b = v; break;
+		case 5: r = v;  g = wh; b = n; break;
+	}
+	/* eslint-enable max-statements-per-line,no-multi-spaces */
+
+	return [r * 255, g * 255, b * 255];
+};
+
+convert$3.cmyk.rgb = function (cmyk) {
+	const c = cmyk[0] / 100;
+	const m = cmyk[1] / 100;
+	const y = cmyk[2] / 100;
+	const k = cmyk[3] / 100;
+
+	const r = 1 - Math.min(1, c * (1 - k) + k);
+	const g = 1 - Math.min(1, m * (1 - k) + k);
+	const b = 1 - Math.min(1, y * (1 - k) + k);
+
+	return [r * 255, g * 255, b * 255];
+};
+
+convert$3.xyz.rgb = function (xyz) {
+	const x = xyz[0] / 100;
+	const y = xyz[1] / 100;
+	const z = xyz[2] / 100;
+	let r;
+	let g;
+	let b;
+
+	r = (x * 3.2406) + (y * -1.5372) + (z * -0.4986);
+	g = (x * -0.9689) + (y * 1.8758) + (z * 0.0415);
+	b = (x * 0.0557) + (y * -0.2040) + (z * 1.0570);
+
+	// Assume sRGB
+	r = r > 0.0031308
+		? ((1.055 * (r ** (1.0 / 2.4))) - 0.055)
+		: r * 12.92;
+
+	g = g > 0.0031308
+		? ((1.055 * (g ** (1.0 / 2.4))) - 0.055)
+		: g * 12.92;
+
+	b = b > 0.0031308
+		? ((1.055 * (b ** (1.0 / 2.4))) - 0.055)
+		: b * 12.92;
+
+	r = Math.min(Math.max(0, r), 1);
+	g = Math.min(Math.max(0, g), 1);
+	b = Math.min(Math.max(0, b), 1);
+
+	return [r * 255, g * 255, b * 255];
+};
+
+convert$3.xyz.lab = function (xyz) {
+	let x = xyz[0];
+	let y = xyz[1];
+	let z = xyz[2];
+
+	x /= 95.047;
+	y /= 100;
+	z /= 108.883;
+
+	x = x > 0.008856 ? (x ** (1 / 3)) : (7.787 * x) + (16 / 116);
+	y = y > 0.008856 ? (y ** (1 / 3)) : (7.787 * y) + (16 / 116);
+	z = z > 0.008856 ? (z ** (1 / 3)) : (7.787 * z) + (16 / 116);
+
+	const l = (116 * y) - 16;
+	const a = 500 * (x - y);
+	const b = 200 * (y - z);
+
+	return [l, a, b];
+};
+
+convert$3.lab.xyz = function (lab) {
+	const l = lab[0];
+	const a = lab[1];
+	const b = lab[2];
+	let x;
+	let y;
+	let z;
+
+	y = (l + 16) / 116;
+	x = a / 500 + y;
+	z = y - b / 200;
+
+	const y2 = y ** 3;
+	const x2 = x ** 3;
+	const z2 = z ** 3;
+	y = y2 > 0.008856 ? y2 : (y - 16 / 116) / 7.787;
+	x = x2 > 0.008856 ? x2 : (x - 16 / 116) / 7.787;
+	z = z2 > 0.008856 ? z2 : (z - 16 / 116) / 7.787;
+
+	x *= 95.047;
+	y *= 100;
+	z *= 108.883;
+
+	return [x, y, z];
+};
+
+convert$3.lab.lch = function (lab) {
+	const l = lab[0];
+	const a = lab[1];
+	const b = lab[2];
+	let h;
+
+	const hr = Math.atan2(b, a);
+	h = hr * 360 / 2 / Math.PI;
+
+	if (h < 0) {
+		h += 360;
+	}
+
+	const c = Math.sqrt(a * a + b * b);
+
+	return [l, c, h];
+};
+
+convert$3.lch.lab = function (lch) {
+	const l = lch[0];
+	const c = lch[1];
+	const h = lch[2];
+
+	const hr = h / 360 * 2 * Math.PI;
+	const a = c * Math.cos(hr);
+	const b = c * Math.sin(hr);
+
+	return [l, a, b];
+};
+
+convert$3.rgb.ansi16 = function (args, saturation = null) {
+	const [r, g, b] = args;
+	let value = saturation === null ? convert$3.rgb.hsv(args)[2] : saturation; // Hsv -> ansi16 optimization
+
+	value = Math.round(value / 50);
+
+	if (value === 0) {
+		return 30;
+	}
+
+	let ansi = 30
+		+ ((Math.round(b / 255) << 2)
+		| (Math.round(g / 255) << 1)
+		| Math.round(r / 255));
+
+	if (value === 2) {
+		ansi += 60;
+	}
+
+	return ansi;
+};
+
+convert$3.hsv.ansi16 = function (args) {
+	// Optimization here; we already know the value and don't need to get
+	// it converted for us.
+	return convert$3.rgb.ansi16(convert$3.hsv.rgb(args), args[2]);
+};
+
+convert$3.rgb.ansi256 = function (args) {
+	const r = args[0];
+	const g = args[1];
+	const b = args[2];
+
+	// We use the extended greyscale palette here, with the exception of
+	// black and white. normal palette only has 4 greyscale shades.
+	if (r === g && g === b) {
+		if (r < 8) {
+			return 16;
+		}
+
+		if (r > 248) {
+			return 231;
+		}
+
+		return Math.round(((r - 8) / 247) * 24) + 232;
+	}
+
+	const ansi = 16
+		+ (36 * Math.round(r / 255 * 5))
+		+ (6 * Math.round(g / 255 * 5))
+		+ Math.round(b / 255 * 5);
+
+	return ansi;
+};
+
+convert$3.ansi16.rgb = function (args) {
+	let color = args % 10;
+
+	// Handle greyscale
+	if (color === 0 || color === 7) {
+		if (args > 50) {
+			color += 3.5;
+		}
+
+		color = color / 10.5 * 255;
+
+		return [color, color, color];
+	}
+
+	const mult = (~~(args > 50) + 1) * 0.5;
+	const r = ((color & 1) * mult) * 255;
+	const g = (((color >> 1) & 1) * mult) * 255;
+	const b = (((color >> 2) & 1) * mult) * 255;
+
+	return [r, g, b];
+};
+
+convert$3.ansi256.rgb = function (args) {
+	// Handle greyscale
+	if (args >= 232) {
+		const c = (args - 232) * 10 + 8;
+		return [c, c, c];
+	}
+
+	args -= 16;
+
+	let rem;
+	const r = Math.floor(args / 36) / 5 * 255;
+	const g = Math.floor((rem = args % 36) / 6) / 5 * 255;
+	const b = (rem % 6) / 5 * 255;
+
+	return [r, g, b];
+};
+
+convert$3.rgb.hex = function (args) {
+	const integer = ((Math.round(args[0]) & 0xFF) << 16)
+		+ ((Math.round(args[1]) & 0xFF) << 8)
+		+ (Math.round(args[2]) & 0xFF);
+
+	const string = integer.toString(16).toUpperCase();
+	return '000000'.substring(string.length) + string;
+};
+
+convert$3.hex.rgb = function (args) {
+	const match = args.toString(16).match(/[a-f0-9]{6}|[a-f0-9]{3}/i);
+	if (!match) {
+		return [0, 0, 0];
+	}
+
+	let colorString = match[0];
+
+	if (match[0].length === 3) {
+		colorString = colorString.split('').map(char => {
+			return char + char;
+		}).join('');
+	}
+
+	const integer = parseInt(colorString, 16);
+	const r = (integer >> 16) & 0xFF;
+	const g = (integer >> 8) & 0xFF;
+	const b = integer & 0xFF;
+
+	return [r, g, b];
+};
+
+convert$3.rgb.hcg = function (rgb) {
+	const r = rgb[0] / 255;
+	const g = rgb[1] / 255;
+	const b = rgb[2] / 255;
+	const max = Math.max(Math.max(r, g), b);
+	const min = Math.min(Math.min(r, g), b);
+	const chroma = (max - min);
+	let grayscale;
+	let hue;
+
+	if (chroma < 1) {
+		grayscale = min / (1 - chroma);
+	} else {
+		grayscale = 0;
+	}
+
+	if (chroma <= 0) {
+		hue = 0;
+	} else
+	if (max === r) {
+		hue = ((g - b) / chroma) % 6;
+	} else
+	if (max === g) {
+		hue = 2 + (b - r) / chroma;
+	} else {
+		hue = 4 + (r - g) / chroma;
+	}
+
+	hue /= 6;
+	hue %= 1;
+
+	return [hue * 360, chroma * 100, grayscale * 100];
+};
+
+convert$3.hsl.hcg = function (hsl) {
+	const s = hsl[1] / 100;
+	const l = hsl[2] / 100;
+
+	const c = l < 0.5 ? (2.0 * s * l) : (2.0 * s * (1.0 - l));
+
+	let f = 0;
+	if (c < 1.0) {
+		f = (l - 0.5 * c) / (1.0 - c);
+	}
+
+	return [hsl[0], c * 100, f * 100];
+};
+
+convert$3.hsv.hcg = function (hsv) {
+	const s = hsv[1] / 100;
+	const v = hsv[2] / 100;
+
+	const c = s * v;
+	let f = 0;
+
+	if (c < 1.0) {
+		f = (v - c) / (1 - c);
+	}
+
+	return [hsv[0], c * 100, f * 100];
+};
+
+convert$3.hcg.rgb = function (hcg) {
+	const h = hcg[0] / 360;
+	const c = hcg[1] / 100;
+	const g = hcg[2] / 100;
+
+	if (c === 0.0) {
+		return [g * 255, g * 255, g * 255];
+	}
+
+	const pure = [0, 0, 0];
+	const hi = (h % 1) * 6;
+	const v = hi % 1;
+	const w = 1 - v;
+	let mg = 0;
+
+	/* eslint-disable max-statements-per-line */
+	switch (Math.floor(hi)) {
+		case 0:
+			pure[0] = 1; pure[1] = v; pure[2] = 0; break;
+		case 1:
+			pure[0] = w; pure[1] = 1; pure[2] = 0; break;
+		case 2:
+			pure[0] = 0; pure[1] = 1; pure[2] = v; break;
+		case 3:
+			pure[0] = 0; pure[1] = w; pure[2] = 1; break;
+		case 4:
+			pure[0] = v; pure[1] = 0; pure[2] = 1; break;
+		default:
+			pure[0] = 1; pure[1] = 0; pure[2] = w;
+	}
+	/* eslint-enable max-statements-per-line */
+
+	mg = (1.0 - c) * g;
+
+	return [
+		(c * pure[0] + mg) * 255,
+		(c * pure[1] + mg) * 255,
+		(c * pure[2] + mg) * 255
+	];
+};
+
+convert$3.hcg.hsv = function (hcg) {
+	const c = hcg[1] / 100;
+	const g = hcg[2] / 100;
+
+	const v = c + g * (1.0 - c);
+	let f = 0;
+
+	if (v > 0.0) {
+		f = c / v;
+	}
+
+	return [hcg[0], f * 100, v * 100];
+};
+
+convert$3.hcg.hsl = function (hcg) {
+	const c = hcg[1] / 100;
+	const g = hcg[2] / 100;
+
+	const l = g * (1.0 - c) + 0.5 * c;
+	let s = 0;
+
+	if (l > 0.0 && l < 0.5) {
+		s = c / (2 * l);
+	} else
+	if (l >= 0.5 && l < 1.0) {
+		s = c / (2 * (1 - l));
+	}
+
+	return [hcg[0], s * 100, l * 100];
+};
+
+convert$3.hcg.hwb = function (hcg) {
+	const c = hcg[1] / 100;
+	const g = hcg[2] / 100;
+	const v = c + g * (1.0 - c);
+	return [hcg[0], (v - c) * 100, (1 - v) * 100];
+};
+
+convert$3.hwb.hcg = function (hwb) {
+	const w = hwb[1] / 100;
+	const b = hwb[2] / 100;
+	const v = 1 - b;
+	const c = v - w;
+	let g = 0;
+
+	if (c < 1) {
+		g = (v - c) / (1 - c);
+	}
+
+	return [hwb[0], c * 100, g * 100];
+};
+
+convert$3.apple.rgb = function (apple) {
+	return [(apple[0] / 65535) * 255, (apple[1] / 65535) * 255, (apple[2] / 65535) * 255];
+};
+
+convert$3.rgb.apple = function (rgb) {
+	return [(rgb[0] / 255) * 65535, (rgb[1] / 255) * 65535, (rgb[2] / 255) * 65535];
+};
+
+convert$3.gray.rgb = function (args) {
+	return [args[0] / 100 * 255, args[0] / 100 * 255, args[0] / 100 * 255];
+};
+
+convert$3.gray.hsl = function (args) {
+	return [0, 0, args[0]];
+};
+
+convert$3.gray.hsv = convert$3.gray.hsl;
+
+convert$3.gray.hwb = function (gray) {
+	return [0, 100, gray[0]];
+};
+
+convert$3.gray.cmyk = function (gray) {
+	return [0, 0, 0, gray[0]];
+};
+
+convert$3.gray.lab = function (gray) {
+	return [gray[0], 0, 0];
+};
+
+convert$3.gray.hex = function (gray) {
+	const val = Math.round(gray[0] / 100 * 255) & 0xFF;
+	const integer = (val << 16) + (val << 8) + val;
+
+	const string = integer.toString(16).toUpperCase();
+	return '000000'.substring(string.length) + string;
+};
+
+convert$3.rgb.gray = function (rgb) {
+	const val = (rgb[0] + rgb[1] + rgb[2]) / 3;
+	return [val / 255 * 100];
+};
+
+const conversions$4 = conversions$5;
+
+/*
+	This function routes a model to all other models.
+
+	all functions that are routed have a property `.conversion` attached
+	to the returned synthetic function. This property is an array
+	of strings, each with the steps in between the 'from' and 'to'
+	color models (inclusive).
+
+	conversions that are not possible simply are not included.
+*/
+
+function buildGraph$1() {
+	const graph = {};
+	// https://jsperf.com/object-keys-vs-for-in-with-closure/3
+	const models = Object.keys(conversions$4);
+
+	for (let len = models.length, i = 0; i < len; i++) {
+		graph[models[i]] = {
+			// http://jsperf.com/1-vs-infinity
+			// micro-opt, but this is simple.
+			distance: -1,
+			parent: null
+		};
+	}
+
+	return graph;
+}
+
+// https://en.wikipedia.org/wiki/Breadth-first_search
+function deriveBFS$1(fromModel) {
+	const graph = buildGraph$1();
+	const queue = [fromModel]; // Unshift -> queue -> pop
+
+	graph[fromModel].distance = 0;
+
+	while (queue.length) {
+		const current = queue.pop();
+		const adjacents = Object.keys(conversions$4[current]);
+
+		for (let len = adjacents.length, i = 0; i < len; i++) {
+			const adjacent = adjacents[i];
+			const node = graph[adjacent];
+
+			if (node.distance === -1) {
+				node.distance = graph[current].distance + 1;
+				node.parent = current;
+				queue.unshift(adjacent);
+			}
+		}
+	}
+
+	return graph;
+}
+
+function link$1(from, to) {
+	return function (args) {
+		return to(from(args));
+	};
+}
+
+function wrapConversion$1(toModel, graph) {
+	const path = [graph[toModel].parent, toModel];
+	let fn = conversions$4[graph[toModel].parent][toModel];
+
+	let cur = graph[toModel].parent;
+	while (graph[cur].parent) {
+		path.unshift(graph[cur].parent);
+		fn = link$1(conversions$4[graph[cur].parent][cur], fn);
+		cur = graph[cur].parent;
+	}
+
+	fn.conversion = path;
+	return fn;
+}
+
+var route$3 = function (fromModel) {
+	const graph = deriveBFS$1(fromModel);
+	const conversion = {};
+
+	const models = Object.keys(graph);
+	for (let len = models.length, i = 0; i < len; i++) {
+		const toModel = models[i];
+		const node = graph[toModel];
+
+		if (node.parent === null) {
+			// No possible conversion, or this node is the source model.
+			continue;
+		}
+
+		conversion[toModel] = wrapConversion$1(toModel, graph);
+	}
+
+	return conversion;
+};
+
+const conversions$3 = conversions$5;
+const route$2 = route$3;
+
+const convert$2 = {};
+
+const models$1 = Object.keys(conversions$3);
+
+function wrapRaw$1(fn) {
+	const wrappedFn = function (...args) {
+		const arg0 = args[0];
+		if (arg0 === undefined || arg0 === null) {
+			return arg0;
+		}
+
+		if (arg0.length > 1) {
+			args = arg0;
+		}
+
+		return fn(args);
+	};
+
+	// Preserve .conversion property if there is one
+	if ('conversion' in fn) {
+		wrappedFn.conversion = fn.conversion;
+	}
+
+	return wrappedFn;
+}
+
+function wrapRounded$1(fn) {
+	const wrappedFn = function (...args) {
+		const arg0 = args[0];
+
+		if (arg0 === undefined || arg0 === null) {
+			return arg0;
+		}
+
+		if (arg0.length > 1) {
+			args = arg0;
+		}
+
+		const result = fn(args);
+
+		// We're assuming the result is an array here.
+		// see notice in conversions.js; don't use box types
+		// in conversion functions.
+		if (typeof result === 'object') {
+			for (let len = result.length, i = 0; i < len; i++) {
+				result[i] = Math.round(result[i]);
+			}
+		}
+
+		return result;
+	};
+
+	// Preserve .conversion property if there is one
+	if ('conversion' in fn) {
+		wrappedFn.conversion = fn.conversion;
+	}
+
+	return wrappedFn;
+}
+
+models$1.forEach(fromModel => {
+	convert$2[fromModel] = {};
+
+	Object.defineProperty(convert$2[fromModel], 'channels', {value: conversions$3[fromModel].channels});
+	Object.defineProperty(convert$2[fromModel], 'labels', {value: conversions$3[fromModel].labels});
+
+	const routes = route$2(fromModel);
+	const routeModels = Object.keys(routes);
+
+	routeModels.forEach(toModel => {
+		const fn = routes[toModel];
+
+		convert$2[fromModel][toModel] = wrapRounded$1(fn);
+		convert$2[fromModel][toModel].raw = wrapRaw$1(fn);
+	});
+});
+
+var colorConvert$1 = convert$2;
+
+(function (module) {
+
+const wrapAnsi16 = (fn, offset) => (...args) => {
+	const code = fn(...args);
+	return `\u001B[${code + offset}m`;
+};
+
+const wrapAnsi256 = (fn, offset) => (...args) => {
+	const code = fn(...args);
+	return `\u001B[${38 + offset};5;${code}m`;
+};
+
+const wrapAnsi16m = (fn, offset) => (...args) => {
+	const rgb = fn(...args);
+	return `\u001B[${38 + offset};2;${rgb[0]};${rgb[1]};${rgb[2]}m`;
+};
+
+const ansi2ansi = n => n;
+const rgb2rgb = (r, g, b) => [r, g, b];
+
+const setLazyProperty = (object, property, get) => {
+	Object.defineProperty(object, property, {
+		get: () => {
+			const value = get();
+
+			Object.defineProperty(object, property, {
+				value,
+				enumerable: true,
+				configurable: true
+			});
+
+			return value;
+		},
+		enumerable: true,
+		configurable: true
+	});
+};
+
+/** @type {typeof import('color-convert')} */
+let colorConvert;
+const makeDynamicStyles = (wrap, targetSpace, identity, isBackground) => {
+	if (colorConvert === undefined) {
+		colorConvert = colorConvert$1;
+	}
+
+	const offset = isBackground ? 10 : 0;
+	const styles = {};
+
+	for (const [sourceSpace, suite] of Object.entries(colorConvert)) {
+		const name = sourceSpace === 'ansi16' ? 'ansi' : sourceSpace;
+		if (sourceSpace === targetSpace) {
+			styles[name] = wrap(identity, offset);
+		} else if (typeof suite === 'object') {
+			styles[name] = wrap(suite[targetSpace], offset);
+		}
+	}
+
+	return styles;
+};
 
 function assembleStyles() {
 	const codes = new Map();
@@ -128,10 +1336,9 @@ function assembleStyles() {
 			dim: [2, 22],
 			italic: [3, 23],
 			underline: [4, 24],
-			overline: [53, 55],
 			inverse: [7, 27],
 			hidden: [8, 28],
-			strikethrough: [9, 29],
+			strikethrough: [9, 29]
 		},
 		color: {
 			black: [30, 39],
@@ -151,7 +1358,7 @@ function assembleStyles() {
 			blueBright: [94, 39],
 			magentaBright: [95, 39],
 			cyanBright: [96, 39],
-			whiteBright: [97, 39],
+			whiteBright: [97, 39]
 		},
 		bgColor: {
 			bgBlack: [40, 49],
@@ -171,8 +1378,8 @@ function assembleStyles() {
 			bgBlueBright: [104, 49],
 			bgMagentaBright: [105, 49],
 			bgCyanBright: [106, 49],
-			bgWhiteBright: [107, 49],
-		},
+			bgWhiteBright: [107, 49]
+		}
 	};
 
 	// Alias bright black as gray (and grey)
@@ -185,7 +1392,7 @@ function assembleStyles() {
 		for (const [styleName, style] of Object.entries(group)) {
 			styles[styleName] = {
 				open: `\u001B[${style[0]}m`,
-				close: `\u001B[${style[1]}m`,
+				close: `\u001B[${style[1]}m`
 			};
 
 			group[styleName] = styles[styleName];
@@ -195,157 +1402,178 @@ function assembleStyles() {
 
 		Object.defineProperty(styles, groupName, {
 			value: group,
-			enumerable: false,
+			enumerable: false
 		});
 	}
 
 	Object.defineProperty(styles, 'codes', {
 		value: codes,
-		enumerable: false,
+		enumerable: false
 	});
 
 	styles.color.close = '\u001B[39m';
 	styles.bgColor.close = '\u001B[49m';
 
-	styles.color.ansi = wrapAnsi16();
-	styles.color.ansi256 = wrapAnsi256();
-	styles.color.ansi16m = wrapAnsi16m();
-	styles.bgColor.ansi = wrapAnsi16(ANSI_BACKGROUND_OFFSET);
-	styles.bgColor.ansi256 = wrapAnsi256(ANSI_BACKGROUND_OFFSET);
-	styles.bgColor.ansi16m = wrapAnsi16m(ANSI_BACKGROUND_OFFSET);
-
-	// From https://github.com/Qix-/color-convert/blob/3f0e0d4e92e235796ccb17f6e85c72094a651f49/conversions.js
-	Object.defineProperties(styles, {
-		rgbToAnsi256: {
-			value: (red, green, blue) => {
-				// We use the extended greyscale palette here, with the exception of
-				// black and white. normal palette only has 4 greyscale shades.
-				if (red === green && green === blue) {
-					if (red < 8) {
-						return 16;
-					}
-
-					if (red > 248) {
-						return 231;
-					}
-
-					return Math.round(((red - 8) / 247) * 24) + 232;
-				}
-
-				return 16
-					+ (36 * Math.round(red / 255 * 5))
-					+ (6 * Math.round(green / 255 * 5))
-					+ Math.round(blue / 255 * 5);
-			},
-			enumerable: false,
-		},
-		hexToRgb: {
-			value: hex => {
-				const matches = /(?<colorString>[a-f\d]{6}|[a-f\d]{3})/i.exec(hex.toString(16));
-				if (!matches) {
-					return [0, 0, 0];
-				}
-
-				let {colorString} = matches.groups;
-
-				if (colorString.length === 3) {
-					colorString = [...colorString].map(character => character + character).join('');
-				}
-
-				const integer = Number.parseInt(colorString, 16);
-
-				return [
-					/* eslint-disable no-bitwise */
-					(integer >> 16) & 0xFF,
-					(integer >> 8) & 0xFF,
-					integer & 0xFF,
-					/* eslint-enable no-bitwise */
-				];
-			},
-			enumerable: false,
-		},
-		hexToAnsi256: {
-			value: hex => styles.rgbToAnsi256(...styles.hexToRgb(hex)),
-			enumerable: false,
-		},
-		ansi256ToAnsi: {
-			value: code => {
-				if (code < 8) {
-					return 30 + code;
-				}
-
-				if (code < 16) {
-					return 90 + (code - 8);
-				}
-
-				let red;
-				let green;
-				let blue;
-
-				if (code >= 232) {
-					red = (((code - 232) * 10) + 8) / 255;
-					green = red;
-					blue = red;
-				} else {
-					code -= 16;
-
-					const remainder = code % 36;
-
-					red = Math.floor(code / 36) / 5;
-					green = Math.floor(remainder / 6) / 5;
-					blue = (remainder % 6) / 5;
-				}
-
-				const value = Math.max(red, green, blue) * 2;
-
-				if (value === 0) {
-					return 30;
-				}
-
-				// eslint-disable-next-line no-bitwise
-				let result = 30 + ((Math.round(blue) << 2) | (Math.round(green) << 1) | Math.round(red));
-
-				if (value === 2) {
-					result += 60;
-				}
-
-				return result;
-			},
-			enumerable: false,
-		},
-		rgbToAnsi: {
-			value: (red, green, blue) => styles.ansi256ToAnsi(styles.rgbToAnsi256(red, green, blue)),
-			enumerable: false,
-		},
-		hexToAnsi: {
-			value: hex => styles.ansi256ToAnsi(styles.hexToAnsi256(hex)),
-			enumerable: false,
-		},
-	});
+	setLazyProperty(styles.color, 'ansi', () => makeDynamicStyles(wrapAnsi16, 'ansi16', ansi2ansi, false));
+	setLazyProperty(styles.color, 'ansi256', () => makeDynamicStyles(wrapAnsi256, 'ansi256', ansi2ansi, false));
+	setLazyProperty(styles.color, 'ansi16m', () => makeDynamicStyles(wrapAnsi16m, 'rgb', rgb2rgb, false));
+	setLazyProperty(styles.bgColor, 'ansi', () => makeDynamicStyles(wrapAnsi16, 'ansi16', ansi2ansi, true));
+	setLazyProperty(styles.bgColor, 'ansi256', () => makeDynamicStyles(wrapAnsi256, 'ansi256', ansi2ansi, true));
+	setLazyProperty(styles.bgColor, 'ansi16m', () => makeDynamicStyles(wrapAnsi16m, 'rgb', rgb2rgb, true));
 
 	return styles;
 }
 
-const ansiStyles$2 = assembleStyles();
+// Make the export immutable
+Object.defineProperty(module, 'exports', {
+	enumerable: true,
+	get: assembleStyles
+});
+}(ansiStyles$3));
 
-/* eslint-env browser */
-
-const isBlinkBasedBrowser = /\b(Chrome|Chromium)\//.test(navigator.userAgent);
-
-const colorSupport = isBlinkBasedBrowser ? {
-	level: 1,
-	hasBasic: true,
-	has256: false,
-	has16m: false,
-} : false;
-
-const supportsColor = {
-	stdout: colorSupport,
-	stderr: colorSupport,
+var hasFlag$1 = (flag, argv = process.argv) => {
+	const prefix = flag.startsWith('-') ? '' : (flag.length === 1 ? '-' : '--');
+	const position = argv.indexOf(prefix + flag);
+	const terminatorPosition = argv.indexOf('--');
+	return position !== -1 && (terminatorPosition === -1 || position < terminatorPosition);
 };
 
-// TODO: When targeting Node.js 16, use `String.prototype.replaceAll`.
-function stringReplaceAll(string, substring, replacer) {
+const os = require$$0;
+const tty = require$$1;
+const hasFlag = hasFlag$1;
+
+const {env} = process;
+
+let forceColor;
+if (hasFlag('no-color') ||
+	hasFlag('no-colors') ||
+	hasFlag('color=false') ||
+	hasFlag('color=never')) {
+	forceColor = 0;
+} else if (hasFlag('color') ||
+	hasFlag('colors') ||
+	hasFlag('color=true') ||
+	hasFlag('color=always')) {
+	forceColor = 1;
+}
+
+if ('FORCE_COLOR' in env) {
+	if (env.FORCE_COLOR === 'true') {
+		forceColor = 1;
+	} else if (env.FORCE_COLOR === 'false') {
+		forceColor = 0;
+	} else {
+		forceColor = env.FORCE_COLOR.length === 0 ? 1 : Math.min(parseInt(env.FORCE_COLOR, 10), 3);
+	}
+}
+
+function translateLevel(level) {
+	if (level === 0) {
+		return false;
+	}
+
+	return {
+		level,
+		hasBasic: true,
+		has256: level >= 2,
+		has16m: level >= 3
+	};
+}
+
+function supportsColor(haveStream, streamIsTTY) {
+	if (forceColor === 0) {
+		return 0;
+	}
+
+	if (hasFlag('color=16m') ||
+		hasFlag('color=full') ||
+		hasFlag('color=truecolor')) {
+		return 3;
+	}
+
+	if (hasFlag('color=256')) {
+		return 2;
+	}
+
+	if (haveStream && !streamIsTTY && forceColor === undefined) {
+		return 0;
+	}
+
+	const min = forceColor || 0;
+
+	if (env.TERM === 'dumb') {
+		return min;
+	}
+
+	if (process.platform === 'win32') {
+		// Windows 10 build 10586 is the first Windows release that supports 256 colors.
+		// Windows 10 build 14931 is the first release that supports 16m/TrueColor.
+		const osRelease = os.release().split('.');
+		if (
+			Number(osRelease[0]) >= 10 &&
+			Number(osRelease[2]) >= 10586
+		) {
+			return Number(osRelease[2]) >= 14931 ? 3 : 2;
+		}
+
+		return 1;
+	}
+
+	if ('CI' in env) {
+		if (['TRAVIS', 'CIRCLECI', 'APPVEYOR', 'GITLAB_CI', 'GITHUB_ACTIONS', 'BUILDKITE'].some(sign => sign in env) || env.CI_NAME === 'codeship') {
+			return 1;
+		}
+
+		return min;
+	}
+
+	if ('TEAMCITY_VERSION' in env) {
+		return /^(9\.(0*[1-9]\d*)\.|\d{2,}\.)/.test(env.TEAMCITY_VERSION) ? 1 : 0;
+	}
+
+	if (env.COLORTERM === 'truecolor') {
+		return 3;
+	}
+
+	if ('TERM_PROGRAM' in env) {
+		const version = parseInt((env.TERM_PROGRAM_VERSION || '').split('.')[0], 10);
+
+		switch (env.TERM_PROGRAM) {
+			case 'iTerm.app':
+				return version >= 3 ? 3 : 2;
+			case 'Apple_Terminal':
+				return 2;
+			// No default
+		}
+	}
+
+	if (/-256(color)?$/i.test(env.TERM)) {
+		return 2;
+	}
+
+	if (/^screen|^xterm|^vt100|^vt220|^rxvt|color|ansi|cygwin|linux/i.test(env.TERM)) {
+		return 1;
+	}
+
+	if ('COLORTERM' in env) {
+		return 1;
+	}
+
+	return min;
+}
+
+function getSupportLevel(stream) {
+	const level = supportsColor(stream, stream && stream.isTTY);
+	return translateLevel(level);
+}
+
+var supportsColor_1 = {
+	supportsColor: getSupportLevel,
+	stdout: translateLevel(supportsColor(true, tty.isatty(1))),
+	stderr: translateLevel(supportsColor(true, tty.isatty(2)))
+};
+
+const stringReplaceAll$1 = (string, substring, replacer) => {
 	let index = string.indexOf(substring);
 	if (index === -1) {
 		return string;
@@ -360,11 +1588,11 @@ function stringReplaceAll(string, substring, replacer) {
 		index = string.indexOf(substring, endIndex);
 	} while (index !== -1);
 
-	returnValue += string.slice(endIndex);
+	returnValue += string.substr(endIndex);
 	return returnValue;
-}
+};
 
-function stringEncaseCRLFWithFirstIndex(string, prefix, postfix, index) {
+const stringEncaseCRLFWithFirstIndex$1 = (string, prefix, postfix, index) => {
 	let endIndex = 0;
 	let returnValue = '';
 	do {
@@ -374,22 +1602,164 @@ function stringEncaseCRLFWithFirstIndex(string, prefix, postfix, index) {
 		index = string.indexOf('\n', endIndex);
 	} while (index !== -1);
 
-	returnValue += string.slice(endIndex);
+	returnValue += string.substr(endIndex);
 	return returnValue;
+};
+
+var util = {
+	stringReplaceAll: stringReplaceAll$1,
+	stringEncaseCRLFWithFirstIndex: stringEncaseCRLFWithFirstIndex$1
+};
+
+const TEMPLATE_REGEX = /(?:\\(u(?:[a-f\d]{4}|\{[a-f\d]{1,6}\})|x[a-f\d]{2}|.))|(?:\{(~)?(\w+(?:\([^)]*\))?(?:\.\w+(?:\([^)]*\))?)*)(?:[ \t]|(?=\r?\n)))|(\})|((?:.|[\r\n\f])+?)/gi;
+const STYLE_REGEX = /(?:^|\.)(\w+)(?:\(([^)]*)\))?/g;
+const STRING_REGEX = /^(['"])((?:\\.|(?!\1)[^\\])*)\1$/;
+const ESCAPE_REGEX = /\\(u(?:[a-f\d]{4}|{[a-f\d]{1,6}})|x[a-f\d]{2}|.)|([^\\])/gi;
+
+const ESCAPES$1 = new Map([
+	['n', '\n'],
+	['r', '\r'],
+	['t', '\t'],
+	['b', '\b'],
+	['f', '\f'],
+	['v', '\v'],
+	['0', '\0'],
+	['\\', '\\'],
+	['e', '\u001B'],
+	['a', '\u0007']
+]);
+
+function unescape(c) {
+	const u = c[0] === 'u';
+	const bracket = c[1] === '{';
+
+	if ((u && !bracket && c.length === 5) || (c[0] === 'x' && c.length === 3)) {
+		return String.fromCharCode(parseInt(c.slice(1), 16));
+	}
+
+	if (u && bracket) {
+		return String.fromCodePoint(parseInt(c.slice(2, -1), 16));
+	}
+
+	return ESCAPES$1.get(c) || c;
 }
 
-const {stdout: stdoutColor, stderr: stderrColor} = supportsColor;
+function parseArguments(name, arguments_) {
+	const results = [];
+	const chunks = arguments_.trim().split(/\s*,\s*/g);
+	let matches;
 
-const GENERATOR = Symbol('GENERATOR');
-const STYLER = Symbol('STYLER');
-const IS_EMPTY = Symbol('IS_EMPTY');
+	for (const chunk of chunks) {
+		const number = Number(chunk);
+		if (!Number.isNaN(number)) {
+			results.push(number);
+		} else if ((matches = chunk.match(STRING_REGEX))) {
+			results.push(matches[2].replace(ESCAPE_REGEX, (m, escape, character) => escape ? unescape(escape) : character));
+		} else {
+			throw new Error(`Invalid Chalk template style argument: ${chunk} (in style '${name}')`);
+		}
+	}
+
+	return results;
+}
+
+function parseStyle(style) {
+	STYLE_REGEX.lastIndex = 0;
+
+	const results = [];
+	let matches;
+
+	while ((matches = STYLE_REGEX.exec(style)) !== null) {
+		const name = matches[1];
+
+		if (matches[2]) {
+			const args = parseArguments(name, matches[2]);
+			results.push([name].concat(args));
+		} else {
+			results.push([name]);
+		}
+	}
+
+	return results;
+}
+
+function buildStyle(chalk, styles) {
+	const enabled = {};
+
+	for (const layer of styles) {
+		for (const style of layer.styles) {
+			enabled[style[0]] = layer.inverse ? null : style.slice(1);
+		}
+	}
+
+	let current = chalk;
+	for (const [styleName, styles] of Object.entries(enabled)) {
+		if (!Array.isArray(styles)) {
+			continue;
+		}
+
+		if (!(styleName in current)) {
+			throw new Error(`Unknown Chalk style: ${styleName}`);
+		}
+
+		current = styles.length > 0 ? current[styleName](...styles) : current[styleName];
+	}
+
+	return current;
+}
+
+var templates = (chalk, temporary) => {
+	const styles = [];
+	const chunks = [];
+	let chunk = [];
+
+	// eslint-disable-next-line max-params
+	temporary.replace(TEMPLATE_REGEX, (m, escapeCharacter, inverse, style, close, character) => {
+		if (escapeCharacter) {
+			chunk.push(unescape(escapeCharacter));
+		} else if (style) {
+			const string = chunk.join('');
+			chunk = [];
+			chunks.push(styles.length === 0 ? string : buildStyle(chalk, styles)(string));
+			styles.push({inverse, styles: parseStyle(style)});
+		} else if (close) {
+			if (styles.length === 0) {
+				throw new Error('Found extraneous } in Chalk template literal');
+			}
+
+			chunks.push(buildStyle(chalk, styles)(chunk.join('')));
+			chunk = [];
+			styles.pop();
+		} else {
+			chunk.push(character);
+		}
+	});
+
+	chunks.push(chunk.join(''));
+
+	if (styles.length > 0) {
+		const errMessage = `Chalk template literal is missing ${styles.length} closing bracket${styles.length === 1 ? '' : 's'} (\`}\`)`;
+		throw new Error(errMessage);
+	}
+
+	return chunks.join('');
+};
+
+const ansiStyles$2 = ansiStyles$3.exports;
+const {stdout: stdoutColor, stderr: stderrColor} = supportsColor_1;
+const {
+	stringReplaceAll,
+	stringEncaseCRLFWithFirstIndex
+} = util;
+
+const {isArray} = Array;
 
 // `supportsColor.level` → `ansiStyles.color[name]` mapping
 const levelMapping = [
 	'ansi',
 	'ansi',
 	'ansi256',
-	'ansi16m',
+	'ansi16m'
 ];
 
 const styles = Object.create(null);
@@ -404,81 +1774,77 @@ const applyOptions = (object, options = {}) => {
 	object.level = options.level === undefined ? colorLevel : options.level;
 };
 
-const chalkFactory = options => {
-	const chalk = (...strings) => strings.join(' ');
-	applyOptions(chalk, options);
-
-	Object.setPrototypeOf(chalk, createChalk.prototype);
-
-	return chalk;
-};
-
-function createChalk(options) {
-	return chalkFactory(options);
+class ChalkClass {
+	constructor(options) {
+		// eslint-disable-next-line no-constructor-return
+		return chalkFactory(options);
+	}
 }
 
-Object.setPrototypeOf(createChalk.prototype, Function.prototype);
+const chalkFactory = options => {
+	const chalk = {};
+	applyOptions(chalk, options);
+
+	chalk.template = (...arguments_) => chalkTag(chalk.template, ...arguments_);
+
+	Object.setPrototypeOf(chalk, Chalk.prototype);
+	Object.setPrototypeOf(chalk.template, chalk);
+
+	chalk.template.constructor = () => {
+		throw new Error('`chalk.constructor()` is deprecated. Use `new chalk.Instance()` instead.');
+	};
+
+	chalk.template.Instance = ChalkClass;
+
+	return chalk.template;
+};
+
+function Chalk(options) {
+	return chalkFactory(options);
+}
 
 for (const [styleName, style] of Object.entries(ansiStyles$2)) {
 	styles[styleName] = {
 		get() {
-			const builder = createBuilder(this, createStyler(style.open, style.close, this[STYLER]), this[IS_EMPTY]);
+			const builder = createBuilder(this, createStyler(style.open, style.close, this._styler), this._isEmpty);
 			Object.defineProperty(this, styleName, {value: builder});
 			return builder;
-		},
+		}
 	};
 }
 
 styles.visible = {
 	get() {
-		const builder = createBuilder(this, this[STYLER], true);
+		const builder = createBuilder(this, this._styler, true);
 		Object.defineProperty(this, 'visible', {value: builder});
 		return builder;
-	},
+	}
 };
 
-const getModelAnsi = (model, level, type, ...arguments_) => {
-	if (model === 'rgb') {
-		if (level === 'ansi16m') {
-			return ansiStyles$2[type].ansi16m(...arguments_);
-		}
-
-		if (level === 'ansi256') {
-			return ansiStyles$2[type].ansi256(ansiStyles$2.rgbToAnsi256(...arguments_));
-		}
-
-		return ansiStyles$2[type].ansi(ansiStyles$2.rgbToAnsi(...arguments_));
-	}
-
-	if (model === 'hex') {
-		return getModelAnsi('rgb', level, type, ...ansiStyles$2.hexToRgb(...arguments_));
-	}
-
-	return ansiStyles$2[type][model](...arguments_);
-};
-
-const usedModels = ['rgb', 'hex', 'ansi256'];
+const usedModels = ['rgb', 'hex', 'keyword', 'hsl', 'hsv', 'hwb', 'ansi', 'ansi256'];
 
 for (const model of usedModels) {
 	styles[model] = {
 		get() {
 			const {level} = this;
 			return function (...arguments_) {
-				const styler = createStyler(getModelAnsi(model, levelMapping[level], 'color', ...arguments_), ansiStyles$2.color.close, this[STYLER]);
-				return createBuilder(this, styler, this[IS_EMPTY]);
+				const styler = createStyler(ansiStyles$2.color[levelMapping[level]][model](...arguments_), ansiStyles$2.color.close, this._styler);
+				return createBuilder(this, styler, this._isEmpty);
 			};
-		},
+		}
 	};
+}
 
+for (const model of usedModels) {
 	const bgModel = 'bg' + model[0].toUpperCase() + model.slice(1);
 	styles[bgModel] = {
 		get() {
 			const {level} = this;
 			return function (...arguments_) {
-				const styler = createStyler(getModelAnsi(model, levelMapping[level], 'bgColor', ...arguments_), ansiStyles$2.bgColor.close, this[STYLER]);
-				return createBuilder(this, styler, this[IS_EMPTY]);
+				const styler = createStyler(ansiStyles$2.bgColor[levelMapping[level]][model](...arguments_), ansiStyles$2.bgColor.close, this._styler);
+				return createBuilder(this, styler, this._isEmpty);
 			};
-		},
+		}
 	};
 }
 
@@ -487,12 +1853,12 @@ const proto = Object.defineProperties(() => {}, {
 	level: {
 		enumerable: true,
 		get() {
-			return this[GENERATOR].level;
+			return this._generator.level;
 		},
 		set(level) {
-			this[GENERATOR].level = level;
-		},
-	},
+			this._generator.level = level;
+		}
+	}
 });
 
 const createStyler = (open, close, parent) => {
@@ -511,39 +1877,46 @@ const createStyler = (open, close, parent) => {
 		close,
 		openAll,
 		closeAll,
-		parent,
+		parent
 	};
 };
 
 const createBuilder = (self, _styler, _isEmpty) => {
-	// Single argument is hot path, implicit coercion is faster than anything
-	// eslint-disable-next-line no-implicit-coercion
-	const builder = (...arguments_) => applyStyle(builder, (arguments_.length === 1) ? ('' + arguments_[0]) : arguments_.join(' '));
+	const builder = (...arguments_) => {
+		if (isArray(arguments_[0]) && isArray(arguments_[0].raw)) {
+			// Called as a template literal, for example: chalk.red`2 + 3 = {bold ${2+3}}`
+			return applyStyle(builder, chalkTag(builder, ...arguments_));
+		}
+
+		// Single argument is hot path, implicit coercion is faster than anything
+		// eslint-disable-next-line no-implicit-coercion
+		return applyStyle(builder, (arguments_.length === 1) ? ('' + arguments_[0]) : arguments_.join(' '));
+	};
 
 	// We alter the prototype because we must return a function, but there is
 	// no way to create a function with a different prototype
 	Object.setPrototypeOf(builder, proto);
 
-	builder[GENERATOR] = self;
-	builder[STYLER] = _styler;
-	builder[IS_EMPTY] = _isEmpty;
+	builder._generator = self;
+	builder._styler = _styler;
+	builder._isEmpty = _isEmpty;
 
 	return builder;
 };
 
 const applyStyle = (self, string) => {
 	if (self.level <= 0 || !string) {
-		return self[IS_EMPTY] ? '' : string;
+		return self._isEmpty ? '' : string;
 	}
 
-	let styler = self[STYLER];
+	let styler = self._styler;
 
 	if (styler === undefined) {
 		return string;
 	}
 
 	const {openAll, closeAll} = styler;
-	if (string.includes('\u001B')) {
+	if (string.indexOf('\u001B') !== -1) {
 		while (styler !== undefined) {
 			// Replace any instances already present with a re-opening code
 			// otherwise only the part of the string until said closing code
@@ -565,10 +1938,41 @@ const applyStyle = (self, string) => {
 	return openAll + string + closeAll;
 };
 
-Object.defineProperties(createChalk.prototype, styles);
+let template;
+const chalkTag = (chalk, ...strings) => {
+	const [firstString] = strings;
 
-const chalk = createChalk();
-createChalk({level: stderrColor ? stderrColor.level : 0});
+	if (!isArray(firstString) || !isArray(firstString.raw)) {
+		// If chalk() was called by itself or with a string,
+		// return the string itself as a string.
+		return strings.join(' ');
+	}
+
+	const arguments_ = strings.slice(1);
+	const parts = [firstString.raw[0]];
+
+	for (let i = 1; i < firstString.length; i++) {
+		parts.push(
+			String(arguments_[i - 1]).replace(/[{}\\]/g, '\\$&'),
+			String(firstString.raw[i])
+		);
+	}
+
+	if (template === undefined) {
+		template = templates;
+	}
+
+	return template(chalk, parts.join(''));
+};
+
+Object.defineProperties(Chalk.prototype, styles);
+
+const chalk = Chalk(); // eslint-disable-line new-cap
+chalk.supportsColor = stdoutColor;
+chalk.stderr = Chalk({level: stderrColor ? stderrColor.level : 0}); // eslint-disable-line new-cap
+chalk.stderr.supportsColor = stderrColor;
+
+var source = chalk;
 
 const logSymbols = {
 	info: 'ℹ️',
@@ -577,24 +1981,224 @@ const logSymbols = {
 	error: '❌️',
 };
 
-var commonjsGlobal$1 = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
-
 var commander = {exports: {}};
 
+var argument = {};
+
+var error = {};
+
+// @ts-check
+
 /**
- * Module dependencies.
+ * CommanderError class
+ * @class
+ */
+class CommanderError$1 extends Error {
+  /**
+   * Constructs the CommanderError class
+   * @param {number} exitCode suggested exit code which could be used with process.exit
+   * @param {string} code an id string representing the error
+   * @param {string} message human-readable description of the error
+   * @constructor
+   */
+  constructor(exitCode, code, message) {
+    super(message);
+    // properly capture stack trace in Node.js
+    Error.captureStackTrace(this, this.constructor);
+    this.name = this.constructor.name;
+    this.code = code;
+    this.exitCode = exitCode;
+    this.nestedError = undefined;
+  }
+}
+
+/**
+ * InvalidArgumentError class
+ * @class
+ */
+class InvalidArgumentError$2 extends CommanderError$1 {
+  /**
+   * Constructs the InvalidArgumentError class
+   * @param {string} [message] explanation of why argument is invalid
+   * @constructor
+   */
+  constructor(message) {
+    super(1, 'commander.invalidArgument', message);
+    // properly capture stack trace in Node.js
+    Error.captureStackTrace(this, this.constructor);
+    this.name = this.constructor.name;
+  }
+}
+
+error.CommanderError = CommanderError$1;
+error.InvalidArgumentError = InvalidArgumentError$2;
+
+const { InvalidArgumentError: InvalidArgumentError$1 } = error;
+
+// @ts-check
+
+class Argument$1 {
+  /**
+   * Initialize a new command argument with the given name and description.
+   * The default is that the argument is required, and you can explicitly
+   * indicate this with <> around the name. Put [] around the name for an optional argument.
+   *
+   * @param {string} name
+   * @param {string} [description]
+   */
+
+  constructor(name, description) {
+    this.description = description || '';
+    this.variadic = false;
+    this.parseArg = undefined;
+    this.defaultValue = undefined;
+    this.defaultValueDescription = undefined;
+    this.argChoices = undefined;
+
+    switch (name[0]) {
+      case '<': // e.g. <required>
+        this.required = true;
+        this._name = name.slice(1, -1);
+        break;
+      case '[': // e.g. [optional]
+        this.required = false;
+        this._name = name.slice(1, -1);
+        break;
+      default:
+        this.required = true;
+        this._name = name;
+        break;
+    }
+
+    if (this._name.length > 3 && this._name.slice(-3) === '...') {
+      this.variadic = true;
+      this._name = this._name.slice(0, -3);
+    }
+  }
+
+  /**
+   * Return argument name.
+   *
+   * @return {string}
+   */
+
+  name() {
+    return this._name;
+  };
+
+  /**
+   * @api private
+   */
+
+  _concatValue(value, previous) {
+    if (previous === this.defaultValue || !Array.isArray(previous)) {
+      return [value];
+    }
+
+    return previous.concat(value);
+  }
+
+  /**
+   * Set the default value, and optionally supply the description to be displayed in the help.
+   *
+   * @param {any} value
+   * @param {string} [description]
+   * @return {Argument}
+   */
+
+  default(value, description) {
+    this.defaultValue = value;
+    this.defaultValueDescription = description;
+    return this;
+  };
+
+  /**
+   * Set the custom handler for processing CLI command arguments into argument values.
+   *
+   * @param {Function} [fn]
+   * @return {Argument}
+   */
+
+  argParser(fn) {
+    this.parseArg = fn;
+    return this;
+  };
+
+  /**
+   * Only allow option value to be one of choices.
+   *
+   * @param {string[]} values
+   * @return {Argument}
+   */
+
+  choices(values) {
+    this.argChoices = values;
+    this.parseArg = (arg, previous) => {
+      if (!values.includes(arg)) {
+        throw new InvalidArgumentError$1(`Allowed choices are ${values.join(', ')}.`);
+      }
+      if (this.variadic) {
+        return this._concatValue(arg, previous);
+      }
+      return arg;
+    };
+    return this;
+  };
+
+  /**
+   * Make option-argument required.
+   */
+  argRequired() {
+    this.required = true;
+    return this;
+  }
+
+  /**
+   * Make option-argument optional.
+   */
+  argOptional() {
+    this.required = false;
+    return this;
+  }
+}
+
+/**
+ * Takes an argument and returns its human readable equivalent for help usage.
+ *
+ * @param {Argument} arg
+ * @return {string}
+ * @api private
  */
 
-(function (module, exports) {
-const EventEmitter = require$$0__default["default"].EventEmitter;
-const childProcess = require$$1__default["default"];
-const path = require$$2__default["default"];
-const fs = require$$3__default["default"];
+function humanReadableArgName$2(arg) {
+  const nameOutput = arg.name() + (arg.variadic === true ? '...' : '');
+
+  return arg.required
+    ? '<' + nameOutput + '>'
+    : '[' + nameOutput + ']';
+}
+
+argument.Argument = Argument$1;
+argument.humanReadableArgName = humanReadableArgName$2;
+
+var command = {};
+
+var help = {};
+
+const { humanReadableArgName: humanReadableArgName$1 } = argument;
+
+/**
+ * TypeScript import types for JSDoc, used by Visual Studio Code IntelliSense and `npm run typescript-checkJS`
+ * https://www.typescriptlang.org/docs/handbook/jsdoc-supported-types.html#import-types
+ * @typedef { import("./argument.js").Argument } Argument
+ * @typedef { import("./command.js").Command } Command
+ * @typedef { import("./option.js").Option } Option
+ */
 
 // @ts-check
 
 // Although this is a class, methods are static in style to allow override using subclass or just functions.
-class Help {
+class Help$1 {
   constructor() {
     this.helpWidth = undefined;
     this.sortSubcommands = false;
@@ -612,15 +2216,16 @@ class Help {
     const visibleCommands = cmd.commands.filter(cmd => !cmd._hidden);
     if (cmd._hasImplicitHelpCommand()) {
       // Create a command matching the implicit help command.
-      const args = cmd._helpCommandnameAndArgs.split(/ +/);
-      const helpCommand = cmd.createCommand(args.shift())
+      const [, helpName, helpArgs] = cmd._helpCommandnameAndArgs.match(/([^ ]+) *(.*)/);
+      const helpCommand = cmd.createCommand(helpName)
         .helpOption(false);
       helpCommand.description(cmd._helpCommandDescription);
-      helpCommand._parseExpectedArgs(args);
+      if (helpArgs) helpCommand.arguments(helpArgs);
       visibleCommands.push(helpCommand);
     }
     if (this.sortSubcommands) {
       visibleCommands.sort((a, b) => {
+        // @ts-ignore: overloaded return type
         return a.name().localeCompare(b.name());
       });
     }
@@ -663,19 +2268,24 @@ class Help {
   }
 
   /**
-   * Get an array of the arguments which have descriptions.
+   * Get an array of the arguments if any have a description.
    *
    * @param {Command} cmd
-   * @returns {{ term: string, description:string }[]}
+   * @returns {Argument[]}
    */
 
   visibleArguments(cmd) {
-    if (cmd._argsDescription && cmd._args.length) {
-      return cmd._args.map((argument) => {
-        return { term: argument.name, description: cmd._argsDescription[argument.name] || '' };
-      }, 0);
+    // Side effect! Apply the legacy descriptions before the arguments are displayed.
+    if (cmd._argsDescription) {
+      cmd._args.forEach(argument => {
+        argument.description = argument.description || cmd._argsDescription[argument.name()] || '';
+      });
     }
-    return [];
+
+    // If there are any arguments with a description then return all the arguments.
+    if (cmd._args.find(argument => argument.description)) {
+      return cmd._args;
+    }    return [];
   }
 
   /**
@@ -687,7 +2297,7 @@ class Help {
 
   subcommandTerm(cmd) {
     // Legacy. Ignores custom usage string, and nested commands.
-    const args = cmd._args.map(arg => humanReadableArgName(arg)).join(' ');
+    const args = cmd._args.map(arg => humanReadableArgName$1(arg)).join(' ');
     return cmd._name +
       (cmd._aliases[0] ? '|' + cmd._aliases[0] : '') +
       (cmd.options.length ? ' [options]' : '') + // simplistic check for non-help option
@@ -703,6 +2313,17 @@ class Help {
 
   optionTerm(option) {
     return option.flags;
+  }
+
+  /**
+   * Get the argument term to show in the list of arguments.
+   *
+   * @param {Argument} argument
+   * @returns {string}
+   */
+
+  argumentTerm(argument) {
+    return argument.name();
   }
 
   /**
@@ -743,7 +2364,7 @@ class Help {
 
   longestArgumentTermLength(cmd, helper) {
     return helper.visibleArguments(cmd).reduce((max, argument) => {
-      return Math.max(max, argument.term.length);
+      return Math.max(max, helper.argumentTerm(argument).length);
     }, 0);
   };
 
@@ -799,23 +2420,53 @@ class Help {
    */
 
   optionDescription(option) {
-    if (option.negate) {
-      return option.description;
-    }
     const extraInfo = [];
-    if (option.argChoices) {
+    // Some of these do not make sense for negated boolean and suppress for backwards compatibility.
+
+    if (option.argChoices && !option.negate) {
       extraInfo.push(
         // use stringify to match the display of the default value
         `choices: ${option.argChoices.map((choice) => JSON.stringify(choice)).join(', ')}`);
     }
-    if (option.defaultValue !== undefined) {
+    if (option.defaultValue !== undefined && !option.negate) {
       extraInfo.push(`default: ${option.defaultValueDescription || JSON.stringify(option.defaultValue)}`);
+    }
+    if (option.envVar !== undefined) {
+      extraInfo.push(`env: ${option.envVar}`);
     }
     if (extraInfo.length > 0) {
       return `${option.description} (${extraInfo.join(', ')})`;
     }
+
     return option.description;
   };
+
+  /**
+   * Get the argument description to show in the list of arguments.
+   *
+   * @param {Argument} argument
+   * @return {string}
+   */
+
+  argumentDescription(argument) {
+    const extraInfo = [];
+    if (argument.argChoices) {
+      extraInfo.push(
+        // use stringify to match the display of the default value
+        `choices: ${argument.argChoices.map((choice) => JSON.stringify(choice)).join(', ')}`);
+    }
+    if (argument.defaultValue !== undefined) {
+      extraInfo.push(`default: ${argument.defaultValueDescription || JSON.stringify(argument.defaultValue)}`);
+    }
+    if (extraInfo.length > 0) {
+      const extraDescripton = `(${extraInfo.join(', ')})`;
+      if (argument.description) {
+        return `${argument.description} ${extraDescripton}`;
+      }
+      return extraDescripton;
+    }
+    return argument.description;
+  }
 
   /**
    * Generate the built-in help text.
@@ -851,7 +2502,7 @@ class Help {
 
     // Arguments
     const argumentList = helper.visibleArguments(cmd).map((argument) => {
-      return formatItem(argument.term, argument.description);
+      return formatItem(helper.argumentTerm(argument), helper.argumentDescription(argument));
     });
     if (argumentList.length > 0) {
       output = output.concat(['Arguments:', formatList(argumentList), '']);
@@ -927,7 +2578,15 @@ class Help {
   }
 }
 
-class Option {
+help.Help = Help$1;
+
+var option = {};
+
+const { InvalidArgumentError } = error;
+
+// @ts-check
+
+class Option$1 {
   /**
    * Initialize a new `Option` with the given `flags` and `description`.
    *
@@ -944,7 +2603,7 @@ class Option {
     // variadic test ignores <value,...> et al which might be used to describe custom splitting of single argument
     this.variadic = /\w\.\.\.[>\]]$/.test(flags); // The option can take multiple values.
     this.mandatory = false; // The option must have a value after parsing, which usually means it must be specified on command line.
-    const optionFlags = _parseOptionFlags(flags);
+    const optionFlags = splitOptionFlags$1(flags);
     this.short = optionFlags.shortFlag;
     this.long = optionFlags.longFlag;
     this.negate = false;
@@ -953,6 +2612,7 @@ class Option {
     }
     this.defaultValue = undefined;
     this.defaultValueDescription = undefined;
+    this.envVar = undefined;
     this.parseArg = undefined;
     this.hidden = false;
     this.argChoices = undefined;
@@ -969,6 +2629,19 @@ class Option {
   default(value, description) {
     this.defaultValue = value;
     this.defaultValueDescription = description;
+    return this;
+  };
+
+  /**
+   * Set environment variable to check for option value.
+   * Priority order of option values is default < env < cli
+   *
+   * @param {string} name
+   * @return {Option}
+   */
+
+  env(name) {
+    this.envVar = name;
     return this;
   };
 
@@ -1031,7 +2704,7 @@ class Option {
     this.argChoices = values;
     this.parseArg = (arg, previous) => {
       if (!values.includes(arg)) {
-        throw new InvalidOptionArgumentError(`Allowed choices are ${values.join(', ')}.`);
+        throw new InvalidArgumentError(`Allowed choices are ${values.join(', ')}.`);
       }
       if (this.variadic) {
         return this._concatValue(arg, previous);
@@ -1080,45 +2753,159 @@ class Option {
 }
 
 /**
- * CommanderError class
- * @class
+ * Convert string from kebab-case to camelCase.
+ *
+ * @param {string} str
+ * @return {string}
+ * @api private
  */
-class CommanderError extends Error {
-  /**
-   * Constructs the CommanderError class
-   * @param {number} exitCode suggested exit code which could be used with process.exit
-   * @param {string} code an id string representing the error
-   * @param {string} message human-readable description of the error
-   * @constructor
-   */
-  constructor(exitCode, code, message) {
-    super(message);
-    // properly capture stack trace in Node.js
-    Error.captureStackTrace(this, this.constructor);
-    this.name = this.constructor.name;
-    this.code = code;
-    this.exitCode = exitCode;
-    this.nestedError = undefined;
-  }
+
+function camelcase(str) {
+  return str.split('-').reduce((str, word) => {
+    return str + word[0].toUpperCase() + word.slice(1);
+  });
 }
 
 /**
- * InvalidOptionArgumentError class
- * @class
+ * Split the short and long flag out of something like '-m,--mixed <value>'
+ *
+ * @api private
  */
-class InvalidOptionArgumentError extends CommanderError {
-  /**
-   * Constructs the InvalidOptionArgumentError class
-   * @param {string} [message] explanation of why argument is invalid
-   * @constructor
-   */
-  constructor(message) {
-    super(1, 'commander.invalidOptionArgument', message);
-    // properly capture stack trace in Node.js
-    Error.captureStackTrace(this, this.constructor);
-    this.name = this.constructor.name;
+
+function splitOptionFlags$1(flags) {
+  let shortFlag;
+  let longFlag;
+  // Use original very loose parsing to maintain backwards compatibility for now,
+  // which allowed for example unintended `-sw, --short-word` [sic].
+  const flagParts = flags.split(/[ |,]+/);
+  if (flagParts.length > 1 && !/^[[<]/.test(flagParts[1])) shortFlag = flagParts.shift();
+  longFlag = flagParts.shift();
+  // Add support for lone short flag without significantly changing parsing!
+  if (!shortFlag && /^-[^-]$/.test(longFlag)) {
+    shortFlag = longFlag;
+    longFlag = undefined;
   }
+  return { shortFlag, longFlag };
 }
+
+option.Option = Option$1;
+option.splitOptionFlags = splitOptionFlags$1;
+
+var suggestSimilar$2 = {};
+
+const maxDistance = 3;
+
+function editDistance(a, b) {
+  // https://en.wikipedia.org/wiki/Damerau–Levenshtein_distance
+  // Calculating optimal string alignment distance, no substring is edited more than once.
+  // (Simple implementation.)
+
+  // Quick early exit, return worst case.
+  if (Math.abs(a.length - b.length) > maxDistance) return Math.max(a.length, b.length);
+
+  // distance between prefix substrings of a and b
+  const d = [];
+
+  // pure deletions turn a into empty string
+  for (let i = 0; i <= a.length; i++) {
+    d[i] = [i];
+  }
+  // pure insertions turn empty string into b
+  for (let j = 0; j <= b.length; j++) {
+    d[0][j] = j;
+  }
+
+  // fill matrix
+  for (let j = 1; j <= b.length; j++) {
+    for (let i = 1; i <= a.length; i++) {
+      let cost = 1;
+      if (a[i - 1] === b[j - 1]) {
+        cost = 0;
+      } else {
+        cost = 1;
+      }
+      d[i][j] = Math.min(
+        d[i - 1][j] + 1, // deletion
+        d[i][j - 1] + 1, // insertion
+        d[i - 1][j - 1] + cost // substitution
+      );
+      // transposition
+      if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) {
+        d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + 1);
+      }
+    }
+  }
+
+  return d[a.length][b.length];
+}
+
+/**
+ * Find close matches, restricted to same number of edits.
+ *
+ * @param {string} word
+ * @param {string[]} candidates
+ * @returns {string}
+ */
+
+function suggestSimilar$1(word, candidates) {
+  if (!candidates || candidates.length === 0) return '';
+  // remove possible duplicates
+  candidates = Array.from(new Set(candidates));
+
+  const searchingOptions = word.startsWith('--');
+  if (searchingOptions) {
+    word = word.slice(2);
+    candidates = candidates.map(candidate => candidate.slice(2));
+  }
+
+  let similar = [];
+  let bestDistance = maxDistance;
+  const minSimilarity = 0.4;
+  candidates.forEach((candidate) => {
+    if (candidate.length <= 1) return; // no one character guesses
+
+    const distance = editDistance(word, candidate);
+    const length = Math.max(word.length, candidate.length);
+    const similarity = (length - distance) / length;
+    if (similarity > minSimilarity) {
+      if (distance < bestDistance) {
+        // better edit distance, throw away previous worse matches
+        bestDistance = distance;
+        similar = [candidate];
+      } else if (distance === bestDistance) {
+        similar.push(candidate);
+      }
+    }
+  });
+
+  similar.sort((a, b) => a.localeCompare(b));
+  if (searchingOptions) {
+    similar = similar.map(candidate => `--${candidate}`);
+  }
+
+  if (similar.length > 1) {
+    return `\n(Did you mean one of ${similar.join(', ')}?)`;
+  }
+  if (similar.length === 1) {
+    return `\n(Did you mean ${similar[0]}?)`;
+  }
+  return '';
+}
+
+suggestSimilar$2.suggestSimilar = suggestSimilar$1;
+
+const EventEmitter = require$$0$1.EventEmitter;
+const childProcess = require$$1$1;
+const path = require$$2;
+const fs = require$$3;
+
+const { Argument, humanReadableArgName } = argument;
+const { CommanderError } = error;
+const { Help } = help;
+const { Option, splitOptionFlags } = option;
+const { suggestSimilar } = suggestSimilar$2;
+
+// @ts-check
 
 class Command extends EventEmitter {
   /**
@@ -1129,18 +2916,24 @@ class Command extends EventEmitter {
 
   constructor(name) {
     super();
+    /** @type {Command[]} */
     this.commands = [];
+    /** @type {Option[]} */
     this.options = [];
     this.parent = null;
     this._allowUnknownOption = false;
     this._allowExcessArguments = true;
+    /** @type {Argument[]} */
     this._args = [];
-    this.rawArgs = null;
+    /** @type {string[]} */
+    this.args = []; // cli args with options removed
+    this.rawArgs = [];
+    this.processedArgs = []; // like .args but after custom processing and collecting variadic
     this._scriptPath = null;
     this._name = name || '';
     this._optionValues = {};
+    this._optionValueSources = {}; // default < config < env < cli
     this._storeOptionsAsProperties = false;
-    this._actionResults = [];
     this._actionHandler = null;
     this._executableHandler = false;
     this._executableFile = null; // custom name for executable
@@ -1149,9 +2942,13 @@ class Command extends EventEmitter {
     this._aliases = [];
     this._combineFlagAndOptionalValue = true;
     this._description = '';
-    this._argsDescription = undefined;
+    this._argsDescription = undefined; // legacy
     this._enablePositionalOptions = false;
     this._passThroughOptions = false;
+    this._lifeCycleHooks = {}; // a hash of arrays
+    /** @type {boolean | string} */
+    this._showHelpAfterError = false;
+    this._showSuggestionAfterError = false;
 
     // see .configureOutput() for docs
     this._outputConfiguration = {
@@ -1176,24 +2973,53 @@ class Command extends EventEmitter {
   }
 
   /**
+   * Copy settings that are useful to have in common across root command and subcommands.
+   *
+   * (Used internally when adding a command using `.command()` so subcommands inherit parent settings.)
+   *
+   * @param {Command} sourceCommand
+   * @return {Command} returns `this` for executable command
+   */
+  copyInheritedSettings(sourceCommand) {
+    this._outputConfiguration = sourceCommand._outputConfiguration;
+    this._hasHelpOption = sourceCommand._hasHelpOption;
+    this._helpFlags = sourceCommand._helpFlags;
+    this._helpDescription = sourceCommand._helpDescription;
+    this._helpShortFlag = sourceCommand._helpShortFlag;
+    this._helpLongFlag = sourceCommand._helpLongFlag;
+    this._helpCommandName = sourceCommand._helpCommandName;
+    this._helpCommandnameAndArgs = sourceCommand._helpCommandnameAndArgs;
+    this._helpCommandDescription = sourceCommand._helpCommandDescription;
+    this._helpConfiguration = sourceCommand._helpConfiguration;
+    this._exitCallback = sourceCommand._exitCallback;
+    this._storeOptionsAsProperties = sourceCommand._storeOptionsAsProperties;
+    this._combineFlagAndOptionalValue = sourceCommand._combineFlagAndOptionalValue;
+    this._allowExcessArguments = sourceCommand._allowExcessArguments;
+    this._enablePositionalOptions = sourceCommand._enablePositionalOptions;
+    this._showHelpAfterError = sourceCommand._showHelpAfterError;
+    this._showSuggestionAfterError = sourceCommand._showSuggestionAfterError;
+
+    return this;
+  }
+
+  /**
    * Define a command.
    *
    * There are two styles of command: pay attention to where to put the description.
    *
-   * Examples:
+   * @example
+   * // Command implemented using action handler (description is supplied separately to `.command`)
+   * program
+   *   .command('clone <source> [destination]')
+   *   .description('clone a repository into a newly created directory')
+   *   .action((source, destination) => {
+   *     console.log('clone command called');
+   *   });
    *
-   *      // Command implemented using action handler (description is supplied separately to `.command`)
-   *      program
-   *        .command('clone <source> [destination]')
-   *        .description('clone a repository into a newly created directory')
-   *        .action((source, destination) => {
-   *          console.log('clone command called');
-   *        });
-   *
-   *      // Command implemented using separate executable file (description is second parameter to `.command`)
-   *      program
-   *        .command('start <service>', 'start named service')
-   *        .command('stop [service]', 'stop named service, or all if no name supplied');
+   * // Command implemented using separate executable file (description is second parameter to `.command`)
+   * program
+   *   .command('start <service>', 'start named service')
+   *   .command('stop [service]', 'stop named service, or all if no name supplied');
    *
    * @param {string} nameAndArgs - command name and arguments, args are `<required>` or `[optional]` and last may also be `variadic...`
    * @param {Object|string} [actionOptsOrExecDesc] - configuration options (for action), or description (for executable)
@@ -1209,37 +3035,20 @@ class Command extends EventEmitter {
       desc = null;
     }
     opts = opts || {};
-    const args = nameAndArgs.split(/ +/);
-    const cmd = this.createCommand(args.shift());
+    const [, name, args] = nameAndArgs.match(/([^ ]+) *(.*)/);
 
+    const cmd = this.createCommand(name);
     if (desc) {
       cmd.description(desc);
       cmd._executableHandler = true;
     }
     if (opts.isDefault) this._defaultCommandName = cmd._name;
-
-    cmd._outputConfiguration = this._outputConfiguration;
-
     cmd._hidden = !!(opts.noHelp || opts.hidden); // noHelp is deprecated old name for hidden
-    cmd._hasHelpOption = this._hasHelpOption;
-    cmd._helpFlags = this._helpFlags;
-    cmd._helpDescription = this._helpDescription;
-    cmd._helpShortFlag = this._helpShortFlag;
-    cmd._helpLongFlag = this._helpLongFlag;
-    cmd._helpCommandName = this._helpCommandName;
-    cmd._helpCommandnameAndArgs = this._helpCommandnameAndArgs;
-    cmd._helpCommandDescription = this._helpCommandDescription;
-    cmd._helpConfiguration = this._helpConfiguration;
-    cmd._exitCallback = this._exitCallback;
-    cmd._storeOptionsAsProperties = this._storeOptionsAsProperties;
-    cmd._combineFlagAndOptionalValue = this._combineFlagAndOptionalValue;
-    cmd._allowExcessArguments = this._allowExcessArguments;
-    cmd._enablePositionalOptions = this._enablePositionalOptions;
-
     cmd._executableFile = opts.executableFile || null; // Custom name for executable file, set missing to null to match constructor
+    if (args) cmd.arguments(args);
     this.commands.push(cmd);
-    cmd._parseExpectedArgs(args);
     cmd.parent = this;
+    cmd.copyInheritedSettings(this);
 
     if (desc) return this;
     return cmd;
@@ -1291,14 +3100,14 @@ class Command extends EventEmitter {
    *
    * The configuration properties are all functions:
    *
-   *    // functions to change where being written, stdout and stderr
-   *    writeOut(str)
-   *    writeErr(str)
-   *    // matching functions to specify width for wrapping help
-   *    getOutHelpWidth()
-   *    getErrHelpWidth()
-   *    // functions based on what is being written out
-   *    outputError(str, write) // used for displaying errors, and not used for displaying help
+   *     // functions to change where being written, stdout and stderr
+   *     writeOut(str)
+   *     writeErr(str)
+   *     // matching functions to specify width for wrapping help
+   *     getOutHelpWidth()
+   *     getErrHelpWidth()
+   *     // functions based on what is being written out
+   *     outputError(str, write) // used for displaying errors, and not used for displaying help
    *
    * @param {Object} [configuration] - configuration options
    * @return {Command|Object} `this` command for chaining, or stored configuration
@@ -1308,6 +3117,29 @@ class Command extends EventEmitter {
     if (configuration === undefined) return this._outputConfiguration;
 
     Object.assign(this._outputConfiguration, configuration);
+    return this;
+  }
+
+  /**
+   * Display the help or a custom message after an error occurs.
+   *
+   * @param {boolean|string} [displayHelp]
+   * @return {Command} `this` command for chaining
+   */
+  showHelpAfterError(displayHelp = true) {
+    if (typeof displayHelp !== 'string') displayHelp = !!displayHelp;
+    this._showHelpAfterError = displayHelp;
+    return this;
+  }
+
+  /**
+   * Display suggestion of similar commands for unknown commands, or options for unknown options.
+   *
+   * @param {boolean} [displaySuggestion]
+   * @return {Command} `this` command for chaining
+   */
+  showSuggestionAfterError(displaySuggestion = true) {
+    this._showSuggestionAfterError = !!displaySuggestion;
     return this;
   }
 
@@ -1346,12 +3178,83 @@ class Command extends EventEmitter {
   };
 
   /**
-   * Define argument syntax for the command.
+   * Factory routine to create a new unattached argument.
+   *
+   * See .argument() for creating an attached argument, which uses this routine to
+   * create the argument. You can override createArgument to return a custom argument.
+   *
+   * @param {string} name
+   * @param {string} [description]
+   * @return {Argument} new argument
    */
 
-  arguments(desc) {
-    return this._parseExpectedArgs(desc.split(/ +/));
+  createArgument(name, description) {
+    return new Argument(name, description);
   };
+
+  /**
+   * Define argument syntax for command.
+   *
+   * The default is that the argument is required, and you can explicitly
+   * indicate this with <> around the name. Put [] around the name for an optional argument.
+   *
+   * @example
+   * program.argument('<input-file>');
+   * program.argument('[output-file]');
+   *
+   * @param {string} name
+   * @param {string} [description]
+   * @param {Function|*} [fn] - custom argument processing function
+   * @param {*} [defaultValue]
+   * @return {Command} `this` command for chaining
+   */
+  argument(name, description, fn, defaultValue) {
+    const argument = this.createArgument(name, description);
+    if (typeof fn === 'function') {
+      argument.default(defaultValue).argParser(fn);
+    } else {
+      argument.default(fn);
+    }
+    this.addArgument(argument);
+    return this;
+  }
+
+  /**
+   * Define argument syntax for command, adding multiple at once (without descriptions).
+   *
+   * See also .argument().
+   *
+   * @example
+   * program.arguments('<cmd> [env]');
+   *
+   * @param {string} names
+   * @return {Command} `this` command for chaining
+   */
+
+  arguments(names) {
+    names.split(/ +/).forEach((detail) => {
+      this.argument(detail);
+    });
+    return this;
+  };
+
+  /**
+   * Define argument syntax for command, adding a prepared argument.
+   *
+   * @param {Argument} argument
+   * @return {Command} `this` command for chaining
+   */
+  addArgument(argument) {
+    const previousArgument = this._args.slice(-1)[0];
+    if (previousArgument && previousArgument.variadic) {
+      throw new Error(`only the last argument can be variadic '${previousArgument.name()}'`);
+    }
+    if (argument.required && argument.defaultValue !== undefined && argument.parseArg === undefined) {
+      throw new Error(`a default value for a required argument is never used: '${argument.name()}'`);
+    }
+    this._args.push(argument);
+    return this;
+  }
 
   /**
    * Override default decision whether to add implicit help command.
@@ -1390,49 +3293,26 @@ class Command extends EventEmitter {
   };
 
   /**
-   * Parse expected `args`.
+   * Add hook for life cycle event.
    *
-   * For example `["[type]"]` becomes `[{ required: false, name: 'type' }]`.
-   *
-   * @param {Array} args
+   * @param {string} event
+   * @param {Function} listener
    * @return {Command} `this` command for chaining
-   * @api private
    */
 
-  _parseExpectedArgs(args) {
-    if (!args.length) return;
-    args.forEach((arg) => {
-      const argDetails = {
-        required: false,
-        name: '',
-        variadic: false
-      };
-
-      switch (arg[0]) {
-        case '<':
-          argDetails.required = true;
-          argDetails.name = arg.slice(1, -1);
-          break;
-        case '[':
-          argDetails.name = arg.slice(1, -1);
-          break;
-      }
-
-      if (argDetails.name.length > 3 && argDetails.name.slice(-3) === '...') {
-        argDetails.variadic = true;
-        argDetails.name = argDetails.name.slice(0, -3);
-      }
-      if (argDetails.name) {
-        this._args.push(argDetails);
-      }
-    });
-    this._args.forEach((arg, i) => {
-      if (arg.variadic && i < this._args.length - 1) {
-        throw new Error(`only the last argument can be variadic '${arg.name}'`);
-      }
-    });
+  hook(event, listener) {
+    const allowedValues = ['preAction', 'postAction'];
+    if (!allowedValues.includes(event)) {
+      throw new Error(`Unexpected value for event passed to hook : '${event}'.
+Expecting one of '${allowedValues.join("', '")}'`);
+    }
+    if (this._lifeCycleHooks[event]) {
+      this._lifeCycleHooks[event].push(listener);
+    } else {
+      this._lifeCycleHooks[event] = [listener];
+    }
     return this;
-  };
+  }
 
   /**
    * Register callback to use as replacement for calling process.exit.
@@ -1475,14 +3355,13 @@ class Command extends EventEmitter {
   /**
    * Register callback `fn` for the command.
    *
-   * Examples:
-   *
-   *      program
-   *        .command('help')
-   *        .description('display verbose help')
-   *        .action(function() {
-   *           // output help here
-   *        });
+   * @example
+   * program
+   *   .command('serve')
+   *   .description('start service')
+   *   .action(function() {
+   *      // do work here
+   *   });
    *
    * @param {Function} fn
    * @return {Command} `this` command for chaining
@@ -1500,13 +3379,7 @@ class Command extends EventEmitter {
       }
       actionArgs.push(this);
 
-      const actionResult = fn.apply(this, actionArgs);
-      // Remember result in case it is async. Assume parseAsync getting called on root.
-      let rootCommand = this;
-      while (rootCommand.parent) {
-        rootCommand = rootCommand.parent;
-      }
-      rootCommand._actionResults.push(actionResult);
+      return fn.apply(this, actionArgs);
     };
     this._actionHandler = listener;
     return this;
@@ -1544,29 +3417,29 @@ class Command extends EventEmitter {
       // when --no-foo we make sure default is true, unless a --foo option is already defined
       if (option.negate) {
         const positiveLongFlag = option.long.replace(/^--no-/, '--');
-        defaultValue = this._findOption(positiveLongFlag) ? this._getOptionValue(name) : true;
+        defaultValue = this._findOption(positiveLongFlag) ? this.getOptionValue(name) : true;
       }
       // preassign only if we have a default
       if (defaultValue !== undefined) {
-        this._setOptionValue(name, defaultValue);
+        this.setOptionValueWithSource(name, defaultValue, 'default');
       }
     }
 
     // register the option
     this.options.push(option);
 
-    // when it's passed assign the value
-    // and conditionally invoke the callback
-    this.on('option:' + oname, (val) => {
-      const oldValue = this._getOptionValue(name);
+    // handler for cli and env supplied values
+    const handleOptionValue = (val, invalidValueMessage, valueSource) => {
+      // Note: using closure to access lots of lexical scoped variables.
+      const oldValue = this.getOptionValue(name);
 
       // custom processing
       if (val !== null && option.parseArg) {
         try {
           val = option.parseArg(val, oldValue === undefined ? defaultValue : oldValue);
         } catch (err) {
-          if (err.code === 'commander.invalidOptionArgument') {
-            const message = `error: option '${option.flags}' argument '${val}' is invalid. ${err.message}`;
+          if (err.code === 'commander.invalidArgument') {
+            const message = `${invalidValueMessage} ${err.message}`;
             this._displayError(err.exitCode, err.code, message);
           }
           throw err;
@@ -1579,17 +3452,27 @@ class Command extends EventEmitter {
       if (typeof oldValue === 'boolean' || typeof oldValue === 'undefined') {
         // if no value, negate false, and we have a default, then use it!
         if (val == null) {
-          this._setOptionValue(name, option.negate
-            ? false
-            : defaultValue || true);
+          this.setOptionValueWithSource(name, option.negate ? false : defaultValue || true, valueSource);
         } else {
-          this._setOptionValue(name, val);
+          this.setOptionValueWithSource(name, val, valueSource);
         }
       } else if (val !== null) {
         // reassign
-        this._setOptionValue(name, option.negate ? false : val);
+        this.setOptionValueWithSource(name, option.negate ? false : val, valueSource);
       }
+    };
+
+    this.on('option:' + oname, (val) => {
+      const invalidValueMessage = `error: option '${option.flags}' argument '${val}' is invalid.`;
+      handleOptionValue(val, invalidValueMessage, 'cli');
     });
+
+    if (option.envVar) {
+      this.on('optionEnv:' + oname, (val) => {
+        const invalidValueMessage = `error: option '${option.flags}' value '${val}' from env '${option.envVar}' is invalid.`;
+        handleOptionValue(val, invalidValueMessage, 'env');
+      });
+    }
 
     return this;
   }
@@ -1627,41 +3510,40 @@ class Command extends EventEmitter {
    * separated by comma, a pipe or space. The following are all valid
    * all will output this way when `--help` is used.
    *
-   *    "-p, --pepper"
-   *    "-p|--pepper"
-   *    "-p --pepper"
+   *     "-p, --pepper"
+   *     "-p|--pepper"
+   *     "-p --pepper"
    *
-   * Examples:
+   * @example
+   * // simple boolean defaulting to undefined
+   * program.option('-p, --pepper', 'add pepper');
    *
-   *     // simple boolean defaulting to undefined
-   *     program.option('-p, --pepper', 'add pepper');
+   * program.pepper
+   * // => undefined
    *
-   *     program.pepper
-   *     // => undefined
+   * --pepper
+   * program.pepper
+   * // => true
    *
-   *     --pepper
-   *     program.pepper
-   *     // => true
+   * // simple boolean defaulting to true (unless non-negated option is also defined)
+   * program.option('-C, --no-cheese', 'remove cheese');
    *
-   *     // simple boolean defaulting to true (unless non-negated option is also defined)
-   *     program.option('-C, --no-cheese', 'remove cheese');
+   * program.cheese
+   * // => true
    *
-   *     program.cheese
-   *     // => true
+   * --no-cheese
+   * program.cheese
+   * // => false
    *
-   *     --no-cheese
-   *     program.cheese
-   *     // => false
+   * // required argument
+   * program.option('-C, --chdir <path>', 'change the working directory');
    *
-   *     // required argument
-   *     program.option('-C, --chdir <path>', 'change the working directory');
+   * --chdir /tmp
+   * program.chdir
+   * // => "/tmp"
    *
-   *     --chdir /tmp
-   *     program.chdir
-   *     // => "/tmp"
-   *
-   *     // optional argument
-   *     program.option('-c, --cheese [type]', 'add cheese [marble]');
+   * // optional argument
+   * program.option('-c, --cheese [type]', 'add cheese [marble]');
    *
    * @param {string} flags
    * @param {string} [description]
@@ -1694,11 +3576,10 @@ class Command extends EventEmitter {
   /**
    * Alter parsing of short flags with optional values.
    *
-   * Examples:
-   *
-   *    // for `.option('-f,--flag [value]'):
-   *    .combineFlagAndOptionalValue(true)  // `-f80` is treated like `--flag=80`, this is the default behaviour
-   *    .combineFlagAndOptionalValue(false) // `-fb` is treated like `-f -b`
+   * @example
+   * // for `.option('-f,--flag [value]'):
+   * program.combineFlagAndOptionalValue(true);  // `-f80` is treated like `--flag=80`, this is the default behaviour
+   * program.combineFlagAndOptionalValue(false) // `-fb` is treated like `-f -b`
    *
    * @param {Boolean} [combine=true] - if `true` or omitted, an optional value can be specified directly after the flag.
    */
@@ -1775,30 +3656,13 @@ class Command extends EventEmitter {
   };
 
   /**
-   * Store option value
-   *
-   * @param {string} key
-   * @param {Object} value
-   * @api private
-   */
-
-  _setOptionValue(key, value) {
-    if (this._storeOptionsAsProperties) {
-      this[key] = value;
-    } else {
-      this._optionValues[key] = value;
-    }
-  };
-
-  /**
-   * Retrieve option value
+   * Retrieve option value.
    *
    * @param {string} key
    * @return {Object} value
-   * @api private
    */
 
-  _getOptionValue(key) {
+  getOptionValue(key) {
     if (this._storeOptionsAsProperties) {
       return this[key];
     }
@@ -1806,24 +3670,57 @@ class Command extends EventEmitter {
   };
 
   /**
-   * Parse `argv`, setting options and invoking commands when defined.
+   * Store option value.
    *
-   * The default expectation is that the arguments are from node and have the application as argv[0]
-   * and the script being run in argv[1], with user parameters after that.
-   *
-   * Examples:
-   *
-   *      program.parse(process.argv);
-   *      program.parse(); // implicitly use process.argv and auto-detect node vs electron conventions
-   *      program.parse(my-args, { from: 'user' }); // just user supplied arguments, nothing special about argv[0]
-   *
-   * @param {string[]} [argv] - optional, defaults to process.argv
-   * @param {Object} [parseOptions] - optionally specify style of options with from: node/user/electron
-   * @param {string} [parseOptions.from] - where the args are from: 'node', 'user', 'electron'
+   * @param {string} key
+   * @param {Object} value
    * @return {Command} `this` command for chaining
    */
 
-  parse(argv, parseOptions) {
+  setOptionValue(key, value) {
+    if (this._storeOptionsAsProperties) {
+      this[key] = value;
+    } else {
+      this._optionValues[key] = value;
+    }
+    return this;
+  };
+
+  /**
+   * Store option value and where the value came from.
+    *
+    * @param {string} key
+    * @param {Object} value
+    * @param {string} source - expected values are default/config/env/cli
+    * @return {Command} `this` command for chaining
+    */
+
+  setOptionValueWithSource(key, value, source) {
+    this.setOptionValue(key, value);
+    this._optionValueSources[key] = source;
+    return this;
+  }
+
+  /**
+    * Get source of option value.
+    * Expected values are default | config | env | cli
+    *
+    * @param {string} key
+    * @return {string}
+    */
+
+  getOptionValueSource(key) {
+    return this._optionValueSources[key];
+  };
+
+  /**
+   * Get user arguments implied or explicit arguments.
+   * Side-effects: set _scriptPath if args included application, and use that to set implicit command name.
+   *
+   * @api private
+   */
+
+  _prepareUserArgs(argv, parseOptions) {
     if (argv !== undefined && !Array.isArray(argv)) {
       throw new Error('first parameter to parse must be array or undefined');
     }
@@ -1869,7 +3766,28 @@ class Command extends EventEmitter {
     // Guess name, used in usage in help.
     this._name = this._name || (this._scriptPath && path.basename(this._scriptPath, path.extname(this._scriptPath)));
 
-    // Let's go!
+    return userArgs;
+  }
+
+  /**
+   * Parse `argv`, setting options and invoking commands when defined.
+   *
+   * The default expectation is that the arguments are from node and have the application as argv[0]
+   * and the script being run in argv[1], with user parameters after that.
+   *
+   * @example
+   * program.parse(process.argv);
+   * program.parse(); // implicitly use process.argv and auto-detect node vs electron conventions
+   * program.parse(my-args, { from: 'user' }); // just user supplied arguments, nothing special about argv[0]
+   *
+   * @param {string[]} [argv] - optional, defaults to process.argv
+   * @param {Object} [parseOptions] - optionally specify style of options with from: node/user/electron
+   * @param {string} [parseOptions.from] - where the args are from: 'node', 'user', 'electron'
+   * @return {Command} `this` command for chaining
+   */
+
+  parse(argv, parseOptions) {
+    const userArgs = this._prepareUserArgs(argv, parseOptions);
     this._parseCommand([], userArgs);
 
     return this;
@@ -1883,11 +3801,10 @@ class Command extends EventEmitter {
    * The default expectation is that the arguments are from node and have the application as argv[0]
    * and the script being run in argv[1], with user parameters after that.
    *
-   * Examples:
-   *
-   *      program.parseAsync(process.argv);
-   *      program.parseAsync(); // implicitly use process.argv and auto-detect node vs electron conventions
-   *      program.parseAsync(my-args, { from: 'user' }); // just user supplied arguments, nothing special about argv[0]
+   * @example
+   * await program.parseAsync(process.argv);
+   * await program.parseAsync(); // implicitly use process.argv and auto-detect node vs electron conventions
+   * await program.parseAsync(my-args, { from: 'user' }); // just user supplied arguments, nothing special about argv[0]
    *
    * @param {string[]} [argv]
    * @param {Object} [parseOptions]
@@ -1895,9 +3812,11 @@ class Command extends EventEmitter {
    * @return {Promise}
    */
 
-  parseAsync(argv, parseOptions) {
-    this.parse(argv, parseOptions);
-    return Promise.all(this._actionResults).then(() => this);
+  async parseAsync(argv, parseOptions) {
+    const userArgs = this._prepareUserArgs(argv, parseOptions);
+    await this._parseCommand([], userArgs);
+
+    return this;
   };
 
   /**
@@ -2014,6 +3933,7 @@ class Command extends EventEmitter {
   /**
    * @api private
    */
+
   _dispatchSubcommand(commandName, operands, unknown) {
     const subCommand = this._findCommand(commandName);
     if (!subCommand) this.help({ error: true });
@@ -2021,89 +3941,213 @@ class Command extends EventEmitter {
     if (subCommand._executableHandler) {
       this._executeSubCommand(subCommand, operands.concat(unknown));
     } else {
-      subCommand._parseCommand(operands, unknown);
+      return subCommand._parseCommand(operands, unknown);
     }
   };
 
   /**
+   * Check this.args against expected this._args.
+   *
+   * @api private
+   */
+
+  _checkNumberOfArguments() {
+    // too few
+    this._args.forEach((arg, i) => {
+      if (arg.required && this.args[i] == null) {
+        this.missingArgument(arg.name());
+      }
+    });
+    // too many
+    if (this._args.length > 0 && this._args[this._args.length - 1].variadic) {
+      return;
+    }
+    if (this.args.length > this._args.length) {
+      this._excessArguments(this.args);
+    }
+  };
+
+  /**
+   * Process this.args using this._args and save as this.processedArgs!
+   *
+   * @api private
+   */
+
+  _processArguments() {
+    const myParseArg = (argument, value, previous) => {
+      // Extra processing for nice error message on parsing failure.
+      let parsedValue = value;
+      if (value !== null && argument.parseArg) {
+        try {
+          parsedValue = argument.parseArg(value, previous);
+        } catch (err) {
+          if (err.code === 'commander.invalidArgument') {
+            const message = `error: command-argument value '${value}' is invalid for argument '${argument.name()}'. ${err.message}`;
+            this._displayError(err.exitCode, err.code, message);
+          }
+          throw err;
+        }
+      }
+      return parsedValue;
+    };
+
+    this._checkNumberOfArguments();
+
+    const processedArgs = [];
+    this._args.forEach((declaredArg, index) => {
+      let value = declaredArg.defaultValue;
+      if (declaredArg.variadic) {
+        // Collect together remaining arguments for passing together as an array.
+        if (index < this.args.length) {
+          value = this.args.slice(index);
+          if (declaredArg.parseArg) {
+            value = value.reduce((processed, v) => {
+              return myParseArg(declaredArg, v, processed);
+            }, declaredArg.defaultValue);
+          }
+        } else if (value === undefined) {
+          value = [];
+        }
+      } else if (index < this.args.length) {
+        value = this.args[index];
+        if (declaredArg.parseArg) {
+          value = myParseArg(declaredArg, value, declaredArg.defaultValue);
+        }
+      }
+      processedArgs[index] = value;
+    });
+    this.processedArgs = processedArgs;
+  }
+
+  /**
+   * Once we have a promise we chain, but call synchronously until then.
+   *
+   * @param {Promise|undefined} promise
+   * @param {Function} fn
+   * @return {Promise|undefined}
+   * @api private
+   */
+
+  _chainOrCall(promise, fn) {
+    // thenable
+    if (promise && promise.then && typeof promise.then === 'function') {
+      // already have a promise, chain callback
+      return promise.then(() => fn());
+    }
+    // callback might return a promise
+    return fn();
+  }
+
+  /**
+   *
+   * @param {Promise|undefined} promise
+   * @param {string} event
+   * @return {Promise|undefined}
+   * @api private
+   */
+
+  _chainOrCallHooks(promise, event) {
+    let result = promise;
+    const hooks = [];
+    getCommandAndParents(this)
+      .reverse()
+      .filter(cmd => cmd._lifeCycleHooks[event] !== undefined)
+      .forEach(hookedCommand => {
+        hookedCommand._lifeCycleHooks[event].forEach((callback) => {
+          hooks.push({ hookedCommand, callback });
+        });
+      });
+    if (event === 'postAction') {
+      hooks.reverse();
+    }
+
+    hooks.forEach((hookDetail) => {
+      result = this._chainOrCall(result, () => {
+        return hookDetail.callback(hookDetail.hookedCommand, this);
+      });
+    });
+    return result;
+  }
+
+  /**
    * Process arguments in context of this command.
+   * Returns action result, in case it is a promise.
    *
    * @api private
    */
 
   _parseCommand(operands, unknown) {
     const parsed = this.parseOptions(unknown);
+    this._parseOptionsEnv(); // after cli, so parseArg not called on both cli and env
     operands = operands.concat(parsed.operands);
     unknown = parsed.unknown;
     this.args = operands.concat(unknown);
 
     if (operands && this._findCommand(operands[0])) {
-      this._dispatchSubcommand(operands[0], operands.slice(1), unknown);
-    } else if (this._hasImplicitHelpCommand() && operands[0] === this._helpCommandName) {
+      return this._dispatchSubcommand(operands[0], operands.slice(1), unknown);
+    }
+    if (this._hasImplicitHelpCommand() && operands[0] === this._helpCommandName) {
       if (operands.length === 1) {
         this.help();
-      } else {
-        this._dispatchSubcommand(operands[1], [], [this._helpLongFlag]);
       }
-    } else if (this._defaultCommandName) {
+      return this._dispatchSubcommand(operands[1], [], [this._helpLongFlag]);
+    }
+    if (this._defaultCommandName) {
       outputHelpIfRequested(this, unknown); // Run the help for default command from parent rather than passing to default command
-      this._dispatchSubcommand(this._defaultCommandName, operands, unknown);
-    } else {
-      if (this.commands.length && this.args.length === 0 && !this._actionHandler && !this._defaultCommandName) {
-        // probably missing subcommand and no handler, user needs help
-        this.help({ error: true });
+      return this._dispatchSubcommand(this._defaultCommandName, operands, unknown);
+    }
+    if (this.commands.length && this.args.length === 0 && !this._actionHandler && !this._defaultCommandName) {
+      // probably missing subcommand and no handler, user needs help (and exit)
+      this.help({ error: true });
+    }
+
+    outputHelpIfRequested(this, parsed.unknown);
+    this._checkForMissingMandatoryOptions();
+
+    // We do not always call this check to avoid masking a "better" error, like unknown command.
+    const checkForUnknownOptions = () => {
+      if (parsed.unknown.length > 0) {
+        this.unknownOption(parsed.unknown[0]);
       }
+    };
 
-      outputHelpIfRequested(this, parsed.unknown);
-      this._checkForMissingMandatoryOptions();
+    const commandEvent = `command:${this.name()}`;
+    if (this._actionHandler) {
+      checkForUnknownOptions();
+      this._processArguments();
 
-      // We do not always call this check to avoid masking a "better" error, like unknown command.
-      const checkForUnknownOptions = () => {
-        if (parsed.unknown.length > 0) {
-          this.unknownOption(parsed.unknown[0]);
-        }
-      };
-
-      const commandEvent = `command:${this.name()}`;
-      if (this._actionHandler) {
-        checkForUnknownOptions();
-        // Check expected arguments and collect variadic together.
-        const args = this.args.slice();
-        this._args.forEach((arg, i) => {
-          if (arg.required && args[i] == null) {
-            this.missingArgument(arg.name);
-          } else if (arg.variadic) {
-            args[i] = args.splice(i);
-            args.length = Math.min(i + 1, args.length);
-          }
-        });
-        if (args.length > this._args.length) {
-          this._excessArguments(args);
-        }
-
-        this._actionHandler(args);
-        if (this.parent) this.parent.emit(commandEvent, operands, unknown); // legacy
-      } else if (this.parent && this.parent.listenerCount(commandEvent)) {
-        checkForUnknownOptions();
-        this.parent.emit(commandEvent, operands, unknown); // legacy
-      } else if (operands.length) {
-        if (this._findCommand('*')) { // legacy default command
-          this._dispatchSubcommand('*', operands, unknown);
-        } else if (this.listenerCount('command:*')) {
-          // skip option check, emit event for possible misspelling suggestion
-          this.emit('command:*', operands, unknown);
-        } else if (this.commands.length) {
-          this.unknownCommand();
-        } else {
-          checkForUnknownOptions();
-        }
+      let actionResult;
+      actionResult = this._chainOrCallHooks(actionResult, 'preAction');
+      actionResult = this._chainOrCall(actionResult, () => this._actionHandler(this.processedArgs));
+      if (this.parent) this.parent.emit(commandEvent, operands, unknown); // legacy
+      actionResult = this._chainOrCallHooks(actionResult, 'postAction');
+      return actionResult;
+    }
+    if (this.parent && this.parent.listenerCount(commandEvent)) {
+      checkForUnknownOptions();
+      this._processArguments();
+      this.parent.emit(commandEvent, operands, unknown); // legacy
+    } else if (operands.length) {
+      if (this._findCommand('*')) { // legacy default command
+        return this._dispatchSubcommand('*', operands, unknown);
+      }
+      if (this.listenerCount('command:*')) {
+        // skip option check, emit event for possible misspelling suggestion
+        this.emit('command:*', operands, unknown);
       } else if (this.commands.length) {
-        // This command has subcommands and nothing hooked up at this level, so display help.
-        this.help({ error: true });
+        this.unknownCommand();
       } else {
         checkForUnknownOptions();
-        // fall through for caller to handle after calling .parse()
+        this._processArguments();
       }
+    } else if (this.commands.length) {
+      checkForUnknownOptions();
+      // This command has subcommands and nothing hooked up at this level, so display help (and exit).
+      this.help({ error: true });
+    } else {
+      checkForUnknownOptions();
+      this._processArguments();
+      // fall through for caller to handle after calling .parse()
     }
   };
 
@@ -2140,7 +4184,7 @@ class Command extends EventEmitter {
     // Walk up hierarchy so can call in subcommand after checking for displaying help.
     for (let cmd = this; cmd; cmd = cmd.parent) {
       cmd.options.forEach((anOption) => {
-        if (anOption.mandatory && (cmd._getOptionValue(anOption.attributeName()) === undefined)) {
+        if (anOption.mandatory && (cmd.getOptionValue(anOption.attributeName()) === undefined)) {
           cmd.missingMandatoryOptionValue(anOption);
         }
       });
@@ -2153,11 +4197,11 @@ class Command extends EventEmitter {
    *
    * Examples:
    *
-   *    argv => operands, unknown
-   *    --known kkk op => [op], []
-   *    op --known kkk => [op], []
-   *    sub --unknown uuu op => [sub], [--unknown uuu op]
-   *    sub -- --unknown uuu op => [sub --unknown uuu op], []
+   *     argv => operands, unknown
+   *     --known kkk op => [op], []
+   *     op --known kkk => [op], []
+   *     sub --unknown uuu op => [sub], [--unknown uuu op]
+   *     sub -- --unknown uuu op => [sub --unknown uuu op], []
    *
    * @param {String[]} argv
    * @return {{operands: String[], unknown: String[]}}
@@ -2307,7 +4351,37 @@ class Command extends EventEmitter {
    */
   _displayError(exitCode, code, message) {
     this._outputConfiguration.outputError(`${message}\n`, this._outputConfiguration.writeErr);
+    if (typeof this._showHelpAfterError === 'string') {
+      this._outputConfiguration.writeErr(`${this._showHelpAfterError}\n`);
+    } else if (this._showHelpAfterError) {
+      this._outputConfiguration.writeErr('\n');
+      this.outputHelp({ error: true });
+    }
     this._exit(exitCode, code, message);
+  }
+
+  /**
+   * Apply any option related environment variables, if option does
+   * not have a value from cli or client code.
+   *
+   * @api private
+   */
+  _parseOptionsEnv() {
+    this.options.forEach((option) => {
+      if (option.envVar && option.envVar in process.env) {
+        const optionKey = option.attributeName();
+        // Priority check. Do not overwrite cli or options from unknown source (client-code).
+        if (this.getOptionValue(optionKey) === undefined || ['default', 'config', 'env'].includes(this.getOptionValueSource(optionKey))) {
+          if (option.required || option.optional) { // option can take a value
+            // keep very simple, optional always takes value
+            this.emit(`optionEnv:${option.name()}`, process.env[option.envVar]);
+          } else { // boolean
+            // keep very simple, only care that envVar defined and not the value
+            this.emit(`optionEnv:${option.name()}`);
+          }
+        }
+      }
+    });
   }
 
   /**
@@ -2355,7 +4429,23 @@ class Command extends EventEmitter {
 
   unknownOption(flag) {
     if (this._allowUnknownOption) return;
-    const message = `error: unknown option '${flag}'`;
+    let suggestion = '';
+
+    if (flag.startsWith('--') && this._showSuggestionAfterError) {
+      // Looping to pick up the global options too
+      let candidateFlags = [];
+      let command = this;
+      do {
+        const moreFlags = command.createHelp().visibleOptions(command)
+          .filter(option => option.long)
+          .map(option => option.long);
+        candidateFlags = candidateFlags.concat(moreFlags);
+        command = command.parent;
+      } while (command && !command._enablePositionalOptions);
+      suggestion = suggestSimilar(flag, candidateFlags);
+    }
+
+    const message = `error: unknown option '${flag}'${suggestion}`;
     this._displayError(1, 'commander.unknownOption', message);
   };
 
@@ -2383,13 +4473,20 @@ class Command extends EventEmitter {
    */
 
   unknownCommand() {
-    const partCommands = [this.name()];
-    for (let parentCmd = this.parent; parentCmd; parentCmd = parentCmd.parent) {
-      partCommands.unshift(parentCmd.name());
+    const unknownName = this.args[0];
+    let suggestion = '';
+
+    if (this._showSuggestionAfterError) {
+      const candidateNames = [];
+      this.createHelp().visibleCommands(this).forEach((command) => {
+        candidateNames.push(command.name());
+        // just visible alias
+        if (command.alias()) candidateNames.push(command.alias());
+      });
+      suggestion = suggestSimilar(unknownName, candidateNames);
     }
-    const fullCommand = partCommands.join(' ');
-    const message = `error: unknown command '${this.args[0]}'.` +
-      (this._hasHelpOption ? ` See '${fullCommand} ${this._helpLongFlag}'.` : '');
+
+    const message = `error: unknown command '${unknownName}'${suggestion}`;
     this._displayError(1, 'commander.unknownCommand', message);
   };
 
@@ -2432,7 +4529,9 @@ class Command extends EventEmitter {
   description(str, argsDescription) {
     if (str === undefined && argsDescription === undefined) return this._description;
     this._description = str;
-    this._argsDescription = argsDescription;
+    if (argsDescription) {
+      this._argsDescription = argsDescription;
+    }
     return this;
   };
 
@@ -2448,6 +4547,7 @@ class Command extends EventEmitter {
   alias(alias) {
     if (alias === undefined) return this._aliases[0]; // just return first, for backwards compatibility
 
+    /** @type {Command} */
     let command = this;
     if (this.commands.length !== 0 && this.commands[this.commands.length - 1]._executableHandler) {
       // assume adding alias for last added executable subcommand, rather than this
@@ -2564,14 +4664,7 @@ class Command extends EventEmitter {
     }
     const context = this._getHelpContext(contextOptions);
 
-    const groupListeners = [];
-    let command = this;
-    while (command) {
-      groupListeners.push(command); // ordered from current command to root
-      command = command.parent;
-    }
-
-    groupListeners.slice().reverse().forEach(command => command.emit('beforeAllHelp', context));
+    getCommandAndParents(this).reverse().forEach(command => command.emit('beforeAllHelp', context));
     this.emit('beforeHelp', context);
 
     let helpInformation = this.helpInformation(context);
@@ -2585,7 +4678,7 @@ class Command extends EventEmitter {
 
     this.emit(this._helpLongFlag); // deprecated
     this.emit('afterHelp', context);
-    groupListeners.forEach(command => command.emit('afterAllHelp', context));
+    getCommandAndParents(this).forEach(command => command.emit('afterAllHelp', context));
   };
 
   /**
@@ -2606,7 +4699,7 @@ class Command extends EventEmitter {
     this._helpFlags = flags || this._helpFlags;
     this._helpDescription = description || this._helpDescription;
 
-    const helpFlags = _parseOptionFlags(this._helpFlags);
+    const helpFlags = splitOptionFlags(this._helpFlags);
     this._helpShortFlag = helpFlags.shortFlag;
     this._helpLongFlag = helpFlags.longFlag;
 
@@ -2664,37 +4757,6 @@ Expecting one of '${allowedValues.join("', '")}'`);
   }
 }
 /**
- * Expose the root command.
- */
-
-exports = module.exports = new Command();
-exports.program = exports; // More explicit access to global command.
-
-/**
- * Expose classes
- */
-
-exports.Command = Command;
-exports.Option = Option;
-exports.CommanderError = CommanderError;
-exports.InvalidOptionArgumentError = InvalidOptionArgumentError;
-exports.Help = Help;
-
-/**
- * Camel-case the given `flag`
- *
- * @param {string} flag
- * @return {string}
- * @api private
- */
-
-function camelcase(flag) {
-  return flag.split('-').reduce((str, word) => {
-    return str + word[0].toUpperCase() + word.slice(1);
-  });
-}
-
-/**
  * Output help information if help flags specified
  *
  * @param {Command} cmd - command to output help for
@@ -2709,44 +4771,6 @@ function outputHelpIfRequested(cmd, args) {
     // (Do not have all displayed text available so only passing placeholder.)
     cmd._exit(0, 'commander.helpDisplayed', '(outputHelp)');
   }
-}
-
-/**
- * Takes an argument and returns its human readable equivalent for help usage.
- *
- * @param {Object} arg
- * @return {string}
- * @api private
- */
-
-function humanReadableArgName(arg) {
-  const nameOutput = arg.name + (arg.variadic === true ? '...' : '');
-
-  return arg.required
-    ? '<' + nameOutput + '>'
-    : '[' + nameOutput + ']';
-}
-
-/**
- * Parse the short and long flag out of something like '-m,--mixed <value>'
- *
- * @api private
- */
-
-function _parseOptionFlags(flags) {
-  let shortFlag;
-  let longFlag;
-  // Use original very loose parsing to maintain backwards compatibility for now,
-  // which allowed for example unintended `-sw, --short-word` [sic].
-  const flagParts = flags.split(/[ |,]+/);
-  if (flagParts.length > 1 && !/^[[<]/.test(flagParts[1])) shortFlag = flagParts.shift();
-  longFlag = flagParts.shift();
-  // Add support for lone short flag without significantly changing parsing!
-  if (!shortFlag && /^-[^-]$/.test(longFlag)) {
-    shortFlag = longFlag;
-    longFlag = undefined;
-  }
-  return { shortFlag, longFlag };
 }
 
 /**
@@ -2795,6 +4819,51 @@ function incrementNodeInspectorPort(args) {
     return arg;
   });
 }
+
+/**
+ * @param {Command} startCommand
+ * @returns {Command[]}
+ * @api private
+ */
+
+function getCommandAndParents(startCommand) {
+  const result = [];
+  for (let command = startCommand; command; command = command.parent) {
+    result.push(command);
+  }
+  return result;
+}
+
+command.Command = Command;
+
+(function (module, exports) {
+const { Argument } = argument;
+const { Command } = command;
+const { CommanderError, InvalidArgumentError } = error;
+const { Help } = help;
+const { Option } = option;
+
+// @ts-check
+
+/**
+ * Expose the root command.
+ */
+
+exports = module.exports = new Command();
+exports.program = exports; // More explicit access to global command.
+// Implicit export of createArgument, createCommand, and createOption.
+
+/**
+ * Expose classes
+ */
+
+exports.Argument = Argument;
+exports.Command = Command;
+exports.CommanderError = CommanderError;
+exports.Help = Help;
+exports.InvalidArgumentError = InvalidArgumentError;
+exports.InvalidOptionArgumentError = InvalidArgumentError; // Deprecated
+exports.Option = Option;
 }(commander, commander.exports));
 
 var program = commander.exports;
@@ -9457,8 +11526,8 @@ dist.YAML = YAML;
 var yaml = dist.YAML;
 
 function getLongestString(input) {
-    var map = input.map(function (x) { return x.length; });
-    var max = map.indexOf(Math.max.apply(Math, map));
+    const map = input.map(x => x.length);
+    const max = map.indexOf(Math.max(...map));
     return input[max];
 }
 /**
@@ -9467,8 +11536,8 @@ function getLongestString(input) {
  * @returns
  */
 function toDotEnv(input) {
-    return Object.keys(input).map(function (key) {
-        return "".concat(key, "='").concat(input[key], "'");
+    return Object.keys(input).map((key) => {
+        return `${key}='${input[key]}'`;
     }).join('\n');
 }
 /**
@@ -9476,14 +11545,13 @@ function toDotEnv(input) {
  * @param input
  * @returns
  */
-function toPHP(input, prettyPrint) {
-    if (prettyPrint === void 0) { prettyPrint = true; }
-    var maxLength = getLongestString(Object.keys(input)).length;
-    return Object.keys(input).map(function (key) {
-        var whitespace = prettyPrint
+function toPHP(input, prettyPrint = true) {
+    const maxLength = getLongestString(Object.keys(input)).length;
+    return Object.keys(input).map((key) => {
+        const whitespace = prettyPrint
             ? ' '.repeat(maxLength - key.length)
             : '';
-        return "define('".concat(key, "', ").concat(whitespace, "'").concat(input[key], "');");
+        return `define('${key}', ${whitespace}'${input[key]}');`;
     }).join('\n');
 }
 /**
@@ -15939,7 +18007,7 @@ if (typeof window !== "undefined") {
 var window_1 = win;
 
 var window$1 = window_1;
-var nodeCrypto = require$$1__default$1["default"];
+var nodeCrypto = require$$1$2;
 
 function getRandomValues(buf) {
   if (window$1.crypto && window$1.crypto.getRandomValues) {
@@ -16080,12 +18148,12 @@ program
     .option('-s, --sort', 'sort keys alphabetically')
     .option('-u, --ugly', 'don\'t align JSON or PHP output')
     .parse(process.argv);
-var options = program.opts();
+const options = program.opts();
 if (options.indent && options.ugly) {
     console.error(logSymbols.error, 'You cannot combine the indent and ugly flags\n');
     process.exit();
 }
-var indentation;
+let indentation;
 Object.freeze(program);
 if (options.indent && !isNaN(options.indent)) {
     indentation = options.indent;
@@ -16096,10 +18164,10 @@ else if (!options.indent && options.ugly) {
 else {
     indentation = 2;
 }
-var saltLength = (options.length)
+const saltLength = (options.length)
     ? options.length
     : 64;
-var salts = program.args.length
+let salts = program.args.length
     ? wpSalts(program.args, saltLength)
     : wpSalts('', saltLength);
 if (options.sort) {
@@ -16120,19 +18188,19 @@ else if (options.php) {
     console.log(toPHP(salts, !options.ugly));
 }
 else {
-    var data_1 = [
-        [chalk.bold('Key'), chalk.bold('Salt')]
+    const data = [
+        [source.bold('Key'), source.bold('Salt')]
     ];
-    Object.keys(salts).forEach(function (key) {
-        data_1.push([key, salts[key]]);
+    Object.keys(salts).forEach((key) => {
+        data.push([key, salts[key]]);
     });
-    var output = src.table(data_1, { border: src.getBorderCharacters('norc') });
+    const output = src.table(data, { border: src.getBorderCharacters('norc') });
     console.log(output);
 }
 lineBreak(options);
 // Helpers
 function lineBreak(p) {
-    if (p["break"] && (p.json || p.yaml || p.dotenv || p.php)) {
+    if (p.break && (p.json || p.yaml || p.dotenv || p.php)) {
         console.log();
     }
 }

@@ -1,9 +1,11 @@
 // Dependencies
 import test from 'ava';
-import execa from 'execa';
-import { resolve } from 'path';
+import { execa } from 'execa';
+import { dirname, resolve } from 'node:path';
 
-const CLI_SCRIPT =  resolve(__dirname, '..', 'bin', 'cli.js')
+const __dirname = resolve(dirname(''));
+
+const CLI_SCRIPT =  resolve(__dirname, 'bin/cli.mjs')
 const WORDPRESS_KEYS = [
   'AUTH_KEY',
   'AUTH_SALT',
