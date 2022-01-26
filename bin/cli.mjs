@@ -4,7 +4,7 @@ import require$$0$1 from 'events';
 import require$$1$1 from 'child_process';
 import require$$2 from 'path';
 import require$$3 from 'fs';
-import require$$1$2 from 'crypto';
+import { wpSalts } from 'wp-salts';
 
 var name = "wp-salts-cli";
 var version = "1.3.4";
@@ -99,7 +99,7 @@ var pkg = {
 }
 };
 
-var commonjsGlobal$1 = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
+var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
 var ansiStyles$2 = {exports: {}};
 
@@ -11914,7 +11914,7 @@ const getBorderCharacters = (name) => {
 getBorderCharacters$1.getBorderCharacters = getBorderCharacters;
 
 (function (exports) {
-var __importDefault = (commonjsGlobal$1 && commonjsGlobal$1.__importDefault) || function (mod) {
+var __importDefault = (commonjsGlobal && commonjsGlobal.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -12058,7 +12058,7 @@ exports.isCellInRange = isCellInRange;
 
 }(utils));
 
-var __importDefault$3 = (commonjsGlobal$1 && commonjsGlobal$1.__importDefault) || function (mod) {
+var __importDefault$3 = (commonjsGlobal && commonjsGlobal.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(alignString$1, "__esModule", { value: true });
@@ -12144,7 +12144,7 @@ var wrapCell$1 = {};
 
 var wrapString$1 = {};
 
-var __importDefault$2 = (commonjsGlobal$1 && commonjsGlobal$1.__importDefault) || function (mod) {
+var __importDefault$2 = (commonjsGlobal && commonjsGlobal.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(wrapString$1, "__esModule", { value: true });
@@ -12172,7 +12172,7 @@ wrapString$1.wrapString = wrapString;
 
 var wrapWord$1 = {};
 
-var __importDefault$1 = (commonjsGlobal$1 && commonjsGlobal$1.__importDefault) || function (mod) {
+var __importDefault$1 = (commonjsGlobal && commonjsGlobal.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(wrapWord$1, "__esModule", { value: true });
@@ -15262,7 +15262,7 @@ function validate86(data, { instancePath = "", parentData, parentDataProperty, r
 
 }(validators));
 
-var __importDefault = (commonjsGlobal$1 && commonjsGlobal$1.__importDefault) || function (mod) {
+var __importDefault = (commonjsGlobal && commonjsGlobal.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(validateConfig$1, "__esModule", { value: true });
@@ -15502,7 +15502,7 @@ var reHasUnicode = RegExp('[' + rsZWJ + rsAstralRange  + rsComboMarksRange + rsC
 var freeParseInt = parseInt;
 
 /** Detect free variable `global` from Node.js. */
-var freeGlobal = typeof commonjsGlobal$1 == 'object' && commonjsGlobal$1 && commonjsGlobal$1.Object === Object && commonjsGlobal$1;
+var freeGlobal = typeof commonjsGlobal == 'object' && commonjsGlobal && commonjsGlobal.Object === Object && commonjsGlobal;
 
 /** Detect free variable `self`. */
 var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
@@ -16067,7 +16067,7 @@ module.exports = truncate;
 }(lodash_truncate, lodash_truncate.exports));
 
 (function (exports) {
-var __importDefault = (commonjsGlobal$1 && commonjsGlobal$1.__importDefault) || function (mod) {
+var __importDefault = (commonjsGlobal && commonjsGlobal.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -16245,7 +16245,7 @@ var makeTableConfig$1 = {};
 var calculateMaximumColumnWidths = {};
 
 (function (exports) {
-var __importDefault = (commonjsGlobal$1 && commonjsGlobal$1.__importDefault) || function (mod) {
+var __importDefault = (commonjsGlobal && commonjsGlobal.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -16636,14 +16636,14 @@ var api = {};
 Object.defineProperty(api, "__esModule", { value: true });
 
 (function (exports) {
-var __createBinding = (commonjsGlobal$1 && commonjsGlobal$1.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+var __createBinding = (commonjsGlobal && commonjsGlobal.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
 }));
-var __exportStar = (commonjsGlobal$1 && commonjsGlobal$1.__exportStar) || function(m, exports) {
+var __exportStar = (commonjsGlobal && commonjsGlobal.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -16657,148 +16657,6 @@ Object.defineProperty(exports, "table", { enumerable: true, get: function () { r
 __exportStar(api, exports);
 
 }(src));
-
-var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
-
-var win;
-
-if (typeof window !== "undefined") {
-    win = window;
-} else if (typeof commonjsGlobal !== "undefined") {
-    win = commonjsGlobal;
-} else if (typeof self !== "undefined"){
-    win = self;
-} else {
-    win = {};
-}
-
-var window_1 = win;
-
-var window$1 = window_1;
-var nodeCrypto = require$$1$2;
-
-function getRandomValues(buf) {
-  if (window$1.crypto && window$1.crypto.getRandomValues) {
-    return window$1.crypto.getRandomValues(buf);
-  }
-  if (typeof window$1.msCrypto === 'object' && typeof window$1.msCrypto.getRandomValues === 'function') {
-    return window$1.msCrypto.getRandomValues(buf);
-  }
-  if (nodeCrypto.randomBytes) {
-    if (!(buf instanceof Uint8Array)) {
-      throw new TypeError('expected Uint8Array');
-    }
-    if (buf.length > 65536) {
-      var e = new Error();
-      e.code = 22;
-      e.message = 'Failed to execute \'getRandomValues\' on \'Crypto\': The ' +
-        'ArrayBufferView\'s byte length (' + buf.length + ') exceeds the ' +
-        'number of bytes of entropy available via this API (65536).';
-      e.name = 'QuotaExceededError';
-      throw e;
-    }
-    var bytes = nodeCrypto.randomBytes(buf.length);
-    buf.set(bytes);
-    return buf;
-  }
-  else {
-    throw new Error('No secure random number generator available.');
-  }
-}
-
-var getRandomValues_1 = getRandomValues;
-
-var MINIMUM_KEY_LENGTH$1 = 64;
-/**
- * Generate random number
- * @param min - lowest value
- * @param max - highest value
- * @returns - random number
- *
- * @see https://github.com/EFForg/OpenWireless/blob/0e0bd06277f7178f840c36a9b799c7659870fa57/app/js/diceware.js#L59
- */
-function getRandom(min, max) {
-    var randomValue = 0;
-    var range = max - min;
-    var bitsNeeded = Math.ceil(Math.log2(range));
-    if (bitsNeeded > 53) {
-        throw new RangeError('Cannot generate numbers larger than 53 bits.');
-    }
-    var bytesNeeded = Math.ceil(bitsNeeded / 8);
-    var mask = Math.pow(2, bitsNeeded) - 1;
-    var byteArray = new Uint8Array(bytesNeeded);
-    getRandomValues_1(byteArray);
-    var p = (bytesNeeded - 1) * 8;
-    for (var i = 0; i < bytesNeeded; i++) {
-        randomValue += byteArray[i] * Math.pow(2, p);
-        p -= 8;
-    }
-    randomValue = randomValue & mask;
-    return randomValue >= range ? getRandom(min, max) : min + randomValue;
-}
-/**
- * Get random character
- * @returns - random character
- *
- * @see https://roots.io/salts.html
- */
-function getRandomChar() {
-    var minCharacter = 33;
-    var maxCharacter = 126;
-    var character = String.fromCharCode(getRandom(minCharacter, maxCharacter));
-    if (['\'', '"', '\\'].some(function (badCharacter) {
-        return character === badCharacter;
-    })) {
-        return getRandomChar();
-    }
-    return character;
-}
-/**
- * Generate a salt
- * @param length - length of the salt, defaults to 64
- * @returns - string
- *
- * @see https://roots.io/salts.html
- */
-function generateSalt(saltLength) {
-    if (saltLength === void 0) { saltLength = MINIMUM_KEY_LENGTH$1; }
-    return Array.apply(void 0, Array(saltLength)).map(getRandomChar)
-        .join('');
-}
-
-var WORDPRESS_KEYS = [
-    'AUTH_KEY',
-    'SECURE_AUTH_KEY',
-    'LOGGED_IN_KEY',
-    'NONCE_KEY',
-    'AUTH_SALT',
-    'SECURE_AUTH_SALT',
-    'LOGGED_IN_SALT',
-    'NONCE_SALT',
-];
-var MINIMUM_KEY_LENGTH = 64;
-/**
- * Returns object of default WordPress salts or any string/array of strings
- * @param length - length of the salt, defaults to 64
- * @returns - object of salts
- */
-var wpSalts = function (keys, saltLength) {
-    if (keys === void 0) { keys = ''; }
-    if (saltLength === void 0) { saltLength = 64; }
-    var output = {};
-    if (typeof keys === 'string') {
-        keys = (keys.length > 0) ? [keys] : WORDPRESS_KEYS;
-    }
-    else if (typeof keys === 'object') {
-        keys = (keys !== null && keys.length > 0) ? keys : WORDPRESS_KEYS;
-    }
-    else {
-        keys = WORDPRESS_KEYS;
-    }
-    saltLength = (saltLength < MINIMUM_KEY_LENGTH) ? MINIMUM_KEY_LENGTH : saltLength;
-    keys.map(function (key) { return output[key] = generateSalt(saltLength); });
-    return output;
-};
 
 // Action
 commander.exports.program
