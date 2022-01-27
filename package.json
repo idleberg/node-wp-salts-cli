@@ -1,6 +1,6 @@
 {
   "name": "wp-salts-cli",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Generate WordPress salts right in your shell, even when offline. Supports plain-text output as well as DotEnv, PHP, JSON, or YAML.",
   "scripts": {
     "build": "rollup --config",
