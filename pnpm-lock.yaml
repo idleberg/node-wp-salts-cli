@@ -19,6 +19,7 @@ specifiers:
   log-symbols: ^5.1.0
   np: ^7.2.0
   npm-run-all: ^4.1.5
+  pinst: ^2.1.6
   prettier: ^2.2.1
   remark-cli: ^10.0.1
   remark-preset-lint-recommended: ^6.1.2
@@ -29,6 +30,7 @@ specifiers:
   tslib: ^2.1.0
   typescript: ^4.1.3
   wp-salts: ^2.0.1
+  wp-salts-cli: ^2.0.0
   yaml: ^1.10.0
 
 dependencies:
@@ -38,6 +40,7 @@ dependencies:
   sort-keys: 5.0.0
   table: 6.8.0
   wp-salts: 2.0.1
+  wp-salts-cli: 2.0.0
   yaml: 1.10.2
 
 devDependencies:
@@ -56,6 +59,7 @@ devDependencies:
   lint-staged: 12.3.2
   np: 7.6.0
   npm-run-all: 4.1.5
+  pinst: 2.1.6
   prettier: 2.5.1
   remark-cli: 10.0.1
   remark-preset-lint-recommended: 6.1.2
@@ -1758,6 +1762,10 @@ packages:
   /format/0.2.2:
     resolution: {integrity: sha1-1hcBB+nv3E7TDJ3DkBbflCtctYs=}
     engines: {node: '>=0.4.x'}
+    dev: true
+
+  /fromentries/1.3.2:
+    resolution: {integrity: sha512-cHEpEQHUg0f8XdtZCc2ZAhrHzKzT0MrFUTcvx+hfxYu7rGMDc5SKoXFh+n4YigxsHXRzc6OrCshdR1bWH6HHyg==}
     dev: true
 
   /fs.realpath/1.0.0:
@@ -3765,6 +3773,14 @@ packages:
     engines: {node: '>=4'}
     dev: true
 
+  /pinst/2.1.6:
+    resolution: {integrity: sha512-B4dYmf6nEXg1NpDSB+orYWvKa5Kfmz5KzWC29U59dpVM4S/+xp0ak/JMEsw04UQTNNKps7klu0BUalr343Gt9g==}
+    engines: {node: '>=10.0.0'}
+    hasBin: true
+    dependencies:
+      fromentries: 1.3.2
+    dev: true
+
   /pkg-conf/4.0.0:
     resolution: {integrity: sha512-7dmgi4UY4qk+4mj5Cd8v/GExPo0K+SlY+hulOSdfZ/T6jVH6//y7NtzZo5WrfhDBxuQ0jCa7fLZmNaNh7EWL/w==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
@@ -5518,6 +5534,20 @@ packages:
     resolution: {integrity: sha512-Hz/mrNwitNRh/HUAtM/VT/5VH+ygD6DV7mYKZAtHOrbs8U7lvPS6xf7EJKMF0uW1KJCl0H701g3ZGus+muE5vQ==}
     engines: {node: '>=0.10.0'}
     dev: true
+
+  /wp-salts-cli/2.0.0:
+    resolution: {integrity: sha512-vVAx9zRGQiCRQSEdE/7qpOLyfyClHtaFchajahpjSZCjlwn4+uoYmQBLMRNpYcqd8GgG1AiX3Q3q/R1EtHsEUg==}
+    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
+    hasBin: true
+    dependencies:
+      chalk: 4.1.2
+      commander: 8.3.0
+      log-symbols: 5.1.0
+      sort-keys: 5.0.0
+      table: 6.8.0
+      wp-salts: 2.0.1
+      yaml: 1.10.2
+    dev: false
 
   /wp-salts/2.0.1:
     resolution: {integrity: sha512-gDg+eSeH6H2f6FIAzkn9rSAWcDpyz0jOyqvCCJwePIggzEthxDnVd/8vSQDMSOAE5JMH5QGXDKy4RT3X4KLATA==}
