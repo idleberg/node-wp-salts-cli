@@ -21,7 +21,7 @@
     "README.md"
   ],
   "bin": {
-    "wp-salts": "bin/cli.mjs"
+    "wp-salts": "./index.js"
   },
   "type": "module",
   "typings": "types/",
@@ -46,6 +46,7 @@
     "sort-keys": "^5.0.0",
     "table": "^6.0.7",
     "wp-salts": "^2.0.1",
+    "wp-salts-cli": "^2.0.0",
     "yaml": "^1.10.0"
   },
   "devDependencies": {
