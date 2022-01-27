@@ -7,7 +7,7 @@ import require$$3 from 'fs';
 import require$$1$2 from 'crypto';
 
 var name = "wp-salts-cli";
-var version = "2.0.0";
+var version = "2.0.1";
 var description = "Generate WordPress salts right in your shell, even when offline. Supports plain-text output as well as DotEnv, PHP, JSON, or YAML.";
 var scripts = {
 	build: "rollup --config",
@@ -19,8 +19,7 @@ var scripts = {
 	lint: "npm-run-all --parallel lint:*",
 	start: "rollup --watch --config",
 	publish: "np --no-yarn",
-	test: "ava ./test/*.mjs --verbose",
-	prepare: "husky install"
+	test: "ava ./test/*.mjs --verbose"
 };
 var files = [
 	"bin/",
