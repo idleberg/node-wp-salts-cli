@@ -20,7 +20,7 @@
     "README.md"
   ],
   "bin": {
-    "wp-salts": "./index.js"
+    "wp-salts": "./index.mjs"
   },
   "type": "module",
   "typings": "types/",
