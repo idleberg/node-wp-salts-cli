@@ -1,4 +1,4 @@
-import { stringify as yamlStringify } from 'YAML';
+import { stringify as yamlStringify } from 'yaml';
 
 function getLongestString(input: string[]): string {
   const map = input.map(x => x.length);
