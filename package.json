@@ -16,7 +16,9 @@
     "prepare": "husky install"
   },
   "files": [
-    "bin/"
+    "bin/",
+    "LICENSE",
+    "README.md"
   ],
   "bin": {
     "wp-salts": "bin/cli.mjs"
