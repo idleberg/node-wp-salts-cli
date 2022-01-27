@@ -1,17 +1,18 @@
-import pkg from '../package.json';
-
 // Dependencies
-import chalk from 'chalk';
-import logSymbols from 'log-symbols';
 import { program } from 'commander';
-import sortKeys from 'sort-keys';
-import * as formatters from './formatters';
 import { table, getBorderCharacters } from 'table';
 import { wpSalts } from 'wp-salts';
+import * as formatters from './formatters';
+import chalk from 'chalk';
+import logSymbols from 'log-symbols';
+import sortKeys from 'sort-keys';
+import { promises as fs } from 'node:fs';
+
+const { version } = JSON.parse(await fs.readFile('./package.json', 'utf8'));
 
 // Action
 program
-  .version(pkg.version)
+  .version(version)
   .description('CLI tool to generate WordPress salts in various formats')
   .arguments('[options]')
   .usage('[options]')

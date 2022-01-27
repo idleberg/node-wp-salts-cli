@@ -1,1995 +1,13 @@
-import require$$0 from 'os';
-import require$$1 from 'tty';
-import require$$0$1 from 'events';
-import require$$1$1 from 'child_process';
+import require$$0 from 'events';
+import require$$1 from 'child_process';
 import require$$2 from 'path';
 import require$$3 from 'fs';
-import require$$1$2 from 'crypto';
-
-var name = "wp-salts-cli";
-var version = "2.0.1";
-var description = "Generate WordPress salts right in your shell, even when offline. Supports plain-text output as well as DotEnv, PHP, JSON, or YAML.";
-var scripts = {
-	build: "rollup --config",
-	dev: "npm run start",
-	fix: "eslint --fix ./src",
-	"lint:json": "eslint ./*.json --ignore-path .gitignore",
-	"lint:md": "remark . --quiet --frail --ignore-path .gitignore",
-	"lint:ts": "eslint ./src --ignore-path .gitignore",
-	lint: "npm-run-all --parallel lint:*",
-	start: "rollup --watch --config",
-	publish: "np --no-yarn",
-	test: "ava ./test/*.mjs --verbose"
-};
-var files = [
-	"bin/",
-	"LICENSE",
-	"README.md"
-];
-var bin = {
-	"wp-salts": "./index.js"
-};
-var type = "module";
-var typings = "types/";
-var engines = {
-	node: "^12.20.0 || ^14.13.1 || >=16.0.0"
-};
-var repository = {
-	type: "git",
-	url: "https://github.com/idleberg/node-wp-salts-cli.git"
-};
-var keywords = [
-	"wordpress",
-	"salts",
-	"wordpress-salts"
-];
-var author = "";
-var license = "MIT";
-var dependencies = {
-	chalk: "^4.1.2",
-	commander: "^8.3.0",
-	"log-symbols": "^5.1.0",
-	"sort-keys": "^5.0.0",
-	table: "^6.0.7",
-	"wp-salts": "^2.0.1",
-	"wp-salts-cli": "^2.0.0",
-	yaml: "^1.10.0"
-};
-var devDependencies = {
-	"@rollup/plugin-commonjs": "^21.0.1",
-	"@rollup/plugin-json": "^4.1.0",
-	"@rollup/plugin-node-resolve": "13.1.3",
-	"@rollup/plugin-typescript": "^8.1.0",
-	"@types/node": "^16.0.0",
-	"@typescript-eslint/eslint-plugin": "^5.10.1",
-	"@typescript-eslint/parser": "^5.10.1",
-	ava: "^4.0.1",
-	eslint: "^8.7.0",
-	"eslint-plugin-json": "^3.1.0",
-	execa: "^6.0.0",
-	husky: "^7.0.0",
-	"lint-staged": "^12.3.2",
-	np: "^7.2.0",
-	"npm-run-all": "^4.1.5",
-	prettier: "^2.2.1",
-	"remark-cli": "^10.0.1",
-	"remark-preset-lint-recommended": "^6.1.2",
-	"remark-preset-prettier": "^1.0.0",
-	rollup: "^2.38.0",
-	tslib: "^2.1.0",
-	typescript: "^4.1.3"
-};
-var pkg = {
-	name: name,
-	version: version,
-	description: description,
-	scripts: scripts,
-	files: files,
-	bin: bin,
-	type: type,
-	typings: typings,
-	engines: engines,
-	repository: repository,
-	keywords: keywords,
-	author: author,
-	license: license,
-	dependencies: dependencies,
-	devDependencies: devDependencies,
-	"lint-staged": {
-	"*.(json|ts)": "eslint --cache --fix",
-	"*.md": "prettier --write"
-}
-};
+import require$$1$1 from 'crypto';
+import require$$0$1 from 'os';
+import require$$1$2 from 'tty';
+import { promises } from 'node:fs';
 
 var commonjsGlobal$1 = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
-
-var ansiStyles$3 = {exports: {}};
-
-var colorName$1 = {
-	"aliceblue": [240, 248, 255],
-	"antiquewhite": [250, 235, 215],
-	"aqua": [0, 255, 255],
-	"aquamarine": [127, 255, 212],
-	"azure": [240, 255, 255],
-	"beige": [245, 245, 220],
-	"bisque": [255, 228, 196],
-	"black": [0, 0, 0],
-	"blanchedalmond": [255, 235, 205],
-	"blue": [0, 0, 255],
-	"blueviolet": [138, 43, 226],
-	"brown": [165, 42, 42],
-	"burlywood": [222, 184, 135],
-	"cadetblue": [95, 158, 160],
-	"chartreuse": [127, 255, 0],
-	"chocolate": [210, 105, 30],
-	"coral": [255, 127, 80],
-	"cornflowerblue": [100, 149, 237],
-	"cornsilk": [255, 248, 220],
-	"crimson": [220, 20, 60],
-	"cyan": [0, 255, 255],
-	"darkblue": [0, 0, 139],
-	"darkcyan": [0, 139, 139],
-	"darkgoldenrod": [184, 134, 11],
-	"darkgray": [169, 169, 169],
-	"darkgreen": [0, 100, 0],
-	"darkgrey": [169, 169, 169],
-	"darkkhaki": [189, 183, 107],
-	"darkmagenta": [139, 0, 139],
-	"darkolivegreen": [85, 107, 47],
-	"darkorange": [255, 140, 0],
-	"darkorchid": [153, 50, 204],
-	"darkred": [139, 0, 0],
-	"darksalmon": [233, 150, 122],
-	"darkseagreen": [143, 188, 143],
-	"darkslateblue": [72, 61, 139],
-	"darkslategray": [47, 79, 79],
-	"darkslategrey": [47, 79, 79],
-	"darkturquoise": [0, 206, 209],
-	"darkviolet": [148, 0, 211],
-	"deeppink": [255, 20, 147],
-	"deepskyblue": [0, 191, 255],
-	"dimgray": [105, 105, 105],
-	"dimgrey": [105, 105, 105],
-	"dodgerblue": [30, 144, 255],
-	"firebrick": [178, 34, 34],
-	"floralwhite": [255, 250, 240],
-	"forestgreen": [34, 139, 34],
-	"fuchsia": [255, 0, 255],
-	"gainsboro": [220, 220, 220],
-	"ghostwhite": [248, 248, 255],
-	"gold": [255, 215, 0],
-	"goldenrod": [218, 165, 32],
-	"gray": [128, 128, 128],
-	"green": [0, 128, 0],
-	"greenyellow": [173, 255, 47],
-	"grey": [128, 128, 128],
-	"honeydew": [240, 255, 240],
-	"hotpink": [255, 105, 180],
-	"indianred": [205, 92, 92],
-	"indigo": [75, 0, 130],
-	"ivory": [255, 255, 240],
-	"khaki": [240, 230, 140],
-	"lavender": [230, 230, 250],
-	"lavenderblush": [255, 240, 245],
-	"lawngreen": [124, 252, 0],
-	"lemonchiffon": [255, 250, 205],
-	"lightblue": [173, 216, 230],
-	"lightcoral": [240, 128, 128],
-	"lightcyan": [224, 255, 255],
-	"lightgoldenrodyellow": [250, 250, 210],
-	"lightgray": [211, 211, 211],
-	"lightgreen": [144, 238, 144],
-	"lightgrey": [211, 211, 211],
-	"lightpink": [255, 182, 193],
-	"lightsalmon": [255, 160, 122],
-	"lightseagreen": [32, 178, 170],
-	"lightskyblue": [135, 206, 250],
-	"lightslategray": [119, 136, 153],
-	"lightslategrey": [119, 136, 153],
-	"lightsteelblue": [176, 196, 222],
-	"lightyellow": [255, 255, 224],
-	"lime": [0, 255, 0],
-	"limegreen": [50, 205, 50],
-	"linen": [250, 240, 230],
-	"magenta": [255, 0, 255],
-	"maroon": [128, 0, 0],
-	"mediumaquamarine": [102, 205, 170],
-	"mediumblue": [0, 0, 205],
-	"mediumorchid": [186, 85, 211],
-	"mediumpurple": [147, 112, 219],
-	"mediumseagreen": [60, 179, 113],
-	"mediumslateblue": [123, 104, 238],
-	"mediumspringgreen": [0, 250, 154],
-	"mediumturquoise": [72, 209, 204],
-	"mediumvioletred": [199, 21, 133],
-	"midnightblue": [25, 25, 112],
-	"mintcream": [245, 255, 250],
-	"mistyrose": [255, 228, 225],
-	"moccasin": [255, 228, 181],
-	"navajowhite": [255, 222, 173],
-	"navy": [0, 0, 128],
-	"oldlace": [253, 245, 230],
-	"olive": [128, 128, 0],
-	"olivedrab": [107, 142, 35],
-	"orange": [255, 165, 0],
-	"orangered": [255, 69, 0],
-	"orchid": [218, 112, 214],
-	"palegoldenrod": [238, 232, 170],
-	"palegreen": [152, 251, 152],
-	"paleturquoise": [175, 238, 238],
-	"palevioletred": [219, 112, 147],
-	"papayawhip": [255, 239, 213],
-	"peachpuff": [255, 218, 185],
-	"peru": [205, 133, 63],
-	"pink": [255, 192, 203],
-	"plum": [221, 160, 221],
-	"powderblue": [176, 224, 230],
-	"purple": [128, 0, 128],
-	"rebeccapurple": [102, 51, 153],
-	"red": [255, 0, 0],
-	"rosybrown": [188, 143, 143],
-	"royalblue": [65, 105, 225],
-	"saddlebrown": [139, 69, 19],
-	"salmon": [250, 128, 114],
-	"sandybrown": [244, 164, 96],
-	"seagreen": [46, 139, 87],
-	"seashell": [255, 245, 238],
-	"sienna": [160, 82, 45],
-	"silver": [192, 192, 192],
-	"skyblue": [135, 206, 235],
-	"slateblue": [106, 90, 205],
-	"slategray": [112, 128, 144],
-	"slategrey": [112, 128, 144],
-	"snow": [255, 250, 250],
-	"springgreen": [0, 255, 127],
-	"steelblue": [70, 130, 180],
-	"tan": [210, 180, 140],
-	"teal": [0, 128, 128],
-	"thistle": [216, 191, 216],
-	"tomato": [255, 99, 71],
-	"turquoise": [64, 224, 208],
-	"violet": [238, 130, 238],
-	"wheat": [245, 222, 179],
-	"white": [255, 255, 255],
-	"whitesmoke": [245, 245, 245],
-	"yellow": [255, 255, 0],
-	"yellowgreen": [154, 205, 50]
-};
-
-/* MIT license */
-
-/* eslint-disable no-mixed-operators */
-const cssKeywords$1 = colorName$1;
-
-// NOTE: conversions should only return primitive values (i.e. arrays, or
-//       values that give correct `typeof` results).
-//       do not use box values types (i.e. Number(), String(), etc.)
-
-const reverseKeywords$1 = {};
-for (const key of Object.keys(cssKeywords$1)) {
-	reverseKeywords$1[cssKeywords$1[key]] = key;
-}
-
-const convert$3 = {
-	rgb: {channels: 3, labels: 'rgb'},
-	hsl: {channels: 3, labels: 'hsl'},
-	hsv: {channels: 3, labels: 'hsv'},
-	hwb: {channels: 3, labels: 'hwb'},
-	cmyk: {channels: 4, labels: 'cmyk'},
-	xyz: {channels: 3, labels: 'xyz'},
-	lab: {channels: 3, labels: 'lab'},
-	lch: {channels: 3, labels: 'lch'},
-	hex: {channels: 1, labels: ['hex']},
-	keyword: {channels: 1, labels: ['keyword']},
-	ansi16: {channels: 1, labels: ['ansi16']},
-	ansi256: {channels: 1, labels: ['ansi256']},
-	hcg: {channels: 3, labels: ['h', 'c', 'g']},
-	apple: {channels: 3, labels: ['r16', 'g16', 'b16']},
-	gray: {channels: 1, labels: ['gray']}
-};
-
-var conversions$5 = convert$3;
-
-// Hide .channels and .labels properties
-for (const model of Object.keys(convert$3)) {
-	if (!('channels' in convert$3[model])) {
-		throw new Error('missing channels property: ' + model);
-	}
-
-	if (!('labels' in convert$3[model])) {
-		throw new Error('missing channel labels property: ' + model);
-	}
-
-	if (convert$3[model].labels.length !== convert$3[model].channels) {
-		throw new Error('channel and label counts mismatch: ' + model);
-	}
-
-	const {channels, labels} = convert$3[model];
-	delete convert$3[model].channels;
-	delete convert$3[model].labels;
-	Object.defineProperty(convert$3[model], 'channels', {value: channels});
-	Object.defineProperty(convert$3[model], 'labels', {value: labels});
-}
-
-convert$3.rgb.hsl = function (rgb) {
-	const r = rgb[0] / 255;
-	const g = rgb[1] / 255;
-	const b = rgb[2] / 255;
-	const min = Math.min(r, g, b);
-	const max = Math.max(r, g, b);
-	const delta = max - min;
-	let h;
-	let s;
-
-	if (max === min) {
-		h = 0;
-	} else if (r === max) {
-		h = (g - b) / delta;
-	} else if (g === max) {
-		h = 2 + (b - r) / delta;
-	} else if (b === max) {
-		h = 4 + (r - g) / delta;
-	}
-
-	h = Math.min(h * 60, 360);
-
-	if (h < 0) {
-		h += 360;
-	}
-
-	const l = (min + max) / 2;
-
-	if (max === min) {
-		s = 0;
-	} else if (l <= 0.5) {
-		s = delta / (max + min);
-	} else {
-		s = delta / (2 - max - min);
-	}
-
-	return [h, s * 100, l * 100];
-};
-
-convert$3.rgb.hsv = function (rgb) {
-	let rdif;
-	let gdif;
-	let bdif;
-	let h;
-	let s;
-
-	const r = rgb[0] / 255;
-	const g = rgb[1] / 255;
-	const b = rgb[2] / 255;
-	const v = Math.max(r, g, b);
-	const diff = v - Math.min(r, g, b);
-	const diffc = function (c) {
-		return (v - c) / 6 / diff + 1 / 2;
-	};
-
-	if (diff === 0) {
-		h = 0;
-		s = 0;
-	} else {
-		s = diff / v;
-		rdif = diffc(r);
-		gdif = diffc(g);
-		bdif = diffc(b);
-
-		if (r === v) {
-			h = bdif - gdif;
-		} else if (g === v) {
-			h = (1 / 3) + rdif - bdif;
-		} else if (b === v) {
-			h = (2 / 3) + gdif - rdif;
-		}
-
-		if (h < 0) {
-			h += 1;
-		} else if (h > 1) {
-			h -= 1;
-		}
-	}
-
-	return [
-		h * 360,
-		s * 100,
-		v * 100
-	];
-};
-
-convert$3.rgb.hwb = function (rgb) {
-	const r = rgb[0];
-	const g = rgb[1];
-	let b = rgb[2];
-	const h = convert$3.rgb.hsl(rgb)[0];
-	const w = 1 / 255 * Math.min(r, Math.min(g, b));
-
-	b = 1 - 1 / 255 * Math.max(r, Math.max(g, b));
-
-	return [h, w * 100, b * 100];
-};
-
-convert$3.rgb.cmyk = function (rgb) {
-	const r = rgb[0] / 255;
-	const g = rgb[1] / 255;
-	const b = rgb[2] / 255;
-
-	const k = Math.min(1 - r, 1 - g, 1 - b);
-	const c = (1 - r - k) / (1 - k) || 0;
-	const m = (1 - g - k) / (1 - k) || 0;
-	const y = (1 - b - k) / (1 - k) || 0;
-
-	return [c * 100, m * 100, y * 100, k * 100];
-};
-
-function comparativeDistance$1(x, y) {
-	/*
-		See https://en.m.wikipedia.org/wiki/Euclidean_distance#Squared_Euclidean_distance
-	*/
-	return (
-		((x[0] - y[0]) ** 2) +
-		((x[1] - y[1]) ** 2) +
-		((x[2] - y[2]) ** 2)
-	);
-}
-
-convert$3.rgb.keyword = function (rgb) {
-	const reversed = reverseKeywords$1[rgb];
-	if (reversed) {
-		return reversed;
-	}
-
-	let currentClosestDistance = Infinity;
-	let currentClosestKeyword;
-
-	for (const keyword of Object.keys(cssKeywords$1)) {
-		const value = cssKeywords$1[keyword];
-
-		// Compute comparative distance
-		const distance = comparativeDistance$1(rgb, value);
-
-		// Check if its less, if so set as closest
-		if (distance < currentClosestDistance) {
-			currentClosestDistance = distance;
-			currentClosestKeyword = keyword;
-		}
-	}
-
-	return currentClosestKeyword;
-};
-
-convert$3.keyword.rgb = function (keyword) {
-	return cssKeywords$1[keyword];
-};
-
-convert$3.rgb.xyz = function (rgb) {
-	let r = rgb[0] / 255;
-	let g = rgb[1] / 255;
-	let b = rgb[2] / 255;
-
-	// Assume sRGB
-	r = r > 0.04045 ? (((r + 0.055) / 1.055) ** 2.4) : (r / 12.92);
-	g = g > 0.04045 ? (((g + 0.055) / 1.055) ** 2.4) : (g / 12.92);
-	b = b > 0.04045 ? (((b + 0.055) / 1.055) ** 2.4) : (b / 12.92);
-
-	const x = (r * 0.4124) + (g * 0.3576) + (b * 0.1805);
-	const y = (r * 0.2126) + (g * 0.7152) + (b * 0.0722);
-	const z = (r * 0.0193) + (g * 0.1192) + (b * 0.9505);
-
-	return [x * 100, y * 100, z * 100];
-};
-
-convert$3.rgb.lab = function (rgb) {
-	const xyz = convert$3.rgb.xyz(rgb);
-	let x = xyz[0];
-	let y = xyz[1];
-	let z = xyz[2];
-
-	x /= 95.047;
-	y /= 100;
-	z /= 108.883;
-
-	x = x > 0.008856 ? (x ** (1 / 3)) : (7.787 * x) + (16 / 116);
-	y = y > 0.008856 ? (y ** (1 / 3)) : (7.787 * y) + (16 / 116);
-	z = z > 0.008856 ? (z ** (1 / 3)) : (7.787 * z) + (16 / 116);
-
-	const l = (116 * y) - 16;
-	const a = 500 * (x - y);
-	const b = 200 * (y - z);
-
-	return [l, a, b];
-};
-
-convert$3.hsl.rgb = function (hsl) {
-	const h = hsl[0] / 360;
-	const s = hsl[1] / 100;
-	const l = hsl[2] / 100;
-	let t2;
-	let t3;
-	let val;
-
-	if (s === 0) {
-		val = l * 255;
-		return [val, val, val];
-	}
-
-	if (l < 0.5) {
-		t2 = l * (1 + s);
-	} else {
-		t2 = l + s - l * s;
-	}
-
-	const t1 = 2 * l - t2;
-
-	const rgb = [0, 0, 0];
-	for (let i = 0; i < 3; i++) {
-		t3 = h + 1 / 3 * -(i - 1);
-		if (t3 < 0) {
-			t3++;
-		}
-
-		if (t3 > 1) {
-			t3--;
-		}
-
-		if (6 * t3 < 1) {
-			val = t1 + (t2 - t1) * 6 * t3;
-		} else if (2 * t3 < 1) {
-			val = t2;
-		} else if (3 * t3 < 2) {
-			val = t1 + (t2 - t1) * (2 / 3 - t3) * 6;
-		} else {
-			val = t1;
-		}
-
-		rgb[i] = val * 255;
-	}
-
-	return rgb;
-};
-
-convert$3.hsl.hsv = function (hsl) {
-	const h = hsl[0];
-	let s = hsl[1] / 100;
-	let l = hsl[2] / 100;
-	let smin = s;
-	const lmin = Math.max(l, 0.01);
-
-	l *= 2;
-	s *= (l <= 1) ? l : 2 - l;
-	smin *= lmin <= 1 ? lmin : 2 - lmin;
-	const v = (l + s) / 2;
-	const sv = l === 0 ? (2 * smin) / (lmin + smin) : (2 * s) / (l + s);
-
-	return [h, sv * 100, v * 100];
-};
-
-convert$3.hsv.rgb = function (hsv) {
-	const h = hsv[0] / 60;
-	const s = hsv[1] / 100;
-	let v = hsv[2] / 100;
-	const hi = Math.floor(h) % 6;
-
-	const f = h - Math.floor(h);
-	const p = 255 * v * (1 - s);
-	const q = 255 * v * (1 - (s * f));
-	const t = 255 * v * (1 - (s * (1 - f)));
-	v *= 255;
-
-	switch (hi) {
-		case 0:
-			return [v, t, p];
-		case 1:
-			return [q, v, p];
-		case 2:
-			return [p, v, t];
-		case 3:
-			return [p, q, v];
-		case 4:
-			return [t, p, v];
-		case 5:
-			return [v, p, q];
-	}
-};
-
-convert$3.hsv.hsl = function (hsv) {
-	const h = hsv[0];
-	const s = hsv[1] / 100;
-	const v = hsv[2] / 100;
-	const vmin = Math.max(v, 0.01);
-	let sl;
-	let l;
-
-	l = (2 - s) * v;
-	const lmin = (2 - s) * vmin;
-	sl = s * vmin;
-	sl /= (lmin <= 1) ? lmin : 2 - lmin;
-	sl = sl || 0;
-	l /= 2;
-
-	return [h, sl * 100, l * 100];
-};
-
-// http://dev.w3.org/csswg/css-color/#hwb-to-rgb
-convert$3.hwb.rgb = function (hwb) {
-	const h = hwb[0] / 360;
-	let wh = hwb[1] / 100;
-	let bl = hwb[2] / 100;
-	const ratio = wh + bl;
-	let f;
-
-	// Wh + bl cant be > 1
-	if (ratio > 1) {
-		wh /= ratio;
-		bl /= ratio;
-	}
-
-	const i = Math.floor(6 * h);
-	const v = 1 - bl;
-	f = 6 * h - i;
-
-	if ((i & 0x01) !== 0) {
-		f = 1 - f;
-	}
-
-	const n = wh + f * (v - wh); // Linear interpolation
-
-	let r;
-	let g;
-	let b;
-	/* eslint-disable max-statements-per-line,no-multi-spaces */
-	switch (i) {
-		default:
-		case 6:
-		case 0: r = v;  g = n;  b = wh; break;
-		case 1: r = n;  g = v;  b = wh; break;
-		case 2: r = wh; g = v;  b = n; break;
-		case 3: r = wh; g = n;  b = v; break;
-		case 4: r = n;  g = wh; b = v; break;
-		case 5: r = v;  g = wh; b = n; break;
-	}
-	/* eslint-enable max-statements-per-line,no-multi-spaces */
-
-	return [r * 255, g * 255, b * 255];
-};
-
-convert$3.cmyk.rgb = function (cmyk) {
-	const c = cmyk[0] / 100;
-	const m = cmyk[1] / 100;
-	const y = cmyk[2] / 100;
-	const k = cmyk[3] / 100;
-
-	const r = 1 - Math.min(1, c * (1 - k) + k);
-	const g = 1 - Math.min(1, m * (1 - k) + k);
-	const b = 1 - Math.min(1, y * (1 - k) + k);
-
-	return [r * 255, g * 255, b * 255];
-};
-
-convert$3.xyz.rgb = function (xyz) {
-	const x = xyz[0] / 100;
-	const y = xyz[1] / 100;
-	const z = xyz[2] / 100;
-	let r;
-	let g;
-	let b;
-
-	r = (x * 3.2406) + (y * -1.5372) + (z * -0.4986);
-	g = (x * -0.9689) + (y * 1.8758) + (z * 0.0415);
-	b = (x * 0.0557) + (y * -0.2040) + (z * 1.0570);
-
-	// Assume sRGB
-	r = r > 0.0031308
-		? ((1.055 * (r ** (1.0 / 2.4))) - 0.055)
-		: r * 12.92;
-
-	g = g > 0.0031308
-		? ((1.055 * (g ** (1.0 / 2.4))) - 0.055)
-		: g * 12.92;
-
-	b = b > 0.0031308
-		? ((1.055 * (b ** (1.0 / 2.4))) - 0.055)
-		: b * 12.92;
-
-	r = Math.min(Math.max(0, r), 1);
-	g = Math.min(Math.max(0, g), 1);
-	b = Math.min(Math.max(0, b), 1);
-
-	return [r * 255, g * 255, b * 255];
-};
-
-convert$3.xyz.lab = function (xyz) {
-	let x = xyz[0];
-	let y = xyz[1];
-	let z = xyz[2];
-
-	x /= 95.047;
-	y /= 100;
-	z /= 108.883;
-
-	x = x > 0.008856 ? (x ** (1 / 3)) : (7.787 * x) + (16 / 116);
-	y = y > 0.008856 ? (y ** (1 / 3)) : (7.787 * y) + (16 / 116);
-	z = z > 0.008856 ? (z ** (1 / 3)) : (7.787 * z) + (16 / 116);
-
-	const l = (116 * y) - 16;
-	const a = 500 * (x - y);
-	const b = 200 * (y - z);
-
-	return [l, a, b];
-};
-
-convert$3.lab.xyz = function (lab) {
-	const l = lab[0];
-	const a = lab[1];
-	const b = lab[2];
-	let x;
-	let y;
-	let z;
-
-	y = (l + 16) / 116;
-	x = a / 500 + y;
-	z = y - b / 200;
-
-	const y2 = y ** 3;
-	const x2 = x ** 3;
-	const z2 = z ** 3;
-	y = y2 > 0.008856 ? y2 : (y - 16 / 116) / 7.787;
-	x = x2 > 0.008856 ? x2 : (x - 16 / 116) / 7.787;
-	z = z2 > 0.008856 ? z2 : (z - 16 / 116) / 7.787;
-
-	x *= 95.047;
-	y *= 100;
-	z *= 108.883;
-
-	return [x, y, z];
-};
-
-convert$3.lab.lch = function (lab) {
-	const l = lab[0];
-	const a = lab[1];
-	const b = lab[2];
-	let h;
-
-	const hr = Math.atan2(b, a);
-	h = hr * 360 / 2 / Math.PI;
-
-	if (h < 0) {
-		h += 360;
-	}
-
-	const c = Math.sqrt(a * a + b * b);
-
-	return [l, c, h];
-};
-
-convert$3.lch.lab = function (lch) {
-	const l = lch[0];
-	const c = lch[1];
-	const h = lch[2];
-
-	const hr = h / 360 * 2 * Math.PI;
-	const a = c * Math.cos(hr);
-	const b = c * Math.sin(hr);
-
-	return [l, a, b];
-};
-
-convert$3.rgb.ansi16 = function (args, saturation = null) {
-	const [r, g, b] = args;
-	let value = saturation === null ? convert$3.rgb.hsv(args)[2] : saturation; // Hsv -> ansi16 optimization
-
-	value = Math.round(value / 50);
-
-	if (value === 0) {
-		return 30;
-	}
-
-	let ansi = 30
-		+ ((Math.round(b / 255) << 2)
-		| (Math.round(g / 255) << 1)
-		| Math.round(r / 255));
-
-	if (value === 2) {
-		ansi += 60;
-	}
-
-	return ansi;
-};
-
-convert$3.hsv.ansi16 = function (args) {
-	// Optimization here; we already know the value and don't need to get
-	// it converted for us.
-	return convert$3.rgb.ansi16(convert$3.hsv.rgb(args), args[2]);
-};
-
-convert$3.rgb.ansi256 = function (args) {
-	const r = args[0];
-	const g = args[1];
-	const b = args[2];
-
-	// We use the extended greyscale palette here, with the exception of
-	// black and white. normal palette only has 4 greyscale shades.
-	if (r === g && g === b) {
-		if (r < 8) {
-			return 16;
-		}
-
-		if (r > 248) {
-			return 231;
-		}
-
-		return Math.round(((r - 8) / 247) * 24) + 232;
-	}
-
-	const ansi = 16
-		+ (36 * Math.round(r / 255 * 5))
-		+ (6 * Math.round(g / 255 * 5))
-		+ Math.round(b / 255 * 5);
-
-	return ansi;
-};
-
-convert$3.ansi16.rgb = function (args) {
-	let color = args % 10;
-
-	// Handle greyscale
-	if (color === 0 || color === 7) {
-		if (args > 50) {
-			color += 3.5;
-		}
-
-		color = color / 10.5 * 255;
-
-		return [color, color, color];
-	}
-
-	const mult = (~~(args > 50) + 1) * 0.5;
-	const r = ((color & 1) * mult) * 255;
-	const g = (((color >> 1) & 1) * mult) * 255;
-	const b = (((color >> 2) & 1) * mult) * 255;
-
-	return [r, g, b];
-};
-
-convert$3.ansi256.rgb = function (args) {
-	// Handle greyscale
-	if (args >= 232) {
-		const c = (args - 232) * 10 + 8;
-		return [c, c, c];
-	}
-
-	args -= 16;
-
-	let rem;
-	const r = Math.floor(args / 36) / 5 * 255;
-	const g = Math.floor((rem = args % 36) / 6) / 5 * 255;
-	const b = (rem % 6) / 5 * 255;
-
-	return [r, g, b];
-};
-
-convert$3.rgb.hex = function (args) {
-	const integer = ((Math.round(args[0]) & 0xFF) << 16)
-		+ ((Math.round(args[1]) & 0xFF) << 8)
-		+ (Math.round(args[2]) & 0xFF);
-
-	const string = integer.toString(16).toUpperCase();
-	return '000000'.substring(string.length) + string;
-};
-
-convert$3.hex.rgb = function (args) {
-	const match = args.toString(16).match(/[a-f0-9]{6}|[a-f0-9]{3}/i);
-	if (!match) {
-		return [0, 0, 0];
-	}
-
-	let colorString = match[0];
-
-	if (match[0].length === 3) {
-		colorString = colorString.split('').map(char => {
-			return char + char;
-		}).join('');
-	}
-
-	const integer = parseInt(colorString, 16);
-	const r = (integer >> 16) & 0xFF;
-	const g = (integer >> 8) & 0xFF;
-	const b = integer & 0xFF;
-
-	return [r, g, b];
-};
-
-convert$3.rgb.hcg = function (rgb) {
-	const r = rgb[0] / 255;
-	const g = rgb[1] / 255;
-	const b = rgb[2] / 255;
-	const max = Math.max(Math.max(r, g), b);
-	const min = Math.min(Math.min(r, g), b);
-	const chroma = (max - min);
-	let grayscale;
-	let hue;
-
-	if (chroma < 1) {
-		grayscale = min / (1 - chroma);
-	} else {
-		grayscale = 0;
-	}
-
-	if (chroma <= 0) {
-		hue = 0;
-	} else
-	if (max === r) {
-		hue = ((g - b) / chroma) % 6;
-	} else
-	if (max === g) {
-		hue = 2 + (b - r) / chroma;
-	} else {
-		hue = 4 + (r - g) / chroma;
-	}
-
-	hue /= 6;
-	hue %= 1;
-
-	return [hue * 360, chroma * 100, grayscale * 100];
-};
-
-convert$3.hsl.hcg = function (hsl) {
-	const s = hsl[1] / 100;
-	const l = hsl[2] / 100;
-
-	const c = l < 0.5 ? (2.0 * s * l) : (2.0 * s * (1.0 - l));
-
-	let f = 0;
-	if (c < 1.0) {
-		f = (l - 0.5 * c) / (1.0 - c);
-	}
-
-	return [hsl[0], c * 100, f * 100];
-};
-
-convert$3.hsv.hcg = function (hsv) {
-	const s = hsv[1] / 100;
-	const v = hsv[2] / 100;
-
-	const c = s * v;
-	let f = 0;
-
-	if (c < 1.0) {
-		f = (v - c) / (1 - c);
-	}
-
-	return [hsv[0], c * 100, f * 100];
-};
-
-convert$3.hcg.rgb = function (hcg) {
-	const h = hcg[0] / 360;
-	const c = hcg[1] / 100;
-	const g = hcg[2] / 100;
-
-	if (c === 0.0) {
-		return [g * 255, g * 255, g * 255];
-	}
-
-	const pure = [0, 0, 0];
-	const hi = (h % 1) * 6;
-	const v = hi % 1;
-	const w = 1 - v;
-	let mg = 0;
-
-	/* eslint-disable max-statements-per-line */
-	switch (Math.floor(hi)) {
-		case 0:
-			pure[0] = 1; pure[1] = v; pure[2] = 0; break;
-		case 1:
-			pure[0] = w; pure[1] = 1; pure[2] = 0; break;
-		case 2:
-			pure[0] = 0; pure[1] = 1; pure[2] = v; break;
-		case 3:
-			pure[0] = 0; pure[1] = w; pure[2] = 1; break;
-		case 4:
-			pure[0] = v; pure[1] = 0; pure[2] = 1; break;
-		default:
-			pure[0] = 1; pure[1] = 0; pure[2] = w;
-	}
-	/* eslint-enable max-statements-per-line */
-
-	mg = (1.0 - c) * g;
-
-	return [
-		(c * pure[0] + mg) * 255,
-		(c * pure[1] + mg) * 255,
-		(c * pure[2] + mg) * 255
-	];
-};
-
-convert$3.hcg.hsv = function (hcg) {
-	const c = hcg[1] / 100;
-	const g = hcg[2] / 100;
-
-	const v = c + g * (1.0 - c);
-	let f = 0;
-
-	if (v > 0.0) {
-		f = c / v;
-	}
-
-	return [hcg[0], f * 100, v * 100];
-};
-
-convert$3.hcg.hsl = function (hcg) {
-	const c = hcg[1] / 100;
-	const g = hcg[2] / 100;
-
-	const l = g * (1.0 - c) + 0.5 * c;
-	let s = 0;
-
-	if (l > 0.0 && l < 0.5) {
-		s = c / (2 * l);
-	} else
-	if (l >= 0.5 && l < 1.0) {
-		s = c / (2 * (1 - l));
-	}
-
-	return [hcg[0], s * 100, l * 100];
-};
-
-convert$3.hcg.hwb = function (hcg) {
-	const c = hcg[1] / 100;
-	const g = hcg[2] / 100;
-	const v = c + g * (1.0 - c);
-	return [hcg[0], (v - c) * 100, (1 - v) * 100];
-};
-
-convert$3.hwb.hcg = function (hwb) {
-	const w = hwb[1] / 100;
-	const b = hwb[2] / 100;
-	const v = 1 - b;
-	const c = v - w;
-	let g = 0;
-
-	if (c < 1) {
-		g = (v - c) / (1 - c);
-	}
-
-	return [hwb[0], c * 100, g * 100];
-};
-
-convert$3.apple.rgb = function (apple) {
-	return [(apple[0] / 65535) * 255, (apple[1] / 65535) * 255, (apple[2] / 65535) * 255];
-};
-
-convert$3.rgb.apple = function (rgb) {
-	return [(rgb[0] / 255) * 65535, (rgb[1] / 255) * 65535, (rgb[2] / 255) * 65535];
-};
-
-convert$3.gray.rgb = function (args) {
-	return [args[0] / 100 * 255, args[0] / 100 * 255, args[0] / 100 * 255];
-};
-
-convert$3.gray.hsl = function (args) {
-	return [0, 0, args[0]];
-};
-
-convert$3.gray.hsv = convert$3.gray.hsl;
-
-convert$3.gray.hwb = function (gray) {
-	return [0, 100, gray[0]];
-};
-
-convert$3.gray.cmyk = function (gray) {
-	return [0, 0, 0, gray[0]];
-};
-
-convert$3.gray.lab = function (gray) {
-	return [gray[0], 0, 0];
-};
-
-convert$3.gray.hex = function (gray) {
-	const val = Math.round(gray[0] / 100 * 255) & 0xFF;
-	const integer = (val << 16) + (val << 8) + val;
-
-	const string = integer.toString(16).toUpperCase();
-	return '000000'.substring(string.length) + string;
-};
-
-convert$3.rgb.gray = function (rgb) {
-	const val = (rgb[0] + rgb[1] + rgb[2]) / 3;
-	return [val / 255 * 100];
-};
-
-const conversions$4 = conversions$5;
-
-/*
-	This function routes a model to all other models.
-
-	all functions that are routed have a property `.conversion` attached
-	to the returned synthetic function. This property is an array
-	of strings, each with the steps in between the 'from' and 'to'
-	color models (inclusive).
-
-	conversions that are not possible simply are not included.
-*/
-
-function buildGraph$1() {
-	const graph = {};
-	// https://jsperf.com/object-keys-vs-for-in-with-closure/3
-	const models = Object.keys(conversions$4);
-
-	for (let len = models.length, i = 0; i < len; i++) {
-		graph[models[i]] = {
-			// http://jsperf.com/1-vs-infinity
-			// micro-opt, but this is simple.
-			distance: -1,
-			parent: null
-		};
-	}
-
-	return graph;
-}
-
-// https://en.wikipedia.org/wiki/Breadth-first_search
-function deriveBFS$1(fromModel) {
-	const graph = buildGraph$1();
-	const queue = [fromModel]; // Unshift -> queue -> pop
-
-	graph[fromModel].distance = 0;
-
-	while (queue.length) {
-		const current = queue.pop();
-		const adjacents = Object.keys(conversions$4[current]);
-
-		for (let len = adjacents.length, i = 0; i < len; i++) {
-			const adjacent = adjacents[i];
-			const node = graph[adjacent];
-
-			if (node.distance === -1) {
-				node.distance = graph[current].distance + 1;
-				node.parent = current;
-				queue.unshift(adjacent);
-			}
-		}
-	}
-
-	return graph;
-}
-
-function link$1(from, to) {
-	return function (args) {
-		return to(from(args));
-	};
-}
-
-function wrapConversion$1(toModel, graph) {
-	const path = [graph[toModel].parent, toModel];
-	let fn = conversions$4[graph[toModel].parent][toModel];
-
-	let cur = graph[toModel].parent;
-	while (graph[cur].parent) {
-		path.unshift(graph[cur].parent);
-		fn = link$1(conversions$4[graph[cur].parent][cur], fn);
-		cur = graph[cur].parent;
-	}
-
-	fn.conversion = path;
-	return fn;
-}
-
-var route$3 = function (fromModel) {
-	const graph = deriveBFS$1(fromModel);
-	const conversion = {};
-
-	const models = Object.keys(graph);
-	for (let len = models.length, i = 0; i < len; i++) {
-		const toModel = models[i];
-		const node = graph[toModel];
-
-		if (node.parent === null) {
-			// No possible conversion, or this node is the source model.
-			continue;
-		}
-
-		conversion[toModel] = wrapConversion$1(toModel, graph);
-	}
-
-	return conversion;
-};
-
-const conversions$3 = conversions$5;
-const route$2 = route$3;
-
-const convert$2 = {};
-
-const models$1 = Object.keys(conversions$3);
-
-function wrapRaw$1(fn) {
-	const wrappedFn = function (...args) {
-		const arg0 = args[0];
-		if (arg0 === undefined || arg0 === null) {
-			return arg0;
-		}
-
-		if (arg0.length > 1) {
-			args = arg0;
-		}
-
-		return fn(args);
-	};
-
-	// Preserve .conversion property if there is one
-	if ('conversion' in fn) {
-		wrappedFn.conversion = fn.conversion;
-	}
-
-	return wrappedFn;
-}
-
-function wrapRounded$1(fn) {
-	const wrappedFn = function (...args) {
-		const arg0 = args[0];
-
-		if (arg0 === undefined || arg0 === null) {
-			return arg0;
-		}
-
-		if (arg0.length > 1) {
-			args = arg0;
-		}
-
-		const result = fn(args);
-
-		// We're assuming the result is an array here.
-		// see notice in conversions.js; don't use box types
-		// in conversion functions.
-		if (typeof result === 'object') {
-			for (let len = result.length, i = 0; i < len; i++) {
-				result[i] = Math.round(result[i]);
-			}
-		}
-
-		return result;
-	};
-
-	// Preserve .conversion property if there is one
-	if ('conversion' in fn) {
-		wrappedFn.conversion = fn.conversion;
-	}
-
-	return wrappedFn;
-}
-
-models$1.forEach(fromModel => {
-	convert$2[fromModel] = {};
-
-	Object.defineProperty(convert$2[fromModel], 'channels', {value: conversions$3[fromModel].channels});
-	Object.defineProperty(convert$2[fromModel], 'labels', {value: conversions$3[fromModel].labels});
-
-	const routes = route$2(fromModel);
-	const routeModels = Object.keys(routes);
-
-	routeModels.forEach(toModel => {
-		const fn = routes[toModel];
-
-		convert$2[fromModel][toModel] = wrapRounded$1(fn);
-		convert$2[fromModel][toModel].raw = wrapRaw$1(fn);
-	});
-});
-
-var colorConvert$1 = convert$2;
-
-(function (module) {
-
-const wrapAnsi16 = (fn, offset) => (...args) => {
-	const code = fn(...args);
-	return `\u001B[${code + offset}m`;
-};
-
-const wrapAnsi256 = (fn, offset) => (...args) => {
-	const code = fn(...args);
-	return `\u001B[${38 + offset};5;${code}m`;
-};
-
-const wrapAnsi16m = (fn, offset) => (...args) => {
-	const rgb = fn(...args);
-	return `\u001B[${38 + offset};2;${rgb[0]};${rgb[1]};${rgb[2]}m`;
-};
-
-const ansi2ansi = n => n;
-const rgb2rgb = (r, g, b) => [r, g, b];
-
-const setLazyProperty = (object, property, get) => {
-	Object.defineProperty(object, property, {
-		get: () => {
-			const value = get();
-
-			Object.defineProperty(object, property, {
-				value,
-				enumerable: true,
-				configurable: true
-			});
-
-			return value;
-		},
-		enumerable: true,
-		configurable: true
-	});
-};
-
-/** @type {typeof import('color-convert')} */
-let colorConvert;
-const makeDynamicStyles = (wrap, targetSpace, identity, isBackground) => {
-	if (colorConvert === undefined) {
-		colorConvert = colorConvert$1;
-	}
-
-	const offset = isBackground ? 10 : 0;
-	const styles = {};
-
-	for (const [sourceSpace, suite] of Object.entries(colorConvert)) {
-		const name = sourceSpace === 'ansi16' ? 'ansi' : sourceSpace;
-		if (sourceSpace === targetSpace) {
-			styles[name] = wrap(identity, offset);
-		} else if (typeof suite === 'object') {
-			styles[name] = wrap(suite[targetSpace], offset);
-		}
-	}
-
-	return styles;
-};
-
-function assembleStyles() {
-	const codes = new Map();
-	const styles = {
-		modifier: {
-			reset: [0, 0],
-			// 21 isn't widely supported and 22 does the same thing
-			bold: [1, 22],
-			dim: [2, 22],
-			italic: [3, 23],
-			underline: [4, 24],
-			inverse: [7, 27],
-			hidden: [8, 28],
-			strikethrough: [9, 29]
-		},
-		color: {
-			black: [30, 39],
-			red: [31, 39],
-			green: [32, 39],
-			yellow: [33, 39],
-			blue: [34, 39],
-			magenta: [35, 39],
-			cyan: [36, 39],
-			white: [37, 39],
-
-			// Bright color
-			blackBright: [90, 39],
-			redBright: [91, 39],
-			greenBright: [92, 39],
-			yellowBright: [93, 39],
-			blueBright: [94, 39],
-			magentaBright: [95, 39],
-			cyanBright: [96, 39],
-			whiteBright: [97, 39]
-		},
-		bgColor: {
-			bgBlack: [40, 49],
-			bgRed: [41, 49],
-			bgGreen: [42, 49],
-			bgYellow: [43, 49],
-			bgBlue: [44, 49],
-			bgMagenta: [45, 49],
-			bgCyan: [46, 49],
-			bgWhite: [47, 49],
-
-			// Bright color
-			bgBlackBright: [100, 49],
-			bgRedBright: [101, 49],
-			bgGreenBright: [102, 49],
-			bgYellowBright: [103, 49],
-			bgBlueBright: [104, 49],
-			bgMagentaBright: [105, 49],
-			bgCyanBright: [106, 49],
-			bgWhiteBright: [107, 49]
-		}
-	};
-
-	// Alias bright black as gray (and grey)
-	styles.color.gray = styles.color.blackBright;
-	styles.bgColor.bgGray = styles.bgColor.bgBlackBright;
-	styles.color.grey = styles.color.blackBright;
-	styles.bgColor.bgGrey = styles.bgColor.bgBlackBright;
-
-	for (const [groupName, group] of Object.entries(styles)) {
-		for (const [styleName, style] of Object.entries(group)) {
-			styles[styleName] = {
-				open: `\u001B[${style[0]}m`,
-				close: `\u001B[${style[1]}m`
-			};
-
-			group[styleName] = styles[styleName];
-
-			codes.set(style[0], style[1]);
-		}
-
-		Object.defineProperty(styles, groupName, {
-			value: group,
-			enumerable: false
-		});
-	}
-
-	Object.defineProperty(styles, 'codes', {
-		value: codes,
-		enumerable: false
-	});
-
-	styles.color.close = '\u001B[39m';
-	styles.bgColor.close = '\u001B[49m';
-
-	setLazyProperty(styles.color, 'ansi', () => makeDynamicStyles(wrapAnsi16, 'ansi16', ansi2ansi, false));
-	setLazyProperty(styles.color, 'ansi256', () => makeDynamicStyles(wrapAnsi256, 'ansi256', ansi2ansi, false));
-	setLazyProperty(styles.color, 'ansi16m', () => makeDynamicStyles(wrapAnsi16m, 'rgb', rgb2rgb, false));
-	setLazyProperty(styles.bgColor, 'ansi', () => makeDynamicStyles(wrapAnsi16, 'ansi16', ansi2ansi, true));
-	setLazyProperty(styles.bgColor, 'ansi256', () => makeDynamicStyles(wrapAnsi256, 'ansi256', ansi2ansi, true));
-	setLazyProperty(styles.bgColor, 'ansi16m', () => makeDynamicStyles(wrapAnsi16m, 'rgb', rgb2rgb, true));
-
-	return styles;
-}
-
-// Make the export immutable
-Object.defineProperty(module, 'exports', {
-	enumerable: true,
-	get: assembleStyles
-});
-}(ansiStyles$3));
-
-var hasFlag$1 = (flag, argv = process.argv) => {
-	const prefix = flag.startsWith('-') ? '' : (flag.length === 1 ? '-' : '--');
-	const position = argv.indexOf(prefix + flag);
-	const terminatorPosition = argv.indexOf('--');
-	return position !== -1 && (terminatorPosition === -1 || position < terminatorPosition);
-};
-
-const os = require$$0;
-const tty = require$$1;
-const hasFlag = hasFlag$1;
-
-const {env} = process;
-
-let forceColor;
-if (hasFlag('no-color') ||
-	hasFlag('no-colors') ||
-	hasFlag('color=false') ||
-	hasFlag('color=never')) {
-	forceColor = 0;
-} else if (hasFlag('color') ||
-	hasFlag('colors') ||
-	hasFlag('color=true') ||
-	hasFlag('color=always')) {
-	forceColor = 1;
-}
-
-if ('FORCE_COLOR' in env) {
-	if (env.FORCE_COLOR === 'true') {
-		forceColor = 1;
-	} else if (env.FORCE_COLOR === 'false') {
-		forceColor = 0;
-	} else {
-		forceColor = env.FORCE_COLOR.length === 0 ? 1 : Math.min(parseInt(env.FORCE_COLOR, 10), 3);
-	}
-}
-
-function translateLevel(level) {
-	if (level === 0) {
-		return false;
-	}
-
-	return {
-		level,
-		hasBasic: true,
-		has256: level >= 2,
-		has16m: level >= 3
-	};
-}
-
-function supportsColor(haveStream, streamIsTTY) {
-	if (forceColor === 0) {
-		return 0;
-	}
-
-	if (hasFlag('color=16m') ||
-		hasFlag('color=full') ||
-		hasFlag('color=truecolor')) {
-		return 3;
-	}
-
-	if (hasFlag('color=256')) {
-		return 2;
-	}
-
-	if (haveStream && !streamIsTTY && forceColor === undefined) {
-		return 0;
-	}
-
-	const min = forceColor || 0;
-
-	if (env.TERM === 'dumb') {
-		return min;
-	}
-
-	if (process.platform === 'win32') {
-		// Windows 10 build 10586 is the first Windows release that supports 256 colors.
-		// Windows 10 build 14931 is the first release that supports 16m/TrueColor.
-		const osRelease = os.release().split('.');
-		if (
-			Number(osRelease[0]) >= 10 &&
-			Number(osRelease[2]) >= 10586
-		) {
-			return Number(osRelease[2]) >= 14931 ? 3 : 2;
-		}
-
-		return 1;
-	}
-
-	if ('CI' in env) {
-		if (['TRAVIS', 'CIRCLECI', 'APPVEYOR', 'GITLAB_CI', 'GITHUB_ACTIONS', 'BUILDKITE'].some(sign => sign in env) || env.CI_NAME === 'codeship') {
-			return 1;
-		}
-
-		return min;
-	}
-
-	if ('TEAMCITY_VERSION' in env) {
-		return /^(9\.(0*[1-9]\d*)\.|\d{2,}\.)/.test(env.TEAMCITY_VERSION) ? 1 : 0;
-	}
-
-	if (env.COLORTERM === 'truecolor') {
-		return 3;
-	}
-
-	if ('TERM_PROGRAM' in env) {
-		const version = parseInt((env.TERM_PROGRAM_VERSION || '').split('.')[0], 10);
-
-		switch (env.TERM_PROGRAM) {
-			case 'iTerm.app':
-				return version >= 3 ? 3 : 2;
-			case 'Apple_Terminal':
-				return 2;
-			// No default
-		}
-	}
-
-	if (/-256(color)?$/i.test(env.TERM)) {
-		return 2;
-	}
-
-	if (/^screen|^xterm|^vt100|^vt220|^rxvt|color|ansi|cygwin|linux/i.test(env.TERM)) {
-		return 1;
-	}
-
-	if ('COLORTERM' in env) {
-		return 1;
-	}
-
-	return min;
-}
-
-function getSupportLevel(stream) {
-	const level = supportsColor(stream, stream && stream.isTTY);
-	return translateLevel(level);
-}
-
-var supportsColor_1 = {
-	supportsColor: getSupportLevel,
-	stdout: translateLevel(supportsColor(true, tty.isatty(1))),
-	stderr: translateLevel(supportsColor(true, tty.isatty(2)))
-};
-
-const stringReplaceAll$1 = (string, substring, replacer) => {
-	let index = string.indexOf(substring);
-	if (index === -1) {
-		return string;
-	}
-
-	const substringLength = substring.length;
-	let endIndex = 0;
-	let returnValue = '';
-	do {
-		returnValue += string.substr(endIndex, index - endIndex) + substring + replacer;
-		endIndex = index + substringLength;
-		index = string.indexOf(substring, endIndex);
-	} while (index !== -1);
-
-	returnValue += string.substr(endIndex);
-	return returnValue;
-};
-
-const stringEncaseCRLFWithFirstIndex$1 = (string, prefix, postfix, index) => {
-	let endIndex = 0;
-	let returnValue = '';
-	do {
-		const gotCR = string[index - 1] === '\r';
-		returnValue += string.substr(endIndex, (gotCR ? index - 1 : index) - endIndex) + prefix + (gotCR ? '\r\n' : '\n') + postfix;
-		endIndex = index + 1;
-		index = string.indexOf('\n', endIndex);
-	} while (index !== -1);
-
-	returnValue += string.substr(endIndex);
-	return returnValue;
-};
-
-var util = {
-	stringReplaceAll: stringReplaceAll$1,
-	stringEncaseCRLFWithFirstIndex: stringEncaseCRLFWithFirstIndex$1
-};
-
-const TEMPLATE_REGEX = /(?:\\(u(?:[a-f\d]{4}|\{[a-f\d]{1,6}\})|x[a-f\d]{2}|.))|(?:\{(~)?(\w+(?:\([^)]*\))?(?:\.\w+(?:\([^)]*\))?)*)(?:[ \t]|(?=\r?\n)))|(\})|((?:.|[\r\n\f])+?)/gi;
-const STYLE_REGEX = /(?:^|\.)(\w+)(?:\(([^)]*)\))?/g;
-const STRING_REGEX = /^(['"])((?:\\.|(?!\1)[^\\])*)\1$/;
-const ESCAPE_REGEX = /\\(u(?:[a-f\d]{4}|{[a-f\d]{1,6}})|x[a-f\d]{2}|.)|([^\\])/gi;
-
-const ESCAPES$1 = new Map([
-	['n', '\n'],
-	['r', '\r'],
-	['t', '\t'],
-	['b', '\b'],
-	['f', '\f'],
-	['v', '\v'],
-	['0', '\0'],
-	['\\', '\\'],
-	['e', '\u001B'],
-	['a', '\u0007']
-]);
-
-function unescape(c) {
-	const u = c[0] === 'u';
-	const bracket = c[1] === '{';
-
-	if ((u && !bracket && c.length === 5) || (c[0] === 'x' && c.length === 3)) {
-		return String.fromCharCode(parseInt(c.slice(1), 16));
-	}
-
-	if (u && bracket) {
-		return String.fromCodePoint(parseInt(c.slice(2, -1), 16));
-	}
-
-	return ESCAPES$1.get(c) || c;
-}
-
-function parseArguments(name, arguments_) {
-	const results = [];
-	const chunks = arguments_.trim().split(/\s*,\s*/g);
-	let matches;
-
-	for (const chunk of chunks) {
-		const number = Number(chunk);
-		if (!Number.isNaN(number)) {
-			results.push(number);
-		} else if ((matches = chunk.match(STRING_REGEX))) {
-			results.push(matches[2].replace(ESCAPE_REGEX, (m, escape, character) => escape ? unescape(escape) : character));
-		} else {
-			throw new Error(`Invalid Chalk template style argument: ${chunk} (in style '${name}')`);
-		}
-	}
-
-	return results;
-}
-
-function parseStyle(style) {
-	STYLE_REGEX.lastIndex = 0;
-
-	const results = [];
-	let matches;
-
-	while ((matches = STYLE_REGEX.exec(style)) !== null) {
-		const name = matches[1];
-
-		if (matches[2]) {
-			const args = parseArguments(name, matches[2]);
-			results.push([name].concat(args));
-		} else {
-			results.push([name]);
-		}
-	}
-
-	return results;
-}
-
-function buildStyle(chalk, styles) {
-	const enabled = {};
-
-	for (const layer of styles) {
-		for (const style of layer.styles) {
-			enabled[style[0]] = layer.inverse ? null : style.slice(1);
-		}
-	}
-
-	let current = chalk;
-	for (const [styleName, styles] of Object.entries(enabled)) {
-		if (!Array.isArray(styles)) {
-			continue;
-		}
-
-		if (!(styleName in current)) {
-			throw new Error(`Unknown Chalk style: ${styleName}`);
-		}
-
-		current = styles.length > 0 ? current[styleName](...styles) : current[styleName];
-	}
-
-	return current;
-}
-
-var templates = (chalk, temporary) => {
-	const styles = [];
-	const chunks = [];
-	let chunk = [];
-
-	// eslint-disable-next-line max-params
-	temporary.replace(TEMPLATE_REGEX, (m, escapeCharacter, inverse, style, close, character) => {
-		if (escapeCharacter) {
-			chunk.push(unescape(escapeCharacter));
-		} else if (style) {
-			const string = chunk.join('');
-			chunk = [];
-			chunks.push(styles.length === 0 ? string : buildStyle(chalk, styles)(string));
-			styles.push({inverse, styles: parseStyle(style)});
-		} else if (close) {
-			if (styles.length === 0) {
-				throw new Error('Found extraneous } in Chalk template literal');
-			}
-
-			chunks.push(buildStyle(chalk, styles)(chunk.join('')));
-			chunk = [];
-			styles.pop();
-		} else {
-			chunk.push(character);
-		}
-	});
-
-	chunks.push(chunk.join(''));
-
-	if (styles.length > 0) {
-		const errMessage = `Chalk template literal is missing ${styles.length} closing bracket${styles.length === 1 ? '' : 's'} (\`}\`)`;
-		throw new Error(errMessage);
-	}
-
-	return chunks.join('');
-};
-
-const ansiStyles$2 = ansiStyles$3.exports;
-const {stdout: stdoutColor, stderr: stderrColor} = supportsColor_1;
-const {
-	stringReplaceAll,
-	stringEncaseCRLFWithFirstIndex
-} = util;
-
-const {isArray} = Array;
-
-// `supportsColor.level` → `ansiStyles.color[name]` mapping
-const levelMapping = [
-	'ansi',
-	'ansi',
-	'ansi256',
-	'ansi16m'
-];
-
-const styles = Object.create(null);
-
-const applyOptions = (object, options = {}) => {
-	if (options.level && !(Number.isInteger(options.level) && options.level >= 0 && options.level <= 3)) {
-		throw new Error('The `level` option should be an integer from 0 to 3');
-	}
-
-	// Detect level if not set manually
-	const colorLevel = stdoutColor ? stdoutColor.level : 0;
-	object.level = options.level === undefined ? colorLevel : options.level;
-};
-
-class ChalkClass {
-	constructor(options) {
-		// eslint-disable-next-line no-constructor-return
-		return chalkFactory(options);
-	}
-}
-
-const chalkFactory = options => {
-	const chalk = {};
-	applyOptions(chalk, options);
-
-	chalk.template = (...arguments_) => chalkTag(chalk.template, ...arguments_);
-
-	Object.setPrototypeOf(chalk, Chalk.prototype);
-	Object.setPrototypeOf(chalk.template, chalk);
-
-	chalk.template.constructor = () => {
-		throw new Error('`chalk.constructor()` is deprecated. Use `new chalk.Instance()` instead.');
-	};
-
-	chalk.template.Instance = ChalkClass;
-
-	return chalk.template;
-};
-
-function Chalk(options) {
-	return chalkFactory(options);
-}
-
-for (const [styleName, style] of Object.entries(ansiStyles$2)) {
-	styles[styleName] = {
-		get() {
-			const builder = createBuilder(this, createStyler(style.open, style.close, this._styler), this._isEmpty);
-			Object.defineProperty(this, styleName, {value: builder});
-			return builder;
-		}
-	};
-}
-
-styles.visible = {
-	get() {
-		const builder = createBuilder(this, this._styler, true);
-		Object.defineProperty(this, 'visible', {value: builder});
-		return builder;
-	}
-};
-
-const usedModels = ['rgb', 'hex', 'keyword', 'hsl', 'hsv', 'hwb', 'ansi', 'ansi256'];
-
-for (const model of usedModels) {
-	styles[model] = {
-		get() {
-			const {level} = this;
-			return function (...arguments_) {
-				const styler = createStyler(ansiStyles$2.color[levelMapping[level]][model](...arguments_), ansiStyles$2.color.close, this._styler);
-				return createBuilder(this, styler, this._isEmpty);
-			};
-		}
-	};
-}
-
-for (const model of usedModels) {
-	const bgModel = 'bg' + model[0].toUpperCase() + model.slice(1);
-	styles[bgModel] = {
-		get() {
-			const {level} = this;
-			return function (...arguments_) {
-				const styler = createStyler(ansiStyles$2.bgColor[levelMapping[level]][model](...arguments_), ansiStyles$2.bgColor.close, this._styler);
-				return createBuilder(this, styler, this._isEmpty);
-			};
-		}
-	};
-}
-
-const proto = Object.defineProperties(() => {}, {
-	...styles,
-	level: {
-		enumerable: true,
-		get() {
-			return this._generator.level;
-		},
-		set(level) {
-			this._generator.level = level;
-		}
-	}
-});
-
-const createStyler = (open, close, parent) => {
-	let openAll;
-	let closeAll;
-	if (parent === undefined) {
-		openAll = open;
-		closeAll = close;
-	} else {
-		openAll = parent.openAll + open;
-		closeAll = close + parent.closeAll;
-	}
-
-	return {
-		open,
-		close,
-		openAll,
-		closeAll,
-		parent
-	};
-};
-
-const createBuilder = (self, _styler, _isEmpty) => {
-	const builder = (...arguments_) => {
-		if (isArray(arguments_[0]) && isArray(arguments_[0].raw)) {
-			// Called as a template literal, for example: chalk.red`2 + 3 = {bold ${2+3}}`
-			return applyStyle(builder, chalkTag(builder, ...arguments_));
-		}
-
-		// Single argument is hot path, implicit coercion is faster than anything
-		// eslint-disable-next-line no-implicit-coercion
-		return applyStyle(builder, (arguments_.length === 1) ? ('' + arguments_[0]) : arguments_.join(' '));
-	};
-
-	// We alter the prototype because we must return a function, but there is
-	// no way to create a function with a different prototype
-	Object.setPrototypeOf(builder, proto);
-
-	builder._generator = self;
-	builder._styler = _styler;
-	builder._isEmpty = _isEmpty;
-
-	return builder;
-};
-
-const applyStyle = (self, string) => {
-	if (self.level <= 0 || !string) {
-		return self._isEmpty ? '' : string;
-	}
-
-	let styler = self._styler;
-
-	if (styler === undefined) {
-		return string;
-	}
-
-	const {openAll, closeAll} = styler;
-	if (string.indexOf('\u001B') !== -1) {
-		while (styler !== undefined) {
-			// Replace any instances already present with a re-opening code
-			// otherwise only the part of the string until said closing code
-			// will be colored, and the rest will simply be 'plain'.
-			string = stringReplaceAll(string, styler.close, styler.open);
-
-			styler = styler.parent;
-		}
-	}
-
-	// We can move both next actions out of loop, because remaining actions in loop won't have
-	// any/visible effect on parts we add here. Close the styling before a linebreak and reopen
-	// after next line to fix a bleed issue on macOS: https://github.com/chalk/chalk/pull/92
-	const lfIndex = string.indexOf('\n');
-	if (lfIndex !== -1) {
-		string = stringEncaseCRLFWithFirstIndex(string, closeAll, openAll, lfIndex);
-	}
-
-	return openAll + string + closeAll;
-};
-
-let template;
-const chalkTag = (chalk, ...strings) => {
-	const [firstString] = strings;
-
-	if (!isArray(firstString) || !isArray(firstString.raw)) {
-		// If chalk() was called by itself or with a string,
-		// return the string itself as a string.
-		return strings.join(' ');
-	}
-
-	const arguments_ = strings.slice(1);
-	const parts = [firstString.raw[0]];
-
-	for (let i = 1; i < firstString.length; i++) {
-		parts.push(
-			String(arguments_[i - 1]).replace(/[{}\\]/g, '\\$&'),
-			String(firstString.raw[i])
-		);
-	}
-
-	if (template === undefined) {
-		template = templates;
-	}
-
-	return template(chalk, parts.join(''));
-};
-
-Object.defineProperties(Chalk.prototype, styles);
-
-const chalk = Chalk(); // eslint-disable-line new-cap
-chalk.supportsColor = stdoutColor;
-chalk.stderr = Chalk({level: stderrColor ? stderrColor.level : 0}); // eslint-disable-line new-cap
-chalk.stderr.supportsColor = stderrColor;
-
-var source = chalk;
-
-const logSymbols = {
-	info: 'ℹ️',
-	success: '✅',
-	warning: '⚠️',
-	error: '❌️',
-};
 
 var commander = {exports: {}};
 
@@ -2904,8 +922,8 @@ function suggestSimilar$1(word, candidates) {
 
 suggestSimilar$2.suggestSimilar = suggestSimilar$1;
 
-const EventEmitter = require$$0$1.EventEmitter;
-const childProcess = require$$1$1;
+const EventEmitter = require$$0.EventEmitter;
+const childProcess = require$$1;
 const path = require$$2;
 const fs = require$$3;
 
@@ -4876,86 +2894,6574 @@ exports.InvalidOptionArgumentError = InvalidArgumentError; // Deprecated
 exports.Option = Option;
 }(commander, commander.exports));
 
-function isPlainObject(value) {
-	if (Object.prototype.toString.call(value) !== '[object Object]') {
+var src = {};
+
+var createStream$1 = {};
+
+var alignTableData$1 = {};
+
+var alignString$1 = {};
+
+var stringWidth$1 = {exports: {}};
+
+var ansiRegex$1 = ({onlyFirst = false} = {}) => {
+	const pattern = [
+		'[\\u001B\\u009B][[\\]()#;?]*(?:(?:(?:(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]+)*|[a-zA-Z\\d]+(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]*)*)?\\u0007)',
+		'(?:(?:\\d{1,4}(?:;\\d{0,4})*)?[\\dA-PR-TZcf-ntqry=><~]))'
+	].join('|');
+
+	return new RegExp(pattern, onlyFirst ? undefined : 'g');
+};
+
+const ansiRegex = ansiRegex$1;
+
+var stripAnsi$1 = string => typeof string === 'string' ? string.replace(ansiRegex(), '') : string;
+
+var isFullwidthCodePoint$3 = {exports: {}};
+
+/* eslint-disable yoda */
+
+const isFullwidthCodePoint$2 = codePoint => {
+	if (Number.isNaN(codePoint)) {
 		return false;
 	}
 
-	const prototype = Object.getPrototypeOf(value);
-	return prototype === null || prototype === Object.prototype;
-}
-
-function sortKeys(object, options = {}) {
-	if (!isPlainObject(object) && !Array.isArray(object)) {
-		throw new TypeError('Expected a plain object or array');
+	// Code points are derived from:
+	// http://www.unix.org/Public/UNIDATA/EastAsianWidth.txt
+	if (
+		codePoint >= 0x1100 && (
+			codePoint <= 0x115F || // Hangul Jamo
+			codePoint === 0x2329 || // LEFT-POINTING ANGLE BRACKET
+			codePoint === 0x232A || // RIGHT-POINTING ANGLE BRACKET
+			// CJK Radicals Supplement .. Enclosed CJK Letters and Months
+			(0x2E80 <= codePoint && codePoint <= 0x3247 && codePoint !== 0x303F) ||
+			// Enclosed CJK Letters and Months .. CJK Unified Ideographs Extension A
+			(0x3250 <= codePoint && codePoint <= 0x4DBF) ||
+			// CJK Unified Ideographs .. Yi Radicals
+			(0x4E00 <= codePoint && codePoint <= 0xA4C6) ||
+			// Hangul Jamo Extended-A
+			(0xA960 <= codePoint && codePoint <= 0xA97C) ||
+			// Hangul Syllables
+			(0xAC00 <= codePoint && codePoint <= 0xD7A3) ||
+			// CJK Compatibility Ideographs
+			(0xF900 <= codePoint && codePoint <= 0xFAFF) ||
+			// Vertical Forms
+			(0xFE10 <= codePoint && codePoint <= 0xFE19) ||
+			// CJK Compatibility Forms .. Small Form Variants
+			(0xFE30 <= codePoint && codePoint <= 0xFE6B) ||
+			// Halfwidth and Fullwidth Forms
+			(0xFF01 <= codePoint && codePoint <= 0xFF60) ||
+			(0xFFE0 <= codePoint && codePoint <= 0xFFE6) ||
+			// Kana Supplement
+			(0x1B000 <= codePoint && codePoint <= 0x1B001) ||
+			// Enclosed Ideographic Supplement
+			(0x1F200 <= codePoint && codePoint <= 0x1F251) ||
+			// CJK Unified Ideographs Extension B .. Tertiary Ideographic Plane
+			(0x20000 <= codePoint && codePoint <= 0x3FFFD)
+		)
+	) {
+		return true;
 	}
 
-	const {deep, compare} = options;
-	const seenInput = [];
-	const seenOutput = [];
+	return false;
+};
 
-	const deepSortArray = array => {
-		const seenIndex = seenInput.indexOf(array);
-		if (seenIndex !== -1) {
-			return seenOutput[seenIndex];
+isFullwidthCodePoint$3.exports = isFullwidthCodePoint$2;
+isFullwidthCodePoint$3.exports.default = isFullwidthCodePoint$2;
+
+var emojiRegex$1 = function () {
+  // https://mths.be/emoji
+  return /\uD83C\uDFF4\uDB40\uDC67\uDB40\uDC62(?:\uDB40\uDC65\uDB40\uDC6E\uDB40\uDC67|\uDB40\uDC73\uDB40\uDC63\uDB40\uDC74|\uDB40\uDC77\uDB40\uDC6C\uDB40\uDC73)\uDB40\uDC7F|\uD83D\uDC68(?:\uD83C\uDFFC\u200D(?:\uD83E\uDD1D\u200D\uD83D\uDC68\uD83C\uDFFB|\uD83C[\uDF3E\uDF73\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E[\uDDAF-\uDDB3\uDDBC\uDDBD])|\uD83C\uDFFF\u200D(?:\uD83E\uDD1D\u200D\uD83D\uDC68(?:\uD83C[\uDFFB-\uDFFE])|\uD83C[\uDF3E\uDF73\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E[\uDDAF-\uDDB3\uDDBC\uDDBD])|\uD83C\uDFFE\u200D(?:\uD83E\uDD1D\u200D\uD83D\uDC68(?:\uD83C[\uDFFB-\uDFFD])|\uD83C[\uDF3E\uDF73\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E[\uDDAF-\uDDB3\uDDBC\uDDBD])|\uD83C\uDFFD\u200D(?:\uD83E\uDD1D\u200D\uD83D\uDC68(?:\uD83C[\uDFFB\uDFFC])|\uD83C[\uDF3E\uDF73\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E[\uDDAF-\uDDB3\uDDBC\uDDBD])|\u200D(?:\u2764\uFE0F\u200D(?:\uD83D\uDC8B\u200D)?\uD83D\uDC68|(?:\uD83D[\uDC68\uDC69])\u200D(?:\uD83D\uDC66\u200D\uD83D\uDC66|\uD83D\uDC67\u200D(?:\uD83D[\uDC66\uDC67]))|\uD83D\uDC66\u200D\uD83D\uDC66|\uD83D\uDC67\u200D(?:\uD83D[\uDC66\uDC67])|(?:\uD83D[\uDC68\uDC69])\u200D(?:\uD83D[\uDC66\uDC67])|[\u2695\u2696\u2708]\uFE0F|\uD83D[\uDC66\uDC67]|\uD83C[\uDF3E\uDF73\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E[\uDDAF-\uDDB3\uDDBC\uDDBD])|(?:\uD83C\uDFFB\u200D[\u2695\u2696\u2708]|\uD83C\uDFFF\u200D[\u2695\u2696\u2708]|\uD83C\uDFFE\u200D[\u2695\u2696\u2708]|\uD83C\uDFFD\u200D[\u2695\u2696\u2708]|\uD83C\uDFFC\u200D[\u2695\u2696\u2708])\uFE0F|\uD83C\uDFFB\u200D(?:\uD83C[\uDF3E\uDF73\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E[\uDDAF-\uDDB3\uDDBC\uDDBD])|\uD83C[\uDFFB-\uDFFF])|(?:\uD83E\uDDD1\uD83C\uDFFB\u200D\uD83E\uDD1D\u200D\uD83E\uDDD1|\uD83D\uDC69\uD83C\uDFFC\u200D\uD83E\uDD1D\u200D\uD83D\uDC69)\uD83C\uDFFB|\uD83E\uDDD1(?:\uD83C\uDFFF\u200D\uD83E\uDD1D\u200D\uD83E\uDDD1(?:\uD83C[\uDFFB-\uDFFF])|\u200D\uD83E\uDD1D\u200D\uD83E\uDDD1)|(?:\uD83E\uDDD1\uD83C\uDFFE\u200D\uD83E\uDD1D\u200D\uD83E\uDDD1|\uD83D\uDC69\uD83C\uDFFF\u200D\uD83E\uDD1D\u200D(?:\uD83D[\uDC68\uDC69]))(?:\uD83C[\uDFFB-\uDFFE])|(?:\uD83E\uDDD1\uD83C\uDFFC\u200D\uD83E\uDD1D\u200D\uD83E\uDDD1|\uD83D\uDC69\uD83C\uDFFD\u200D\uD83E\uDD1D\u200D\uD83D\uDC69)(?:\uD83C[\uDFFB\uDFFC])|\uD83D\uDC69(?:\uD83C\uDFFE\u200D(?:\uD83E\uDD1D\u200D\uD83D\uDC68(?:\uD83C[\uDFFB-\uDFFD\uDFFF])|\uD83C[\uDF3E\uDF73\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E[\uDDAF-\uDDB3\uDDBC\uDDBD])|\uD83C\uDFFC\u200D(?:\uD83E\uDD1D\u200D\uD83D\uDC68(?:\uD83C[\uDFFB\uDFFD-\uDFFF])|\uD83C[\uDF3E\uDF73\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E[\uDDAF-\uDDB3\uDDBC\uDDBD])|\uD83C\uDFFB\u200D(?:\uD83E\uDD1D\u200D\uD83D\uDC68(?:\uD83C[\uDFFC-\uDFFF])|\uD83C[\uDF3E\uDF73\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E[\uDDAF-\uDDB3\uDDBC\uDDBD])|\uD83C\uDFFD\u200D(?:\uD83E\uDD1D\u200D\uD83D\uDC68(?:\uD83C[\uDFFB\uDFFC\uDFFE\uDFFF])|\uD83C[\uDF3E\uDF73\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E[\uDDAF-\uDDB3\uDDBC\uDDBD])|\u200D(?:\u2764\uFE0F\u200D(?:\uD83D\uDC8B\u200D(?:\uD83D[\uDC68\uDC69])|\uD83D[\uDC68\uDC69])|\uD83C[\uDF3E\uDF73\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E[\uDDAF-\uDDB3\uDDBC\uDDBD])|\uD83C\uDFFF\u200D(?:\uD83C[\uDF3E\uDF73\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E[\uDDAF-\uDDB3\uDDBC\uDDBD]))|\uD83D\uDC69\u200D\uD83D\uDC69\u200D(?:\uD83D\uDC66\u200D\uD83D\uDC66|\uD83D\uDC67\u200D(?:\uD83D[\uDC66\uDC67]))|(?:\uD83E\uDDD1\uD83C\uDFFD\u200D\uD83E\uDD1D\u200D\uD83E\uDDD1|\uD83D\uDC69\uD83C\uDFFE\u200D\uD83E\uDD1D\u200D\uD83D\uDC69)(?:\uD83C[\uDFFB-\uDFFD])|\uD83D\uDC69\u200D\uD83D\uDC66\u200D\uD83D\uDC66|\uD83D\uDC69\u200D\uD83D\uDC69\u200D(?:\uD83D[\uDC66\uDC67])|(?:\uD83D\uDC41\uFE0F\u200D\uD83D\uDDE8|\uD83D\uDC69(?:\uD83C\uDFFF\u200D[\u2695\u2696\u2708]|\uD83C\uDFFE\u200D[\u2695\u2696\u2708]|\uD83C\uDFFC\u200D[\u2695\u2696\u2708]|\uD83C\uDFFB\u200D[\u2695\u2696\u2708]|\uD83C\uDFFD\u200D[\u2695\u2696\u2708]|\u200D[\u2695\u2696\u2708])|(?:(?:\u26F9|\uD83C[\uDFCB\uDFCC]|\uD83D\uDD75)\uFE0F|\uD83D\uDC6F|\uD83E[\uDD3C\uDDDE\uDDDF])\u200D[\u2640\u2642]|(?:\u26F9|\uD83C[\uDFCB\uDFCC]|\uD83D\uDD75)(?:\uD83C[\uDFFB-\uDFFF])\u200D[\u2640\u2642]|(?:\uD83C[\uDFC3\uDFC4\uDFCA]|\uD83D[\uDC6E\uDC71\uDC73\uDC77\uDC81\uDC82\uDC86\uDC87\uDE45-\uDE47\uDE4B\uDE4D\uDE4E\uDEA3\uDEB4-\uDEB6]|\uD83E[\uDD26\uDD37-\uDD39\uDD3D\uDD3E\uDDB8\uDDB9\uDDCD-\uDDCF\uDDD6-\uDDDD])(?:(?:\uD83C[\uDFFB-\uDFFF])\u200D[\u2640\u2642]|\u200D[\u2640\u2642])|\uD83C\uDFF4\u200D\u2620)\uFE0F|\uD83D\uDC69\u200D\uD83D\uDC67\u200D(?:\uD83D[\uDC66\uDC67])|\uD83C\uDFF3\uFE0F\u200D\uD83C\uDF08|\uD83D\uDC15\u200D\uD83E\uDDBA|\uD83D\uDC69\u200D\uD83D\uDC66|\uD83D\uDC69\u200D\uD83D\uDC67|\uD83C\uDDFD\uD83C\uDDF0|\uD83C\uDDF4\uD83C\uDDF2|\uD83C\uDDF6\uD83C\uDDE6|[#\*0-9]\uFE0F\u20E3|\uD83C\uDDE7(?:\uD83C[\uDDE6\uDDE7\uDDE9-\uDDEF\uDDF1-\uDDF4\uDDF6-\uDDF9\uDDFB\uDDFC\uDDFE\uDDFF])|\uD83C\uDDF9(?:\uD83C[\uDDE6\uDDE8\uDDE9\uDDEB-\uDDED\uDDEF-\uDDF4\uDDF7\uDDF9\uDDFB\uDDFC\uDDFF])|\uD83C\uDDEA(?:\uD83C[\uDDE6\uDDE8\uDDEA\uDDEC\uDDED\uDDF7-\uDDFA])|\uD83E\uDDD1(?:\uD83C[\uDFFB-\uDFFF])|\uD83C\uDDF7(?:\uD83C[\uDDEA\uDDF4\uDDF8\uDDFA\uDDFC])|\uD83D\uDC69(?:\uD83C[\uDFFB-\uDFFF])|\uD83C\uDDF2(?:\uD83C[\uDDE6\uDDE8-\uDDED\uDDF0-\uDDFF])|\uD83C\uDDE6(?:\uD83C[\uDDE8-\uDDEC\uDDEE\uDDF1\uDDF2\uDDF4\uDDF6-\uDDFA\uDDFC\uDDFD\uDDFF])|\uD83C\uDDF0(?:\uD83C[\uDDEA\uDDEC-\uDDEE\uDDF2\uDDF3\uDDF5\uDDF7\uDDFC\uDDFE\uDDFF])|\uD83C\uDDED(?:\uD83C[\uDDF0\uDDF2\uDDF3\uDDF7\uDDF9\uDDFA])|\uD83C\uDDE9(?:\uD83C[\uDDEA\uDDEC\uDDEF\uDDF0\uDDF2\uDDF4\uDDFF])|\uD83C\uDDFE(?:\uD83C[\uDDEA\uDDF9])|\uD83C\uDDEC(?:\uD83C[\uDDE6\uDDE7\uDDE9-\uDDEE\uDDF1-\uDDF3\uDDF5-\uDDFA\uDDFC\uDDFE])|\uD83C\uDDF8(?:\uD83C[\uDDE6-\uDDEA\uDDEC-\uDDF4\uDDF7-\uDDF9\uDDFB\uDDFD-\uDDFF])|\uD83C\uDDEB(?:\uD83C[\uDDEE-\uDDF0\uDDF2\uDDF4\uDDF7])|\uD83C\uDDF5(?:\uD83C[\uDDE6\uDDEA-\uDDED\uDDF0-\uDDF3\uDDF7-\uDDF9\uDDFC\uDDFE])|\uD83C\uDDFB(?:\uD83C[\uDDE6\uDDE8\uDDEA\uDDEC\uDDEE\uDDF3\uDDFA])|\uD83C\uDDF3(?:\uD83C[\uDDE6\uDDE8\uDDEA-\uDDEC\uDDEE\uDDF1\uDDF4\uDDF5\uDDF7\uDDFA\uDDFF])|\uD83C\uDDE8(?:\uD83C[\uDDE6\uDDE8\uDDE9\uDDEB-\uDDEE\uDDF0-\uDDF5\uDDF7\uDDFA-\uDDFF])|\uD83C\uDDF1(?:\uD83C[\uDDE6-\uDDE8\uDDEE\uDDF0\uDDF7-\uDDFB\uDDFE])|\uD83C\uDDFF(?:\uD83C[\uDDE6\uDDF2\uDDFC])|\uD83C\uDDFC(?:\uD83C[\uDDEB\uDDF8])|\uD83C\uDDFA(?:\uD83C[\uDDE6\uDDEC\uDDF2\uDDF3\uDDF8\uDDFE\uDDFF])|\uD83C\uDDEE(?:\uD83C[\uDDE8-\uDDEA\uDDF1-\uDDF4\uDDF6-\uDDF9])|\uD83C\uDDEF(?:\uD83C[\uDDEA\uDDF2\uDDF4\uDDF5])|(?:\uD83C[\uDFC3\uDFC4\uDFCA]|\uD83D[\uDC6E\uDC71\uDC73\uDC77\uDC81\uDC82\uDC86\uDC87\uDE45-\uDE47\uDE4B\uDE4D\uDE4E\uDEA3\uDEB4-\uDEB6]|\uD83E[\uDD26\uDD37-\uDD39\uDD3D\uDD3E\uDDB8\uDDB9\uDDCD-\uDDCF\uDDD6-\uDDDD])(?:\uD83C[\uDFFB-\uDFFF])|(?:\u26F9|\uD83C[\uDFCB\uDFCC]|\uD83D\uDD75)(?:\uD83C[\uDFFB-\uDFFF])|(?:[\u261D\u270A-\u270D]|\uD83C[\uDF85\uDFC2\uDFC7]|\uD83D[\uDC42\uDC43\uDC46-\uDC50\uDC66\uDC67\uDC6B-\uDC6D\uDC70\uDC72\uDC74-\uDC76\uDC78\uDC7C\uDC83\uDC85\uDCAA\uDD74\uDD7A\uDD90\uDD95\uDD96\uDE4C\uDE4F\uDEC0\uDECC]|\uD83E[\uDD0F\uDD18-\uDD1C\uDD1E\uDD1F\uDD30-\uDD36\uDDB5\uDDB6\uDDBB\uDDD2-\uDDD5])(?:\uD83C[\uDFFB-\uDFFF])|(?:[\u231A\u231B\u23E9-\u23EC\u23F0\u23F3\u25FD\u25FE\u2614\u2615\u2648-\u2653\u267F\u2693\u26A1\u26AA\u26AB\u26BD\u26BE\u26C4\u26C5\u26CE\u26D4\u26EA\u26F2\u26F3\u26F5\u26FA\u26FD\u2705\u270A\u270B\u2728\u274C\u274E\u2753-\u2755\u2757\u2795-\u2797\u27B0\u27BF\u2B1B\u2B1C\u2B50\u2B55]|\uD83C[\uDC04\uDCCF\uDD8E\uDD91-\uDD9A\uDDE6-\uDDFF\uDE01\uDE1A\uDE2F\uDE32-\uDE36\uDE38-\uDE3A\uDE50\uDE51\uDF00-\uDF20\uDF2D-\uDF35\uDF37-\uDF7C\uDF7E-\uDF93\uDFA0-\uDFCA\uDFCF-\uDFD3\uDFE0-\uDFF0\uDFF4\uDFF8-\uDFFF]|\uD83D[\uDC00-\uDC3E\uDC40\uDC42-\uDCFC\uDCFF-\uDD3D\uDD4B-\uDD4E\uDD50-\uDD67\uDD7A\uDD95\uDD96\uDDA4\uDDFB-\uDE4F\uDE80-\uDEC5\uDECC\uDED0-\uDED2\uDED5\uDEEB\uDEEC\uDEF4-\uDEFA\uDFE0-\uDFEB]|\uD83E[\uDD0D-\uDD3A\uDD3C-\uDD45\uDD47-\uDD71\uDD73-\uDD76\uDD7A-\uDDA2\uDDA5-\uDDAA\uDDAE-\uDDCA\uDDCD-\uDDFF\uDE70-\uDE73\uDE78-\uDE7A\uDE80-\uDE82\uDE90-\uDE95])|(?:[#\*0-9\xA9\xAE\u203C\u2049\u2122\u2139\u2194-\u2199\u21A9\u21AA\u231A\u231B\u2328\u23CF\u23E9-\u23F3\u23F8-\u23FA\u24C2\u25AA\u25AB\u25B6\u25C0\u25FB-\u25FE\u2600-\u2604\u260E\u2611\u2614\u2615\u2618\u261D\u2620\u2622\u2623\u2626\u262A\u262E\u262F\u2638-\u263A\u2640\u2642\u2648-\u2653\u265F\u2660\u2663\u2665\u2666\u2668\u267B\u267E\u267F\u2692-\u2697\u2699\u269B\u269C\u26A0\u26A1\u26AA\u26AB\u26B0\u26B1\u26BD\u26BE\u26C4\u26C5\u26C8\u26CE\u26CF\u26D1\u26D3\u26D4\u26E9\u26EA\u26F0-\u26F5\u26F7-\u26FA\u26FD\u2702\u2705\u2708-\u270D\u270F\u2712\u2714\u2716\u271D\u2721\u2728\u2733\u2734\u2744\u2747\u274C\u274E\u2753-\u2755\u2757\u2763\u2764\u2795-\u2797\u27A1\u27B0\u27BF\u2934\u2935\u2B05-\u2B07\u2B1B\u2B1C\u2B50\u2B55\u3030\u303D\u3297\u3299]|\uD83C[\uDC04\uDCCF\uDD70\uDD71\uDD7E\uDD7F\uDD8E\uDD91-\uDD9A\uDDE6-\uDDFF\uDE01\uDE02\uDE1A\uDE2F\uDE32-\uDE3A\uDE50\uDE51\uDF00-\uDF21\uDF24-\uDF93\uDF96\uDF97\uDF99-\uDF9B\uDF9E-\uDFF0\uDFF3-\uDFF5\uDFF7-\uDFFF]|\uD83D[\uDC00-\uDCFD\uDCFF-\uDD3D\uDD49-\uDD4E\uDD50-\uDD67\uDD6F\uDD70\uDD73-\uDD7A\uDD87\uDD8A-\uDD8D\uDD90\uDD95\uDD96\uDDA4\uDDA5\uDDA8\uDDB1\uDDB2\uDDBC\uDDC2-\uDDC4\uDDD1-\uDDD3\uDDDC-\uDDDE\uDDE1\uDDE3\uDDE8\uDDEF\uDDF3\uDDFA-\uDE4F\uDE80-\uDEC5\uDECB-\uDED2\uDED5\uDEE0-\uDEE5\uDEE9\uDEEB\uDEEC\uDEF0\uDEF3-\uDEFA\uDFE0-\uDFEB]|\uD83E[\uDD0D-\uDD3A\uDD3C-\uDD45\uDD47-\uDD71\uDD73-\uDD76\uDD7A-\uDDA2\uDDA5-\uDDAA\uDDAE-\uDDCA\uDDCD-\uDDFF\uDE70-\uDE73\uDE78-\uDE7A\uDE80-\uDE82\uDE90-\uDE95])\uFE0F|(?:[\u261D\u26F9\u270A-\u270D]|\uD83C[\uDF85\uDFC2-\uDFC4\uDFC7\uDFCA-\uDFCC]|\uD83D[\uDC42\uDC43\uDC46-\uDC50\uDC66-\uDC78\uDC7C\uDC81-\uDC83\uDC85-\uDC87\uDC8F\uDC91\uDCAA\uDD74\uDD75\uDD7A\uDD90\uDD95\uDD96\uDE45-\uDE47\uDE4B-\uDE4F\uDEA3\uDEB4-\uDEB6\uDEC0\uDECC]|\uD83E[\uDD0F\uDD18-\uDD1F\uDD26\uDD30-\uDD39\uDD3C-\uDD3E\uDDB5\uDDB6\uDDB8\uDDB9\uDDBB\uDDCD-\uDDCF\uDDD1-\uDDDD])/g;
+};
+
+const stripAnsi = stripAnsi$1;
+const isFullwidthCodePoint$1 = isFullwidthCodePoint$3.exports;
+const emojiRegex = emojiRegex$1;
+
+const stringWidth = string => {
+	if (typeof string !== 'string' || string.length === 0) {
+		return 0;
+	}
+
+	string = stripAnsi(string);
+
+	if (string.length === 0) {
+		return 0;
+	}
+
+	string = string.replace(emojiRegex(), '  ');
+
+	let width = 0;
+
+	for (let i = 0; i < string.length; i++) {
+		const code = string.codePointAt(i);
+
+		// Ignore control characters
+		if (code <= 0x1F || (code >= 0x7F && code <= 0x9F)) {
+			continue;
 		}
 
-		const result = [];
-		seenInput.push(array);
-		seenOutput.push(result);
+		// Ignore combining characters
+		if (code >= 0x300 && code <= 0x36F) {
+			continue;
+		}
 
-		result.push(...array.map(item => {
-			if (Array.isArray(item)) {
-				return deepSortArray(item);
+		// Surrogates
+		if (code > 0xFFFF) {
+			i++;
+		}
+
+		width += isFullwidthCodePoint$1(code) ? 2 : 1;
+	}
+
+	return width;
+};
+
+stringWidth$1.exports = stringWidth;
+// TODO: remove this in the next major version
+stringWidth$1.exports.default = stringWidth;
+
+var utils = {};
+
+const regex = '[\uD800-\uDBFF][\uDC00-\uDFFF]';
+
+const astralRegex$1 = options => options && options.exact ? new RegExp(`^${regex}$`) : new RegExp(regex, 'g');
+
+var astralRegex_1 = astralRegex$1;
+
+var ansiStyles$3 = {exports: {}};
+
+var colorName$1 = {
+	"aliceblue": [240, 248, 255],
+	"antiquewhite": [250, 235, 215],
+	"aqua": [0, 255, 255],
+	"aquamarine": [127, 255, 212],
+	"azure": [240, 255, 255],
+	"beige": [245, 245, 220],
+	"bisque": [255, 228, 196],
+	"black": [0, 0, 0],
+	"blanchedalmond": [255, 235, 205],
+	"blue": [0, 0, 255],
+	"blueviolet": [138, 43, 226],
+	"brown": [165, 42, 42],
+	"burlywood": [222, 184, 135],
+	"cadetblue": [95, 158, 160],
+	"chartreuse": [127, 255, 0],
+	"chocolate": [210, 105, 30],
+	"coral": [255, 127, 80],
+	"cornflowerblue": [100, 149, 237],
+	"cornsilk": [255, 248, 220],
+	"crimson": [220, 20, 60],
+	"cyan": [0, 255, 255],
+	"darkblue": [0, 0, 139],
+	"darkcyan": [0, 139, 139],
+	"darkgoldenrod": [184, 134, 11],
+	"darkgray": [169, 169, 169],
+	"darkgreen": [0, 100, 0],
+	"darkgrey": [169, 169, 169],
+	"darkkhaki": [189, 183, 107],
+	"darkmagenta": [139, 0, 139],
+	"darkolivegreen": [85, 107, 47],
+	"darkorange": [255, 140, 0],
+	"darkorchid": [153, 50, 204],
+	"darkred": [139, 0, 0],
+	"darksalmon": [233, 150, 122],
+	"darkseagreen": [143, 188, 143],
+	"darkslateblue": [72, 61, 139],
+	"darkslategray": [47, 79, 79],
+	"darkslategrey": [47, 79, 79],
+	"darkturquoise": [0, 206, 209],
+	"darkviolet": [148, 0, 211],
+	"deeppink": [255, 20, 147],
+	"deepskyblue": [0, 191, 255],
+	"dimgray": [105, 105, 105],
+	"dimgrey": [105, 105, 105],
+	"dodgerblue": [30, 144, 255],
+	"firebrick": [178, 34, 34],
+	"floralwhite": [255, 250, 240],
+	"forestgreen": [34, 139, 34],
+	"fuchsia": [255, 0, 255],
+	"gainsboro": [220, 220, 220],
+	"ghostwhite": [248, 248, 255],
+	"gold": [255, 215, 0],
+	"goldenrod": [218, 165, 32],
+	"gray": [128, 128, 128],
+	"green": [0, 128, 0],
+	"greenyellow": [173, 255, 47],
+	"grey": [128, 128, 128],
+	"honeydew": [240, 255, 240],
+	"hotpink": [255, 105, 180],
+	"indianred": [205, 92, 92],
+	"indigo": [75, 0, 130],
+	"ivory": [255, 255, 240],
+	"khaki": [240, 230, 140],
+	"lavender": [230, 230, 250],
+	"lavenderblush": [255, 240, 245],
+	"lawngreen": [124, 252, 0],
+	"lemonchiffon": [255, 250, 205],
+	"lightblue": [173, 216, 230],
+	"lightcoral": [240, 128, 128],
+	"lightcyan": [224, 255, 255],
+	"lightgoldenrodyellow": [250, 250, 210],
+	"lightgray": [211, 211, 211],
+	"lightgreen": [144, 238, 144],
+	"lightgrey": [211, 211, 211],
+	"lightpink": [255, 182, 193],
+	"lightsalmon": [255, 160, 122],
+	"lightseagreen": [32, 178, 170],
+	"lightskyblue": [135, 206, 250],
+	"lightslategray": [119, 136, 153],
+	"lightslategrey": [119, 136, 153],
+	"lightsteelblue": [176, 196, 222],
+	"lightyellow": [255, 255, 224],
+	"lime": [0, 255, 0],
+	"limegreen": [50, 205, 50],
+	"linen": [250, 240, 230],
+	"magenta": [255, 0, 255],
+	"maroon": [128, 0, 0],
+	"mediumaquamarine": [102, 205, 170],
+	"mediumblue": [0, 0, 205],
+	"mediumorchid": [186, 85, 211],
+	"mediumpurple": [147, 112, 219],
+	"mediumseagreen": [60, 179, 113],
+	"mediumslateblue": [123, 104, 238],
+	"mediumspringgreen": [0, 250, 154],
+	"mediumturquoise": [72, 209, 204],
+	"mediumvioletred": [199, 21, 133],
+	"midnightblue": [25, 25, 112],
+	"mintcream": [245, 255, 250],
+	"mistyrose": [255, 228, 225],
+	"moccasin": [255, 228, 181],
+	"navajowhite": [255, 222, 173],
+	"navy": [0, 0, 128],
+	"oldlace": [253, 245, 230],
+	"olive": [128, 128, 0],
+	"olivedrab": [107, 142, 35],
+	"orange": [255, 165, 0],
+	"orangered": [255, 69, 0],
+	"orchid": [218, 112, 214],
+	"palegoldenrod": [238, 232, 170],
+	"palegreen": [152, 251, 152],
+	"paleturquoise": [175, 238, 238],
+	"palevioletred": [219, 112, 147],
+	"papayawhip": [255, 239, 213],
+	"peachpuff": [255, 218, 185],
+	"peru": [205, 133, 63],
+	"pink": [255, 192, 203],
+	"plum": [221, 160, 221],
+	"powderblue": [176, 224, 230],
+	"purple": [128, 0, 128],
+	"rebeccapurple": [102, 51, 153],
+	"red": [255, 0, 0],
+	"rosybrown": [188, 143, 143],
+	"royalblue": [65, 105, 225],
+	"saddlebrown": [139, 69, 19],
+	"salmon": [250, 128, 114],
+	"sandybrown": [244, 164, 96],
+	"seagreen": [46, 139, 87],
+	"seashell": [255, 245, 238],
+	"sienna": [160, 82, 45],
+	"silver": [192, 192, 192],
+	"skyblue": [135, 206, 235],
+	"slateblue": [106, 90, 205],
+	"slategray": [112, 128, 144],
+	"slategrey": [112, 128, 144],
+	"snow": [255, 250, 250],
+	"springgreen": [0, 255, 127],
+	"steelblue": [70, 130, 180],
+	"tan": [210, 180, 140],
+	"teal": [0, 128, 128],
+	"thistle": [216, 191, 216],
+	"tomato": [255, 99, 71],
+	"turquoise": [64, 224, 208],
+	"violet": [238, 130, 238],
+	"wheat": [245, 222, 179],
+	"white": [255, 255, 255],
+	"whitesmoke": [245, 245, 245],
+	"yellow": [255, 255, 0],
+	"yellowgreen": [154, 205, 50]
+};
+
+/* MIT license */
+
+/* eslint-disable no-mixed-operators */
+const cssKeywords$1 = colorName$1;
+
+// NOTE: conversions should only return primitive values (i.e. arrays, or
+//       values that give correct `typeof` results).
+//       do not use box values types (i.e. Number(), String(), etc.)
+
+const reverseKeywords$1 = {};
+for (const key of Object.keys(cssKeywords$1)) {
+	reverseKeywords$1[cssKeywords$1[key]] = key;
+}
+
+const convert$3 = {
+	rgb: {channels: 3, labels: 'rgb'},
+	hsl: {channels: 3, labels: 'hsl'},
+	hsv: {channels: 3, labels: 'hsv'},
+	hwb: {channels: 3, labels: 'hwb'},
+	cmyk: {channels: 4, labels: 'cmyk'},
+	xyz: {channels: 3, labels: 'xyz'},
+	lab: {channels: 3, labels: 'lab'},
+	lch: {channels: 3, labels: 'lch'},
+	hex: {channels: 1, labels: ['hex']},
+	keyword: {channels: 1, labels: ['keyword']},
+	ansi16: {channels: 1, labels: ['ansi16']},
+	ansi256: {channels: 1, labels: ['ansi256']},
+	hcg: {channels: 3, labels: ['h', 'c', 'g']},
+	apple: {channels: 3, labels: ['r16', 'g16', 'b16']},
+	gray: {channels: 1, labels: ['gray']}
+};
+
+var conversions$5 = convert$3;
+
+// Hide .channels and .labels properties
+for (const model of Object.keys(convert$3)) {
+	if (!('channels' in convert$3[model])) {
+		throw new Error('missing channels property: ' + model);
+	}
+
+	if (!('labels' in convert$3[model])) {
+		throw new Error('missing channel labels property: ' + model);
+	}
+
+	if (convert$3[model].labels.length !== convert$3[model].channels) {
+		throw new Error('channel and label counts mismatch: ' + model);
+	}
+
+	const {channels, labels} = convert$3[model];
+	delete convert$3[model].channels;
+	delete convert$3[model].labels;
+	Object.defineProperty(convert$3[model], 'channels', {value: channels});
+	Object.defineProperty(convert$3[model], 'labels', {value: labels});
+}
+
+convert$3.rgb.hsl = function (rgb) {
+	const r = rgb[0] / 255;
+	const g = rgb[1] / 255;
+	const b = rgb[2] / 255;
+	const min = Math.min(r, g, b);
+	const max = Math.max(r, g, b);
+	const delta = max - min;
+	let h;
+	let s;
+
+	if (max === min) {
+		h = 0;
+	} else if (r === max) {
+		h = (g - b) / delta;
+	} else if (g === max) {
+		h = 2 + (b - r) / delta;
+	} else if (b === max) {
+		h = 4 + (r - g) / delta;
+	}
+
+	h = Math.min(h * 60, 360);
+
+	if (h < 0) {
+		h += 360;
+	}
+
+	const l = (min + max) / 2;
+
+	if (max === min) {
+		s = 0;
+	} else if (l <= 0.5) {
+		s = delta / (max + min);
+	} else {
+		s = delta / (2 - max - min);
+	}
+
+	return [h, s * 100, l * 100];
+};
+
+convert$3.rgb.hsv = function (rgb) {
+	let rdif;
+	let gdif;
+	let bdif;
+	let h;
+	let s;
+
+	const r = rgb[0] / 255;
+	const g = rgb[1] / 255;
+	const b = rgb[2] / 255;
+	const v = Math.max(r, g, b);
+	const diff = v - Math.min(r, g, b);
+	const diffc = function (c) {
+		return (v - c) / 6 / diff + 1 / 2;
+	};
+
+	if (diff === 0) {
+		h = 0;
+		s = 0;
+	} else {
+		s = diff / v;
+		rdif = diffc(r);
+		gdif = diffc(g);
+		bdif = diffc(b);
+
+		if (r === v) {
+			h = bdif - gdif;
+		} else if (g === v) {
+			h = (1 / 3) + rdif - bdif;
+		} else if (b === v) {
+			h = (2 / 3) + gdif - rdif;
+		}
+
+		if (h < 0) {
+			h += 1;
+		} else if (h > 1) {
+			h -= 1;
+		}
+	}
+
+	return [
+		h * 360,
+		s * 100,
+		v * 100
+	];
+};
+
+convert$3.rgb.hwb = function (rgb) {
+	const r = rgb[0];
+	const g = rgb[1];
+	let b = rgb[2];
+	const h = convert$3.rgb.hsl(rgb)[0];
+	const w = 1 / 255 * Math.min(r, Math.min(g, b));
+
+	b = 1 - 1 / 255 * Math.max(r, Math.max(g, b));
+
+	return [h, w * 100, b * 100];
+};
+
+convert$3.rgb.cmyk = function (rgb) {
+	const r = rgb[0] / 255;
+	const g = rgb[1] / 255;
+	const b = rgb[2] / 255;
+
+	const k = Math.min(1 - r, 1 - g, 1 - b);
+	const c = (1 - r - k) / (1 - k) || 0;
+	const m = (1 - g - k) / (1 - k) || 0;
+	const y = (1 - b - k) / (1 - k) || 0;
+
+	return [c * 100, m * 100, y * 100, k * 100];
+};
+
+function comparativeDistance$1(x, y) {
+	/*
+		See https://en.m.wikipedia.org/wiki/Euclidean_distance#Squared_Euclidean_distance
+	*/
+	return (
+		((x[0] - y[0]) ** 2) +
+		((x[1] - y[1]) ** 2) +
+		((x[2] - y[2]) ** 2)
+	);
+}
+
+convert$3.rgb.keyword = function (rgb) {
+	const reversed = reverseKeywords$1[rgb];
+	if (reversed) {
+		return reversed;
+	}
+
+	let currentClosestDistance = Infinity;
+	let currentClosestKeyword;
+
+	for (const keyword of Object.keys(cssKeywords$1)) {
+		const value = cssKeywords$1[keyword];
+
+		// Compute comparative distance
+		const distance = comparativeDistance$1(rgb, value);
+
+		// Check if its less, if so set as closest
+		if (distance < currentClosestDistance) {
+			currentClosestDistance = distance;
+			currentClosestKeyword = keyword;
+		}
+	}
+
+	return currentClosestKeyword;
+};
+
+convert$3.keyword.rgb = function (keyword) {
+	return cssKeywords$1[keyword];
+};
+
+convert$3.rgb.xyz = function (rgb) {
+	let r = rgb[0] / 255;
+	let g = rgb[1] / 255;
+	let b = rgb[2] / 255;
+
+	// Assume sRGB
+	r = r > 0.04045 ? (((r + 0.055) / 1.055) ** 2.4) : (r / 12.92);
+	g = g > 0.04045 ? (((g + 0.055) / 1.055) ** 2.4) : (g / 12.92);
+	b = b > 0.04045 ? (((b + 0.055) / 1.055) ** 2.4) : (b / 12.92);
+
+	const x = (r * 0.4124) + (g * 0.3576) + (b * 0.1805);
+	const y = (r * 0.2126) + (g * 0.7152) + (b * 0.0722);
+	const z = (r * 0.0193) + (g * 0.1192) + (b * 0.9505);
+
+	return [x * 100, y * 100, z * 100];
+};
+
+convert$3.rgb.lab = function (rgb) {
+	const xyz = convert$3.rgb.xyz(rgb);
+	let x = xyz[0];
+	let y = xyz[1];
+	let z = xyz[2];
+
+	x /= 95.047;
+	y /= 100;
+	z /= 108.883;
+
+	x = x > 0.008856 ? (x ** (1 / 3)) : (7.787 * x) + (16 / 116);
+	y = y > 0.008856 ? (y ** (1 / 3)) : (7.787 * y) + (16 / 116);
+	z = z > 0.008856 ? (z ** (1 / 3)) : (7.787 * z) + (16 / 116);
+
+	const l = (116 * y) - 16;
+	const a = 500 * (x - y);
+	const b = 200 * (y - z);
+
+	return [l, a, b];
+};
+
+convert$3.hsl.rgb = function (hsl) {
+	const h = hsl[0] / 360;
+	const s = hsl[1] / 100;
+	const l = hsl[2] / 100;
+	let t2;
+	let t3;
+	let val;
+
+	if (s === 0) {
+		val = l * 255;
+		return [val, val, val];
+	}
+
+	if (l < 0.5) {
+		t2 = l * (1 + s);
+	} else {
+		t2 = l + s - l * s;
+	}
+
+	const t1 = 2 * l - t2;
+
+	const rgb = [0, 0, 0];
+	for (let i = 0; i < 3; i++) {
+		t3 = h + 1 / 3 * -(i - 1);
+		if (t3 < 0) {
+			t3++;
+		}
+
+		if (t3 > 1) {
+			t3--;
+		}
+
+		if (6 * t3 < 1) {
+			val = t1 + (t2 - t1) * 6 * t3;
+		} else if (2 * t3 < 1) {
+			val = t2;
+		} else if (3 * t3 < 2) {
+			val = t1 + (t2 - t1) * (2 / 3 - t3) * 6;
+		} else {
+			val = t1;
+		}
+
+		rgb[i] = val * 255;
+	}
+
+	return rgb;
+};
+
+convert$3.hsl.hsv = function (hsl) {
+	const h = hsl[0];
+	let s = hsl[1] / 100;
+	let l = hsl[2] / 100;
+	let smin = s;
+	const lmin = Math.max(l, 0.01);
+
+	l *= 2;
+	s *= (l <= 1) ? l : 2 - l;
+	smin *= lmin <= 1 ? lmin : 2 - lmin;
+	const v = (l + s) / 2;
+	const sv = l === 0 ? (2 * smin) / (lmin + smin) : (2 * s) / (l + s);
+
+	return [h, sv * 100, v * 100];
+};
+
+convert$3.hsv.rgb = function (hsv) {
+	const h = hsv[0] / 60;
+	const s = hsv[1] / 100;
+	let v = hsv[2] / 100;
+	const hi = Math.floor(h) % 6;
+
+	const f = h - Math.floor(h);
+	const p = 255 * v * (1 - s);
+	const q = 255 * v * (1 - (s * f));
+	const t = 255 * v * (1 - (s * (1 - f)));
+	v *= 255;
+
+	switch (hi) {
+		case 0:
+			return [v, t, p];
+		case 1:
+			return [q, v, p];
+		case 2:
+			return [p, v, t];
+		case 3:
+			return [p, q, v];
+		case 4:
+			return [t, p, v];
+		case 5:
+			return [v, p, q];
+	}
+};
+
+convert$3.hsv.hsl = function (hsv) {
+	const h = hsv[0];
+	const s = hsv[1] / 100;
+	const v = hsv[2] / 100;
+	const vmin = Math.max(v, 0.01);
+	let sl;
+	let l;
+
+	l = (2 - s) * v;
+	const lmin = (2 - s) * vmin;
+	sl = s * vmin;
+	sl /= (lmin <= 1) ? lmin : 2 - lmin;
+	sl = sl || 0;
+	l /= 2;
+
+	return [h, sl * 100, l * 100];
+};
+
+// http://dev.w3.org/csswg/css-color/#hwb-to-rgb
+convert$3.hwb.rgb = function (hwb) {
+	const h = hwb[0] / 360;
+	let wh = hwb[1] / 100;
+	let bl = hwb[2] / 100;
+	const ratio = wh + bl;
+	let f;
+
+	// Wh + bl cant be > 1
+	if (ratio > 1) {
+		wh /= ratio;
+		bl /= ratio;
+	}
+
+	const i = Math.floor(6 * h);
+	const v = 1 - bl;
+	f = 6 * h - i;
+
+	if ((i & 0x01) !== 0) {
+		f = 1 - f;
+	}
+
+	const n = wh + f * (v - wh); // Linear interpolation
+
+	let r;
+	let g;
+	let b;
+	/* eslint-disable max-statements-per-line,no-multi-spaces */
+	switch (i) {
+		default:
+		case 6:
+		case 0: r = v;  g = n;  b = wh; break;
+		case 1: r = n;  g = v;  b = wh; break;
+		case 2: r = wh; g = v;  b = n; break;
+		case 3: r = wh; g = n;  b = v; break;
+		case 4: r = n;  g = wh; b = v; break;
+		case 5: r = v;  g = wh; b = n; break;
+	}
+	/* eslint-enable max-statements-per-line,no-multi-spaces */
+
+	return [r * 255, g * 255, b * 255];
+};
+
+convert$3.cmyk.rgb = function (cmyk) {
+	const c = cmyk[0] / 100;
+	const m = cmyk[1] / 100;
+	const y = cmyk[2] / 100;
+	const k = cmyk[3] / 100;
+
+	const r = 1 - Math.min(1, c * (1 - k) + k);
+	const g = 1 - Math.min(1, m * (1 - k) + k);
+	const b = 1 - Math.min(1, y * (1 - k) + k);
+
+	return [r * 255, g * 255, b * 255];
+};
+
+convert$3.xyz.rgb = function (xyz) {
+	const x = xyz[0] / 100;
+	const y = xyz[1] / 100;
+	const z = xyz[2] / 100;
+	let r;
+	let g;
+	let b;
+
+	r = (x * 3.2406) + (y * -1.5372) + (z * -0.4986);
+	g = (x * -0.9689) + (y * 1.8758) + (z * 0.0415);
+	b = (x * 0.0557) + (y * -0.2040) + (z * 1.0570);
+
+	// Assume sRGB
+	r = r > 0.0031308
+		? ((1.055 * (r ** (1.0 / 2.4))) - 0.055)
+		: r * 12.92;
+
+	g = g > 0.0031308
+		? ((1.055 * (g ** (1.0 / 2.4))) - 0.055)
+		: g * 12.92;
+
+	b = b > 0.0031308
+		? ((1.055 * (b ** (1.0 / 2.4))) - 0.055)
+		: b * 12.92;
+
+	r = Math.min(Math.max(0, r), 1);
+	g = Math.min(Math.max(0, g), 1);
+	b = Math.min(Math.max(0, b), 1);
+
+	return [r * 255, g * 255, b * 255];
+};
+
+convert$3.xyz.lab = function (xyz) {
+	let x = xyz[0];
+	let y = xyz[1];
+	let z = xyz[2];
+
+	x /= 95.047;
+	y /= 100;
+	z /= 108.883;
+
+	x = x > 0.008856 ? (x ** (1 / 3)) : (7.787 * x) + (16 / 116);
+	y = y > 0.008856 ? (y ** (1 / 3)) : (7.787 * y) + (16 / 116);
+	z = z > 0.008856 ? (z ** (1 / 3)) : (7.787 * z) + (16 / 116);
+
+	const l = (116 * y) - 16;
+	const a = 500 * (x - y);
+	const b = 200 * (y - z);
+
+	return [l, a, b];
+};
+
+convert$3.lab.xyz = function (lab) {
+	const l = lab[0];
+	const a = lab[1];
+	const b = lab[2];
+	let x;
+	let y;
+	let z;
+
+	y = (l + 16) / 116;
+	x = a / 500 + y;
+	z = y - b / 200;
+
+	const y2 = y ** 3;
+	const x2 = x ** 3;
+	const z2 = z ** 3;
+	y = y2 > 0.008856 ? y2 : (y - 16 / 116) / 7.787;
+	x = x2 > 0.008856 ? x2 : (x - 16 / 116) / 7.787;
+	z = z2 > 0.008856 ? z2 : (z - 16 / 116) / 7.787;
+
+	x *= 95.047;
+	y *= 100;
+	z *= 108.883;
+
+	return [x, y, z];
+};
+
+convert$3.lab.lch = function (lab) {
+	const l = lab[0];
+	const a = lab[1];
+	const b = lab[2];
+	let h;
+
+	const hr = Math.atan2(b, a);
+	h = hr * 360 / 2 / Math.PI;
+
+	if (h < 0) {
+		h += 360;
+	}
+
+	const c = Math.sqrt(a * a + b * b);
+
+	return [l, c, h];
+};
+
+convert$3.lch.lab = function (lch) {
+	const l = lch[0];
+	const c = lch[1];
+	const h = lch[2];
+
+	const hr = h / 360 * 2 * Math.PI;
+	const a = c * Math.cos(hr);
+	const b = c * Math.sin(hr);
+
+	return [l, a, b];
+};
+
+convert$3.rgb.ansi16 = function (args, saturation = null) {
+	const [r, g, b] = args;
+	let value = saturation === null ? convert$3.rgb.hsv(args)[2] : saturation; // Hsv -> ansi16 optimization
+
+	value = Math.round(value / 50);
+
+	if (value === 0) {
+		return 30;
+	}
+
+	let ansi = 30
+		+ ((Math.round(b / 255) << 2)
+		| (Math.round(g / 255) << 1)
+		| Math.round(r / 255));
+
+	if (value === 2) {
+		ansi += 60;
+	}
+
+	return ansi;
+};
+
+convert$3.hsv.ansi16 = function (args) {
+	// Optimization here; we already know the value and don't need to get
+	// it converted for us.
+	return convert$3.rgb.ansi16(convert$3.hsv.rgb(args), args[2]);
+};
+
+convert$3.rgb.ansi256 = function (args) {
+	const r = args[0];
+	const g = args[1];
+	const b = args[2];
+
+	// We use the extended greyscale palette here, with the exception of
+	// black and white. normal palette only has 4 greyscale shades.
+	if (r === g && g === b) {
+		if (r < 8) {
+			return 16;
+		}
+
+		if (r > 248) {
+			return 231;
+		}
+
+		return Math.round(((r - 8) / 247) * 24) + 232;
+	}
+
+	const ansi = 16
+		+ (36 * Math.round(r / 255 * 5))
+		+ (6 * Math.round(g / 255 * 5))
+		+ Math.round(b / 255 * 5);
+
+	return ansi;
+};
+
+convert$3.ansi16.rgb = function (args) {
+	let color = args % 10;
+
+	// Handle greyscale
+	if (color === 0 || color === 7) {
+		if (args > 50) {
+			color += 3.5;
+		}
+
+		color = color / 10.5 * 255;
+
+		return [color, color, color];
+	}
+
+	const mult = (~~(args > 50) + 1) * 0.5;
+	const r = ((color & 1) * mult) * 255;
+	const g = (((color >> 1) & 1) * mult) * 255;
+	const b = (((color >> 2) & 1) * mult) * 255;
+
+	return [r, g, b];
+};
+
+convert$3.ansi256.rgb = function (args) {
+	// Handle greyscale
+	if (args >= 232) {
+		const c = (args - 232) * 10 + 8;
+		return [c, c, c];
+	}
+
+	args -= 16;
+
+	let rem;
+	const r = Math.floor(args / 36) / 5 * 255;
+	const g = Math.floor((rem = args % 36) / 6) / 5 * 255;
+	const b = (rem % 6) / 5 * 255;
+
+	return [r, g, b];
+};
+
+convert$3.rgb.hex = function (args) {
+	const integer = ((Math.round(args[0]) & 0xFF) << 16)
+		+ ((Math.round(args[1]) & 0xFF) << 8)
+		+ (Math.round(args[2]) & 0xFF);
+
+	const string = integer.toString(16).toUpperCase();
+	return '000000'.substring(string.length) + string;
+};
+
+convert$3.hex.rgb = function (args) {
+	const match = args.toString(16).match(/[a-f0-9]{6}|[a-f0-9]{3}/i);
+	if (!match) {
+		return [0, 0, 0];
+	}
+
+	let colorString = match[0];
+
+	if (match[0].length === 3) {
+		colorString = colorString.split('').map(char => {
+			return char + char;
+		}).join('');
+	}
+
+	const integer = parseInt(colorString, 16);
+	const r = (integer >> 16) & 0xFF;
+	const g = (integer >> 8) & 0xFF;
+	const b = integer & 0xFF;
+
+	return [r, g, b];
+};
+
+convert$3.rgb.hcg = function (rgb) {
+	const r = rgb[0] / 255;
+	const g = rgb[1] / 255;
+	const b = rgb[2] / 255;
+	const max = Math.max(Math.max(r, g), b);
+	const min = Math.min(Math.min(r, g), b);
+	const chroma = (max - min);
+	let grayscale;
+	let hue;
+
+	if (chroma < 1) {
+		grayscale = min / (1 - chroma);
+	} else {
+		grayscale = 0;
+	}
+
+	if (chroma <= 0) {
+		hue = 0;
+	} else
+	if (max === r) {
+		hue = ((g - b) / chroma) % 6;
+	} else
+	if (max === g) {
+		hue = 2 + (b - r) / chroma;
+	} else {
+		hue = 4 + (r - g) / chroma;
+	}
+
+	hue /= 6;
+	hue %= 1;
+
+	return [hue * 360, chroma * 100, grayscale * 100];
+};
+
+convert$3.hsl.hcg = function (hsl) {
+	const s = hsl[1] / 100;
+	const l = hsl[2] / 100;
+
+	const c = l < 0.5 ? (2.0 * s * l) : (2.0 * s * (1.0 - l));
+
+	let f = 0;
+	if (c < 1.0) {
+		f = (l - 0.5 * c) / (1.0 - c);
+	}
+
+	return [hsl[0], c * 100, f * 100];
+};
+
+convert$3.hsv.hcg = function (hsv) {
+	const s = hsv[1] / 100;
+	const v = hsv[2] / 100;
+
+	const c = s * v;
+	let f = 0;
+
+	if (c < 1.0) {
+		f = (v - c) / (1 - c);
+	}
+
+	return [hsv[0], c * 100, f * 100];
+};
+
+convert$3.hcg.rgb = function (hcg) {
+	const h = hcg[0] / 360;
+	const c = hcg[1] / 100;
+	const g = hcg[2] / 100;
+
+	if (c === 0.0) {
+		return [g * 255, g * 255, g * 255];
+	}
+
+	const pure = [0, 0, 0];
+	const hi = (h % 1) * 6;
+	const v = hi % 1;
+	const w = 1 - v;
+	let mg = 0;
+
+	/* eslint-disable max-statements-per-line */
+	switch (Math.floor(hi)) {
+		case 0:
+			pure[0] = 1; pure[1] = v; pure[2] = 0; break;
+		case 1:
+			pure[0] = w; pure[1] = 1; pure[2] = 0; break;
+		case 2:
+			pure[0] = 0; pure[1] = 1; pure[2] = v; break;
+		case 3:
+			pure[0] = 0; pure[1] = w; pure[2] = 1; break;
+		case 4:
+			pure[0] = v; pure[1] = 0; pure[2] = 1; break;
+		default:
+			pure[0] = 1; pure[1] = 0; pure[2] = w;
+	}
+	/* eslint-enable max-statements-per-line */
+
+	mg = (1.0 - c) * g;
+
+	return [
+		(c * pure[0] + mg) * 255,
+		(c * pure[1] + mg) * 255,
+		(c * pure[2] + mg) * 255
+	];
+};
+
+convert$3.hcg.hsv = function (hcg) {
+	const c = hcg[1] / 100;
+	const g = hcg[2] / 100;
+
+	const v = c + g * (1.0 - c);
+	let f = 0;
+
+	if (v > 0.0) {
+		f = c / v;
+	}
+
+	return [hcg[0], f * 100, v * 100];
+};
+
+convert$3.hcg.hsl = function (hcg) {
+	const c = hcg[1] / 100;
+	const g = hcg[2] / 100;
+
+	const l = g * (1.0 - c) + 0.5 * c;
+	let s = 0;
+
+	if (l > 0.0 && l < 0.5) {
+		s = c / (2 * l);
+	} else
+	if (l >= 0.5 && l < 1.0) {
+		s = c / (2 * (1 - l));
+	}
+
+	return [hcg[0], s * 100, l * 100];
+};
+
+convert$3.hcg.hwb = function (hcg) {
+	const c = hcg[1] / 100;
+	const g = hcg[2] / 100;
+	const v = c + g * (1.0 - c);
+	return [hcg[0], (v - c) * 100, (1 - v) * 100];
+};
+
+convert$3.hwb.hcg = function (hwb) {
+	const w = hwb[1] / 100;
+	const b = hwb[2] / 100;
+	const v = 1 - b;
+	const c = v - w;
+	let g = 0;
+
+	if (c < 1) {
+		g = (v - c) / (1 - c);
+	}
+
+	return [hwb[0], c * 100, g * 100];
+};
+
+convert$3.apple.rgb = function (apple) {
+	return [(apple[0] / 65535) * 255, (apple[1] / 65535) * 255, (apple[2] / 65535) * 255];
+};
+
+convert$3.rgb.apple = function (rgb) {
+	return [(rgb[0] / 255) * 65535, (rgb[1] / 255) * 65535, (rgb[2] / 255) * 65535];
+};
+
+convert$3.gray.rgb = function (args) {
+	return [args[0] / 100 * 255, args[0] / 100 * 255, args[0] / 100 * 255];
+};
+
+convert$3.gray.hsl = function (args) {
+	return [0, 0, args[0]];
+};
+
+convert$3.gray.hsv = convert$3.gray.hsl;
+
+convert$3.gray.hwb = function (gray) {
+	return [0, 100, gray[0]];
+};
+
+convert$3.gray.cmyk = function (gray) {
+	return [0, 0, 0, gray[0]];
+};
+
+convert$3.gray.lab = function (gray) {
+	return [gray[0], 0, 0];
+};
+
+convert$3.gray.hex = function (gray) {
+	const val = Math.round(gray[0] / 100 * 255) & 0xFF;
+	const integer = (val << 16) + (val << 8) + val;
+
+	const string = integer.toString(16).toUpperCase();
+	return '000000'.substring(string.length) + string;
+};
+
+convert$3.rgb.gray = function (rgb) {
+	const val = (rgb[0] + rgb[1] + rgb[2]) / 3;
+	return [val / 255 * 100];
+};
+
+const conversions$4 = conversions$5;
+
+/*
+	This function routes a model to all other models.
+
+	all functions that are routed have a property `.conversion` attached
+	to the returned synthetic function. This property is an array
+	of strings, each with the steps in between the 'from' and 'to'
+	color models (inclusive).
+
+	conversions that are not possible simply are not included.
+*/
+
+function buildGraph$1() {
+	const graph = {};
+	// https://jsperf.com/object-keys-vs-for-in-with-closure/3
+	const models = Object.keys(conversions$4);
+
+	for (let len = models.length, i = 0; i < len; i++) {
+		graph[models[i]] = {
+			// http://jsperf.com/1-vs-infinity
+			// micro-opt, but this is simple.
+			distance: -1,
+			parent: null
+		};
+	}
+
+	return graph;
+}
+
+// https://en.wikipedia.org/wiki/Breadth-first_search
+function deriveBFS$1(fromModel) {
+	const graph = buildGraph$1();
+	const queue = [fromModel]; // Unshift -> queue -> pop
+
+	graph[fromModel].distance = 0;
+
+	while (queue.length) {
+		const current = queue.pop();
+		const adjacents = Object.keys(conversions$4[current]);
+
+		for (let len = adjacents.length, i = 0; i < len; i++) {
+			const adjacent = adjacents[i];
+			const node = graph[adjacent];
+
+			if (node.distance === -1) {
+				node.distance = graph[current].distance + 1;
+				node.parent = current;
+				queue.unshift(adjacent);
 			}
+		}
+	}
 
-			if (isPlainObject(item)) {
-				return _sortKeys(item);
+	return graph;
+}
+
+function link$1(from, to) {
+	return function (args) {
+		return to(from(args));
+	};
+}
+
+function wrapConversion$1(toModel, graph) {
+	const path = [graph[toModel].parent, toModel];
+	let fn = conversions$4[graph[toModel].parent][toModel];
+
+	let cur = graph[toModel].parent;
+	while (graph[cur].parent) {
+		path.unshift(graph[cur].parent);
+		fn = link$1(conversions$4[graph[cur].parent][cur], fn);
+		cur = graph[cur].parent;
+	}
+
+	fn.conversion = path;
+	return fn;
+}
+
+var route$3 = function (fromModel) {
+	const graph = deriveBFS$1(fromModel);
+	const conversion = {};
+
+	const models = Object.keys(graph);
+	for (let len = models.length, i = 0; i < len; i++) {
+		const toModel = models[i];
+		const node = graph[toModel];
+
+		if (node.parent === null) {
+			// No possible conversion, or this node is the source model.
+			continue;
+		}
+
+		conversion[toModel] = wrapConversion$1(toModel, graph);
+	}
+
+	return conversion;
+};
+
+const conversions$3 = conversions$5;
+const route$2 = route$3;
+
+const convert$2 = {};
+
+const models$1 = Object.keys(conversions$3);
+
+function wrapRaw$1(fn) {
+	const wrappedFn = function (...args) {
+		const arg0 = args[0];
+		if (arg0 === undefined || arg0 === null) {
+			return arg0;
+		}
+
+		if (arg0.length > 1) {
+			args = arg0;
+		}
+
+		return fn(args);
+	};
+
+	// Preserve .conversion property if there is one
+	if ('conversion' in fn) {
+		wrappedFn.conversion = fn.conversion;
+	}
+
+	return wrappedFn;
+}
+
+function wrapRounded$1(fn) {
+	const wrappedFn = function (...args) {
+		const arg0 = args[0];
+
+		if (arg0 === undefined || arg0 === null) {
+			return arg0;
+		}
+
+		if (arg0.length > 1) {
+			args = arg0;
+		}
+
+		const result = fn(args);
+
+		// We're assuming the result is an array here.
+		// see notice in conversions.js; don't use box types
+		// in conversion functions.
+		if (typeof result === 'object') {
+			for (let len = result.length, i = 0; i < len; i++) {
+				result[i] = Math.round(result[i]);
 			}
-
-			return item;
-		}));
+		}
 
 		return result;
 	};
 
-	const _sortKeys = object => {
-		const seenIndex = seenInput.indexOf(object);
-		if (seenIndex !== -1) {
-			return seenOutput[seenIndex];
-		}
+	// Preserve .conversion property if there is one
+	if ('conversion' in fn) {
+		wrappedFn.conversion = fn.conversion;
+	}
 
-		const result = {};
-		const keys = Object.keys(object).sort(compare);
+	return wrappedFn;
+}
 
-		seenInput.push(object);
-		seenOutput.push(result);
+models$1.forEach(fromModel => {
+	convert$2[fromModel] = {};
 
-		for (const key of keys) {
-			const value = object[key];
-			let newValue;
+	Object.defineProperty(convert$2[fromModel], 'channels', {value: conversions$3[fromModel].channels});
+	Object.defineProperty(convert$2[fromModel], 'labels', {value: conversions$3[fromModel].labels});
 
-			if (deep && Array.isArray(value)) {
-				newValue = deepSortArray(value);
-			} else {
-				newValue = deep && isPlainObject(value) ? _sortKeys(value) : value;
-			}
+	const routes = route$2(fromModel);
+	const routeModels = Object.keys(routes);
 
-			Object.defineProperty(result, key, {
-				...Object.getOwnPropertyDescriptor(object, key),
-				value: newValue
+	routeModels.forEach(toModel => {
+		const fn = routes[toModel];
+
+		convert$2[fromModel][toModel] = wrapRounded$1(fn);
+		convert$2[fromModel][toModel].raw = wrapRaw$1(fn);
+	});
+});
+
+var colorConvert$1 = convert$2;
+
+(function (module) {
+
+const wrapAnsi16 = (fn, offset) => (...args) => {
+	const code = fn(...args);
+	return `\u001B[${code + offset}m`;
+};
+
+const wrapAnsi256 = (fn, offset) => (...args) => {
+	const code = fn(...args);
+	return `\u001B[${38 + offset};5;${code}m`;
+};
+
+const wrapAnsi16m = (fn, offset) => (...args) => {
+	const rgb = fn(...args);
+	return `\u001B[${38 + offset};2;${rgb[0]};${rgb[1]};${rgb[2]}m`;
+};
+
+const ansi2ansi = n => n;
+const rgb2rgb = (r, g, b) => [r, g, b];
+
+const setLazyProperty = (object, property, get) => {
+	Object.defineProperty(object, property, {
+		get: () => {
+			const value = get();
+
+			Object.defineProperty(object, property, {
+				value,
+				enumerable: true,
+				configurable: true
 			});
-		}
 
-		return result;
-	};
+			return value;
+		},
+		enumerable: true,
+		configurable: true
+	});
+};
 
-	if (Array.isArray(object)) {
-		return deep ? deepSortArray(object) : object.slice();
+/** @type {typeof import('color-convert')} */
+let colorConvert;
+const makeDynamicStyles = (wrap, targetSpace, identity, isBackground) => {
+	if (colorConvert === undefined) {
+		colorConvert = colorConvert$1;
 	}
 
-	return _sortKeys(object);
+	const offset = isBackground ? 10 : 0;
+	const styles = {};
+
+	for (const [sourceSpace, suite] of Object.entries(colorConvert)) {
+		const name = sourceSpace === 'ansi16' ? 'ansi' : sourceSpace;
+		if (sourceSpace === targetSpace) {
+			styles[name] = wrap(identity, offset);
+		} else if (typeof suite === 'object') {
+			styles[name] = wrap(suite[targetSpace], offset);
+		}
+	}
+
+	return styles;
+};
+
+function assembleStyles() {
+	const codes = new Map();
+	const styles = {
+		modifier: {
+			reset: [0, 0],
+			// 21 isn't widely supported and 22 does the same thing
+			bold: [1, 22],
+			dim: [2, 22],
+			italic: [3, 23],
+			underline: [4, 24],
+			inverse: [7, 27],
+			hidden: [8, 28],
+			strikethrough: [9, 29]
+		},
+		color: {
+			black: [30, 39],
+			red: [31, 39],
+			green: [32, 39],
+			yellow: [33, 39],
+			blue: [34, 39],
+			magenta: [35, 39],
+			cyan: [36, 39],
+			white: [37, 39],
+
+			// Bright color
+			blackBright: [90, 39],
+			redBright: [91, 39],
+			greenBright: [92, 39],
+			yellowBright: [93, 39],
+			blueBright: [94, 39],
+			magentaBright: [95, 39],
+			cyanBright: [96, 39],
+			whiteBright: [97, 39]
+		},
+		bgColor: {
+			bgBlack: [40, 49],
+			bgRed: [41, 49],
+			bgGreen: [42, 49],
+			bgYellow: [43, 49],
+			bgBlue: [44, 49],
+			bgMagenta: [45, 49],
+			bgCyan: [46, 49],
+			bgWhite: [47, 49],
+
+			// Bright color
+			bgBlackBright: [100, 49],
+			bgRedBright: [101, 49],
+			bgGreenBright: [102, 49],
+			bgYellowBright: [103, 49],
+			bgBlueBright: [104, 49],
+			bgMagentaBright: [105, 49],
+			bgCyanBright: [106, 49],
+			bgWhiteBright: [107, 49]
+		}
+	};
+
+	// Alias bright black as gray (and grey)
+	styles.color.gray = styles.color.blackBright;
+	styles.bgColor.bgGray = styles.bgColor.bgBlackBright;
+	styles.color.grey = styles.color.blackBright;
+	styles.bgColor.bgGrey = styles.bgColor.bgBlackBright;
+
+	for (const [groupName, group] of Object.entries(styles)) {
+		for (const [styleName, style] of Object.entries(group)) {
+			styles[styleName] = {
+				open: `\u001B[${style[0]}m`,
+				close: `\u001B[${style[1]}m`
+			};
+
+			group[styleName] = styles[styleName];
+
+			codes.set(style[0], style[1]);
+		}
+
+		Object.defineProperty(styles, groupName, {
+			value: group,
+			enumerable: false
+		});
+	}
+
+	Object.defineProperty(styles, 'codes', {
+		value: codes,
+		enumerable: false
+	});
+
+	styles.color.close = '\u001B[39m';
+	styles.bgColor.close = '\u001B[49m';
+
+	setLazyProperty(styles.color, 'ansi', () => makeDynamicStyles(wrapAnsi16, 'ansi16', ansi2ansi, false));
+	setLazyProperty(styles.color, 'ansi256', () => makeDynamicStyles(wrapAnsi256, 'ansi256', ansi2ansi, false));
+	setLazyProperty(styles.color, 'ansi16m', () => makeDynamicStyles(wrapAnsi16m, 'rgb', rgb2rgb, false));
+	setLazyProperty(styles.bgColor, 'ansi', () => makeDynamicStyles(wrapAnsi16, 'ansi16', ansi2ansi, true));
+	setLazyProperty(styles.bgColor, 'ansi256', () => makeDynamicStyles(wrapAnsi256, 'ansi256', ansi2ansi, true));
+	setLazyProperty(styles.bgColor, 'ansi16m', () => makeDynamicStyles(wrapAnsi16m, 'rgb', rgb2rgb, true));
+
+	return styles;
 }
+
+// Make the export immutable
+Object.defineProperty(module, 'exports', {
+	enumerable: true,
+	get: assembleStyles
+});
+}(ansiStyles$3));
+
+const isFullwidthCodePoint = isFullwidthCodePoint$3.exports;
+const astralRegex = astralRegex_1;
+const ansiStyles$2 = ansiStyles$3.exports;
+
+const ESCAPES$1 = [
+	'\u001B',
+	'\u009B'
+];
+
+const wrapAnsi = code => `${ESCAPES$1[0]}[${code}m`;
+
+const checkAnsi = (ansiCodes, isEscapes, endAnsiCode) => {
+	let output = [];
+	ansiCodes = [...ansiCodes];
+
+	for (let ansiCode of ansiCodes) {
+		const ansiCodeOrigin = ansiCode;
+		if (ansiCode.includes(';')) {
+			ansiCode = ansiCode.split(';')[0][0] + '0';
+		}
+
+		const item = ansiStyles$2.codes.get(Number.parseInt(ansiCode, 10));
+		if (item) {
+			const indexEscape = ansiCodes.indexOf(item.toString());
+			if (indexEscape === -1) {
+				output.push(wrapAnsi(isEscapes ? item : ansiCodeOrigin));
+			} else {
+				ansiCodes.splice(indexEscape, 1);
+			}
+		} else if (isEscapes) {
+			output.push(wrapAnsi(0));
+			break;
+		} else {
+			output.push(wrapAnsi(ansiCodeOrigin));
+		}
+	}
+
+	if (isEscapes) {
+		output = output.filter((element, index) => output.indexOf(element) === index);
+
+		if (endAnsiCode !== undefined) {
+			const fistEscapeCode = wrapAnsi(ansiStyles$2.codes.get(Number.parseInt(endAnsiCode, 10)));
+			output = output.reduce((current, next) => next === fistEscapeCode ? [next, ...current] : [...current, next], []);
+		}
+	}
+
+	return output.join('');
+};
+
+var sliceAnsi = (string, begin, end) => {
+	const characters = [...string];
+	const ansiCodes = [];
+
+	let stringEnd = typeof end === 'number' ? end : characters.length;
+	let isInsideEscape = false;
+	let ansiCode;
+	let visible = 0;
+	let output = '';
+
+	for (const [index, character] of characters.entries()) {
+		let leftEscape = false;
+
+		if (ESCAPES$1.includes(character)) {
+			const code = /\d[^m]*/.exec(string.slice(index, index + 18));
+			ansiCode = code && code.length > 0 ? code[0] : undefined;
+
+			if (visible < stringEnd) {
+				isInsideEscape = true;
+
+				if (ansiCode !== undefined) {
+					ansiCodes.push(ansiCode);
+				}
+			}
+		} else if (isInsideEscape && character === 'm') {
+			isInsideEscape = false;
+			leftEscape = true;
+		}
+
+		if (!isInsideEscape && !leftEscape) {
+			visible++;
+		}
+
+		if (!astralRegex({exact: true}).test(character) && isFullwidthCodePoint(character.codePointAt())) {
+			visible++;
+
+			if (typeof end !== 'number') {
+				stringEnd++;
+			}
+		}
+
+		if (visible > begin && visible <= stringEnd) {
+			output += character;
+		} else if (visible === begin && !isInsideEscape && ansiCode !== undefined) {
+			output = checkAnsi(ansiCodes);
+		} else if (visible >= stringEnd) {
+			output += checkAnsi(ansiCodes, true, ansiCode);
+			break;
+		}
+	}
+
+	return output;
+};
+
+var getBorderCharacters$1 = {};
+
+/* eslint-disable sort-keys-fix/sort-keys-fix */
+Object.defineProperty(getBorderCharacters$1, "__esModule", { value: true });
+getBorderCharacters$1.getBorderCharacters = void 0;
+const getBorderCharacters = (name) => {
+    if (name === 'honeywell') {
+        return {
+            topBody: '═',
+            topJoin: '╤',
+            topLeft: '╔',
+            topRight: '╗',
+            bottomBody: '═',
+            bottomJoin: '╧',
+            bottomLeft: '╚',
+            bottomRight: '╝',
+            bodyLeft: '║',
+            bodyRight: '║',
+            bodyJoin: '│',
+            headerJoin: '┬',
+            joinBody: '─',
+            joinLeft: '╟',
+            joinRight: '╢',
+            joinJoin: '┼',
+            joinMiddleDown: '┬',
+            joinMiddleUp: '┴',
+            joinMiddleLeft: '┤',
+            joinMiddleRight: '├',
+        };
+    }
+    if (name === 'norc') {
+        return {
+            topBody: '─',
+            topJoin: '┬',
+            topLeft: '┌',
+            topRight: '┐',
+            bottomBody: '─',
+            bottomJoin: '┴',
+            bottomLeft: '└',
+            bottomRight: '┘',
+            bodyLeft: '│',
+            bodyRight: '│',
+            bodyJoin: '│',
+            headerJoin: '┬',
+            joinBody: '─',
+            joinLeft: '├',
+            joinRight: '┤',
+            joinJoin: '┼',
+            joinMiddleDown: '┬',
+            joinMiddleUp: '┴',
+            joinMiddleLeft: '┤',
+            joinMiddleRight: '├',
+        };
+    }
+    if (name === 'ramac') {
+        return {
+            topBody: '-',
+            topJoin: '+',
+            topLeft: '+',
+            topRight: '+',
+            bottomBody: '-',
+            bottomJoin: '+',
+            bottomLeft: '+',
+            bottomRight: '+',
+            bodyLeft: '|',
+            bodyRight: '|',
+            bodyJoin: '|',
+            headerJoin: '+',
+            joinBody: '-',
+            joinLeft: '|',
+            joinRight: '|',
+            joinJoin: '|',
+            joinMiddleDown: '+',
+            joinMiddleUp: '+',
+            joinMiddleLeft: '+',
+            joinMiddleRight: '+',
+        };
+    }
+    if (name === 'void') {
+        return {
+            topBody: '',
+            topJoin: '',
+            topLeft: '',
+            topRight: '',
+            bottomBody: '',
+            bottomJoin: '',
+            bottomLeft: '',
+            bottomRight: '',
+            bodyLeft: '',
+            bodyRight: '',
+            bodyJoin: '',
+            headerJoin: '',
+            joinBody: '',
+            joinLeft: '',
+            joinRight: '',
+            joinJoin: '',
+            joinMiddleDown: '',
+            joinMiddleUp: '',
+            joinMiddleLeft: '',
+            joinMiddleRight: '',
+        };
+    }
+    throw new Error('Unknown border template "' + name + '".');
+};
+getBorderCharacters$1.getBorderCharacters = getBorderCharacters;
+
+(function (exports) {
+var __importDefault = (commonjsGlobal$1 && commonjsGlobal$1.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.isCellInRange = exports.areCellEqual = exports.calculateRangeCoordinate = exports.findOriginalRowIndex = exports.flatten = exports.extractTruncates = exports.sumArray = exports.sequence = exports.distributeUnevenly = exports.countSpaceSequence = exports.groupBySizes = exports.makeBorderConfig = exports.splitAnsi = exports.normalizeString = void 0;
+const slice_ansi_1 = __importDefault(sliceAnsi);
+const string_width_1 = __importDefault(stringWidth$1.exports);
+const strip_ansi_1 = __importDefault(stripAnsi$1);
+const getBorderCharacters_1 = getBorderCharacters$1;
+/**
+ * Converts Windows-style newline to Unix-style
+ *
+ * @internal
+ */
+const normalizeString = (input) => {
+    return input.replace(/\r\n/g, '\n');
+};
+exports.normalizeString = normalizeString;
+/**
+ * Splits ansi string by newlines
+ *
+ * @internal
+ */
+const splitAnsi = (input) => {
+    const lengths = (0, strip_ansi_1.default)(input).split('\n').map(string_width_1.default);
+    const result = [];
+    let startIndex = 0;
+    lengths.forEach((length) => {
+        result.push(length === 0 ? '' : (0, slice_ansi_1.default)(input, startIndex, startIndex + length));
+        // Plus 1 for the newline character itself
+        startIndex += length + 1;
+    });
+    return result;
+};
+exports.splitAnsi = splitAnsi;
+/**
+ * Merges user provided border characters with the default border ("honeywell") characters.
+ *
+ * @internal
+ */
+const makeBorderConfig = (border) => {
+    return {
+        ...(0, getBorderCharacters_1.getBorderCharacters)('honeywell'),
+        ...border,
+    };
+};
+exports.makeBorderConfig = makeBorderConfig;
+/**
+ * Groups the array into sub-arrays by sizes.
+ *
+ * @internal
+ * @example
+ * groupBySizes(['a', 'b', 'c', 'd', 'e'], [2, 1, 2]) = [ ['a', 'b'], ['c'], ['d', 'e'] ]
+ */
+const groupBySizes = (array, sizes) => {
+    let startIndex = 0;
+    return sizes.map((size) => {
+        const group = array.slice(startIndex, startIndex + size);
+        startIndex += size;
+        return group;
+    });
+};
+exports.groupBySizes = groupBySizes;
+/**
+ * Counts the number of continuous spaces in a string
+ *
+ * @internal
+ * @example
+ * countGroupSpaces('a  bc  de f') = 3
+ */
+const countSpaceSequence = (input) => {
+    var _a, _b;
+    return (_b = (_a = input.match(/\s+/g)) === null || _a === void 0 ? void 0 : _a.length) !== null && _b !== void 0 ? _b : 0;
+};
+exports.countSpaceSequence = countSpaceSequence;
+/**
+ * Creates the non-increasing number array given sum and length
+ * whose the difference between maximum and minimum is not greater than 1
+ *
+ * @internal
+ * @example
+ * distributeUnevenly(6, 3) = [2, 2, 2]
+ * distributeUnevenly(8, 3) = [3, 3, 2]
+ */
+const distributeUnevenly = (sum, length) => {
+    const result = Array.from({ length }).fill(Math.floor(sum / length));
+    return result.map((element, index) => {
+        return element + (index < sum % length ? 1 : 0);
+    });
+};
+exports.distributeUnevenly = distributeUnevenly;
+const sequence = (start, end) => {
+    return Array.from({ length: end - start + 1 }, (_, index) => {
+        return index + start;
+    });
+};
+exports.sequence = sequence;
+const sumArray = (array) => {
+    return array.reduce((accumulator, element) => {
+        return accumulator + element;
+    }, 0);
+};
+exports.sumArray = sumArray;
+const extractTruncates = (config) => {
+    return config.columns.map(({ truncate }) => {
+        return truncate;
+    });
+};
+exports.extractTruncates = extractTruncates;
+const flatten = (array) => {
+    return [].concat(...array);
+};
+exports.flatten = flatten;
+const findOriginalRowIndex = (mappedRowHeights, mappedRowIndex) => {
+    const rowIndexMapping = (0, exports.flatten)(mappedRowHeights.map((height, index) => {
+        return Array.from({ length: height }, () => {
+            return index;
+        });
+    }));
+    return rowIndexMapping[mappedRowIndex];
+};
+exports.findOriginalRowIndex = findOriginalRowIndex;
+const calculateRangeCoordinate = (spanningCellConfig) => {
+    const { row, col, colSpan = 1, rowSpan = 1 } = spanningCellConfig;
+    return { bottomRight: { col: col + colSpan - 1,
+            row: row + rowSpan - 1 },
+        topLeft: { col,
+            row } };
+};
+exports.calculateRangeCoordinate = calculateRangeCoordinate;
+const areCellEqual = (cell1, cell2) => {
+    return cell1.row === cell2.row && cell1.col === cell2.col;
+};
+exports.areCellEqual = areCellEqual;
+const isCellInRange = (cell, { topLeft, bottomRight }) => {
+    return (topLeft.row <= cell.row &&
+        cell.row <= bottomRight.row &&
+        topLeft.col <= cell.col &&
+        cell.col <= bottomRight.col);
+};
+exports.isCellInRange = isCellInRange;
+
+}(utils));
+
+var __importDefault$3 = (commonjsGlobal$1 && commonjsGlobal$1.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(alignString$1, "__esModule", { value: true });
+alignString$1.alignString = void 0;
+const string_width_1$1 = __importDefault$3(stringWidth$1.exports);
+const utils_1$e = utils;
+const alignLeft = (subject, width) => {
+    return subject + ' '.repeat(width);
+};
+const alignRight = (subject, width) => {
+    return ' '.repeat(width) + subject;
+};
+const alignCenter = (subject, width) => {
+    return ' '.repeat(Math.floor(width / 2)) + subject + ' '.repeat(Math.ceil(width / 2));
+};
+const alignJustify = (subject, width) => {
+    const spaceSequenceCount = (0, utils_1$e.countSpaceSequence)(subject);
+    if (spaceSequenceCount === 0) {
+        return alignLeft(subject, width);
+    }
+    const addingSpaces = (0, utils_1$e.distributeUnevenly)(width, spaceSequenceCount);
+    if (Math.max(...addingSpaces) > 3) {
+        return alignLeft(subject, width);
+    }
+    let spaceSequenceIndex = 0;
+    return subject.replace(/\s+/g, (groupSpace) => {
+        return groupSpace + ' '.repeat(addingSpaces[spaceSequenceIndex++]);
+    });
+};
+/**
+ * Pads a string to the left and/or right to position the subject
+ * text in a desired alignment within a container.
+ */
+const alignString = (subject, containerWidth, alignment) => {
+    const subjectWidth = (0, string_width_1$1.default)(subject);
+    if (subjectWidth === containerWidth) {
+        return subject;
+    }
+    if (subjectWidth > containerWidth) {
+        throw new Error('Subject parameter value width cannot be greater than the container width.');
+    }
+    if (subjectWidth === 0) {
+        return ' '.repeat(containerWidth);
+    }
+    const availableWidth = containerWidth - subjectWidth;
+    if (alignment === 'left') {
+        return alignLeft(subject, availableWidth);
+    }
+    if (alignment === 'right') {
+        return alignRight(subject, availableWidth);
+    }
+    if (alignment === 'justify') {
+        return alignJustify(subject, availableWidth);
+    }
+    return alignCenter(subject, availableWidth);
+};
+alignString$1.alignString = alignString;
+
+Object.defineProperty(alignTableData$1, "__esModule", { value: true });
+alignTableData$1.alignTableData = void 0;
+const alignString_1$1 = alignString$1;
+const alignTableData = (rows, config) => {
+    return rows.map((row, rowIndex) => {
+        return row.map((cell, cellIndex) => {
+            var _a;
+            const { width, alignment } = config.columns[cellIndex];
+            const containingRange = (_a = config.spanningCellManager) === null || _a === void 0 ? void 0 : _a.getContainingRange({ col: cellIndex,
+                row: rowIndex }, { mapped: true });
+            if (containingRange) {
+                return cell;
+            }
+            return (0, alignString_1$1.alignString)(cell, width, alignment);
+        });
+    });
+};
+alignTableData$1.alignTableData = alignTableData;
+
+var calculateRowHeights$1 = {};
+
+var calculateCellHeight$1 = {};
+
+var wrapCell$1 = {};
+
+var wrapString$1 = {};
+
+var __importDefault$2 = (commonjsGlobal$1 && commonjsGlobal$1.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(wrapString$1, "__esModule", { value: true });
+wrapString$1.wrapString = void 0;
+const slice_ansi_1$1 = __importDefault$2(sliceAnsi);
+const string_width_1 = __importDefault$2(stringWidth$1.exports);
+/**
+ * Creates an array of strings split into groups the length of size.
+ * This function works with strings that contain ASCII characters.
+ *
+ * wrapText is different from would-be "chunk" implementation
+ * in that whitespace characters that occur on a chunk size limit are trimmed.
+ *
+ */
+const wrapString = (subject, size) => {
+    let subjectSlice = subject;
+    const chunks = [];
+    do {
+        chunks.push((0, slice_ansi_1$1.default)(subjectSlice, 0, size));
+        subjectSlice = (0, slice_ansi_1$1.default)(subjectSlice, size).trim();
+    } while ((0, string_width_1.default)(subjectSlice));
+    return chunks;
+};
+wrapString$1.wrapString = wrapString;
+
+var wrapWord$1 = {};
+
+var __importDefault$1 = (commonjsGlobal$1 && commonjsGlobal$1.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(wrapWord$1, "__esModule", { value: true });
+wrapWord$1.wrapWord = void 0;
+const slice_ansi_1 = __importDefault$1(sliceAnsi);
+const strip_ansi_1 = __importDefault$1(stripAnsi$1);
+const calculateStringLengths = (input, size) => {
+    let subject = (0, strip_ansi_1.default)(input);
+    const chunks = [];
+    // https://regex101.com/r/gY5kZ1/1
+    const re = new RegExp('(^.{1,' + String(Math.max(size, 1)) + '}(\\s+|$))|(^.{1,' + String(Math.max(size - 1, 1)) + '}(\\\\|/|_|\\.|,|;|-))');
+    do {
+        let chunk;
+        const match = re.exec(subject);
+        if (match) {
+            chunk = match[0];
+            subject = subject.slice(chunk.length);
+            const trimmedLength = chunk.trim().length;
+            const offset = chunk.length - trimmedLength;
+            chunks.push([trimmedLength, offset]);
+        }
+        else {
+            chunk = subject.slice(0, size);
+            subject = subject.slice(size);
+            chunks.push([chunk.length, 0]);
+        }
+    } while (subject.length);
+    return chunks;
+};
+const wrapWord = (input, size) => {
+    const result = [];
+    let startIndex = 0;
+    calculateStringLengths(input, size).forEach(([length, offset]) => {
+        result.push((0, slice_ansi_1.default)(input, startIndex, startIndex + length));
+        startIndex += length + offset;
+    });
+    return result;
+};
+wrapWord$1.wrapWord = wrapWord;
+
+Object.defineProperty(wrapCell$1, "__esModule", { value: true });
+wrapCell$1.wrapCell = void 0;
+const utils_1$d = utils;
+const wrapString_1 = wrapString$1;
+const wrapWord_1 = wrapWord$1;
+/**
+ * Wrap a single cell value into a list of lines
+ *
+ * Always wraps on newlines, for the remainder uses either word or string wrapping
+ * depending on user configuration.
+ *
+ */
+const wrapCell = (cellValue, cellWidth, useWrapWord) => {
+    // First split on literal newlines
+    const cellLines = (0, utils_1$d.splitAnsi)(cellValue);
+    // Then iterate over the list and word-wrap every remaining line if necessary.
+    for (let lineNr = 0; lineNr < cellLines.length;) {
+        let lineChunks;
+        if (useWrapWord) {
+            lineChunks = (0, wrapWord_1.wrapWord)(cellLines[lineNr], cellWidth);
+        }
+        else {
+            lineChunks = (0, wrapString_1.wrapString)(cellLines[lineNr], cellWidth);
+        }
+        // Replace our original array element with whatever the wrapping returned
+        cellLines.splice(lineNr, 1, ...lineChunks);
+        lineNr += lineChunks.length;
+    }
+    return cellLines;
+};
+wrapCell$1.wrapCell = wrapCell;
+
+Object.defineProperty(calculateCellHeight$1, "__esModule", { value: true });
+calculateCellHeight$1.calculateCellHeight = void 0;
+const wrapCell_1$1 = wrapCell$1;
+/**
+ * Calculates height of cell content in regard to its width and word wrapping.
+ */
+const calculateCellHeight = (value, columnWidth, useWrapWord = false) => {
+    return (0, wrapCell_1$1.wrapCell)(value, columnWidth, useWrapWord).length;
+};
+calculateCellHeight$1.calculateCellHeight = calculateCellHeight;
+
+Object.defineProperty(calculateRowHeights$1, "__esModule", { value: true });
+calculateRowHeights$1.calculateRowHeights = void 0;
+const calculateCellHeight_1 = calculateCellHeight$1;
+const utils_1$c = utils;
+/**
+ * Produces an array of values that describe the largest value length (height) in every row.
+ */
+const calculateRowHeights = (rows, config) => {
+    const rowHeights = [];
+    for (const [rowIndex, row] of rows.entries()) {
+        let rowHeight = 1;
+        row.forEach((cell, cellIndex) => {
+            var _a;
+            const containingRange = (_a = config.spanningCellManager) === null || _a === void 0 ? void 0 : _a.getContainingRange({ col: cellIndex,
+                row: rowIndex });
+            if (!containingRange) {
+                const cellHeight = (0, calculateCellHeight_1.calculateCellHeight)(cell, config.columns[cellIndex].width, config.columns[cellIndex].wrapWord);
+                rowHeight = Math.max(rowHeight, cellHeight);
+                return;
+            }
+            const { topLeft, bottomRight, height } = containingRange;
+            // bottom-most cell of a range needs to contain all remain lines of spanning cells
+            if (rowIndex === bottomRight.row) {
+                const totalOccupiedSpanningCellHeight = (0, utils_1$c.sumArray)(rowHeights.slice(topLeft.row));
+                const totalHorizontalBorderHeight = bottomRight.row - topLeft.row;
+                const totalHiddenHorizontalBorderHeight = (0, utils_1$c.sequence)(topLeft.row + 1, bottomRight.row).filter((horizontalBorderIndex) => {
+                    var _a;
+                    /* istanbul ignore next */
+                    return !((_a = config.drawHorizontalLine) === null || _a === void 0 ? void 0 : _a.call(config, horizontalBorderIndex, rows.length));
+                }).length;
+                const cellHeight = height - totalOccupiedSpanningCellHeight - totalHorizontalBorderHeight + totalHiddenHorizontalBorderHeight;
+                rowHeight = Math.max(rowHeight, cellHeight);
+            }
+            // otherwise, just depend on other sibling cell heights in the row
+        });
+        rowHeights.push(rowHeight);
+    }
+    return rowHeights;
+};
+calculateRowHeights$1.calculateRowHeights = calculateRowHeights;
+
+var drawBorder = {};
+
+var drawContent$1 = {};
+
+Object.defineProperty(drawContent$1, "__esModule", { value: true });
+drawContent$1.drawContent = void 0;
+const drawContent = (parameters) => {
+    const { contents, separatorGetter, drawSeparator, spanningCellManager, rowIndex, elementType } = parameters;
+    const contentSize = contents.length;
+    const result = [];
+    if (drawSeparator(0, contentSize)) {
+        result.push(separatorGetter(0, contentSize));
+    }
+    contents.forEach((content, contentIndex) => {
+        if (!elementType || elementType === 'border' || elementType === 'row') {
+            result.push(content);
+        }
+        if (elementType === 'cell' && rowIndex === undefined) {
+            result.push(content);
+        }
+        if (elementType === 'cell' && rowIndex !== undefined) {
+            /* istanbul ignore next */
+            const containingRange = spanningCellManager === null || spanningCellManager === void 0 ? void 0 : spanningCellManager.getContainingRange({ col: contentIndex,
+                row: rowIndex });
+            // when drawing content row, just add a cell when it is a normal cell
+            // or belongs to first column of spanning cell
+            if (!containingRange || contentIndex === containingRange.topLeft.col) {
+                result.push(content);
+            }
+        }
+        // Only append the middle separator if the content is not the last
+        if (contentIndex + 1 < contentSize && drawSeparator(contentIndex + 1, contentSize)) {
+            const separator = separatorGetter(contentIndex + 1, contentSize);
+            if (elementType === 'cell' && rowIndex !== undefined) {
+                const currentCell = { col: contentIndex + 1,
+                    row: rowIndex };
+                /* istanbul ignore next */
+                const containingRange = spanningCellManager === null || spanningCellManager === void 0 ? void 0 : spanningCellManager.getContainingRange(currentCell);
+                if (!containingRange || containingRange.topLeft.col === currentCell.col) {
+                    result.push(separator);
+                }
+            }
+            else {
+                result.push(separator);
+            }
+        }
+    });
+    if (drawSeparator(contentSize, contentSize)) {
+        result.push(separatorGetter(contentSize, contentSize));
+    }
+    return result.join('');
+};
+drawContent$1.drawContent = drawContent;
+
+(function (exports) {
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.createTableBorderGetter = exports.drawBorderBottom = exports.drawBorderJoin = exports.drawBorderTop = exports.drawBorder = exports.createSeparatorGetter = exports.drawBorderSegments = void 0;
+const drawContent_1 = drawContent$1;
+const drawBorderSegments = (columnWidths, parameters) => {
+    const { separator, horizontalBorderIndex, spanningCellManager } = parameters;
+    return columnWidths.map((columnWidth, columnIndex) => {
+        const normalSegment = separator.body.repeat(columnWidth);
+        if (horizontalBorderIndex === undefined) {
+            return normalSegment;
+        }
+        /* istanbul ignore next */
+        const range = spanningCellManager === null || spanningCellManager === void 0 ? void 0 : spanningCellManager.getContainingRange({ col: columnIndex,
+            row: horizontalBorderIndex });
+        if (!range) {
+            return normalSegment;
+        }
+        const { topLeft } = range;
+        // draw border segments as usual for top border of spanning cell
+        if (horizontalBorderIndex === topLeft.row) {
+            return normalSegment;
+        }
+        // if for first column/row of spanning cell, just skip
+        if (columnIndex !== topLeft.col) {
+            return '';
+        }
+        return range.extractBorderContent(horizontalBorderIndex);
+    });
+};
+exports.drawBorderSegments = drawBorderSegments;
+const createSeparatorGetter = (dependencies) => {
+    const { separator, spanningCellManager, horizontalBorderIndex, rowCount } = dependencies;
+    // eslint-disable-next-line complexity
+    return (verticalBorderIndex, columnCount) => {
+        const inSameRange = spanningCellManager === null || spanningCellManager === void 0 ? void 0 : spanningCellManager.inSameRange;
+        if (horizontalBorderIndex !== undefined && inSameRange) {
+            const topCell = { col: verticalBorderIndex,
+                row: horizontalBorderIndex - 1 };
+            const leftCell = { col: verticalBorderIndex - 1,
+                row: horizontalBorderIndex };
+            const oppositeCell = { col: verticalBorderIndex - 1,
+                row: horizontalBorderIndex - 1 };
+            const currentCell = { col: verticalBorderIndex,
+                row: horizontalBorderIndex };
+            const pairs = [
+                [oppositeCell, topCell],
+                [topCell, currentCell],
+                [currentCell, leftCell],
+                [leftCell, oppositeCell],
+            ];
+            // left side of horizontal border
+            if (verticalBorderIndex === 0) {
+                if (inSameRange(currentCell, topCell) && separator.bodyJoinOuter) {
+                    return separator.bodyJoinOuter;
+                }
+                return separator.left;
+            }
+            // right side of horizontal border
+            if (verticalBorderIndex === columnCount) {
+                if (inSameRange(oppositeCell, leftCell) && separator.bodyJoinOuter) {
+                    return separator.bodyJoinOuter;
+                }
+                return separator.right;
+            }
+            // top horizontal border
+            if (horizontalBorderIndex === 0) {
+                if (inSameRange(currentCell, leftCell)) {
+                    return separator.body;
+                }
+                return separator.join;
+            }
+            // bottom horizontal border
+            if (horizontalBorderIndex === rowCount) {
+                if (inSameRange(topCell, oppositeCell)) {
+                    return separator.body;
+                }
+                return separator.join;
+            }
+            const sameRangeCount = pairs.map((pair) => {
+                return inSameRange(...pair);
+            }).filter(Boolean).length;
+            // four cells are belongs to different spanning cells
+            if (sameRangeCount === 0) {
+                return separator.join;
+            }
+            // belong to one spanning cell
+            if (sameRangeCount === 4) {
+                return '';
+            }
+            // belongs to two spanning cell
+            if (sameRangeCount === 2) {
+                if (inSameRange(...pairs[1]) && inSameRange(...pairs[3]) && separator.bodyJoinInner) {
+                    return separator.bodyJoinInner;
+                }
+                return separator.body;
+            }
+            /* istanbul ignore next */
+            if (sameRangeCount === 1) {
+                if (!separator.joinRight || !separator.joinLeft || !separator.joinUp || !separator.joinDown) {
+                    throw new Error(`Can not get border separator for position [${horizontalBorderIndex}, ${verticalBorderIndex}]`);
+                }
+                if (inSameRange(...pairs[0])) {
+                    return separator.joinDown;
+                }
+                if (inSameRange(...pairs[1])) {
+                    return separator.joinLeft;
+                }
+                if (inSameRange(...pairs[2])) {
+                    return separator.joinUp;
+                }
+                return separator.joinRight;
+            }
+            /* istanbul ignore next */
+            throw new Error('Invalid case');
+        }
+        if (verticalBorderIndex === 0) {
+            return separator.left;
+        }
+        if (verticalBorderIndex === columnCount) {
+            return separator.right;
+        }
+        return separator.join;
+    };
+};
+exports.createSeparatorGetter = createSeparatorGetter;
+const drawBorder = (columnWidths, parameters) => {
+    const borderSegments = (0, exports.drawBorderSegments)(columnWidths, parameters);
+    const { drawVerticalLine, horizontalBorderIndex, spanningCellManager } = parameters;
+    return (0, drawContent_1.drawContent)({
+        contents: borderSegments,
+        drawSeparator: drawVerticalLine,
+        elementType: 'border',
+        rowIndex: horizontalBorderIndex,
+        separatorGetter: (0, exports.createSeparatorGetter)(parameters),
+        spanningCellManager,
+    }) + '\n';
+};
+exports.drawBorder = drawBorder;
+const drawBorderTop = (columnWidths, parameters) => {
+    const { border } = parameters;
+    const result = (0, exports.drawBorder)(columnWidths, {
+        ...parameters,
+        separator: {
+            body: border.topBody,
+            join: border.topJoin,
+            left: border.topLeft,
+            right: border.topRight,
+        },
+    });
+    if (result === '\n') {
+        return '';
+    }
+    return result;
+};
+exports.drawBorderTop = drawBorderTop;
+const drawBorderJoin = (columnWidths, parameters) => {
+    const { border } = parameters;
+    return (0, exports.drawBorder)(columnWidths, {
+        ...parameters,
+        separator: {
+            body: border.joinBody,
+            bodyJoinInner: border.bodyJoin,
+            bodyJoinOuter: border.bodyLeft,
+            join: border.joinJoin,
+            joinDown: border.joinMiddleDown,
+            joinLeft: border.joinMiddleLeft,
+            joinRight: border.joinMiddleRight,
+            joinUp: border.joinMiddleUp,
+            left: border.joinLeft,
+            right: border.joinRight,
+        },
+    });
+};
+exports.drawBorderJoin = drawBorderJoin;
+const drawBorderBottom = (columnWidths, parameters) => {
+    const { border } = parameters;
+    return (0, exports.drawBorder)(columnWidths, {
+        ...parameters,
+        separator: {
+            body: border.bottomBody,
+            join: border.bottomJoin,
+            left: border.bottomLeft,
+            right: border.bottomRight,
+        },
+    });
+};
+exports.drawBorderBottom = drawBorderBottom;
+const createTableBorderGetter = (columnWidths, parameters) => {
+    return (index, size) => {
+        const drawBorderParameters = { ...parameters,
+            horizontalBorderIndex: index };
+        if (index === 0) {
+            return (0, exports.drawBorderTop)(columnWidths, drawBorderParameters);
+        }
+        else if (index === size) {
+            return (0, exports.drawBorderBottom)(columnWidths, drawBorderParameters);
+        }
+        return (0, exports.drawBorderJoin)(columnWidths, drawBorderParameters);
+    };
+};
+exports.createTableBorderGetter = createTableBorderGetter;
+
+}(drawBorder));
+
+var drawRow$1 = {};
+
+Object.defineProperty(drawRow$1, "__esModule", { value: true });
+drawRow$1.drawRow = void 0;
+const drawContent_1$1 = drawContent$1;
+const drawRow = (row, config) => {
+    const { border, drawVerticalLine, rowIndex, spanningCellManager } = config;
+    return (0, drawContent_1$1.drawContent)({
+        contents: row,
+        drawSeparator: drawVerticalLine,
+        elementType: 'cell',
+        rowIndex,
+        separatorGetter: (index, columnCount) => {
+            if (index === 0) {
+                return border.bodyLeft;
+            }
+            if (index === columnCount) {
+                return border.bodyRight;
+            }
+            return border.bodyJoin;
+        },
+        spanningCellManager,
+    }) + '\n';
+};
+drawRow$1.drawRow = drawRow;
+
+var makeStreamConfig$1 = {};
+
+var validateConfig$1 = {};
+
+var validators = {};
+
+var equal$1 = {};
+
+// do not edit .js files directly - edit src/index.jst
+
+
+
+var fastDeepEqual = function equal(a, b) {
+  if (a === b) return true;
+
+  if (a && b && typeof a == 'object' && typeof b == 'object') {
+    if (a.constructor !== b.constructor) return false;
+
+    var length, i, keys;
+    if (Array.isArray(a)) {
+      length = a.length;
+      if (length != b.length) return false;
+      for (i = length; i-- !== 0;)
+        if (!equal(a[i], b[i])) return false;
+      return true;
+    }
+
+
+
+    if (a.constructor === RegExp) return a.source === b.source && a.flags === b.flags;
+    if (a.valueOf !== Object.prototype.valueOf) return a.valueOf() === b.valueOf();
+    if (a.toString !== Object.prototype.toString) return a.toString() === b.toString();
+
+    keys = Object.keys(a);
+    length = keys.length;
+    if (length !== Object.keys(b).length) return false;
+
+    for (i = length; i-- !== 0;)
+      if (!Object.prototype.hasOwnProperty.call(b, keys[i])) return false;
+
+    for (i = length; i-- !== 0;) {
+      var key = keys[i];
+
+      if (!equal(a[key], b[key])) return false;
+    }
+
+    return true;
+  }
+
+  // true if both NaN, false otherwise
+  return a!==a && b!==b;
+};
+
+Object.defineProperty(equal$1, "__esModule", { value: true });
+// https://github.com/ajv-validator/ajv/issues/889
+const equal = fastDeepEqual;
+equal.code = 'require("ajv/dist/runtime/equal").default';
+equal$1.default = equal;
+
+(function (exports) {
+exports["config.json"] = validate43;
+const schema13 = {
+    "$id": "config.json",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+        "border": {
+            "$ref": "shared.json#/definitions/borders"
+        },
+        "header": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "alignment": {
+                    "$ref": "shared.json#/definitions/alignment"
+                },
+                "wrapWord": {
+                    "type": "boolean"
+                },
+                "truncate": {
+                    "type": "integer"
+                },
+                "paddingLeft": {
+                    "type": "integer"
+                },
+                "paddingRight": {
+                    "type": "integer"
+                }
+            },
+            "required": ["content"],
+            "additionalProperties": false
+        },
+        "columns": {
+            "$ref": "shared.json#/definitions/columns"
+        },
+        "columnDefault": {
+            "$ref": "shared.json#/definitions/column"
+        },
+        "drawVerticalLine": {
+            "typeof": "function"
+        },
+        "drawHorizontalLine": {
+            "typeof": "function"
+        },
+        "singleLine": {
+            "typeof": "boolean"
+        },
+        "spanningCells": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "col": {
+                        "type": "integer",
+                        "minimum": 0
+                    },
+                    "row": {
+                        "type": "integer",
+                        "minimum": 0
+                    },
+                    "colSpan": {
+                        "type": "integer",
+                        "minimum": 1
+                    },
+                    "rowSpan": {
+                        "type": "integer",
+                        "minimum": 1
+                    },
+                    "alignment": {
+                        "$ref": "shared.json#/definitions/alignment"
+                    },
+                    "verticalAlignment": {
+                        "$ref": "shared.json#/definitions/verticalAlignment"
+                    },
+                    "wrapWord": {
+                        "type": "boolean"
+                    },
+                    "truncate": {
+                        "type": "integer"
+                    },
+                    "paddingLeft": {
+                        "type": "integer"
+                    },
+                    "paddingRight": {
+                        "type": "integer"
+                    }
+                },
+                "required": ["row", "col"],
+                "additionalProperties": false
+            }
+        }
+    },
+    "additionalProperties": false
+};
+const schema15 = {
+    "type": "object",
+    "properties": {
+        "topBody": {
+            "$ref": "#/definitions/border"
+        },
+        "topJoin": {
+            "$ref": "#/definitions/border"
+        },
+        "topLeft": {
+            "$ref": "#/definitions/border"
+        },
+        "topRight": {
+            "$ref": "#/definitions/border"
+        },
+        "bottomBody": {
+            "$ref": "#/definitions/border"
+        },
+        "bottomJoin": {
+            "$ref": "#/definitions/border"
+        },
+        "bottomLeft": {
+            "$ref": "#/definitions/border"
+        },
+        "bottomRight": {
+            "$ref": "#/definitions/border"
+        },
+        "bodyLeft": {
+            "$ref": "#/definitions/border"
+        },
+        "bodyRight": {
+            "$ref": "#/definitions/border"
+        },
+        "bodyJoin": {
+            "$ref": "#/definitions/border"
+        },
+        "headerJoin": {
+            "$ref": "#/definitions/border"
+        },
+        "joinBody": {
+            "$ref": "#/definitions/border"
+        },
+        "joinLeft": {
+            "$ref": "#/definitions/border"
+        },
+        "joinRight": {
+            "$ref": "#/definitions/border"
+        },
+        "joinJoin": {
+            "$ref": "#/definitions/border"
+        },
+        "joinMiddleUp": {
+            "$ref": "#/definitions/border"
+        },
+        "joinMiddleDown": {
+            "$ref": "#/definitions/border"
+        },
+        "joinMiddleLeft": {
+            "$ref": "#/definitions/border"
+        },
+        "joinMiddleRight": {
+            "$ref": "#/definitions/border"
+        }
+    },
+    "additionalProperties": false
+};
+const func8 = Object.prototype.hasOwnProperty;
+function validate46(data, { instancePath = "", parentData, parentDataProperty, rootData = data } = {}) {
+    let vErrors = null;
+    let errors = 0;
+    if (typeof data !== "string") {
+        const err0 = {
+            instancePath,
+            schemaPath: "#/type",
+            keyword: "type",
+            params: {
+                type: "string"
+            },
+            message: "must be string"
+        };
+        if (vErrors === null) {
+            vErrors = [err0];
+        }
+        else {
+            vErrors.push(err0);
+        }
+        errors++;
+    }
+    validate46.errors = vErrors;
+    return errors === 0;
+}
+function validate45(data, { instancePath = "", parentData, parentDataProperty, rootData = data } = {}) {
+    let vErrors = null;
+    let errors = 0;
+    if (data && typeof data == "object" && !Array.isArray(data)) {
+        for (const key0 in data) {
+            if (!(func8.call(schema15.properties, key0))) {
+                const err0 = {
+                    instancePath,
+                    schemaPath: "#/additionalProperties",
+                    keyword: "additionalProperties",
+                    params: {
+                        additionalProperty: key0
+                    },
+                    message: "must NOT have additional properties"
+                };
+                if (vErrors === null) {
+                    vErrors = [err0];
+                }
+                else {
+                    vErrors.push(err0);
+                }
+                errors++;
+            }
+        }
+        if (data.topBody !== undefined) {
+            if (!(validate46(data.topBody, {
+                instancePath: instancePath + "/topBody",
+                parentData: data,
+                parentDataProperty: "topBody",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.topJoin !== undefined) {
+            if (!(validate46(data.topJoin, {
+                instancePath: instancePath + "/topJoin",
+                parentData: data,
+                parentDataProperty: "topJoin",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.topLeft !== undefined) {
+            if (!(validate46(data.topLeft, {
+                instancePath: instancePath + "/topLeft",
+                parentData: data,
+                parentDataProperty: "topLeft",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.topRight !== undefined) {
+            if (!(validate46(data.topRight, {
+                instancePath: instancePath + "/topRight",
+                parentData: data,
+                parentDataProperty: "topRight",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.bottomBody !== undefined) {
+            if (!(validate46(data.bottomBody, {
+                instancePath: instancePath + "/bottomBody",
+                parentData: data,
+                parentDataProperty: "bottomBody",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.bottomJoin !== undefined) {
+            if (!(validate46(data.bottomJoin, {
+                instancePath: instancePath + "/bottomJoin",
+                parentData: data,
+                parentDataProperty: "bottomJoin",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.bottomLeft !== undefined) {
+            if (!(validate46(data.bottomLeft, {
+                instancePath: instancePath + "/bottomLeft",
+                parentData: data,
+                parentDataProperty: "bottomLeft",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.bottomRight !== undefined) {
+            if (!(validate46(data.bottomRight, {
+                instancePath: instancePath + "/bottomRight",
+                parentData: data,
+                parentDataProperty: "bottomRight",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.bodyLeft !== undefined) {
+            if (!(validate46(data.bodyLeft, {
+                instancePath: instancePath + "/bodyLeft",
+                parentData: data,
+                parentDataProperty: "bodyLeft",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.bodyRight !== undefined) {
+            if (!(validate46(data.bodyRight, {
+                instancePath: instancePath + "/bodyRight",
+                parentData: data,
+                parentDataProperty: "bodyRight",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.bodyJoin !== undefined) {
+            if (!(validate46(data.bodyJoin, {
+                instancePath: instancePath + "/bodyJoin",
+                parentData: data,
+                parentDataProperty: "bodyJoin",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.headerJoin !== undefined) {
+            if (!(validate46(data.headerJoin, {
+                instancePath: instancePath + "/headerJoin",
+                parentData: data,
+                parentDataProperty: "headerJoin",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.joinBody !== undefined) {
+            if (!(validate46(data.joinBody, {
+                instancePath: instancePath + "/joinBody",
+                parentData: data,
+                parentDataProperty: "joinBody",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.joinLeft !== undefined) {
+            if (!(validate46(data.joinLeft, {
+                instancePath: instancePath + "/joinLeft",
+                parentData: data,
+                parentDataProperty: "joinLeft",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.joinRight !== undefined) {
+            if (!(validate46(data.joinRight, {
+                instancePath: instancePath + "/joinRight",
+                parentData: data,
+                parentDataProperty: "joinRight",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.joinJoin !== undefined) {
+            if (!(validate46(data.joinJoin, {
+                instancePath: instancePath + "/joinJoin",
+                parentData: data,
+                parentDataProperty: "joinJoin",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.joinMiddleUp !== undefined) {
+            if (!(validate46(data.joinMiddleUp, {
+                instancePath: instancePath + "/joinMiddleUp",
+                parentData: data,
+                parentDataProperty: "joinMiddleUp",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.joinMiddleDown !== undefined) {
+            if (!(validate46(data.joinMiddleDown, {
+                instancePath: instancePath + "/joinMiddleDown",
+                parentData: data,
+                parentDataProperty: "joinMiddleDown",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.joinMiddleLeft !== undefined) {
+            if (!(validate46(data.joinMiddleLeft, {
+                instancePath: instancePath + "/joinMiddleLeft",
+                parentData: data,
+                parentDataProperty: "joinMiddleLeft",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.joinMiddleRight !== undefined) {
+            if (!(validate46(data.joinMiddleRight, {
+                instancePath: instancePath + "/joinMiddleRight",
+                parentData: data,
+                parentDataProperty: "joinMiddleRight",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
+                errors = vErrors.length;
+            }
+        }
+    }
+    else {
+        const err1 = {
+            instancePath,
+            schemaPath: "#/type",
+            keyword: "type",
+            params: {
+                type: "object"
+            },
+            message: "must be object"
+        };
+        if (vErrors === null) {
+            vErrors = [err1];
+        }
+        else {
+            vErrors.push(err1);
+        }
+        errors++;
+    }
+    validate45.errors = vErrors;
+    return errors === 0;
+}
+const schema17 = {
+    "type": "string",
+    "enum": ["left", "right", "center", "justify"]
+};
+equal$1.default;
+function validate68(data, { instancePath = "", parentData, parentDataProperty, rootData = data } = {}) {
+    let vErrors = null;
+    let errors = 0;
+    if (typeof data !== "string") {
+        const err0 = {
+            instancePath,
+            schemaPath: "#/type",
+            keyword: "type",
+            params: {
+                type: "string"
+            },
+            message: "must be string"
+        };
+        if (vErrors === null) {
+            vErrors = [err0];
+        }
+        else {
+            vErrors.push(err0);
+        }
+        errors++;
+    }
+    if (!((((data === "left") || (data === "right")) || (data === "center")) || (data === "justify"))) {
+        const err1 = {
+            instancePath,
+            schemaPath: "#/enum",
+            keyword: "enum",
+            params: {
+                allowedValues: schema17.enum
+            },
+            message: "must be equal to one of the allowed values"
+        };
+        if (vErrors === null) {
+            vErrors = [err1];
+        }
+        else {
+            vErrors.push(err1);
+        }
+        errors++;
+    }
+    validate68.errors = vErrors;
+    return errors === 0;
+}
+const pattern0 = new RegExp("^[0-9]+$", "u");
+function validate72(data, { instancePath = "", parentData, parentDataProperty, rootData = data } = {}) {
+    let vErrors = null;
+    let errors = 0;
+    if (typeof data !== "string") {
+        const err0 = {
+            instancePath,
+            schemaPath: "#/type",
+            keyword: "type",
+            params: {
+                type: "string"
+            },
+            message: "must be string"
+        };
+        if (vErrors === null) {
+            vErrors = [err0];
+        }
+        else {
+            vErrors.push(err0);
+        }
+        errors++;
+    }
+    if (!((((data === "left") || (data === "right")) || (data === "center")) || (data === "justify"))) {
+        const err1 = {
+            instancePath,
+            schemaPath: "#/enum",
+            keyword: "enum",
+            params: {
+                allowedValues: schema17.enum
+            },
+            message: "must be equal to one of the allowed values"
+        };
+        if (vErrors === null) {
+            vErrors = [err1];
+        }
+        else {
+            vErrors.push(err1);
+        }
+        errors++;
+    }
+    validate72.errors = vErrors;
+    return errors === 0;
+}
+const schema21 = {
+    "type": "string",
+    "enum": ["top", "middle", "bottom"]
+};
+function validate74(data, { instancePath = "", parentData, parentDataProperty, rootData = data } = {}) {
+    let vErrors = null;
+    let errors = 0;
+    if (typeof data !== "string") {
+        const err0 = {
+            instancePath,
+            schemaPath: "#/type",
+            keyword: "type",
+            params: {
+                type: "string"
+            },
+            message: "must be string"
+        };
+        if (vErrors === null) {
+            vErrors = [err0];
+        }
+        else {
+            vErrors.push(err0);
+        }
+        errors++;
+    }
+    if (!(((data === "top") || (data === "middle")) || (data === "bottom"))) {
+        const err1 = {
+            instancePath,
+            schemaPath: "#/enum",
+            keyword: "enum",
+            params: {
+                allowedValues: schema21.enum
+            },
+            message: "must be equal to one of the allowed values"
+        };
+        if (vErrors === null) {
+            vErrors = [err1];
+        }
+        else {
+            vErrors.push(err1);
+        }
+        errors++;
+    }
+    validate74.errors = vErrors;
+    return errors === 0;
+}
+function validate71(data, { instancePath = "", parentData, parentDataProperty, rootData = data } = {}) {
+    let vErrors = null;
+    let errors = 0;
+    if (data && typeof data == "object" && !Array.isArray(data)) {
+        for (const key0 in data) {
+            if (!(((((((key0 === "alignment") || (key0 === "verticalAlignment")) || (key0 === "width")) || (key0 === "wrapWord")) || (key0 === "truncate")) || (key0 === "paddingLeft")) || (key0 === "paddingRight"))) {
+                const err0 = {
+                    instancePath,
+                    schemaPath: "#/additionalProperties",
+                    keyword: "additionalProperties",
+                    params: {
+                        additionalProperty: key0
+                    },
+                    message: "must NOT have additional properties"
+                };
+                if (vErrors === null) {
+                    vErrors = [err0];
+                }
+                else {
+                    vErrors.push(err0);
+                }
+                errors++;
+            }
+        }
+        if (data.alignment !== undefined) {
+            if (!(validate72(data.alignment, {
+                instancePath: instancePath + "/alignment",
+                parentData: data,
+                parentDataProperty: "alignment",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate72.errors : vErrors.concat(validate72.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.verticalAlignment !== undefined) {
+            if (!(validate74(data.verticalAlignment, {
+                instancePath: instancePath + "/verticalAlignment",
+                parentData: data,
+                parentDataProperty: "verticalAlignment",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate74.errors : vErrors.concat(validate74.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.width !== undefined) {
+            let data2 = data.width;
+            if (!(((typeof data2 == "number") && (!(data2 % 1) && !isNaN(data2))) && (isFinite(data2)))) {
+                const err1 = {
+                    instancePath: instancePath + "/width",
+                    schemaPath: "#/properties/width/type",
+                    keyword: "type",
+                    params: {
+                        type: "integer"
+                    },
+                    message: "must be integer"
+                };
+                if (vErrors === null) {
+                    vErrors = [err1];
+                }
+                else {
+                    vErrors.push(err1);
+                }
+                errors++;
+            }
+            if ((typeof data2 == "number") && (isFinite(data2))) {
+                if (data2 < 1 || isNaN(data2)) {
+                    const err2 = {
+                        instancePath: instancePath + "/width",
+                        schemaPath: "#/properties/width/minimum",
+                        keyword: "minimum",
+                        params: {
+                            comparison: ">=",
+                            limit: 1
+                        },
+                        message: "must be >= 1"
+                    };
+                    if (vErrors === null) {
+                        vErrors = [err2];
+                    }
+                    else {
+                        vErrors.push(err2);
+                    }
+                    errors++;
+                }
+            }
+        }
+        if (data.wrapWord !== undefined) {
+            if (typeof data.wrapWord !== "boolean") {
+                const err3 = {
+                    instancePath: instancePath + "/wrapWord",
+                    schemaPath: "#/properties/wrapWord/type",
+                    keyword: "type",
+                    params: {
+                        type: "boolean"
+                    },
+                    message: "must be boolean"
+                };
+                if (vErrors === null) {
+                    vErrors = [err3];
+                }
+                else {
+                    vErrors.push(err3);
+                }
+                errors++;
+            }
+        }
+        if (data.truncate !== undefined) {
+            let data4 = data.truncate;
+            if (!(((typeof data4 == "number") && (!(data4 % 1) && !isNaN(data4))) && (isFinite(data4)))) {
+                const err4 = {
+                    instancePath: instancePath + "/truncate",
+                    schemaPath: "#/properties/truncate/type",
+                    keyword: "type",
+                    params: {
+                        type: "integer"
+                    },
+                    message: "must be integer"
+                };
+                if (vErrors === null) {
+                    vErrors = [err4];
+                }
+                else {
+                    vErrors.push(err4);
+                }
+                errors++;
+            }
+        }
+        if (data.paddingLeft !== undefined) {
+            let data5 = data.paddingLeft;
+            if (!(((typeof data5 == "number") && (!(data5 % 1) && !isNaN(data5))) && (isFinite(data5)))) {
+                const err5 = {
+                    instancePath: instancePath + "/paddingLeft",
+                    schemaPath: "#/properties/paddingLeft/type",
+                    keyword: "type",
+                    params: {
+                        type: "integer"
+                    },
+                    message: "must be integer"
+                };
+                if (vErrors === null) {
+                    vErrors = [err5];
+                }
+                else {
+                    vErrors.push(err5);
+                }
+                errors++;
+            }
+        }
+        if (data.paddingRight !== undefined) {
+            let data6 = data.paddingRight;
+            if (!(((typeof data6 == "number") && (!(data6 % 1) && !isNaN(data6))) && (isFinite(data6)))) {
+                const err6 = {
+                    instancePath: instancePath + "/paddingRight",
+                    schemaPath: "#/properties/paddingRight/type",
+                    keyword: "type",
+                    params: {
+                        type: "integer"
+                    },
+                    message: "must be integer"
+                };
+                if (vErrors === null) {
+                    vErrors = [err6];
+                }
+                else {
+                    vErrors.push(err6);
+                }
+                errors++;
+            }
+        }
+    }
+    else {
+        const err7 = {
+            instancePath,
+            schemaPath: "#/type",
+            keyword: "type",
+            params: {
+                type: "object"
+            },
+            message: "must be object"
+        };
+        if (vErrors === null) {
+            vErrors = [err7];
+        }
+        else {
+            vErrors.push(err7);
+        }
+        errors++;
+    }
+    validate71.errors = vErrors;
+    return errors === 0;
+}
+function validate70(data, { instancePath = "", parentData, parentDataProperty, rootData = data } = {}) {
+    let vErrors = null;
+    let errors = 0;
+    const _errs0 = errors;
+    let valid0 = false;
+    let passing0 = null;
+    const _errs1 = errors;
+    if (data && typeof data == "object" && !Array.isArray(data)) {
+        for (const key0 in data) {
+            if (!(pattern0.test(key0))) {
+                const err0 = {
+                    instancePath,
+                    schemaPath: "#/oneOf/0/additionalProperties",
+                    keyword: "additionalProperties",
+                    params: {
+                        additionalProperty: key0
+                    },
+                    message: "must NOT have additional properties"
+                };
+                if (vErrors === null) {
+                    vErrors = [err0];
+                }
+                else {
+                    vErrors.push(err0);
+                }
+                errors++;
+            }
+        }
+        for (const key1 in data) {
+            if (pattern0.test(key1)) {
+                if (!(validate71(data[key1], {
+                    instancePath: instancePath + "/" + key1.replace(/~/g, "~0").replace(/\//g, "~1"),
+                    parentData: data,
+                    parentDataProperty: key1,
+                    rootData
+                }))) {
+                    vErrors = vErrors === null ? validate71.errors : vErrors.concat(validate71.errors);
+                    errors = vErrors.length;
+                }
+            }
+        }
+    }
+    else {
+        const err1 = {
+            instancePath,
+            schemaPath: "#/oneOf/0/type",
+            keyword: "type",
+            params: {
+                type: "object"
+            },
+            message: "must be object"
+        };
+        if (vErrors === null) {
+            vErrors = [err1];
+        }
+        else {
+            vErrors.push(err1);
+        }
+        errors++;
+    }
+    var _valid0 = _errs1 === errors;
+    if (_valid0) {
+        valid0 = true;
+        passing0 = 0;
+    }
+    const _errs5 = errors;
+    if (Array.isArray(data)) {
+        const len0 = data.length;
+        for (let i0 = 0; i0 < len0; i0++) {
+            if (!(validate71(data[i0], {
+                instancePath: instancePath + "/" + i0,
+                parentData: data,
+                parentDataProperty: i0,
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate71.errors : vErrors.concat(validate71.errors);
+                errors = vErrors.length;
+            }
+        }
+    }
+    else {
+        const err2 = {
+            instancePath,
+            schemaPath: "#/oneOf/1/type",
+            keyword: "type",
+            params: {
+                type: "array"
+            },
+            message: "must be array"
+        };
+        if (vErrors === null) {
+            vErrors = [err2];
+        }
+        else {
+            vErrors.push(err2);
+        }
+        errors++;
+    }
+    var _valid0 = _errs5 === errors;
+    if (_valid0 && valid0) {
+        valid0 = false;
+        passing0 = [passing0, 1];
+    }
+    else {
+        if (_valid0) {
+            valid0 = true;
+            passing0 = 1;
+        }
+    }
+    if (!valid0) {
+        const err3 = {
+            instancePath,
+            schemaPath: "#/oneOf",
+            keyword: "oneOf",
+            params: {
+                passingSchemas: passing0
+            },
+            message: "must match exactly one schema in oneOf"
+        };
+        if (vErrors === null) {
+            vErrors = [err3];
+        }
+        else {
+            vErrors.push(err3);
+        }
+        errors++;
+    }
+    else {
+        errors = _errs0;
+        if (vErrors !== null) {
+            if (_errs0) {
+                vErrors.length = _errs0;
+            }
+            else {
+                vErrors = null;
+            }
+        }
+    }
+    validate70.errors = vErrors;
+    return errors === 0;
+}
+function validate79(data, { instancePath = "", parentData, parentDataProperty, rootData = data } = {}) {
+    let vErrors = null;
+    let errors = 0;
+    if (data && typeof data == "object" && !Array.isArray(data)) {
+        for (const key0 in data) {
+            if (!(((((((key0 === "alignment") || (key0 === "verticalAlignment")) || (key0 === "width")) || (key0 === "wrapWord")) || (key0 === "truncate")) || (key0 === "paddingLeft")) || (key0 === "paddingRight"))) {
+                const err0 = {
+                    instancePath,
+                    schemaPath: "#/additionalProperties",
+                    keyword: "additionalProperties",
+                    params: {
+                        additionalProperty: key0
+                    },
+                    message: "must NOT have additional properties"
+                };
+                if (vErrors === null) {
+                    vErrors = [err0];
+                }
+                else {
+                    vErrors.push(err0);
+                }
+                errors++;
+            }
+        }
+        if (data.alignment !== undefined) {
+            if (!(validate72(data.alignment, {
+                instancePath: instancePath + "/alignment",
+                parentData: data,
+                parentDataProperty: "alignment",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate72.errors : vErrors.concat(validate72.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.verticalAlignment !== undefined) {
+            if (!(validate74(data.verticalAlignment, {
+                instancePath: instancePath + "/verticalAlignment",
+                parentData: data,
+                parentDataProperty: "verticalAlignment",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate74.errors : vErrors.concat(validate74.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.width !== undefined) {
+            let data2 = data.width;
+            if (!(((typeof data2 == "number") && (!(data2 % 1) && !isNaN(data2))) && (isFinite(data2)))) {
+                const err1 = {
+                    instancePath: instancePath + "/width",
+                    schemaPath: "#/properties/width/type",
+                    keyword: "type",
+                    params: {
+                        type: "integer"
+                    },
+                    message: "must be integer"
+                };
+                if (vErrors === null) {
+                    vErrors = [err1];
+                }
+                else {
+                    vErrors.push(err1);
+                }
+                errors++;
+            }
+            if ((typeof data2 == "number") && (isFinite(data2))) {
+                if (data2 < 1 || isNaN(data2)) {
+                    const err2 = {
+                        instancePath: instancePath + "/width",
+                        schemaPath: "#/properties/width/minimum",
+                        keyword: "minimum",
+                        params: {
+                            comparison: ">=",
+                            limit: 1
+                        },
+                        message: "must be >= 1"
+                    };
+                    if (vErrors === null) {
+                        vErrors = [err2];
+                    }
+                    else {
+                        vErrors.push(err2);
+                    }
+                    errors++;
+                }
+            }
+        }
+        if (data.wrapWord !== undefined) {
+            if (typeof data.wrapWord !== "boolean") {
+                const err3 = {
+                    instancePath: instancePath + "/wrapWord",
+                    schemaPath: "#/properties/wrapWord/type",
+                    keyword: "type",
+                    params: {
+                        type: "boolean"
+                    },
+                    message: "must be boolean"
+                };
+                if (vErrors === null) {
+                    vErrors = [err3];
+                }
+                else {
+                    vErrors.push(err3);
+                }
+                errors++;
+            }
+        }
+        if (data.truncate !== undefined) {
+            let data4 = data.truncate;
+            if (!(((typeof data4 == "number") && (!(data4 % 1) && !isNaN(data4))) && (isFinite(data4)))) {
+                const err4 = {
+                    instancePath: instancePath + "/truncate",
+                    schemaPath: "#/properties/truncate/type",
+                    keyword: "type",
+                    params: {
+                        type: "integer"
+                    },
+                    message: "must be integer"
+                };
+                if (vErrors === null) {
+                    vErrors = [err4];
+                }
+                else {
+                    vErrors.push(err4);
+                }
+                errors++;
+            }
+        }
+        if (data.paddingLeft !== undefined) {
+            let data5 = data.paddingLeft;
+            if (!(((typeof data5 == "number") && (!(data5 % 1) && !isNaN(data5))) && (isFinite(data5)))) {
+                const err5 = {
+                    instancePath: instancePath + "/paddingLeft",
+                    schemaPath: "#/properties/paddingLeft/type",
+                    keyword: "type",
+                    params: {
+                        type: "integer"
+                    },
+                    message: "must be integer"
+                };
+                if (vErrors === null) {
+                    vErrors = [err5];
+                }
+                else {
+                    vErrors.push(err5);
+                }
+                errors++;
+            }
+        }
+        if (data.paddingRight !== undefined) {
+            let data6 = data.paddingRight;
+            if (!(((typeof data6 == "number") && (!(data6 % 1) && !isNaN(data6))) && (isFinite(data6)))) {
+                const err6 = {
+                    instancePath: instancePath + "/paddingRight",
+                    schemaPath: "#/properties/paddingRight/type",
+                    keyword: "type",
+                    params: {
+                        type: "integer"
+                    },
+                    message: "must be integer"
+                };
+                if (vErrors === null) {
+                    vErrors = [err6];
+                }
+                else {
+                    vErrors.push(err6);
+                }
+                errors++;
+            }
+        }
+    }
+    else {
+        const err7 = {
+            instancePath,
+            schemaPath: "#/type",
+            keyword: "type",
+            params: {
+                type: "object"
+            },
+            message: "must be object"
+        };
+        if (vErrors === null) {
+            vErrors = [err7];
+        }
+        else {
+            vErrors.push(err7);
+        }
+        errors++;
+    }
+    validate79.errors = vErrors;
+    return errors === 0;
+}
+function validate84(data, { instancePath = "", parentData, parentDataProperty, rootData = data } = {}) {
+    let vErrors = null;
+    let errors = 0;
+    if (typeof data !== "string") {
+        const err0 = {
+            instancePath,
+            schemaPath: "#/type",
+            keyword: "type",
+            params: {
+                type: "string"
+            },
+            message: "must be string"
+        };
+        if (vErrors === null) {
+            vErrors = [err0];
+        }
+        else {
+            vErrors.push(err0);
+        }
+        errors++;
+    }
+    if (!(((data === "top") || (data === "middle")) || (data === "bottom"))) {
+        const err1 = {
+            instancePath,
+            schemaPath: "#/enum",
+            keyword: "enum",
+            params: {
+                allowedValues: schema21.enum
+            },
+            message: "must be equal to one of the allowed values"
+        };
+        if (vErrors === null) {
+            vErrors = [err1];
+        }
+        else {
+            vErrors.push(err1);
+        }
+        errors++;
+    }
+    validate84.errors = vErrors;
+    return errors === 0;
+}
+function validate43(data, { instancePath = "", parentData, parentDataProperty, rootData = data } = {}) {
+    let vErrors = null;
+    let errors = 0;
+    if (data && typeof data == "object" && !Array.isArray(data)) {
+        for (const key0 in data) {
+            if (!((((((((key0 === "border") || (key0 === "header")) || (key0 === "columns")) || (key0 === "columnDefault")) || (key0 === "drawVerticalLine")) || (key0 === "drawHorizontalLine")) || (key0 === "singleLine")) || (key0 === "spanningCells"))) {
+                const err0 = {
+                    instancePath,
+                    schemaPath: "#/additionalProperties",
+                    keyword: "additionalProperties",
+                    params: {
+                        additionalProperty: key0
+                    },
+                    message: "must NOT have additional properties"
+                };
+                if (vErrors === null) {
+                    vErrors = [err0];
+                }
+                else {
+                    vErrors.push(err0);
+                }
+                errors++;
+            }
+        }
+        if (data.border !== undefined) {
+            if (!(validate45(data.border, {
+                instancePath: instancePath + "/border",
+                parentData: data,
+                parentDataProperty: "border",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate45.errors : vErrors.concat(validate45.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.header !== undefined) {
+            let data1 = data.header;
+            if (data1 && typeof data1 == "object" && !Array.isArray(data1)) {
+                if (data1.content === undefined) {
+                    const err1 = {
+                        instancePath: instancePath + "/header",
+                        schemaPath: "#/properties/header/required",
+                        keyword: "required",
+                        params: {
+                            missingProperty: "content"
+                        },
+                        message: "must have required property '" + "content" + "'"
+                    };
+                    if (vErrors === null) {
+                        vErrors = [err1];
+                    }
+                    else {
+                        vErrors.push(err1);
+                    }
+                    errors++;
+                }
+                for (const key1 in data1) {
+                    if (!((((((key1 === "content") || (key1 === "alignment")) || (key1 === "wrapWord")) || (key1 === "truncate")) || (key1 === "paddingLeft")) || (key1 === "paddingRight"))) {
+                        const err2 = {
+                            instancePath: instancePath + "/header",
+                            schemaPath: "#/properties/header/additionalProperties",
+                            keyword: "additionalProperties",
+                            params: {
+                                additionalProperty: key1
+                            },
+                            message: "must NOT have additional properties"
+                        };
+                        if (vErrors === null) {
+                            vErrors = [err2];
+                        }
+                        else {
+                            vErrors.push(err2);
+                        }
+                        errors++;
+                    }
+                }
+                if (data1.content !== undefined) {
+                    if (typeof data1.content !== "string") {
+                        const err3 = {
+                            instancePath: instancePath + "/header/content",
+                            schemaPath: "#/properties/header/properties/content/type",
+                            keyword: "type",
+                            params: {
+                                type: "string"
+                            },
+                            message: "must be string"
+                        };
+                        if (vErrors === null) {
+                            vErrors = [err3];
+                        }
+                        else {
+                            vErrors.push(err3);
+                        }
+                        errors++;
+                    }
+                }
+                if (data1.alignment !== undefined) {
+                    if (!(validate68(data1.alignment, {
+                        instancePath: instancePath + "/header/alignment",
+                        parentData: data1,
+                        parentDataProperty: "alignment",
+                        rootData
+                    }))) {
+                        vErrors = vErrors === null ? validate68.errors : vErrors.concat(validate68.errors);
+                        errors = vErrors.length;
+                    }
+                }
+                if (data1.wrapWord !== undefined) {
+                    if (typeof data1.wrapWord !== "boolean") {
+                        const err4 = {
+                            instancePath: instancePath + "/header/wrapWord",
+                            schemaPath: "#/properties/header/properties/wrapWord/type",
+                            keyword: "type",
+                            params: {
+                                type: "boolean"
+                            },
+                            message: "must be boolean"
+                        };
+                        if (vErrors === null) {
+                            vErrors = [err4];
+                        }
+                        else {
+                            vErrors.push(err4);
+                        }
+                        errors++;
+                    }
+                }
+                if (data1.truncate !== undefined) {
+                    let data5 = data1.truncate;
+                    if (!(((typeof data5 == "number") && (!(data5 % 1) && !isNaN(data5))) && (isFinite(data5)))) {
+                        const err5 = {
+                            instancePath: instancePath + "/header/truncate",
+                            schemaPath: "#/properties/header/properties/truncate/type",
+                            keyword: "type",
+                            params: {
+                                type: "integer"
+                            },
+                            message: "must be integer"
+                        };
+                        if (vErrors === null) {
+                            vErrors = [err5];
+                        }
+                        else {
+                            vErrors.push(err5);
+                        }
+                        errors++;
+                    }
+                }
+                if (data1.paddingLeft !== undefined) {
+                    let data6 = data1.paddingLeft;
+                    if (!(((typeof data6 == "number") && (!(data6 % 1) && !isNaN(data6))) && (isFinite(data6)))) {
+                        const err6 = {
+                            instancePath: instancePath + "/header/paddingLeft",
+                            schemaPath: "#/properties/header/properties/paddingLeft/type",
+                            keyword: "type",
+                            params: {
+                                type: "integer"
+                            },
+                            message: "must be integer"
+                        };
+                        if (vErrors === null) {
+                            vErrors = [err6];
+                        }
+                        else {
+                            vErrors.push(err6);
+                        }
+                        errors++;
+                    }
+                }
+                if (data1.paddingRight !== undefined) {
+                    let data7 = data1.paddingRight;
+                    if (!(((typeof data7 == "number") && (!(data7 % 1) && !isNaN(data7))) && (isFinite(data7)))) {
+                        const err7 = {
+                            instancePath: instancePath + "/header/paddingRight",
+                            schemaPath: "#/properties/header/properties/paddingRight/type",
+                            keyword: "type",
+                            params: {
+                                type: "integer"
+                            },
+                            message: "must be integer"
+                        };
+                        if (vErrors === null) {
+                            vErrors = [err7];
+                        }
+                        else {
+                            vErrors.push(err7);
+                        }
+                        errors++;
+                    }
+                }
+            }
+            else {
+                const err8 = {
+                    instancePath: instancePath + "/header",
+                    schemaPath: "#/properties/header/type",
+                    keyword: "type",
+                    params: {
+                        type: "object"
+                    },
+                    message: "must be object"
+                };
+                if (vErrors === null) {
+                    vErrors = [err8];
+                }
+                else {
+                    vErrors.push(err8);
+                }
+                errors++;
+            }
+        }
+        if (data.columns !== undefined) {
+            if (!(validate70(data.columns, {
+                instancePath: instancePath + "/columns",
+                parentData: data,
+                parentDataProperty: "columns",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate70.errors : vErrors.concat(validate70.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.columnDefault !== undefined) {
+            if (!(validate79(data.columnDefault, {
+                instancePath: instancePath + "/columnDefault",
+                parentData: data,
+                parentDataProperty: "columnDefault",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate79.errors : vErrors.concat(validate79.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.drawVerticalLine !== undefined) {
+            if (typeof data.drawVerticalLine != "function") {
+                const err9 = {
+                    instancePath: instancePath + "/drawVerticalLine",
+                    schemaPath: "#/properties/drawVerticalLine/typeof",
+                    keyword: "typeof",
+                    params: {},
+                    message: "must pass \"typeof\" keyword validation"
+                };
+                if (vErrors === null) {
+                    vErrors = [err9];
+                }
+                else {
+                    vErrors.push(err9);
+                }
+                errors++;
+            }
+        }
+        if (data.drawHorizontalLine !== undefined) {
+            if (typeof data.drawHorizontalLine != "function") {
+                const err10 = {
+                    instancePath: instancePath + "/drawHorizontalLine",
+                    schemaPath: "#/properties/drawHorizontalLine/typeof",
+                    keyword: "typeof",
+                    params: {},
+                    message: "must pass \"typeof\" keyword validation"
+                };
+                if (vErrors === null) {
+                    vErrors = [err10];
+                }
+                else {
+                    vErrors.push(err10);
+                }
+                errors++;
+            }
+        }
+        if (data.singleLine !== undefined) {
+            if (typeof data.singleLine != "boolean") {
+                const err11 = {
+                    instancePath: instancePath + "/singleLine",
+                    schemaPath: "#/properties/singleLine/typeof",
+                    keyword: "typeof",
+                    params: {},
+                    message: "must pass \"typeof\" keyword validation"
+                };
+                if (vErrors === null) {
+                    vErrors = [err11];
+                }
+                else {
+                    vErrors.push(err11);
+                }
+                errors++;
+            }
+        }
+        if (data.spanningCells !== undefined) {
+            let data13 = data.spanningCells;
+            if (Array.isArray(data13)) {
+                const len0 = data13.length;
+                for (let i0 = 0; i0 < len0; i0++) {
+                    let data14 = data13[i0];
+                    if (data14 && typeof data14 == "object" && !Array.isArray(data14)) {
+                        if (data14.row === undefined) {
+                            const err12 = {
+                                instancePath: instancePath + "/spanningCells/" + i0,
+                                schemaPath: "#/properties/spanningCells/items/required",
+                                keyword: "required",
+                                params: {
+                                    missingProperty: "row"
+                                },
+                                message: "must have required property '" + "row" + "'"
+                            };
+                            if (vErrors === null) {
+                                vErrors = [err12];
+                            }
+                            else {
+                                vErrors.push(err12);
+                            }
+                            errors++;
+                        }
+                        if (data14.col === undefined) {
+                            const err13 = {
+                                instancePath: instancePath + "/spanningCells/" + i0,
+                                schemaPath: "#/properties/spanningCells/items/required",
+                                keyword: "required",
+                                params: {
+                                    missingProperty: "col"
+                                },
+                                message: "must have required property '" + "col" + "'"
+                            };
+                            if (vErrors === null) {
+                                vErrors = [err13];
+                            }
+                            else {
+                                vErrors.push(err13);
+                            }
+                            errors++;
+                        }
+                        for (const key2 in data14) {
+                            if (!(func8.call(schema13.properties.spanningCells.items.properties, key2))) {
+                                const err14 = {
+                                    instancePath: instancePath + "/spanningCells/" + i0,
+                                    schemaPath: "#/properties/spanningCells/items/additionalProperties",
+                                    keyword: "additionalProperties",
+                                    params: {
+                                        additionalProperty: key2
+                                    },
+                                    message: "must NOT have additional properties"
+                                };
+                                if (vErrors === null) {
+                                    vErrors = [err14];
+                                }
+                                else {
+                                    vErrors.push(err14);
+                                }
+                                errors++;
+                            }
+                        }
+                        if (data14.col !== undefined) {
+                            let data15 = data14.col;
+                            if (!(((typeof data15 == "number") && (!(data15 % 1) && !isNaN(data15))) && (isFinite(data15)))) {
+                                const err15 = {
+                                    instancePath: instancePath + "/spanningCells/" + i0 + "/col",
+                                    schemaPath: "#/properties/spanningCells/items/properties/col/type",
+                                    keyword: "type",
+                                    params: {
+                                        type: "integer"
+                                    },
+                                    message: "must be integer"
+                                };
+                                if (vErrors === null) {
+                                    vErrors = [err15];
+                                }
+                                else {
+                                    vErrors.push(err15);
+                                }
+                                errors++;
+                            }
+                            if ((typeof data15 == "number") && (isFinite(data15))) {
+                                if (data15 < 0 || isNaN(data15)) {
+                                    const err16 = {
+                                        instancePath: instancePath + "/spanningCells/" + i0 + "/col",
+                                        schemaPath: "#/properties/spanningCells/items/properties/col/minimum",
+                                        keyword: "minimum",
+                                        params: {
+                                            comparison: ">=",
+                                            limit: 0
+                                        },
+                                        message: "must be >= 0"
+                                    };
+                                    if (vErrors === null) {
+                                        vErrors = [err16];
+                                    }
+                                    else {
+                                        vErrors.push(err16);
+                                    }
+                                    errors++;
+                                }
+                            }
+                        }
+                        if (data14.row !== undefined) {
+                            let data16 = data14.row;
+                            if (!(((typeof data16 == "number") && (!(data16 % 1) && !isNaN(data16))) && (isFinite(data16)))) {
+                                const err17 = {
+                                    instancePath: instancePath + "/spanningCells/" + i0 + "/row",
+                                    schemaPath: "#/properties/spanningCells/items/properties/row/type",
+                                    keyword: "type",
+                                    params: {
+                                        type: "integer"
+                                    },
+                                    message: "must be integer"
+                                };
+                                if (vErrors === null) {
+                                    vErrors = [err17];
+                                }
+                                else {
+                                    vErrors.push(err17);
+                                }
+                                errors++;
+                            }
+                            if ((typeof data16 == "number") && (isFinite(data16))) {
+                                if (data16 < 0 || isNaN(data16)) {
+                                    const err18 = {
+                                        instancePath: instancePath + "/spanningCells/" + i0 + "/row",
+                                        schemaPath: "#/properties/spanningCells/items/properties/row/minimum",
+                                        keyword: "minimum",
+                                        params: {
+                                            comparison: ">=",
+                                            limit: 0
+                                        },
+                                        message: "must be >= 0"
+                                    };
+                                    if (vErrors === null) {
+                                        vErrors = [err18];
+                                    }
+                                    else {
+                                        vErrors.push(err18);
+                                    }
+                                    errors++;
+                                }
+                            }
+                        }
+                        if (data14.colSpan !== undefined) {
+                            let data17 = data14.colSpan;
+                            if (!(((typeof data17 == "number") && (!(data17 % 1) && !isNaN(data17))) && (isFinite(data17)))) {
+                                const err19 = {
+                                    instancePath: instancePath + "/spanningCells/" + i0 + "/colSpan",
+                                    schemaPath: "#/properties/spanningCells/items/properties/colSpan/type",
+                                    keyword: "type",
+                                    params: {
+                                        type: "integer"
+                                    },
+                                    message: "must be integer"
+                                };
+                                if (vErrors === null) {
+                                    vErrors = [err19];
+                                }
+                                else {
+                                    vErrors.push(err19);
+                                }
+                                errors++;
+                            }
+                            if ((typeof data17 == "number") && (isFinite(data17))) {
+                                if (data17 < 1 || isNaN(data17)) {
+                                    const err20 = {
+                                        instancePath: instancePath + "/spanningCells/" + i0 + "/colSpan",
+                                        schemaPath: "#/properties/spanningCells/items/properties/colSpan/minimum",
+                                        keyword: "minimum",
+                                        params: {
+                                            comparison: ">=",
+                                            limit: 1
+                                        },
+                                        message: "must be >= 1"
+                                    };
+                                    if (vErrors === null) {
+                                        vErrors = [err20];
+                                    }
+                                    else {
+                                        vErrors.push(err20);
+                                    }
+                                    errors++;
+                                }
+                            }
+                        }
+                        if (data14.rowSpan !== undefined) {
+                            let data18 = data14.rowSpan;
+                            if (!(((typeof data18 == "number") && (!(data18 % 1) && !isNaN(data18))) && (isFinite(data18)))) {
+                                const err21 = {
+                                    instancePath: instancePath + "/spanningCells/" + i0 + "/rowSpan",
+                                    schemaPath: "#/properties/spanningCells/items/properties/rowSpan/type",
+                                    keyword: "type",
+                                    params: {
+                                        type: "integer"
+                                    },
+                                    message: "must be integer"
+                                };
+                                if (vErrors === null) {
+                                    vErrors = [err21];
+                                }
+                                else {
+                                    vErrors.push(err21);
+                                }
+                                errors++;
+                            }
+                            if ((typeof data18 == "number") && (isFinite(data18))) {
+                                if (data18 < 1 || isNaN(data18)) {
+                                    const err22 = {
+                                        instancePath: instancePath + "/spanningCells/" + i0 + "/rowSpan",
+                                        schemaPath: "#/properties/spanningCells/items/properties/rowSpan/minimum",
+                                        keyword: "minimum",
+                                        params: {
+                                            comparison: ">=",
+                                            limit: 1
+                                        },
+                                        message: "must be >= 1"
+                                    };
+                                    if (vErrors === null) {
+                                        vErrors = [err22];
+                                    }
+                                    else {
+                                        vErrors.push(err22);
+                                    }
+                                    errors++;
+                                }
+                            }
+                        }
+                        if (data14.alignment !== undefined) {
+                            if (!(validate68(data14.alignment, {
+                                instancePath: instancePath + "/spanningCells/" + i0 + "/alignment",
+                                parentData: data14,
+                                parentDataProperty: "alignment",
+                                rootData
+                            }))) {
+                                vErrors = vErrors === null ? validate68.errors : vErrors.concat(validate68.errors);
+                                errors = vErrors.length;
+                            }
+                        }
+                        if (data14.verticalAlignment !== undefined) {
+                            if (!(validate84(data14.verticalAlignment, {
+                                instancePath: instancePath + "/spanningCells/" + i0 + "/verticalAlignment",
+                                parentData: data14,
+                                parentDataProperty: "verticalAlignment",
+                                rootData
+                            }))) {
+                                vErrors = vErrors === null ? validate84.errors : vErrors.concat(validate84.errors);
+                                errors = vErrors.length;
+                            }
+                        }
+                        if (data14.wrapWord !== undefined) {
+                            if (typeof data14.wrapWord !== "boolean") {
+                                const err23 = {
+                                    instancePath: instancePath + "/spanningCells/" + i0 + "/wrapWord",
+                                    schemaPath: "#/properties/spanningCells/items/properties/wrapWord/type",
+                                    keyword: "type",
+                                    params: {
+                                        type: "boolean"
+                                    },
+                                    message: "must be boolean"
+                                };
+                                if (vErrors === null) {
+                                    vErrors = [err23];
+                                }
+                                else {
+                                    vErrors.push(err23);
+                                }
+                                errors++;
+                            }
+                        }
+                        if (data14.truncate !== undefined) {
+                            let data22 = data14.truncate;
+                            if (!(((typeof data22 == "number") && (!(data22 % 1) && !isNaN(data22))) && (isFinite(data22)))) {
+                                const err24 = {
+                                    instancePath: instancePath + "/spanningCells/" + i0 + "/truncate",
+                                    schemaPath: "#/properties/spanningCells/items/properties/truncate/type",
+                                    keyword: "type",
+                                    params: {
+                                        type: "integer"
+                                    },
+                                    message: "must be integer"
+                                };
+                                if (vErrors === null) {
+                                    vErrors = [err24];
+                                }
+                                else {
+                                    vErrors.push(err24);
+                                }
+                                errors++;
+                            }
+                        }
+                        if (data14.paddingLeft !== undefined) {
+                            let data23 = data14.paddingLeft;
+                            if (!(((typeof data23 == "number") && (!(data23 % 1) && !isNaN(data23))) && (isFinite(data23)))) {
+                                const err25 = {
+                                    instancePath: instancePath + "/spanningCells/" + i0 + "/paddingLeft",
+                                    schemaPath: "#/properties/spanningCells/items/properties/paddingLeft/type",
+                                    keyword: "type",
+                                    params: {
+                                        type: "integer"
+                                    },
+                                    message: "must be integer"
+                                };
+                                if (vErrors === null) {
+                                    vErrors = [err25];
+                                }
+                                else {
+                                    vErrors.push(err25);
+                                }
+                                errors++;
+                            }
+                        }
+                        if (data14.paddingRight !== undefined) {
+                            let data24 = data14.paddingRight;
+                            if (!(((typeof data24 == "number") && (!(data24 % 1) && !isNaN(data24))) && (isFinite(data24)))) {
+                                const err26 = {
+                                    instancePath: instancePath + "/spanningCells/" + i0 + "/paddingRight",
+                                    schemaPath: "#/properties/spanningCells/items/properties/paddingRight/type",
+                                    keyword: "type",
+                                    params: {
+                                        type: "integer"
+                                    },
+                                    message: "must be integer"
+                                };
+                                if (vErrors === null) {
+                                    vErrors = [err26];
+                                }
+                                else {
+                                    vErrors.push(err26);
+                                }
+                                errors++;
+                            }
+                        }
+                    }
+                    else {
+                        const err27 = {
+                            instancePath: instancePath + "/spanningCells/" + i0,
+                            schemaPath: "#/properties/spanningCells/items/type",
+                            keyword: "type",
+                            params: {
+                                type: "object"
+                            },
+                            message: "must be object"
+                        };
+                        if (vErrors === null) {
+                            vErrors = [err27];
+                        }
+                        else {
+                            vErrors.push(err27);
+                        }
+                        errors++;
+                    }
+                }
+            }
+            else {
+                const err28 = {
+                    instancePath: instancePath + "/spanningCells",
+                    schemaPath: "#/properties/spanningCells/type",
+                    keyword: "type",
+                    params: {
+                        type: "array"
+                    },
+                    message: "must be array"
+                };
+                if (vErrors === null) {
+                    vErrors = [err28];
+                }
+                else {
+                    vErrors.push(err28);
+                }
+                errors++;
+            }
+        }
+    }
+    else {
+        const err29 = {
+            instancePath,
+            schemaPath: "#/type",
+            keyword: "type",
+            params: {
+                type: "object"
+            },
+            message: "must be object"
+        };
+        if (vErrors === null) {
+            vErrors = [err29];
+        }
+        else {
+            vErrors.push(err29);
+        }
+        errors++;
+    }
+    validate43.errors = vErrors;
+    return errors === 0;
+}
+exports["streamConfig.json"] = validate86;
+function validate87(data, { instancePath = "", parentData, parentDataProperty, rootData = data } = {}) {
+    let vErrors = null;
+    let errors = 0;
+    if (data && typeof data == "object" && !Array.isArray(data)) {
+        for (const key0 in data) {
+            if (!(func8.call(schema15.properties, key0))) {
+                const err0 = {
+                    instancePath,
+                    schemaPath: "#/additionalProperties",
+                    keyword: "additionalProperties",
+                    params: {
+                        additionalProperty: key0
+                    },
+                    message: "must NOT have additional properties"
+                };
+                if (vErrors === null) {
+                    vErrors = [err0];
+                }
+                else {
+                    vErrors.push(err0);
+                }
+                errors++;
+            }
+        }
+        if (data.topBody !== undefined) {
+            if (!(validate46(data.topBody, {
+                instancePath: instancePath + "/topBody",
+                parentData: data,
+                parentDataProperty: "topBody",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.topJoin !== undefined) {
+            if (!(validate46(data.topJoin, {
+                instancePath: instancePath + "/topJoin",
+                parentData: data,
+                parentDataProperty: "topJoin",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.topLeft !== undefined) {
+            if (!(validate46(data.topLeft, {
+                instancePath: instancePath + "/topLeft",
+                parentData: data,
+                parentDataProperty: "topLeft",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.topRight !== undefined) {
+            if (!(validate46(data.topRight, {
+                instancePath: instancePath + "/topRight",
+                parentData: data,
+                parentDataProperty: "topRight",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.bottomBody !== undefined) {
+            if (!(validate46(data.bottomBody, {
+                instancePath: instancePath + "/bottomBody",
+                parentData: data,
+                parentDataProperty: "bottomBody",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.bottomJoin !== undefined) {
+            if (!(validate46(data.bottomJoin, {
+                instancePath: instancePath + "/bottomJoin",
+                parentData: data,
+                parentDataProperty: "bottomJoin",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.bottomLeft !== undefined) {
+            if (!(validate46(data.bottomLeft, {
+                instancePath: instancePath + "/bottomLeft",
+                parentData: data,
+                parentDataProperty: "bottomLeft",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.bottomRight !== undefined) {
+            if (!(validate46(data.bottomRight, {
+                instancePath: instancePath + "/bottomRight",
+                parentData: data,
+                parentDataProperty: "bottomRight",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.bodyLeft !== undefined) {
+            if (!(validate46(data.bodyLeft, {
+                instancePath: instancePath + "/bodyLeft",
+                parentData: data,
+                parentDataProperty: "bodyLeft",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.bodyRight !== undefined) {
+            if (!(validate46(data.bodyRight, {
+                instancePath: instancePath + "/bodyRight",
+                parentData: data,
+                parentDataProperty: "bodyRight",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.bodyJoin !== undefined) {
+            if (!(validate46(data.bodyJoin, {
+                instancePath: instancePath + "/bodyJoin",
+                parentData: data,
+                parentDataProperty: "bodyJoin",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.headerJoin !== undefined) {
+            if (!(validate46(data.headerJoin, {
+                instancePath: instancePath + "/headerJoin",
+                parentData: data,
+                parentDataProperty: "headerJoin",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.joinBody !== undefined) {
+            if (!(validate46(data.joinBody, {
+                instancePath: instancePath + "/joinBody",
+                parentData: data,
+                parentDataProperty: "joinBody",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.joinLeft !== undefined) {
+            if (!(validate46(data.joinLeft, {
+                instancePath: instancePath + "/joinLeft",
+                parentData: data,
+                parentDataProperty: "joinLeft",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.joinRight !== undefined) {
+            if (!(validate46(data.joinRight, {
+                instancePath: instancePath + "/joinRight",
+                parentData: data,
+                parentDataProperty: "joinRight",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.joinJoin !== undefined) {
+            if (!(validate46(data.joinJoin, {
+                instancePath: instancePath + "/joinJoin",
+                parentData: data,
+                parentDataProperty: "joinJoin",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.joinMiddleUp !== undefined) {
+            if (!(validate46(data.joinMiddleUp, {
+                instancePath: instancePath + "/joinMiddleUp",
+                parentData: data,
+                parentDataProperty: "joinMiddleUp",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.joinMiddleDown !== undefined) {
+            if (!(validate46(data.joinMiddleDown, {
+                instancePath: instancePath + "/joinMiddleDown",
+                parentData: data,
+                parentDataProperty: "joinMiddleDown",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.joinMiddleLeft !== undefined) {
+            if (!(validate46(data.joinMiddleLeft, {
+                instancePath: instancePath + "/joinMiddleLeft",
+                parentData: data,
+                parentDataProperty: "joinMiddleLeft",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.joinMiddleRight !== undefined) {
+            if (!(validate46(data.joinMiddleRight, {
+                instancePath: instancePath + "/joinMiddleRight",
+                parentData: data,
+                parentDataProperty: "joinMiddleRight",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
+                errors = vErrors.length;
+            }
+        }
+    }
+    else {
+        const err1 = {
+            instancePath,
+            schemaPath: "#/type",
+            keyword: "type",
+            params: {
+                type: "object"
+            },
+            message: "must be object"
+        };
+        if (vErrors === null) {
+            vErrors = [err1];
+        }
+        else {
+            vErrors.push(err1);
+        }
+        errors++;
+    }
+    validate87.errors = vErrors;
+    return errors === 0;
+}
+function validate109(data, { instancePath = "", parentData, parentDataProperty, rootData = data } = {}) {
+    let vErrors = null;
+    let errors = 0;
+    const _errs0 = errors;
+    let valid0 = false;
+    let passing0 = null;
+    const _errs1 = errors;
+    if (data && typeof data == "object" && !Array.isArray(data)) {
+        for (const key0 in data) {
+            if (!(pattern0.test(key0))) {
+                const err0 = {
+                    instancePath,
+                    schemaPath: "#/oneOf/0/additionalProperties",
+                    keyword: "additionalProperties",
+                    params: {
+                        additionalProperty: key0
+                    },
+                    message: "must NOT have additional properties"
+                };
+                if (vErrors === null) {
+                    vErrors = [err0];
+                }
+                else {
+                    vErrors.push(err0);
+                }
+                errors++;
+            }
+        }
+        for (const key1 in data) {
+            if (pattern0.test(key1)) {
+                if (!(validate71(data[key1], {
+                    instancePath: instancePath + "/" + key1.replace(/~/g, "~0").replace(/\//g, "~1"),
+                    parentData: data,
+                    parentDataProperty: key1,
+                    rootData
+                }))) {
+                    vErrors = vErrors === null ? validate71.errors : vErrors.concat(validate71.errors);
+                    errors = vErrors.length;
+                }
+            }
+        }
+    }
+    else {
+        const err1 = {
+            instancePath,
+            schemaPath: "#/oneOf/0/type",
+            keyword: "type",
+            params: {
+                type: "object"
+            },
+            message: "must be object"
+        };
+        if (vErrors === null) {
+            vErrors = [err1];
+        }
+        else {
+            vErrors.push(err1);
+        }
+        errors++;
+    }
+    var _valid0 = _errs1 === errors;
+    if (_valid0) {
+        valid0 = true;
+        passing0 = 0;
+    }
+    const _errs5 = errors;
+    if (Array.isArray(data)) {
+        const len0 = data.length;
+        for (let i0 = 0; i0 < len0; i0++) {
+            if (!(validate71(data[i0], {
+                instancePath: instancePath + "/" + i0,
+                parentData: data,
+                parentDataProperty: i0,
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate71.errors : vErrors.concat(validate71.errors);
+                errors = vErrors.length;
+            }
+        }
+    }
+    else {
+        const err2 = {
+            instancePath,
+            schemaPath: "#/oneOf/1/type",
+            keyword: "type",
+            params: {
+                type: "array"
+            },
+            message: "must be array"
+        };
+        if (vErrors === null) {
+            vErrors = [err2];
+        }
+        else {
+            vErrors.push(err2);
+        }
+        errors++;
+    }
+    var _valid0 = _errs5 === errors;
+    if (_valid0 && valid0) {
+        valid0 = false;
+        passing0 = [passing0, 1];
+    }
+    else {
+        if (_valid0) {
+            valid0 = true;
+            passing0 = 1;
+        }
+    }
+    if (!valid0) {
+        const err3 = {
+            instancePath,
+            schemaPath: "#/oneOf",
+            keyword: "oneOf",
+            params: {
+                passingSchemas: passing0
+            },
+            message: "must match exactly one schema in oneOf"
+        };
+        if (vErrors === null) {
+            vErrors = [err3];
+        }
+        else {
+            vErrors.push(err3);
+        }
+        errors++;
+    }
+    else {
+        errors = _errs0;
+        if (vErrors !== null) {
+            if (_errs0) {
+                vErrors.length = _errs0;
+            }
+            else {
+                vErrors = null;
+            }
+        }
+    }
+    validate109.errors = vErrors;
+    return errors === 0;
+}
+function validate113(data, { instancePath = "", parentData, parentDataProperty, rootData = data } = {}) {
+    let vErrors = null;
+    let errors = 0;
+    if (data && typeof data == "object" && !Array.isArray(data)) {
+        for (const key0 in data) {
+            if (!(((((((key0 === "alignment") || (key0 === "verticalAlignment")) || (key0 === "width")) || (key0 === "wrapWord")) || (key0 === "truncate")) || (key0 === "paddingLeft")) || (key0 === "paddingRight"))) {
+                const err0 = {
+                    instancePath,
+                    schemaPath: "#/additionalProperties",
+                    keyword: "additionalProperties",
+                    params: {
+                        additionalProperty: key0
+                    },
+                    message: "must NOT have additional properties"
+                };
+                if (vErrors === null) {
+                    vErrors = [err0];
+                }
+                else {
+                    vErrors.push(err0);
+                }
+                errors++;
+            }
+        }
+        if (data.alignment !== undefined) {
+            if (!(validate72(data.alignment, {
+                instancePath: instancePath + "/alignment",
+                parentData: data,
+                parentDataProperty: "alignment",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate72.errors : vErrors.concat(validate72.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.verticalAlignment !== undefined) {
+            if (!(validate74(data.verticalAlignment, {
+                instancePath: instancePath + "/verticalAlignment",
+                parentData: data,
+                parentDataProperty: "verticalAlignment",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate74.errors : vErrors.concat(validate74.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.width !== undefined) {
+            let data2 = data.width;
+            if (!(((typeof data2 == "number") && (!(data2 % 1) && !isNaN(data2))) && (isFinite(data2)))) {
+                const err1 = {
+                    instancePath: instancePath + "/width",
+                    schemaPath: "#/properties/width/type",
+                    keyword: "type",
+                    params: {
+                        type: "integer"
+                    },
+                    message: "must be integer"
+                };
+                if (vErrors === null) {
+                    vErrors = [err1];
+                }
+                else {
+                    vErrors.push(err1);
+                }
+                errors++;
+            }
+            if ((typeof data2 == "number") && (isFinite(data2))) {
+                if (data2 < 1 || isNaN(data2)) {
+                    const err2 = {
+                        instancePath: instancePath + "/width",
+                        schemaPath: "#/properties/width/minimum",
+                        keyword: "minimum",
+                        params: {
+                            comparison: ">=",
+                            limit: 1
+                        },
+                        message: "must be >= 1"
+                    };
+                    if (vErrors === null) {
+                        vErrors = [err2];
+                    }
+                    else {
+                        vErrors.push(err2);
+                    }
+                    errors++;
+                }
+            }
+        }
+        if (data.wrapWord !== undefined) {
+            if (typeof data.wrapWord !== "boolean") {
+                const err3 = {
+                    instancePath: instancePath + "/wrapWord",
+                    schemaPath: "#/properties/wrapWord/type",
+                    keyword: "type",
+                    params: {
+                        type: "boolean"
+                    },
+                    message: "must be boolean"
+                };
+                if (vErrors === null) {
+                    vErrors = [err3];
+                }
+                else {
+                    vErrors.push(err3);
+                }
+                errors++;
+            }
+        }
+        if (data.truncate !== undefined) {
+            let data4 = data.truncate;
+            if (!(((typeof data4 == "number") && (!(data4 % 1) && !isNaN(data4))) && (isFinite(data4)))) {
+                const err4 = {
+                    instancePath: instancePath + "/truncate",
+                    schemaPath: "#/properties/truncate/type",
+                    keyword: "type",
+                    params: {
+                        type: "integer"
+                    },
+                    message: "must be integer"
+                };
+                if (vErrors === null) {
+                    vErrors = [err4];
+                }
+                else {
+                    vErrors.push(err4);
+                }
+                errors++;
+            }
+        }
+        if (data.paddingLeft !== undefined) {
+            let data5 = data.paddingLeft;
+            if (!(((typeof data5 == "number") && (!(data5 % 1) && !isNaN(data5))) && (isFinite(data5)))) {
+                const err5 = {
+                    instancePath: instancePath + "/paddingLeft",
+                    schemaPath: "#/properties/paddingLeft/type",
+                    keyword: "type",
+                    params: {
+                        type: "integer"
+                    },
+                    message: "must be integer"
+                };
+                if (vErrors === null) {
+                    vErrors = [err5];
+                }
+                else {
+                    vErrors.push(err5);
+                }
+                errors++;
+            }
+        }
+        if (data.paddingRight !== undefined) {
+            let data6 = data.paddingRight;
+            if (!(((typeof data6 == "number") && (!(data6 % 1) && !isNaN(data6))) && (isFinite(data6)))) {
+                const err6 = {
+                    instancePath: instancePath + "/paddingRight",
+                    schemaPath: "#/properties/paddingRight/type",
+                    keyword: "type",
+                    params: {
+                        type: "integer"
+                    },
+                    message: "must be integer"
+                };
+                if (vErrors === null) {
+                    vErrors = [err6];
+                }
+                else {
+                    vErrors.push(err6);
+                }
+                errors++;
+            }
+        }
+    }
+    else {
+        const err7 = {
+            instancePath,
+            schemaPath: "#/type",
+            keyword: "type",
+            params: {
+                type: "object"
+            },
+            message: "must be object"
+        };
+        if (vErrors === null) {
+            vErrors = [err7];
+        }
+        else {
+            vErrors.push(err7);
+        }
+        errors++;
+    }
+    validate113.errors = vErrors;
+    return errors === 0;
+}
+function validate86(data, { instancePath = "", parentData, parentDataProperty, rootData = data } = {}) {
+    let vErrors = null;
+    let errors = 0;
+    if (data && typeof data == "object" && !Array.isArray(data)) {
+        if (data.columnDefault === undefined) {
+            const err0 = {
+                instancePath,
+                schemaPath: "#/required",
+                keyword: "required",
+                params: {
+                    missingProperty: "columnDefault"
+                },
+                message: "must have required property '" + "columnDefault" + "'"
+            };
+            if (vErrors === null) {
+                vErrors = [err0];
+            }
+            else {
+                vErrors.push(err0);
+            }
+            errors++;
+        }
+        if (data.columnCount === undefined) {
+            const err1 = {
+                instancePath,
+                schemaPath: "#/required",
+                keyword: "required",
+                params: {
+                    missingProperty: "columnCount"
+                },
+                message: "must have required property '" + "columnCount" + "'"
+            };
+            if (vErrors === null) {
+                vErrors = [err1];
+            }
+            else {
+                vErrors.push(err1);
+            }
+            errors++;
+        }
+        for (const key0 in data) {
+            if (!(((((key0 === "border") || (key0 === "columns")) || (key0 === "columnDefault")) || (key0 === "columnCount")) || (key0 === "drawVerticalLine"))) {
+                const err2 = {
+                    instancePath,
+                    schemaPath: "#/additionalProperties",
+                    keyword: "additionalProperties",
+                    params: {
+                        additionalProperty: key0
+                    },
+                    message: "must NOT have additional properties"
+                };
+                if (vErrors === null) {
+                    vErrors = [err2];
+                }
+                else {
+                    vErrors.push(err2);
+                }
+                errors++;
+            }
+        }
+        if (data.border !== undefined) {
+            if (!(validate87(data.border, {
+                instancePath: instancePath + "/border",
+                parentData: data,
+                parentDataProperty: "border",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate87.errors : vErrors.concat(validate87.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.columns !== undefined) {
+            if (!(validate109(data.columns, {
+                instancePath: instancePath + "/columns",
+                parentData: data,
+                parentDataProperty: "columns",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate109.errors : vErrors.concat(validate109.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.columnDefault !== undefined) {
+            if (!(validate113(data.columnDefault, {
+                instancePath: instancePath + "/columnDefault",
+                parentData: data,
+                parentDataProperty: "columnDefault",
+                rootData
+            }))) {
+                vErrors = vErrors === null ? validate113.errors : vErrors.concat(validate113.errors);
+                errors = vErrors.length;
+            }
+        }
+        if (data.columnCount !== undefined) {
+            let data3 = data.columnCount;
+            if (!(((typeof data3 == "number") && (!(data3 % 1) && !isNaN(data3))) && (isFinite(data3)))) {
+                const err3 = {
+                    instancePath: instancePath + "/columnCount",
+                    schemaPath: "#/properties/columnCount/type",
+                    keyword: "type",
+                    params: {
+                        type: "integer"
+                    },
+                    message: "must be integer"
+                };
+                if (vErrors === null) {
+                    vErrors = [err3];
+                }
+                else {
+                    vErrors.push(err3);
+                }
+                errors++;
+            }
+            if ((typeof data3 == "number") && (isFinite(data3))) {
+                if (data3 < 1 || isNaN(data3)) {
+                    const err4 = {
+                        instancePath: instancePath + "/columnCount",
+                        schemaPath: "#/properties/columnCount/minimum",
+                        keyword: "minimum",
+                        params: {
+                            comparison: ">=",
+                            limit: 1
+                        },
+                        message: "must be >= 1"
+                    };
+                    if (vErrors === null) {
+                        vErrors = [err4];
+                    }
+                    else {
+                        vErrors.push(err4);
+                    }
+                    errors++;
+                }
+            }
+        }
+        if (data.drawVerticalLine !== undefined) {
+            if (typeof data.drawVerticalLine != "function") {
+                const err5 = {
+                    instancePath: instancePath + "/drawVerticalLine",
+                    schemaPath: "#/properties/drawVerticalLine/typeof",
+                    keyword: "typeof",
+                    params: {},
+                    message: "must pass \"typeof\" keyword validation"
+                };
+                if (vErrors === null) {
+                    vErrors = [err5];
+                }
+                else {
+                    vErrors.push(err5);
+                }
+                errors++;
+            }
+        }
+    }
+    else {
+        const err6 = {
+            instancePath,
+            schemaPath: "#/type",
+            keyword: "type",
+            params: {
+                type: "object"
+            },
+            message: "must be object"
+        };
+        if (vErrors === null) {
+            vErrors = [err6];
+        }
+        else {
+            vErrors.push(err6);
+        }
+        errors++;
+    }
+    validate86.errors = vErrors;
+    return errors === 0;
+}
+
+}(validators));
+
+var __importDefault = (commonjsGlobal$1 && commonjsGlobal$1.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(validateConfig$1, "__esModule", { value: true });
+validateConfig$1.validateConfig = void 0;
+const validators_1 = __importDefault(validators);
+const validateConfig = (schemaId, config) => {
+    const validate = validators_1.default[schemaId];
+    if (!validate(config) && validate.errors) {
+        // eslint-disable-next-line promise/prefer-await-to-callbacks
+        const errors = validate.errors.map((error) => {
+            return {
+                message: error.message,
+                params: error.params,
+                schemaPath: error.schemaPath,
+            };
+        });
+        /* eslint-disable no-console */
+        console.log('config', config);
+        console.log('errors', errors);
+        /* eslint-enable no-console */
+        throw new Error('Invalid config.');
+    }
+};
+validateConfig$1.validateConfig = validateConfig;
+
+Object.defineProperty(makeStreamConfig$1, "__esModule", { value: true });
+makeStreamConfig$1.makeStreamConfig = void 0;
+const utils_1$b = utils;
+const validateConfig_1$1 = validateConfig$1;
+/**
+ * Creates a configuration for every column using default
+ * values for the missing configuration properties.
+ */
+const makeColumnsConfig$1 = (columnCount, columns = {}, columnDefault) => {
+    return Array.from({ length: columnCount }).map((_, index) => {
+        return {
+            alignment: 'left',
+            paddingLeft: 1,
+            paddingRight: 1,
+            truncate: Number.POSITIVE_INFINITY,
+            verticalAlignment: 'top',
+            wrapWord: false,
+            ...columnDefault,
+            ...columns[index],
+        };
+    });
+};
+/**
+ * Makes a new configuration object out of the userConfig object
+ * using default values for the missing configuration properties.
+ */
+const makeStreamConfig = (config) => {
+    (0, validateConfig_1$1.validateConfig)('streamConfig.json', config);
+    if (config.columnDefault.width === undefined) {
+        throw new Error('Must provide config.columnDefault.width when creating a stream.');
+    }
+    return {
+        drawVerticalLine: () => {
+            return true;
+        },
+        ...config,
+        border: (0, utils_1$b.makeBorderConfig)(config.border),
+        columns: makeColumnsConfig$1(config.columnCount, config.columns, config.columnDefault),
+    };
+};
+makeStreamConfig$1.makeStreamConfig = makeStreamConfig;
+
+var mapDataUsingRowHeights = {};
+
+(function (exports) {
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.mapDataUsingRowHeights = exports.padCellVertically = void 0;
+const utils_1 = utils;
+const wrapCell_1 = wrapCell$1;
+const createEmptyStrings = (length) => {
+    return new Array(length).fill('');
+};
+const padCellVertically = (lines, rowHeight, verticalAlignment) => {
+    const availableLines = rowHeight - lines.length;
+    if (verticalAlignment === 'top') {
+        return [...lines, ...createEmptyStrings(availableLines)];
+    }
+    if (verticalAlignment === 'bottom') {
+        return [...createEmptyStrings(availableLines), ...lines];
+    }
+    return [
+        ...createEmptyStrings(Math.floor(availableLines / 2)),
+        ...lines,
+        ...createEmptyStrings(Math.ceil(availableLines / 2)),
+    ];
+};
+exports.padCellVertically = padCellVertically;
+const mapDataUsingRowHeights = (unmappedRows, rowHeights, config) => {
+    const nColumns = unmappedRows[0].length;
+    const mappedRows = unmappedRows.map((unmappedRow, unmappedRowIndex) => {
+        const outputRowHeight = rowHeights[unmappedRowIndex];
+        const outputRow = Array.from({ length: outputRowHeight }, () => {
+            return new Array(nColumns).fill('');
+        });
+        unmappedRow.forEach((cell, cellIndex) => {
+            var _a;
+            const containingRange = (_a = config.spanningCellManager) === null || _a === void 0 ? void 0 : _a.getContainingRange({ col: cellIndex,
+                row: unmappedRowIndex });
+            if (containingRange) {
+                containingRange.extractCellContent(unmappedRowIndex).forEach((cellLine, cellLineIndex) => {
+                    outputRow[cellLineIndex][cellIndex] = cellLine;
+                });
+                return;
+            }
+            const cellLines = (0, wrapCell_1.wrapCell)(cell, config.columns[cellIndex].width, config.columns[cellIndex].wrapWord);
+            const paddedCellLines = (0, exports.padCellVertically)(cellLines, outputRowHeight, config.columns[cellIndex].verticalAlignment);
+            paddedCellLines.forEach((cellLine, cellLineIndex) => {
+                outputRow[cellLineIndex][cellIndex] = cellLine;
+            });
+        });
+        return outputRow;
+    });
+    return (0, utils_1.flatten)(mappedRows);
+};
+exports.mapDataUsingRowHeights = mapDataUsingRowHeights;
+
+}(mapDataUsingRowHeights));
+
+var padTableData = {};
+
+(function (exports) {
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.padTableData = exports.padString = void 0;
+const padString = (input, paddingLeft, paddingRight) => {
+    return ' '.repeat(paddingLeft) + input + ' '.repeat(paddingRight);
+};
+exports.padString = padString;
+const padTableData = (rows, config) => {
+    return rows.map((cells, rowIndex) => {
+        return cells.map((cell, cellIndex) => {
+            var _a;
+            const containingRange = (_a = config.spanningCellManager) === null || _a === void 0 ? void 0 : _a.getContainingRange({ col: cellIndex,
+                row: rowIndex }, { mapped: true });
+            if (containingRange) {
+                return cell;
+            }
+            const { paddingLeft, paddingRight } = config.columns[cellIndex];
+            return (0, exports.padString)(cell, paddingLeft, paddingRight);
+        });
+    });
+};
+exports.padTableData = padTableData;
+
+}(padTableData));
+
+var stringifyTableData$1 = {};
+
+Object.defineProperty(stringifyTableData$1, "__esModule", { value: true });
+stringifyTableData$1.stringifyTableData = void 0;
+const utils_1$a = utils;
+const stringifyTableData = (rows) => {
+    return rows.map((cells) => {
+        return cells.map((cell) => {
+            return (0, utils_1$a.normalizeString)(String(cell));
+        });
+    });
+};
+stringifyTableData$1.stringifyTableData = stringifyTableData;
+
+var truncateTableData = {};
+
+var lodash_truncate = {exports: {}};
+
+/**
+ * lodash (Custom Build) <https://lodash.com/>
+ * Build: `lodash modularize exports="npm" -o ./`
+ * Copyright jQuery Foundation and other contributors <https://jquery.org/>
+ * Released under MIT license <https://lodash.com/license>
+ * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+ * Copyright Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+ */
+
+(function (module, exports) {
+/** Used as default options for `_.truncate`. */
+var DEFAULT_TRUNC_LENGTH = 30,
+    DEFAULT_TRUNC_OMISSION = '...';
+
+/** Used as references for various `Number` constants. */
+var INFINITY = 1 / 0,
+    MAX_INTEGER = 1.7976931348623157e+308,
+    NAN = 0 / 0;
+
+/** `Object#toString` result references. */
+var regexpTag = '[object RegExp]',
+    symbolTag = '[object Symbol]';
+
+/** Used to match leading and trailing whitespace. */
+var reTrim = /^\s+|\s+$/g;
+
+/** Used to match `RegExp` flags from their coerced string values. */
+var reFlags = /\w*$/;
+
+/** Used to detect bad signed hexadecimal string values. */
+var reIsBadHex = /^[-+]0x[0-9a-f]+$/i;
+
+/** Used to detect binary string values. */
+var reIsBinary = /^0b[01]+$/i;
+
+/** Used to detect octal string values. */
+var reIsOctal = /^0o[0-7]+$/i;
+
+/** Used to compose unicode character classes. */
+var rsAstralRange = '\\ud800-\\udfff',
+    rsComboMarksRange = '\\u0300-\\u036f\\ufe20-\\ufe23',
+    rsComboSymbolsRange = '\\u20d0-\\u20f0',
+    rsVarRange = '\\ufe0e\\ufe0f';
+
+/** Used to compose unicode capture groups. */
+var rsAstral = '[' + rsAstralRange + ']',
+    rsCombo = '[' + rsComboMarksRange + rsComboSymbolsRange + ']',
+    rsFitz = '\\ud83c[\\udffb-\\udfff]',
+    rsModifier = '(?:' + rsCombo + '|' + rsFitz + ')',
+    rsNonAstral = '[^' + rsAstralRange + ']',
+    rsRegional = '(?:\\ud83c[\\udde6-\\uddff]){2}',
+    rsSurrPair = '[\\ud800-\\udbff][\\udc00-\\udfff]',
+    rsZWJ = '\\u200d';
+
+/** Used to compose unicode regexes. */
+var reOptMod = rsModifier + '?',
+    rsOptVar = '[' + rsVarRange + ']?',
+    rsOptJoin = '(?:' + rsZWJ + '(?:' + [rsNonAstral, rsRegional, rsSurrPair].join('|') + ')' + rsOptVar + reOptMod + ')*',
+    rsSeq = rsOptVar + reOptMod + rsOptJoin,
+    rsSymbol = '(?:' + [rsNonAstral + rsCombo + '?', rsCombo, rsRegional, rsSurrPair, rsAstral].join('|') + ')';
+
+/** Used to match [string symbols](https://mathiasbynens.be/notes/javascript-unicode). */
+var reUnicode = RegExp(rsFitz + '(?=' + rsFitz + ')|' + rsSymbol + rsSeq, 'g');
+
+/** Used to detect strings with [zero-width joiners or code points from the astral planes](http://eev.ee/blog/2015/09/12/dark-corners-of-unicode/). */
+var reHasUnicode = RegExp('[' + rsZWJ + rsAstralRange  + rsComboMarksRange + rsComboSymbolsRange + rsVarRange + ']');
+
+/** Built-in method references without a dependency on `root`. */
+var freeParseInt = parseInt;
+
+/** Detect free variable `global` from Node.js. */
+var freeGlobal = typeof commonjsGlobal$1 == 'object' && commonjsGlobal$1 && commonjsGlobal$1.Object === Object && commonjsGlobal$1;
+
+/** Detect free variable `self`. */
+var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
+
+/** Used as a reference to the global object. */
+var root = freeGlobal || freeSelf || Function('return this')();
+
+/** Detect free variable `exports`. */
+var freeExports = exports && !exports.nodeType && exports;
+
+/** Detect free variable `module`. */
+var freeModule = freeExports && 'object' == 'object' && module && !module.nodeType && module;
+
+/** Detect the popular CommonJS extension `module.exports`. */
+var moduleExports = freeModule && freeModule.exports === freeExports;
+
+/** Detect free variable `process` from Node.js. */
+var freeProcess = moduleExports && freeGlobal.process;
+
+/** Used to access faster Node.js helpers. */
+var nodeUtil = (function() {
+  try {
+    return freeProcess && freeProcess.binding('util');
+  } catch (e) {}
+}());
+
+/* Node.js helper references. */
+var nodeIsRegExp = nodeUtil && nodeUtil.isRegExp;
+
+/**
+ * Gets the size of an ASCII `string`.
+ *
+ * @private
+ * @param {string} string The string inspect.
+ * @returns {number} Returns the string size.
+ */
+var asciiSize = baseProperty('length');
+
+/**
+ * Converts an ASCII `string` to an array.
+ *
+ * @private
+ * @param {string} string The string to convert.
+ * @returns {Array} Returns the converted array.
+ */
+function asciiToArray(string) {
+  return string.split('');
+}
+
+/**
+ * The base implementation of `_.property` without support for deep paths.
+ *
+ * @private
+ * @param {string} key The key of the property to get.
+ * @returns {Function} Returns the new accessor function.
+ */
+function baseProperty(key) {
+  return function(object) {
+    return object == null ? undefined : object[key];
+  };
+}
+
+/**
+ * The base implementation of `_.unary` without support for storing metadata.
+ *
+ * @private
+ * @param {Function} func The function to cap arguments for.
+ * @returns {Function} Returns the new capped function.
+ */
+function baseUnary(func) {
+  return function(value) {
+    return func(value);
+  };
+}
+
+/**
+ * Checks if `string` contains Unicode symbols.
+ *
+ * @private
+ * @param {string} string The string to inspect.
+ * @returns {boolean} Returns `true` if a symbol is found, else `false`.
+ */
+function hasUnicode(string) {
+  return reHasUnicode.test(string);
+}
+
+/**
+ * Gets the number of symbols in `string`.
+ *
+ * @private
+ * @param {string} string The string to inspect.
+ * @returns {number} Returns the string size.
+ */
+function stringSize(string) {
+  return hasUnicode(string)
+    ? unicodeSize(string)
+    : asciiSize(string);
+}
+
+/**
+ * Converts `string` to an array.
+ *
+ * @private
+ * @param {string} string The string to convert.
+ * @returns {Array} Returns the converted array.
+ */
+function stringToArray(string) {
+  return hasUnicode(string)
+    ? unicodeToArray(string)
+    : asciiToArray(string);
+}
+
+/**
+ * Gets the size of a Unicode `string`.
+ *
+ * @private
+ * @param {string} string The string inspect.
+ * @returns {number} Returns the string size.
+ */
+function unicodeSize(string) {
+  var result = reUnicode.lastIndex = 0;
+  while (reUnicode.test(string)) {
+    result++;
+  }
+  return result;
+}
+
+/**
+ * Converts a Unicode `string` to an array.
+ *
+ * @private
+ * @param {string} string The string to convert.
+ * @returns {Array} Returns the converted array.
+ */
+function unicodeToArray(string) {
+  return string.match(reUnicode) || [];
+}
+
+/** Used for built-in method references. */
+var objectProto = Object.prototype;
+
+/**
+ * Used to resolve the
+ * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
+ * of values.
+ */
+var objectToString = objectProto.toString;
+
+/** Built-in value references. */
+var Symbol = root.Symbol;
+
+/** Used to convert symbols to primitives and strings. */
+var symbolProto = Symbol ? Symbol.prototype : undefined,
+    symbolToString = symbolProto ? symbolProto.toString : undefined;
+
+/**
+ * The base implementation of `_.isRegExp` without Node.js optimizations.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a regexp, else `false`.
+ */
+function baseIsRegExp(value) {
+  return isObject(value) && objectToString.call(value) == regexpTag;
+}
+
+/**
+ * The base implementation of `_.slice` without an iteratee call guard.
+ *
+ * @private
+ * @param {Array} array The array to slice.
+ * @param {number} [start=0] The start position.
+ * @param {number} [end=array.length] The end position.
+ * @returns {Array} Returns the slice of `array`.
+ */
+function baseSlice(array, start, end) {
+  var index = -1,
+      length = array.length;
+
+  if (start < 0) {
+    start = -start > length ? 0 : (length + start);
+  }
+  end = end > length ? length : end;
+  if (end < 0) {
+    end += length;
+  }
+  length = start > end ? 0 : ((end - start) >>> 0);
+  start >>>= 0;
+
+  var result = Array(length);
+  while (++index < length) {
+    result[index] = array[index + start];
+  }
+  return result;
+}
+
+/**
+ * The base implementation of `_.toString` which doesn't convert nullish
+ * values to empty strings.
+ *
+ * @private
+ * @param {*} value The value to process.
+ * @returns {string} Returns the string.
+ */
+function baseToString(value) {
+  // Exit early for strings to avoid a performance hit in some environments.
+  if (typeof value == 'string') {
+    return value;
+  }
+  if (isSymbol(value)) {
+    return symbolToString ? symbolToString.call(value) : '';
+  }
+  var result = (value + '');
+  return (result == '0' && (1 / value) == -INFINITY) ? '-0' : result;
+}
+
+/**
+ * Casts `array` to a slice if it's needed.
+ *
+ * @private
+ * @param {Array} array The array to inspect.
+ * @param {number} start The start position.
+ * @param {number} [end=array.length] The end position.
+ * @returns {Array} Returns the cast slice.
+ */
+function castSlice(array, start, end) {
+  var length = array.length;
+  end = end === undefined ? length : end;
+  return (!start && end >= length) ? array : baseSlice(array, start, end);
+}
+
+/**
+ * Checks if `value` is the
+ * [language type](http://www.ecma-international.org/ecma-262/7.0/#sec-ecmascript-language-types)
+ * of `Object`. (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an object, else `false`.
+ * @example
+ *
+ * _.isObject({});
+ * // => true
+ *
+ * _.isObject([1, 2, 3]);
+ * // => true
+ *
+ * _.isObject(_.noop);
+ * // => true
+ *
+ * _.isObject(null);
+ * // => false
+ */
+function isObject(value) {
+  var type = typeof value;
+  return !!value && (type == 'object' || type == 'function');
+}
+
+/**
+ * Checks if `value` is object-like. A value is object-like if it's not `null`
+ * and has a `typeof` result of "object".
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+ * @example
+ *
+ * _.isObjectLike({});
+ * // => true
+ *
+ * _.isObjectLike([1, 2, 3]);
+ * // => true
+ *
+ * _.isObjectLike(_.noop);
+ * // => false
+ *
+ * _.isObjectLike(null);
+ * // => false
+ */
+function isObjectLike(value) {
+  return !!value && typeof value == 'object';
+}
+
+/**
+ * Checks if `value` is classified as a `RegExp` object.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a regexp, else `false`.
+ * @example
+ *
+ * _.isRegExp(/abc/);
+ * // => true
+ *
+ * _.isRegExp('/abc/');
+ * // => false
+ */
+var isRegExp = nodeIsRegExp ? baseUnary(nodeIsRegExp) : baseIsRegExp;
+
+/**
+ * Checks if `value` is classified as a `Symbol` primitive or object.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a symbol, else `false`.
+ * @example
+ *
+ * _.isSymbol(Symbol.iterator);
+ * // => true
+ *
+ * _.isSymbol('abc');
+ * // => false
+ */
+function isSymbol(value) {
+  return typeof value == 'symbol' ||
+    (isObjectLike(value) && objectToString.call(value) == symbolTag);
+}
+
+/**
+ * Converts `value` to a finite number.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.12.0
+ * @category Lang
+ * @param {*} value The value to convert.
+ * @returns {number} Returns the converted number.
+ * @example
+ *
+ * _.toFinite(3.2);
+ * // => 3.2
+ *
+ * _.toFinite(Number.MIN_VALUE);
+ * // => 5e-324
+ *
+ * _.toFinite(Infinity);
+ * // => 1.7976931348623157e+308
+ *
+ * _.toFinite('3.2');
+ * // => 3.2
+ */
+function toFinite(value) {
+  if (!value) {
+    return value === 0 ? value : 0;
+  }
+  value = toNumber(value);
+  if (value === INFINITY || value === -INFINITY) {
+    var sign = (value < 0 ? -1 : 1);
+    return sign * MAX_INTEGER;
+  }
+  return value === value ? value : 0;
+}
+
+/**
+ * Converts `value` to an integer.
+ *
+ * **Note:** This method is loosely based on
+ * [`ToInteger`](http://www.ecma-international.org/ecma-262/7.0/#sec-tointeger).
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to convert.
+ * @returns {number} Returns the converted integer.
+ * @example
+ *
+ * _.toInteger(3.2);
+ * // => 3
+ *
+ * _.toInteger(Number.MIN_VALUE);
+ * // => 0
+ *
+ * _.toInteger(Infinity);
+ * // => 1.7976931348623157e+308
+ *
+ * _.toInteger('3.2');
+ * // => 3
+ */
+function toInteger(value) {
+  var result = toFinite(value),
+      remainder = result % 1;
+
+  return result === result ? (remainder ? result - remainder : result) : 0;
+}
+
+/**
+ * Converts `value` to a number.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to process.
+ * @returns {number} Returns the number.
+ * @example
+ *
+ * _.toNumber(3.2);
+ * // => 3.2
+ *
+ * _.toNumber(Number.MIN_VALUE);
+ * // => 5e-324
+ *
+ * _.toNumber(Infinity);
+ * // => Infinity
+ *
+ * _.toNumber('3.2');
+ * // => 3.2
+ */
+function toNumber(value) {
+  if (typeof value == 'number') {
+    return value;
+  }
+  if (isSymbol(value)) {
+    return NAN;
+  }
+  if (isObject(value)) {
+    var other = typeof value.valueOf == 'function' ? value.valueOf() : value;
+    value = isObject(other) ? (other + '') : other;
+  }
+  if (typeof value != 'string') {
+    return value === 0 ? value : +value;
+  }
+  value = value.replace(reTrim, '');
+  var isBinary = reIsBinary.test(value);
+  return (isBinary || reIsOctal.test(value))
+    ? freeParseInt(value.slice(2), isBinary ? 2 : 8)
+    : (reIsBadHex.test(value) ? NAN : +value);
+}
+
+/**
+ * Converts `value` to a string. An empty string is returned for `null`
+ * and `undefined` values. The sign of `-0` is preserved.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to process.
+ * @returns {string} Returns the string.
+ * @example
+ *
+ * _.toString(null);
+ * // => ''
+ *
+ * _.toString(-0);
+ * // => '-0'
+ *
+ * _.toString([1, 2, 3]);
+ * // => '1,2,3'
+ */
+function toString(value) {
+  return value == null ? '' : baseToString(value);
+}
+
+/**
+ * Truncates `string` if it's longer than the given maximum string length.
+ * The last characters of the truncated string are replaced with the omission
+ * string which defaults to "...".
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category String
+ * @param {string} [string=''] The string to truncate.
+ * @param {Object} [options={}] The options object.
+ * @param {number} [options.length=30] The maximum string length.
+ * @param {string} [options.omission='...'] The string to indicate text is omitted.
+ * @param {RegExp|string} [options.separator] The separator pattern to truncate to.
+ * @returns {string} Returns the truncated string.
+ * @example
+ *
+ * _.truncate('hi-diddly-ho there, neighborino');
+ * // => 'hi-diddly-ho there, neighbo...'
+ *
+ * _.truncate('hi-diddly-ho there, neighborino', {
+ *   'length': 24,
+ *   'separator': ' '
+ * });
+ * // => 'hi-diddly-ho there,...'
+ *
+ * _.truncate('hi-diddly-ho there, neighborino', {
+ *   'length': 24,
+ *   'separator': /,? +/
+ * });
+ * // => 'hi-diddly-ho there...'
+ *
+ * _.truncate('hi-diddly-ho there, neighborino', {
+ *   'omission': ' [...]'
+ * });
+ * // => 'hi-diddly-ho there, neig [...]'
+ */
+function truncate(string, options) {
+  var length = DEFAULT_TRUNC_LENGTH,
+      omission = DEFAULT_TRUNC_OMISSION;
+
+  if (isObject(options)) {
+    var separator = 'separator' in options ? options.separator : separator;
+    length = 'length' in options ? toInteger(options.length) : length;
+    omission = 'omission' in options ? baseToString(options.omission) : omission;
+  }
+  string = toString(string);
+
+  var strLength = string.length;
+  if (hasUnicode(string)) {
+    var strSymbols = stringToArray(string);
+    strLength = strSymbols.length;
+  }
+  if (length >= strLength) {
+    return string;
+  }
+  var end = length - stringSize(omission);
+  if (end < 1) {
+    return omission;
+  }
+  var result = strSymbols
+    ? castSlice(strSymbols, 0, end).join('')
+    : string.slice(0, end);
+
+  if (separator === undefined) {
+    return result + omission;
+  }
+  if (strSymbols) {
+    end += (result.length - end);
+  }
+  if (isRegExp(separator)) {
+    if (string.slice(end).search(separator)) {
+      var match,
+          substring = result;
+
+      if (!separator.global) {
+        separator = RegExp(separator.source, toString(reFlags.exec(separator)) + 'g');
+      }
+      separator.lastIndex = 0;
+      while ((match = separator.exec(substring))) {
+        var newEnd = match.index;
+      }
+      result = result.slice(0, newEnd === undefined ? end : newEnd);
+    }
+  } else if (string.indexOf(baseToString(separator), end) != end) {
+    var index = result.lastIndexOf(separator);
+    if (index > -1) {
+      result = result.slice(0, index);
+    }
+  }
+  return result + omission;
+}
+
+module.exports = truncate;
+}(lodash_truncate, lodash_truncate.exports));
+
+(function (exports) {
+var __importDefault = (commonjsGlobal$1 && commonjsGlobal$1.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.truncateTableData = exports.truncateString = void 0;
+const lodash_truncate_1 = __importDefault(lodash_truncate.exports);
+const truncateString = (input, length) => {
+    return (0, lodash_truncate_1.default)(input, { length,
+        omission: '…' });
+};
+exports.truncateString = truncateString;
+/**
+ * @todo Make it work with ASCII content.
+ */
+const truncateTableData = (rows, truncates) => {
+    return rows.map((cells) => {
+        return cells.map((cell, cellIndex) => {
+            return (0, exports.truncateString)(cell, truncates[cellIndex]);
+        });
+    });
+};
+exports.truncateTableData = truncateTableData;
+
+}(truncateTableData));
+
+Object.defineProperty(createStream$1, "__esModule", { value: true });
+createStream$1.createStream = void 0;
+const alignTableData_1$1 = alignTableData$1;
+const calculateRowHeights_1$1 = calculateRowHeights$1;
+const drawBorder_1$1 = drawBorder;
+const drawRow_1$1 = drawRow$1;
+const makeStreamConfig_1 = makeStreamConfig$1;
+const mapDataUsingRowHeights_1$2 = mapDataUsingRowHeights;
+const padTableData_1$2 = padTableData;
+const stringifyTableData_1$1 = stringifyTableData$1;
+const truncateTableData_1$2 = truncateTableData;
+const utils_1$9 = utils;
+const prepareData = (data, config) => {
+    let rows = (0, stringifyTableData_1$1.stringifyTableData)(data);
+    rows = (0, truncateTableData_1$2.truncateTableData)(rows, (0, utils_1$9.extractTruncates)(config));
+    const rowHeights = (0, calculateRowHeights_1$1.calculateRowHeights)(rows, config);
+    rows = (0, mapDataUsingRowHeights_1$2.mapDataUsingRowHeights)(rows, rowHeights, config);
+    rows = (0, alignTableData_1$1.alignTableData)(rows, config);
+    rows = (0, padTableData_1$2.padTableData)(rows, config);
+    return rows;
+};
+const create = (row, columnWidths, config) => {
+    const rows = prepareData([row], config);
+    const body = rows.map((literalRow) => {
+        return (0, drawRow_1$1.drawRow)(literalRow, config);
+    }).join('');
+    let output;
+    output = '';
+    output += (0, drawBorder_1$1.drawBorderTop)(columnWidths, config);
+    output += body;
+    output += (0, drawBorder_1$1.drawBorderBottom)(columnWidths, config);
+    output = output.trimEnd();
+    process.stdout.write(output);
+};
+const append = (row, columnWidths, config) => {
+    const rows = prepareData([row], config);
+    const body = rows.map((literalRow) => {
+        return (0, drawRow_1$1.drawRow)(literalRow, config);
+    }).join('');
+    let output = '';
+    const bottom = (0, drawBorder_1$1.drawBorderBottom)(columnWidths, config);
+    if (bottom !== '\n') {
+        output = '\r\u001B[K';
+    }
+    output += (0, drawBorder_1$1.drawBorderJoin)(columnWidths, config);
+    output += body;
+    output += bottom;
+    output = output.trimEnd();
+    process.stdout.write(output);
+};
+const createStream = (userConfig) => {
+    const config = (0, makeStreamConfig_1.makeStreamConfig)(userConfig);
+    const columnWidths = Object.values(config.columns).map((column) => {
+        return column.width + column.paddingLeft + column.paddingRight;
+    });
+    let empty = true;
+    return {
+        write: (row) => {
+            if (row.length !== config.columnCount) {
+                throw new Error('Row cell count does not match the config.columnCount.');
+            }
+            if (empty) {
+                empty = false;
+                create(row, columnWidths, config);
+            }
+            else {
+                append(row, columnWidths, config);
+            }
+        },
+    };
+};
+createStream$1.createStream = createStream;
+
+var table$1 = {};
+
+var calculateOutputColumnWidths$1 = {};
+
+Object.defineProperty(calculateOutputColumnWidths$1, "__esModule", { value: true });
+calculateOutputColumnWidths$1.calculateOutputColumnWidths = void 0;
+const calculateOutputColumnWidths = (config) => {
+    return config.columns.map((col) => {
+        return col.paddingLeft + col.width + col.paddingRight;
+    });
+};
+calculateOutputColumnWidths$1.calculateOutputColumnWidths = calculateOutputColumnWidths;
+
+var drawTable$1 = {};
+
+Object.defineProperty(drawTable$1, "__esModule", { value: true });
+drawTable$1.drawTable = void 0;
+const drawBorder_1 = drawBorder;
+const drawContent_1 = drawContent$1;
+const drawRow_1 = drawRow$1;
+const utils_1$8 = utils;
+const drawTable = (rows, outputColumnWidths, rowHeights, config) => {
+    const { drawHorizontalLine, singleLine, } = config;
+    const contents = (0, utils_1$8.groupBySizes)(rows, rowHeights).map((group, groupIndex) => {
+        return group.map((row) => {
+            return (0, drawRow_1.drawRow)(row, { ...config,
+                rowIndex: groupIndex });
+        }).join('');
+    });
+    return (0, drawContent_1.drawContent)({ contents,
+        drawSeparator: (index, size) => {
+            // Top/bottom border
+            if (index === 0 || index === size) {
+                return drawHorizontalLine(index, size);
+            }
+            return !singleLine && drawHorizontalLine(index, size);
+        },
+        elementType: 'row',
+        rowIndex: -1,
+        separatorGetter: (0, drawBorder_1.createTableBorderGetter)(outputColumnWidths, { ...config,
+            rowCount: contents.length }),
+        spanningCellManager: config.spanningCellManager });
+};
+drawTable$1.drawTable = drawTable;
+
+var injectHeaderConfig$1 = {};
+
+Object.defineProperty(injectHeaderConfig$1, "__esModule", { value: true });
+injectHeaderConfig$1.injectHeaderConfig = void 0;
+const injectHeaderConfig = (rows, config) => {
+    var _a;
+    let spanningCellConfig = (_a = config.spanningCells) !== null && _a !== void 0 ? _a : [];
+    const headerConfig = config.header;
+    const adjustedRows = [...rows];
+    if (headerConfig) {
+        spanningCellConfig = spanningCellConfig.map(({ row, ...rest }) => {
+            return { ...rest,
+                row: row + 1 };
+        });
+        const { content, ...headerStyles } = headerConfig;
+        spanningCellConfig.unshift({ alignment: 'center',
+            col: 0,
+            colSpan: rows[0].length,
+            paddingLeft: 1,
+            paddingRight: 1,
+            row: 0,
+            wrapWord: false,
+            ...headerStyles });
+        adjustedRows.unshift([content, ...Array.from({ length: rows[0].length - 1 }).fill('')]);
+    }
+    return [adjustedRows,
+        spanningCellConfig];
+};
+injectHeaderConfig$1.injectHeaderConfig = injectHeaderConfig;
+
+var makeTableConfig$1 = {};
+
+var calculateMaximumColumnWidths = {};
+
+(function (exports) {
+var __importDefault = (commonjsGlobal$1 && commonjsGlobal$1.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.calculateMaximumColumnWidths = exports.calculateMaximumCellWidth = void 0;
+const string_width_1 = __importDefault(stringWidth$1.exports);
+const utils_1 = utils;
+const calculateMaximumCellWidth = (cell) => {
+    return Math.max(...cell.split('\n').map(string_width_1.default));
+};
+exports.calculateMaximumCellWidth = calculateMaximumCellWidth;
+/**
+ * Produces an array of values that describe the largest value length (width) in every column.
+ */
+const calculateMaximumColumnWidths = (rows, spanningCellConfigs = []) => {
+    const columnWidths = new Array(rows[0].length).fill(0);
+    const rangeCoordinates = spanningCellConfigs.map(utils_1.calculateRangeCoordinate);
+    const isSpanningCell = (rowIndex, columnIndex) => {
+        return rangeCoordinates.some((rangeCoordinate) => {
+            return (0, utils_1.isCellInRange)({ col: columnIndex,
+                row: rowIndex }, rangeCoordinate);
+        });
+    };
+    rows.forEach((row, rowIndex) => {
+        row.forEach((cell, cellIndex) => {
+            if (isSpanningCell(rowIndex, cellIndex)) {
+                return;
+            }
+            columnWidths[cellIndex] = Math.max(columnWidths[cellIndex], (0, exports.calculateMaximumCellWidth)(cell));
+        });
+    });
+    return columnWidths;
+};
+exports.calculateMaximumColumnWidths = calculateMaximumColumnWidths;
+
+}(calculateMaximumColumnWidths));
+
+var spanningCellManager = {};
+
+var alignSpanningCell = {};
+
+Object.defineProperty(alignSpanningCell, "__esModule", { value: true });
+alignSpanningCell.alignVerticalRangeContent = alignSpanningCell.wrapRangeContent = void 0;
+const alignString_1 = alignString$1;
+const mapDataUsingRowHeights_1$1 = mapDataUsingRowHeights;
+const padTableData_1$1 = padTableData;
+const truncateTableData_1$1 = truncateTableData;
+const utils_1$7 = utils;
+const wrapCell_1 = wrapCell$1;
+/**
+ * Fill content into all cells in range in order to calculate total height
+ */
+const wrapRangeContent = (rangeConfig, rangeWidth, context) => {
+    const { topLeft, paddingRight, paddingLeft, truncate, wrapWord, alignment } = rangeConfig;
+    const originalContent = context.rows[topLeft.row][topLeft.col];
+    const contentWidth = rangeWidth - paddingLeft - paddingRight;
+    return (0, wrapCell_1.wrapCell)((0, truncateTableData_1$1.truncateString)(originalContent, truncate), contentWidth, wrapWord).map((line) => {
+        const alignedLine = (0, alignString_1.alignString)(line, contentWidth, alignment);
+        return (0, padTableData_1$1.padString)(alignedLine, paddingLeft, paddingRight);
+    });
+};
+alignSpanningCell.wrapRangeContent = wrapRangeContent;
+const alignVerticalRangeContent = (range, content, context) => {
+    const { rows, drawHorizontalLine, rowHeights } = context;
+    const { topLeft, bottomRight, verticalAlignment } = range;
+    // They are empty before calculateRowHeights function run
+    if (rowHeights.length === 0) {
+        return [];
+    }
+    const totalCellHeight = (0, utils_1$7.sumArray)(rowHeights.slice(topLeft.row, bottomRight.row + 1));
+    const totalBorderHeight = bottomRight.row - topLeft.row;
+    const hiddenHorizontalBorderCount = (0, utils_1$7.sequence)(topLeft.row + 1, bottomRight.row).filter((horizontalBorderIndex) => {
+        return !drawHorizontalLine(horizontalBorderIndex, rows.length);
+    }).length;
+    const availableRangeHeight = totalCellHeight + totalBorderHeight - hiddenHorizontalBorderCount;
+    return (0, mapDataUsingRowHeights_1$1.padCellVertically)(content, availableRangeHeight, verticalAlignment).map((line) => {
+        if (line.length === 0) {
+            return ' '.repeat(content[0].length);
+        }
+        return line;
+    });
+};
+alignSpanningCell.alignVerticalRangeContent = alignVerticalRangeContent;
+
+var calculateSpanningCellWidth$1 = {};
+
+Object.defineProperty(calculateSpanningCellWidth$1, "__esModule", { value: true });
+calculateSpanningCellWidth$1.calculateSpanningCellWidth = void 0;
+const utils_1$6 = utils;
+const calculateSpanningCellWidth = (rangeConfig, dependencies) => {
+    const { columnsConfig, drawVerticalLine } = dependencies;
+    const { topLeft, bottomRight } = rangeConfig;
+    const totalWidth = (0, utils_1$6.sumArray)(columnsConfig.slice(topLeft.col, bottomRight.col + 1).map(({ width }) => {
+        return width;
+    }));
+    const totalPadding = topLeft.col === bottomRight.col ?
+        columnsConfig[topLeft.col].paddingRight +
+            columnsConfig[bottomRight.col].paddingLeft :
+        (0, utils_1$6.sumArray)(columnsConfig
+            .slice(topLeft.col, bottomRight.col + 1)
+            .map(({ paddingLeft, paddingRight }) => {
+            return paddingLeft + paddingRight;
+        }));
+    const totalBorderWidths = bottomRight.col - topLeft.col;
+    const totalHiddenVerticalBorders = (0, utils_1$6.sequence)(topLeft.col + 1, bottomRight.col).filter((verticalBorderIndex) => {
+        return !drawVerticalLine(verticalBorderIndex, columnsConfig.length);
+    }).length;
+    return totalWidth + totalPadding + totalBorderWidths - totalHiddenVerticalBorders;
+};
+calculateSpanningCellWidth$1.calculateSpanningCellWidth = calculateSpanningCellWidth;
+
+var makeRangeConfig$1 = {};
+
+Object.defineProperty(makeRangeConfig$1, "__esModule", { value: true });
+makeRangeConfig$1.makeRangeConfig = void 0;
+const utils_1$5 = utils;
+const makeRangeConfig = (spanningCellConfig, columnsConfig) => {
+    var _a;
+    const { topLeft, bottomRight } = (0, utils_1$5.calculateRangeCoordinate)(spanningCellConfig);
+    const cellConfig = {
+        ...columnsConfig[topLeft.col],
+        ...spanningCellConfig,
+        paddingRight: (_a = spanningCellConfig.paddingRight) !== null && _a !== void 0 ? _a : columnsConfig[bottomRight.col].paddingRight,
+    };
+    return { ...cellConfig,
+        bottomRight,
+        topLeft };
+};
+makeRangeConfig$1.makeRangeConfig = makeRangeConfig;
+
+Object.defineProperty(spanningCellManager, "__esModule", { value: true });
+spanningCellManager.createSpanningCellManager = void 0;
+const alignSpanningCell_1 = alignSpanningCell;
+const calculateSpanningCellWidth_1 = calculateSpanningCellWidth$1;
+const makeRangeConfig_1 = makeRangeConfig$1;
+const utils_1$4 = utils;
+const findRangeConfig = (cell, rangeConfigs) => {
+    return rangeConfigs.find((rangeCoordinate) => {
+        return (0, utils_1$4.isCellInRange)(cell, rangeCoordinate);
+    });
+};
+const getContainingRange = (rangeConfig, context) => {
+    const width = (0, calculateSpanningCellWidth_1.calculateSpanningCellWidth)(rangeConfig, context);
+    const wrappedContent = (0, alignSpanningCell_1.wrapRangeContent)(rangeConfig, width, context);
+    const alignedContent = (0, alignSpanningCell_1.alignVerticalRangeContent)(rangeConfig, wrappedContent, context);
+    const getCellContent = (rowIndex) => {
+        const { topLeft } = rangeConfig;
+        const { drawHorizontalLine, rowHeights } = context;
+        const totalWithinHorizontalBorderHeight = rowIndex - topLeft.row;
+        const totalHiddenHorizontalBorderHeight = (0, utils_1$4.sequence)(topLeft.row + 1, rowIndex).filter((index) => {
+            /* istanbul ignore next */
+            return !(drawHorizontalLine === null || drawHorizontalLine === void 0 ? void 0 : drawHorizontalLine(index, rowHeights.length));
+        }).length;
+        const offset = (0, utils_1$4.sumArray)(rowHeights.slice(topLeft.row, rowIndex)) + totalWithinHorizontalBorderHeight - totalHiddenHorizontalBorderHeight;
+        return alignedContent.slice(offset, offset + rowHeights[rowIndex]);
+    };
+    const getBorderContent = (borderIndex) => {
+        const { topLeft } = rangeConfig;
+        const offset = (0, utils_1$4.sumArray)(context.rowHeights.slice(topLeft.row, borderIndex)) + (borderIndex - topLeft.row - 1);
+        return alignedContent[offset];
+    };
+    return {
+        ...rangeConfig,
+        extractBorderContent: getBorderContent,
+        extractCellContent: getCellContent,
+        height: wrappedContent.length,
+        width,
+    };
+};
+const inSameRange = (cell1, cell2, ranges) => {
+    const range1 = findRangeConfig(cell1, ranges);
+    const range2 = findRangeConfig(cell2, ranges);
+    if (range1 && range2) {
+        return (0, utils_1$4.areCellEqual)(range1.topLeft, range2.topLeft);
+    }
+    return false;
+};
+const hashRange = (range) => {
+    const { row, col } = range.topLeft;
+    return `${row}/${col}`;
+};
+const createSpanningCellManager = (parameters) => {
+    const { spanningCellConfigs, columnsConfig } = parameters;
+    const ranges = spanningCellConfigs.map((config) => {
+        return (0, makeRangeConfig_1.makeRangeConfig)(config, columnsConfig);
+    });
+    const rangeCache = {};
+    let rowHeights = [];
+    return { getContainingRange: (cell, options) => {
+            var _a;
+            const originalRow = (options === null || options === void 0 ? void 0 : options.mapped) ? (0, utils_1$4.findOriginalRowIndex)(rowHeights, cell.row) : cell.row;
+            const range = findRangeConfig({ ...cell,
+                row: originalRow }, ranges);
+            if (!range) {
+                return undefined;
+            }
+            if (rowHeights.length === 0) {
+                return getContainingRange(range, { ...parameters,
+                    rowHeights });
+            }
+            const hash = hashRange(range);
+            (_a = rangeCache[hash]) !== null && _a !== void 0 ? _a : (rangeCache[hash] = getContainingRange(range, { ...parameters,
+                rowHeights }));
+            return rangeCache[hash];
+        },
+        inSameRange: (cell1, cell2) => {
+            return inSameRange(cell1, cell2, ranges);
+        },
+        rowHeights,
+        setRowHeights: (_rowHeights) => {
+            rowHeights = _rowHeights;
+        } };
+};
+spanningCellManager.createSpanningCellManager = createSpanningCellManager;
+
+var validateSpanningCellConfig$1 = {};
+
+Object.defineProperty(validateSpanningCellConfig$1, "__esModule", { value: true });
+validateSpanningCellConfig$1.validateSpanningCellConfig = void 0;
+const utils_1$3 = utils;
+const inRange = (start, end, value) => {
+    return start <= value && value <= end;
+};
+const validateSpanningCellConfig = (rows, configs) => {
+    const [nRow, nCol] = [rows.length, rows[0].length];
+    configs.forEach((config, configIndex) => {
+        const { colSpan, rowSpan } = config;
+        if (colSpan === undefined && rowSpan === undefined) {
+            throw new Error(`Expect at least colSpan or rowSpan is provided in config.spanningCells[${configIndex}]`);
+        }
+        if (colSpan !== undefined && colSpan < 1) {
+            throw new Error(`Expect colSpan is not equal zero, instead got: ${colSpan} in config.spanningCells[${configIndex}]`);
+        }
+        if (rowSpan !== undefined && rowSpan < 1) {
+            throw new Error(`Expect rowSpan is not equal zero, instead got: ${rowSpan} in config.spanningCells[${configIndex}]`);
+        }
+    });
+    const rangeCoordinates = configs.map(utils_1$3.calculateRangeCoordinate);
+    rangeCoordinates.forEach(({ topLeft, bottomRight }, rangeIndex) => {
+        if (!inRange(0, nCol - 1, topLeft.col) ||
+            !inRange(0, nRow - 1, topLeft.row) ||
+            !inRange(0, nCol - 1, bottomRight.col) ||
+            !inRange(0, nRow - 1, bottomRight.row)) {
+            throw new Error(`Some cells in config.spanningCells[${rangeIndex}] are out of the table`);
+        }
+    });
+    const configOccupy = Array.from({ length: nRow }, () => {
+        return Array.from({ length: nCol });
+    });
+    rangeCoordinates.forEach(({ topLeft, bottomRight }, rangeIndex) => {
+        (0, utils_1$3.sequence)(topLeft.row, bottomRight.row).forEach((row) => {
+            (0, utils_1$3.sequence)(topLeft.col, bottomRight.col).forEach((col) => {
+                if (configOccupy[row][col] !== undefined) {
+                    throw new Error(`Spanning cells in config.spanningCells[${configOccupy[row][col]}] and config.spanningCells[${rangeIndex}] are overlap each other`);
+                }
+                configOccupy[row][col] = rangeIndex;
+            });
+        });
+    });
+};
+validateSpanningCellConfig$1.validateSpanningCellConfig = validateSpanningCellConfig;
+
+Object.defineProperty(makeTableConfig$1, "__esModule", { value: true });
+makeTableConfig$1.makeTableConfig = void 0;
+const calculateMaximumColumnWidths_1 = calculateMaximumColumnWidths;
+const spanningCellManager_1 = spanningCellManager;
+const utils_1$2 = utils;
+const validateConfig_1 = validateConfig$1;
+const validateSpanningCellConfig_1 = validateSpanningCellConfig$1;
+/**
+ * Creates a configuration for every column using default
+ * values for the missing configuration properties.
+ */
+const makeColumnsConfig = (rows, columns, columnDefault, spanningCellConfigs) => {
+    const columnWidths = (0, calculateMaximumColumnWidths_1.calculateMaximumColumnWidths)(rows, spanningCellConfigs);
+    return rows[0].map((_, columnIndex) => {
+        return {
+            alignment: 'left',
+            paddingLeft: 1,
+            paddingRight: 1,
+            truncate: Number.POSITIVE_INFINITY,
+            verticalAlignment: 'top',
+            width: columnWidths[columnIndex],
+            wrapWord: false,
+            ...columnDefault,
+            ...columns === null || columns === void 0 ? void 0 : columns[columnIndex],
+        };
+    });
+};
+/**
+ * Makes a new configuration object out of the userConfig object
+ * using default values for the missing configuration properties.
+ */
+const makeTableConfig = (rows, config = {}, injectedSpanningCellConfig) => {
+    var _a, _b, _c, _d, _e;
+    (0, validateConfig_1.validateConfig)('config.json', config);
+    (0, validateSpanningCellConfig_1.validateSpanningCellConfig)(rows, (_a = config.spanningCells) !== null && _a !== void 0 ? _a : []);
+    const spanningCellConfigs = (_b = injectedSpanningCellConfig !== null && injectedSpanningCellConfig !== void 0 ? injectedSpanningCellConfig : config.spanningCells) !== null && _b !== void 0 ? _b : [];
+    const columnsConfig = makeColumnsConfig(rows, config.columns, config.columnDefault, spanningCellConfigs);
+    const drawVerticalLine = (_c = config.drawVerticalLine) !== null && _c !== void 0 ? _c : (() => {
+        return true;
+    });
+    const drawHorizontalLine = (_d = config.drawHorizontalLine) !== null && _d !== void 0 ? _d : (() => {
+        return true;
+    });
+    return {
+        ...config,
+        border: (0, utils_1$2.makeBorderConfig)(config.border),
+        columns: columnsConfig,
+        drawHorizontalLine,
+        drawVerticalLine,
+        singleLine: (_e = config.singleLine) !== null && _e !== void 0 ? _e : false,
+        spanningCellManager: (0, spanningCellManager_1.createSpanningCellManager)({
+            columnsConfig,
+            drawHorizontalLine,
+            drawVerticalLine,
+            rows,
+            spanningCellConfigs,
+        }),
+    };
+};
+makeTableConfig$1.makeTableConfig = makeTableConfig;
+
+var validateTableData$1 = {};
+
+Object.defineProperty(validateTableData$1, "__esModule", { value: true });
+validateTableData$1.validateTableData = void 0;
+const utils_1$1 = utils;
+const validateTableData = (rows) => {
+    if (!Array.isArray(rows)) {
+        throw new TypeError('Table data must be an array.');
+    }
+    if (rows.length === 0) {
+        throw new Error('Table must define at least one row.');
+    }
+    if (rows[0].length === 0) {
+        throw new Error('Table must define at least one column.');
+    }
+    const columnNumber = rows[0].length;
+    for (const row of rows) {
+        if (!Array.isArray(row)) {
+            throw new TypeError('Table row data must be an array.');
+        }
+        if (row.length !== columnNumber) {
+            throw new Error('Table must have a consistent number of cells.');
+        }
+        for (const cell of row) {
+            // eslint-disable-next-line no-control-regex
+            if (/[\u0001-\u0006\u0008\u0009\u000B-\u001A]/.test((0, utils_1$1.normalizeString)(String(cell)))) {
+                throw new Error('Table data must not contain control characters.');
+            }
+        }
+    }
+};
+validateTableData$1.validateTableData = validateTableData;
+
+Object.defineProperty(table$1, "__esModule", { value: true });
+table$1.table = void 0;
+const alignTableData_1 = alignTableData$1;
+const calculateOutputColumnWidths_1 = calculateOutputColumnWidths$1;
+const calculateRowHeights_1 = calculateRowHeights$1;
+const drawTable_1 = drawTable$1;
+const injectHeaderConfig_1 = injectHeaderConfig$1;
+const makeTableConfig_1 = makeTableConfig$1;
+const mapDataUsingRowHeights_1 = mapDataUsingRowHeights;
+const padTableData_1 = padTableData;
+const stringifyTableData_1 = stringifyTableData$1;
+const truncateTableData_1 = truncateTableData;
+const utils_1 = utils;
+const validateTableData_1 = validateTableData$1;
+const table = (data, userConfig = {}) => {
+    (0, validateTableData_1.validateTableData)(data);
+    let rows = (0, stringifyTableData_1.stringifyTableData)(data);
+    const [injectedRows, injectedSpanningCellConfig] = (0, injectHeaderConfig_1.injectHeaderConfig)(rows, userConfig);
+    const config = (0, makeTableConfig_1.makeTableConfig)(injectedRows, userConfig, injectedSpanningCellConfig);
+    rows = (0, truncateTableData_1.truncateTableData)(injectedRows, (0, utils_1.extractTruncates)(config));
+    const rowHeights = (0, calculateRowHeights_1.calculateRowHeights)(rows, config);
+    config.spanningCellManager.setRowHeights(rowHeights);
+    rows = (0, mapDataUsingRowHeights_1.mapDataUsingRowHeights)(rows, rowHeights, config);
+    rows = (0, alignTableData_1.alignTableData)(rows, config);
+    rows = (0, padTableData_1.padTableData)(rows, config);
+    const outputColumnWidths = (0, calculateOutputColumnWidths_1.calculateOutputColumnWidths)(config);
+    return (0, drawTable_1.drawTable)(rows, outputColumnWidths, rowHeights, config);
+};
+table$1.table = table;
+
+var api = {};
+
+Object.defineProperty(api, "__esModule", { value: true });
+
+(function (exports) {
+var __createBinding = (commonjsGlobal$1 && commonjsGlobal$1.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (commonjsGlobal$1 && commonjsGlobal$1.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.getBorderCharacters = exports.createStream = exports.table = void 0;
+const createStream_1 = createStream$1;
+Object.defineProperty(exports, "createStream", { enumerable: true, get: function () { return createStream_1.createStream; } });
+const getBorderCharacters_1 = getBorderCharacters$1;
+Object.defineProperty(exports, "getBorderCharacters", { enumerable: true, get: function () { return getBorderCharacters_1.getBorderCharacters; } });
+const table_1 = table$1;
+Object.defineProperty(exports, "table", { enumerable: true, get: function () { return table_1.table; } });
+__exportStar(api, exports);
+
+}(src));
+
+var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
+
+var win;
+
+if (typeof window !== "undefined") {
+    win = window;
+} else if (typeof commonjsGlobal !== "undefined") {
+    win = commonjsGlobal;
+} else if (typeof self !== "undefined"){
+    win = self;
+} else {
+    win = {};
+}
+
+var window_1 = win;
+
+var window$1 = window_1;
+var nodeCrypto = require$$1$1;
+
+function getRandomValues(buf) {
+  if (window$1.crypto && window$1.crypto.getRandomValues) {
+    return window$1.crypto.getRandomValues(buf);
+  }
+  if (typeof window$1.msCrypto === 'object' && typeof window$1.msCrypto.getRandomValues === 'function') {
+    return window$1.msCrypto.getRandomValues(buf);
+  }
+  if (nodeCrypto.randomBytes) {
+    if (!(buf instanceof Uint8Array)) {
+      throw new TypeError('expected Uint8Array');
+    }
+    if (buf.length > 65536) {
+      var e = new Error();
+      e.code = 22;
+      e.message = 'Failed to execute \'getRandomValues\' on \'Crypto\': The ' +
+        'ArrayBufferView\'s byte length (' + buf.length + ') exceeds the ' +
+        'number of bytes of entropy available via this API (65536).';
+      e.name = 'QuotaExceededError';
+      throw e;
+    }
+    var bytes = nodeCrypto.randomBytes(buf.length);
+    buf.set(bytes);
+    return buf;
+  }
+  else {
+    throw new Error('No secure random number generator available.');
+  }
+}
+
+var getRandomValues_1 = getRandomValues;
+
+var MINIMUM_KEY_LENGTH$1 = 64;
+/**
+ * Generate random number
+ * @param min - lowest value
+ * @param max - highest value
+ * @returns - random number
+ *
+ * @see https://github.com/EFForg/OpenWireless/blob/0e0bd06277f7178f840c36a9b799c7659870fa57/app/js/diceware.js#L59
+ */
+function getRandom(min, max) {
+    var randomValue = 0;
+    var range = max - min;
+    var bitsNeeded = Math.ceil(Math.log2(range));
+    if (bitsNeeded > 53) {
+        throw new RangeError('Cannot generate numbers larger than 53 bits.');
+    }
+    var bytesNeeded = Math.ceil(bitsNeeded / 8);
+    var mask = Math.pow(2, bitsNeeded) - 1;
+    var byteArray = new Uint8Array(bytesNeeded);
+    getRandomValues_1(byteArray);
+    var p = (bytesNeeded - 1) * 8;
+    for (var i = 0; i < bytesNeeded; i++) {
+        randomValue += byteArray[i] * Math.pow(2, p);
+        p -= 8;
+    }
+    randomValue = randomValue & mask;
+    return randomValue >= range ? getRandom(min, max) : min + randomValue;
+}
+/**
+ * Get random character
+ * @returns - random character
+ *
+ * @see https://roots.io/salts.html
+ */
+function getRandomChar() {
+    var minCharacter = 33;
+    var maxCharacter = 126;
+    var character = String.fromCharCode(getRandom(minCharacter, maxCharacter));
+    if (['\'', '"', '\\'].some(function (badCharacter) {
+        return character === badCharacter;
+    })) {
+        return getRandomChar();
+    }
+    return character;
+}
+/**
+ * Generate a salt
+ * @param length - length of the salt, defaults to 64
+ * @returns - string
+ *
+ * @see https://roots.io/salts.html
+ */
+function generateSalt(saltLength) {
+    if (saltLength === void 0) { saltLength = MINIMUM_KEY_LENGTH$1; }
+    return Array.apply(void 0, Array(saltLength)).map(getRandomChar)
+        .join('');
+}
+
+var WORDPRESS_KEYS = [
+    'AUTH_KEY',
+    'SECURE_AUTH_KEY',
+    'LOGGED_IN_KEY',
+    'NONCE_KEY',
+    'AUTH_SALT',
+    'SECURE_AUTH_SALT',
+    'LOGGED_IN_SALT',
+    'NONCE_SALT',
+];
+var MINIMUM_KEY_LENGTH = 64;
+/**
+ * Returns object of default WordPress salts or any string/array of strings
+ * @param length - length of the salt, defaults to 64
+ * @returns - object of salts
+ */
+var wpSalts = function (keys, saltLength) {
+    if (keys === void 0) { keys = ''; }
+    if (saltLength === void 0) { saltLength = 64; }
+    var output = {};
+    if (typeof keys === 'string') {
+        keys = (keys.length > 0) ? [keys] : WORDPRESS_KEYS;
+    }
+    else if (typeof keys === 'object') {
+        keys = (keys !== null && keys.length > 0) ? keys : WORDPRESS_KEYS;
+    }
+    else {
+        keys = WORDPRESS_KEYS;
+    }
+    saltLength = (saltLength < MINIMUM_KEY_LENGTH) ? MINIMUM_KEY_LENGTH : saltLength;
+    keys.map(function (key) { return output[key] = generateSalt(saltLength); });
+    return output;
+};
 
 var dist = {};
 
@@ -11571,141 +16077,6 @@ function toYAML(input) {
     return yaml.stringify(input);
 }
 
-var src = {};
-
-var createStream$1 = {};
-
-var alignTableData$1 = {};
-
-var alignString$1 = {};
-
-var stringWidth$1 = {exports: {}};
-
-var ansiRegex$1 = ({onlyFirst = false} = {}) => {
-	const pattern = [
-		'[\\u001B\\u009B][[\\]()#;?]*(?:(?:(?:(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]+)*|[a-zA-Z\\d]+(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]*)*)?\\u0007)',
-		'(?:(?:\\d{1,4}(?:;\\d{0,4})*)?[\\dA-PR-TZcf-ntqry=><~]))'
-	].join('|');
-
-	return new RegExp(pattern, onlyFirst ? undefined : 'g');
-};
-
-const ansiRegex = ansiRegex$1;
-
-var stripAnsi$1 = string => typeof string === 'string' ? string.replace(ansiRegex(), '') : string;
-
-var isFullwidthCodePoint$3 = {exports: {}};
-
-/* eslint-disable yoda */
-
-const isFullwidthCodePoint$2 = codePoint => {
-	if (Number.isNaN(codePoint)) {
-		return false;
-	}
-
-	// Code points are derived from:
-	// http://www.unix.org/Public/UNIDATA/EastAsianWidth.txt
-	if (
-		codePoint >= 0x1100 && (
-			codePoint <= 0x115F || // Hangul Jamo
-			codePoint === 0x2329 || // LEFT-POINTING ANGLE BRACKET
-			codePoint === 0x232A || // RIGHT-POINTING ANGLE BRACKET
-			// CJK Radicals Supplement .. Enclosed CJK Letters and Months
-			(0x2E80 <= codePoint && codePoint <= 0x3247 && codePoint !== 0x303F) ||
-			// Enclosed CJK Letters and Months .. CJK Unified Ideographs Extension A
-			(0x3250 <= codePoint && codePoint <= 0x4DBF) ||
-			// CJK Unified Ideographs .. Yi Radicals
-			(0x4E00 <= codePoint && codePoint <= 0xA4C6) ||
-			// Hangul Jamo Extended-A
-			(0xA960 <= codePoint && codePoint <= 0xA97C) ||
-			// Hangul Syllables
-			(0xAC00 <= codePoint && codePoint <= 0xD7A3) ||
-			// CJK Compatibility Ideographs
-			(0xF900 <= codePoint && codePoint <= 0xFAFF) ||
-			// Vertical Forms
-			(0xFE10 <= codePoint && codePoint <= 0xFE19) ||
-			// CJK Compatibility Forms .. Small Form Variants
-			(0xFE30 <= codePoint && codePoint <= 0xFE6B) ||
-			// Halfwidth and Fullwidth Forms
-			(0xFF01 <= codePoint && codePoint <= 0xFF60) ||
-			(0xFFE0 <= codePoint && codePoint <= 0xFFE6) ||
-			// Kana Supplement
-			(0x1B000 <= codePoint && codePoint <= 0x1B001) ||
-			// Enclosed Ideographic Supplement
-			(0x1F200 <= codePoint && codePoint <= 0x1F251) ||
-			// CJK Unified Ideographs Extension B .. Tertiary Ideographic Plane
-			(0x20000 <= codePoint && codePoint <= 0x3FFFD)
-		)
-	) {
-		return true;
-	}
-
-	return false;
-};
-
-isFullwidthCodePoint$3.exports = isFullwidthCodePoint$2;
-isFullwidthCodePoint$3.exports.default = isFullwidthCodePoint$2;
-
-var emojiRegex$1 = function () {
-  // https://mths.be/emoji
-  return /\uD83C\uDFF4\uDB40\uDC67\uDB40\uDC62(?:\uDB40\uDC65\uDB40\uDC6E\uDB40\uDC67|\uDB40\uDC73\uDB40\uDC63\uDB40\uDC74|\uDB40\uDC77\uDB40\uDC6C\uDB40\uDC73)\uDB40\uDC7F|\uD83D\uDC68(?:\uD83C\uDFFC\u200D(?:\uD83E\uDD1D\u200D\uD83D\uDC68\uD83C\uDFFB|\uD83C[\uDF3E\uDF73\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E[\uDDAF-\uDDB3\uDDBC\uDDBD])|\uD83C\uDFFF\u200D(?:\uD83E\uDD1D\u200D\uD83D\uDC68(?:\uD83C[\uDFFB-\uDFFE])|\uD83C[\uDF3E\uDF73\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E[\uDDAF-\uDDB3\uDDBC\uDDBD])|\uD83C\uDFFE\u200D(?:\uD83E\uDD1D\u200D\uD83D\uDC68(?:\uD83C[\uDFFB-\uDFFD])|\uD83C[\uDF3E\uDF73\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E[\uDDAF-\uDDB3\uDDBC\uDDBD])|\uD83C\uDFFD\u200D(?:\uD83E\uDD1D\u200D\uD83D\uDC68(?:\uD83C[\uDFFB\uDFFC])|\uD83C[\uDF3E\uDF73\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E[\uDDAF-\uDDB3\uDDBC\uDDBD])|\u200D(?:\u2764\uFE0F\u200D(?:\uD83D\uDC8B\u200D)?\uD83D\uDC68|(?:\uD83D[\uDC68\uDC69])\u200D(?:\uD83D\uDC66\u200D\uD83D\uDC66|\uD83D\uDC67\u200D(?:\uD83D[\uDC66\uDC67]))|\uD83D\uDC66\u200D\uD83D\uDC66|\uD83D\uDC67\u200D(?:\uD83D[\uDC66\uDC67])|(?:\uD83D[\uDC68\uDC69])\u200D(?:\uD83D[\uDC66\uDC67])|[\u2695\u2696\u2708]\uFE0F|\uD83D[\uDC66\uDC67]|\uD83C[\uDF3E\uDF73\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E[\uDDAF-\uDDB3\uDDBC\uDDBD])|(?:\uD83C\uDFFB\u200D[\u2695\u2696\u2708]|\uD83C\uDFFF\u200D[\u2695\u2696\u2708]|\uD83C\uDFFE\u200D[\u2695\u2696\u2708]|\uD83C\uDFFD\u200D[\u2695\u2696\u2708]|\uD83C\uDFFC\u200D[\u2695\u2696\u2708])\uFE0F|\uD83C\uDFFB\u200D(?:\uD83C[\uDF3E\uDF73\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E[\uDDAF-\uDDB3\uDDBC\uDDBD])|\uD83C[\uDFFB-\uDFFF])|(?:\uD83E\uDDD1\uD83C\uDFFB\u200D\uD83E\uDD1D\u200D\uD83E\uDDD1|\uD83D\uDC69\uD83C\uDFFC\u200D\uD83E\uDD1D\u200D\uD83D\uDC69)\uD83C\uDFFB|\uD83E\uDDD1(?:\uD83C\uDFFF\u200D\uD83E\uDD1D\u200D\uD83E\uDDD1(?:\uD83C[\uDFFB-\uDFFF])|\u200D\uD83E\uDD1D\u200D\uD83E\uDDD1)|(?:\uD83E\uDDD1\uD83C\uDFFE\u200D\uD83E\uDD1D\u200D\uD83E\uDDD1|\uD83D\uDC69\uD83C\uDFFF\u200D\uD83E\uDD1D\u200D(?:\uD83D[\uDC68\uDC69]))(?:\uD83C[\uDFFB-\uDFFE])|(?:\uD83E\uDDD1\uD83C\uDFFC\u200D\uD83E\uDD1D\u200D\uD83E\uDDD1|\uD83D\uDC69\uD83C\uDFFD\u200D\uD83E\uDD1D\u200D\uD83D\uDC69)(?:\uD83C[\uDFFB\uDFFC])|\uD83D\uDC69(?:\uD83C\uDFFE\u200D(?:\uD83E\uDD1D\u200D\uD83D\uDC68(?:\uD83C[\uDFFB-\uDFFD\uDFFF])|\uD83C[\uDF3E\uDF73\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E[\uDDAF-\uDDB3\uDDBC\uDDBD])|\uD83C\uDFFC\u200D(?:\uD83E\uDD1D\u200D\uD83D\uDC68(?:\uD83C[\uDFFB\uDFFD-\uDFFF])|\uD83C[\uDF3E\uDF73\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E[\uDDAF-\uDDB3\uDDBC\uDDBD])|\uD83C\uDFFB\u200D(?:\uD83E\uDD1D\u200D\uD83D\uDC68(?:\uD83C[\uDFFC-\uDFFF])|\uD83C[\uDF3E\uDF73\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E[\uDDAF-\uDDB3\uDDBC\uDDBD])|\uD83C\uDFFD\u200D(?:\uD83E\uDD1D\u200D\uD83D\uDC68(?:\uD83C[\uDFFB\uDFFC\uDFFE\uDFFF])|\uD83C[\uDF3E\uDF73\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E[\uDDAF-\uDDB3\uDDBC\uDDBD])|\u200D(?:\u2764\uFE0F\u200D(?:\uD83D\uDC8B\u200D(?:\uD83D[\uDC68\uDC69])|\uD83D[\uDC68\uDC69])|\uD83C[\uDF3E\uDF73\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E[\uDDAF-\uDDB3\uDDBC\uDDBD])|\uD83C\uDFFF\u200D(?:\uD83C[\uDF3E\uDF73\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E[\uDDAF-\uDDB3\uDDBC\uDDBD]))|\uD83D\uDC69\u200D\uD83D\uDC69\u200D(?:\uD83D\uDC66\u200D\uD83D\uDC66|\uD83D\uDC67\u200D(?:\uD83D[\uDC66\uDC67]))|(?:\uD83E\uDDD1\uD83C\uDFFD\u200D\uD83E\uDD1D\u200D\uD83E\uDDD1|\uD83D\uDC69\uD83C\uDFFE\u200D\uD83E\uDD1D\u200D\uD83D\uDC69)(?:\uD83C[\uDFFB-\uDFFD])|\uD83D\uDC69\u200D\uD83D\uDC66\u200D\uD83D\uDC66|\uD83D\uDC69\u200D\uD83D\uDC69\u200D(?:\uD83D[\uDC66\uDC67])|(?:\uD83D\uDC41\uFE0F\u200D\uD83D\uDDE8|\uD83D\uDC69(?:\uD83C\uDFFF\u200D[\u2695\u2696\u2708]|\uD83C\uDFFE\u200D[\u2695\u2696\u2708]|\uD83C\uDFFC\u200D[\u2695\u2696\u2708]|\uD83C\uDFFB\u200D[\u2695\u2696\u2708]|\uD83C\uDFFD\u200D[\u2695\u2696\u2708]|\u200D[\u2695\u2696\u2708])|(?:(?:\u26F9|\uD83C[\uDFCB\uDFCC]|\uD83D\uDD75)\uFE0F|\uD83D\uDC6F|\uD83E[\uDD3C\uDDDE\uDDDF])\u200D[\u2640\u2642]|(?:\u26F9|\uD83C[\uDFCB\uDFCC]|\uD83D\uDD75)(?:\uD83C[\uDFFB-\uDFFF])\u200D[\u2640\u2642]|(?:\uD83C[\uDFC3\uDFC4\uDFCA]|\uD83D[\uDC6E\uDC71\uDC73\uDC77\uDC81\uDC82\uDC86\uDC87\uDE45-\uDE47\uDE4B\uDE4D\uDE4E\uDEA3\uDEB4-\uDEB6]|\uD83E[\uDD26\uDD37-\uDD39\uDD3D\uDD3E\uDDB8\uDDB9\uDDCD-\uDDCF\uDDD6-\uDDDD])(?:(?:\uD83C[\uDFFB-\uDFFF])\u200D[\u2640\u2642]|\u200D[\u2640\u2642])|\uD83C\uDFF4\u200D\u2620)\uFE0F|\uD83D\uDC69\u200D\uD83D\uDC67\u200D(?:\uD83D[\uDC66\uDC67])|\uD83C\uDFF3\uFE0F\u200D\uD83C\uDF08|\uD83D\uDC15\u200D\uD83E\uDDBA|\uD83D\uDC69\u200D\uD83D\uDC66|\uD83D\uDC69\u200D\uD83D\uDC67|\uD83C\uDDFD\uD83C\uDDF0|\uD83C\uDDF4\uD83C\uDDF2|\uD83C\uDDF6\uD83C\uDDE6|[#\*0-9]\uFE0F\u20E3|\uD83C\uDDE7(?:\uD83C[\uDDE6\uDDE7\uDDE9-\uDDEF\uDDF1-\uDDF4\uDDF6-\uDDF9\uDDFB\uDDFC\uDDFE\uDDFF])|\uD83C\uDDF9(?:\uD83C[\uDDE6\uDDE8\uDDE9\uDDEB-\uDDED\uDDEF-\uDDF4\uDDF7\uDDF9\uDDFB\uDDFC\uDDFF])|\uD83C\uDDEA(?:\uD83C[\uDDE6\uDDE8\uDDEA\uDDEC\uDDED\uDDF7-\uDDFA])|\uD83E\uDDD1(?:\uD83C[\uDFFB-\uDFFF])|\uD83C\uDDF7(?:\uD83C[\uDDEA\uDDF4\uDDF8\uDDFA\uDDFC])|\uD83D\uDC69(?:\uD83C[\uDFFB-\uDFFF])|\uD83C\uDDF2(?:\uD83C[\uDDE6\uDDE8-\uDDED\uDDF0-\uDDFF])|\uD83C\uDDE6(?:\uD83C[\uDDE8-\uDDEC\uDDEE\uDDF1\uDDF2\uDDF4\uDDF6-\uDDFA\uDDFC\uDDFD\uDDFF])|\uD83C\uDDF0(?:\uD83C[\uDDEA\uDDEC-\uDDEE\uDDF2\uDDF3\uDDF5\uDDF7\uDDFC\uDDFE\uDDFF])|\uD83C\uDDED(?:\uD83C[\uDDF0\uDDF2\uDDF3\uDDF7\uDDF9\uDDFA])|\uD83C\uDDE9(?:\uD83C[\uDDEA\uDDEC\uDDEF\uDDF0\uDDF2\uDDF4\uDDFF])|\uD83C\uDDFE(?:\uD83C[\uDDEA\uDDF9])|\uD83C\uDDEC(?:\uD83C[\uDDE6\uDDE7\uDDE9-\uDDEE\uDDF1-\uDDF3\uDDF5-\uDDFA\uDDFC\uDDFE])|\uD83C\uDDF8(?:\uD83C[\uDDE6-\uDDEA\uDDEC-\uDDF4\uDDF7-\uDDF9\uDDFB\uDDFD-\uDDFF])|\uD83C\uDDEB(?:\uD83C[\uDDEE-\uDDF0\uDDF2\uDDF4\uDDF7])|\uD83C\uDDF5(?:\uD83C[\uDDE6\uDDEA-\uDDED\uDDF0-\uDDF3\uDDF7-\uDDF9\uDDFC\uDDFE])|\uD83C\uDDFB(?:\uD83C[\uDDE6\uDDE8\uDDEA\uDDEC\uDDEE\uDDF3\uDDFA])|\uD83C\uDDF3(?:\uD83C[\uDDE6\uDDE8\uDDEA-\uDDEC\uDDEE\uDDF1\uDDF4\uDDF5\uDDF7\uDDFA\uDDFF])|\uD83C\uDDE8(?:\uD83C[\uDDE6\uDDE8\uDDE9\uDDEB-\uDDEE\uDDF0-\uDDF5\uDDF7\uDDFA-\uDDFF])|\uD83C\uDDF1(?:\uD83C[\uDDE6-\uDDE8\uDDEE\uDDF0\uDDF7-\uDDFB\uDDFE])|\uD83C\uDDFF(?:\uD83C[\uDDE6\uDDF2\uDDFC])|\uD83C\uDDFC(?:\uD83C[\uDDEB\uDDF8])|\uD83C\uDDFA(?:\uD83C[\uDDE6\uDDEC\uDDF2\uDDF3\uDDF8\uDDFE\uDDFF])|\uD83C\uDDEE(?:\uD83C[\uDDE8-\uDDEA\uDDF1-\uDDF4\uDDF6-\uDDF9])|\uD83C\uDDEF(?:\uD83C[\uDDEA\uDDF2\uDDF4\uDDF5])|(?:\uD83C[\uDFC3\uDFC4\uDFCA]|\uD83D[\uDC6E\uDC71\uDC73\uDC77\uDC81\uDC82\uDC86\uDC87\uDE45-\uDE47\uDE4B\uDE4D\uDE4E\uDEA3\uDEB4-\uDEB6]|\uD83E[\uDD26\uDD37-\uDD39\uDD3D\uDD3E\uDDB8\uDDB9\uDDCD-\uDDCF\uDDD6-\uDDDD])(?:\uD83C[\uDFFB-\uDFFF])|(?:\u26F9|\uD83C[\uDFCB\uDFCC]|\uD83D\uDD75)(?:\uD83C[\uDFFB-\uDFFF])|(?:[\u261D\u270A-\u270D]|\uD83C[\uDF85\uDFC2\uDFC7]|\uD83D[\uDC42\uDC43\uDC46-\uDC50\uDC66\uDC67\uDC6B-\uDC6D\uDC70\uDC72\uDC74-\uDC76\uDC78\uDC7C\uDC83\uDC85\uDCAA\uDD74\uDD7A\uDD90\uDD95\uDD96\uDE4C\uDE4F\uDEC0\uDECC]|\uD83E[\uDD0F\uDD18-\uDD1C\uDD1E\uDD1F\uDD30-\uDD36\uDDB5\uDDB6\uDDBB\uDDD2-\uDDD5])(?:\uD83C[\uDFFB-\uDFFF])|(?:[\u231A\u231B\u23E9-\u23EC\u23F0\u23F3\u25FD\u25FE\u2614\u2615\u2648-\u2653\u267F\u2693\u26A1\u26AA\u26AB\u26BD\u26BE\u26C4\u26C5\u26CE\u26D4\u26EA\u26F2\u26F3\u26F5\u26FA\u26FD\u2705\u270A\u270B\u2728\u274C\u274E\u2753-\u2755\u2757\u2795-\u2797\u27B0\u27BF\u2B1B\u2B1C\u2B50\u2B55]|\uD83C[\uDC04\uDCCF\uDD8E\uDD91-\uDD9A\uDDE6-\uDDFF\uDE01\uDE1A\uDE2F\uDE32-\uDE36\uDE38-\uDE3A\uDE50\uDE51\uDF00-\uDF20\uDF2D-\uDF35\uDF37-\uDF7C\uDF7E-\uDF93\uDFA0-\uDFCA\uDFCF-\uDFD3\uDFE0-\uDFF0\uDFF4\uDFF8-\uDFFF]|\uD83D[\uDC00-\uDC3E\uDC40\uDC42-\uDCFC\uDCFF-\uDD3D\uDD4B-\uDD4E\uDD50-\uDD67\uDD7A\uDD95\uDD96\uDDA4\uDDFB-\uDE4F\uDE80-\uDEC5\uDECC\uDED0-\uDED2\uDED5\uDEEB\uDEEC\uDEF4-\uDEFA\uDFE0-\uDFEB]|\uD83E[\uDD0D-\uDD3A\uDD3C-\uDD45\uDD47-\uDD71\uDD73-\uDD76\uDD7A-\uDDA2\uDDA5-\uDDAA\uDDAE-\uDDCA\uDDCD-\uDDFF\uDE70-\uDE73\uDE78-\uDE7A\uDE80-\uDE82\uDE90-\uDE95])|(?:[#\*0-9\xA9\xAE\u203C\u2049\u2122\u2139\u2194-\u2199\u21A9\u21AA\u231A\u231B\u2328\u23CF\u23E9-\u23F3\u23F8-\u23FA\u24C2\u25AA\u25AB\u25B6\u25C0\u25FB-\u25FE\u2600-\u2604\u260E\u2611\u2614\u2615\u2618\u261D\u2620\u2622\u2623\u2626\u262A\u262E\u262F\u2638-\u263A\u2640\u2642\u2648-\u2653\u265F\u2660\u2663\u2665\u2666\u2668\u267B\u267E\u267F\u2692-\u2697\u2699\u269B\u269C\u26A0\u26A1\u26AA\u26AB\u26B0\u26B1\u26BD\u26BE\u26C4\u26C5\u26C8\u26CE\u26CF\u26D1\u26D3\u26D4\u26E9\u26EA\u26F0-\u26F5\u26F7-\u26FA\u26FD\u2702\u2705\u2708-\u270D\u270F\u2712\u2714\u2716\u271D\u2721\u2728\u2733\u2734\u2744\u2747\u274C\u274E\u2753-\u2755\u2757\u2763\u2764\u2795-\u2797\u27A1\u27B0\u27BF\u2934\u2935\u2B05-\u2B07\u2B1B\u2B1C\u2B50\u2B55\u3030\u303D\u3297\u3299]|\uD83C[\uDC04\uDCCF\uDD70\uDD71\uDD7E\uDD7F\uDD8E\uDD91-\uDD9A\uDDE6-\uDDFF\uDE01\uDE02\uDE1A\uDE2F\uDE32-\uDE3A\uDE50\uDE51\uDF00-\uDF21\uDF24-\uDF93\uDF96\uDF97\uDF99-\uDF9B\uDF9E-\uDFF0\uDFF3-\uDFF5\uDFF7-\uDFFF]|\uD83D[\uDC00-\uDCFD\uDCFF-\uDD3D\uDD49-\uDD4E\uDD50-\uDD67\uDD6F\uDD70\uDD73-\uDD7A\uDD87\uDD8A-\uDD8D\uDD90\uDD95\uDD96\uDDA4\uDDA5\uDDA8\uDDB1\uDDB2\uDDBC\uDDC2-\uDDC4\uDDD1-\uDDD3\uDDDC-\uDDDE\uDDE1\uDDE3\uDDE8\uDDEF\uDDF3\uDDFA-\uDE4F\uDE80-\uDEC5\uDECB-\uDED2\uDED5\uDEE0-\uDEE5\uDEE9\uDEEB\uDEEC\uDEF0\uDEF3-\uDEFA\uDFE0-\uDFEB]|\uD83E[\uDD0D-\uDD3A\uDD3C-\uDD45\uDD47-\uDD71\uDD73-\uDD76\uDD7A-\uDDA2\uDDA5-\uDDAA\uDDAE-\uDDCA\uDDCD-\uDDFF\uDE70-\uDE73\uDE78-\uDE7A\uDE80-\uDE82\uDE90-\uDE95])\uFE0F|(?:[\u261D\u26F9\u270A-\u270D]|\uD83C[\uDF85\uDFC2-\uDFC4\uDFC7\uDFCA-\uDFCC]|\uD83D[\uDC42\uDC43\uDC46-\uDC50\uDC66-\uDC78\uDC7C\uDC81-\uDC83\uDC85-\uDC87\uDC8F\uDC91\uDCAA\uDD74\uDD75\uDD7A\uDD90\uDD95\uDD96\uDE45-\uDE47\uDE4B-\uDE4F\uDEA3\uDEB4-\uDEB6\uDEC0\uDECC]|\uD83E[\uDD0F\uDD18-\uDD1F\uDD26\uDD30-\uDD39\uDD3C-\uDD3E\uDDB5\uDDB6\uDDB8\uDDB9\uDDBB\uDDCD-\uDDCF\uDDD1-\uDDDD])/g;
-};
-
-const stripAnsi = stripAnsi$1;
-const isFullwidthCodePoint$1 = isFullwidthCodePoint$3.exports;
-const emojiRegex = emojiRegex$1;
-
-const stringWidth = string => {
-	if (typeof string !== 'string' || string.length === 0) {
-		return 0;
-	}
-
-	string = stripAnsi(string);
-
-	if (string.length === 0) {
-		return 0;
-	}
-
-	string = string.replace(emojiRegex(), '  ');
-
-	let width = 0;
-
-	for (let i = 0; i < string.length; i++) {
-		const code = string.codePointAt(i);
-
-		// Ignore control characters
-		if (code <= 0x1F || (code >= 0x7F && code <= 0x9F)) {
-			continue;
-		}
-
-		// Ignore combining characters
-		if (code >= 0x300 && code <= 0x36F) {
-			continue;
-		}
-
-		// Surrogates
-		if (code > 0xFFFF) {
-			i++;
-		}
-
-		width += isFullwidthCodePoint$1(code) ? 2 : 1;
-	}
-
-	return width;
-};
-
-stringWidth$1.exports = stringWidth;
-// TODO: remove this in the next major version
-stringWidth$1.exports.default = stringWidth;
-
-var utils = {};
-
-const regex = '[\uD800-\uDBFF][\uDC00-\uDFFF]';
-
-const astralRegex$1 = options => options && options.exact ? new RegExp(`^${regex}$`) : new RegExp(regex, 'g');
-
-var astralRegex_1 = astralRegex$1;
-
 var ansiStyles$1 = {exports: {}};
 
 var colorName = {
@@ -13044,5105 +17415,643 @@ Object.defineProperty(module, 'exports', {
 });
 }(ansiStyles$1));
 
-const isFullwidthCodePoint = isFullwidthCodePoint$3.exports;
-const astralRegex = astralRegex_1;
-const ansiStyles = ansiStyles$1.exports;
+var hasFlag$1 = (flag, argv = process.argv) => {
+	const prefix = flag.startsWith('-') ? '' : (flag.length === 1 ? '-' : '--');
+	const position = argv.indexOf(prefix + flag);
+	const terminatorPosition = argv.indexOf('--');
+	return position !== -1 && (terminatorPosition === -1 || position < terminatorPosition);
+};
 
-const ESCAPES = [
-	'\u001B',
-	'\u009B'
-];
+const os = require$$0$1;
+const tty = require$$1$2;
+const hasFlag = hasFlag$1;
 
-const wrapAnsi = code => `${ESCAPES[0]}[${code}m`;
+const {env} = process;
 
-const checkAnsi = (ansiCodes, isEscapes, endAnsiCode) => {
-	let output = [];
-	ansiCodes = [...ansiCodes];
+let forceColor;
+if (hasFlag('no-color') ||
+	hasFlag('no-colors') ||
+	hasFlag('color=false') ||
+	hasFlag('color=never')) {
+	forceColor = 0;
+} else if (hasFlag('color') ||
+	hasFlag('colors') ||
+	hasFlag('color=true') ||
+	hasFlag('color=always')) {
+	forceColor = 1;
+}
 
-	for (let ansiCode of ansiCodes) {
-		const ansiCodeOrigin = ansiCode;
-		if (ansiCode.includes(';')) {
-			ansiCode = ansiCode.split(';')[0][0] + '0';
+if ('FORCE_COLOR' in env) {
+	if (env.FORCE_COLOR === 'true') {
+		forceColor = 1;
+	} else if (env.FORCE_COLOR === 'false') {
+		forceColor = 0;
+	} else {
+		forceColor = env.FORCE_COLOR.length === 0 ? 1 : Math.min(parseInt(env.FORCE_COLOR, 10), 3);
+	}
+}
+
+function translateLevel(level) {
+	if (level === 0) {
+		return false;
+	}
+
+	return {
+		level,
+		hasBasic: true,
+		has256: level >= 2,
+		has16m: level >= 3
+	};
+}
+
+function supportsColor(haveStream, streamIsTTY) {
+	if (forceColor === 0) {
+		return 0;
+	}
+
+	if (hasFlag('color=16m') ||
+		hasFlag('color=full') ||
+		hasFlag('color=truecolor')) {
+		return 3;
+	}
+
+	if (hasFlag('color=256')) {
+		return 2;
+	}
+
+	if (haveStream && !streamIsTTY && forceColor === undefined) {
+		return 0;
+	}
+
+	const min = forceColor || 0;
+
+	if (env.TERM === 'dumb') {
+		return min;
+	}
+
+	if (process.platform === 'win32') {
+		// Windows 10 build 10586 is the first Windows release that supports 256 colors.
+		// Windows 10 build 14931 is the first release that supports 16m/TrueColor.
+		const osRelease = os.release().split('.');
+		if (
+			Number(osRelease[0]) >= 10 &&
+			Number(osRelease[2]) >= 10586
+		) {
+			return Number(osRelease[2]) >= 14931 ? 3 : 2;
 		}
 
-		const item = ansiStyles.codes.get(Number.parseInt(ansiCode, 10));
-		if (item) {
-			const indexEscape = ansiCodes.indexOf(item.toString());
-			if (indexEscape === -1) {
-				output.push(wrapAnsi(isEscapes ? item : ansiCodeOrigin));
-			} else {
-				ansiCodes.splice(indexEscape, 1);
-			}
-		} else if (isEscapes) {
-			output.push(wrapAnsi(0));
-			break;
+		return 1;
+	}
+
+	if ('CI' in env) {
+		if (['TRAVIS', 'CIRCLECI', 'APPVEYOR', 'GITLAB_CI', 'GITHUB_ACTIONS', 'BUILDKITE'].some(sign => sign in env) || env.CI_NAME === 'codeship') {
+			return 1;
+		}
+
+		return min;
+	}
+
+	if ('TEAMCITY_VERSION' in env) {
+		return /^(9\.(0*[1-9]\d*)\.|\d{2,}\.)/.test(env.TEAMCITY_VERSION) ? 1 : 0;
+	}
+
+	if (env.COLORTERM === 'truecolor') {
+		return 3;
+	}
+
+	if ('TERM_PROGRAM' in env) {
+		const version = parseInt((env.TERM_PROGRAM_VERSION || '').split('.')[0], 10);
+
+		switch (env.TERM_PROGRAM) {
+			case 'iTerm.app':
+				return version >= 3 ? 3 : 2;
+			case 'Apple_Terminal':
+				return 2;
+			// No default
+		}
+	}
+
+	if (/-256(color)?$/i.test(env.TERM)) {
+		return 2;
+	}
+
+	if (/^screen|^xterm|^vt100|^vt220|^rxvt|color|ansi|cygwin|linux/i.test(env.TERM)) {
+		return 1;
+	}
+
+	if ('COLORTERM' in env) {
+		return 1;
+	}
+
+	return min;
+}
+
+function getSupportLevel(stream) {
+	const level = supportsColor(stream, stream && stream.isTTY);
+	return translateLevel(level);
+}
+
+var supportsColor_1 = {
+	supportsColor: getSupportLevel,
+	stdout: translateLevel(supportsColor(true, tty.isatty(1))),
+	stderr: translateLevel(supportsColor(true, tty.isatty(2)))
+};
+
+const stringReplaceAll$1 = (string, substring, replacer) => {
+	let index = string.indexOf(substring);
+	if (index === -1) {
+		return string;
+	}
+
+	const substringLength = substring.length;
+	let endIndex = 0;
+	let returnValue = '';
+	do {
+		returnValue += string.substr(endIndex, index - endIndex) + substring + replacer;
+		endIndex = index + substringLength;
+		index = string.indexOf(substring, endIndex);
+	} while (index !== -1);
+
+	returnValue += string.substr(endIndex);
+	return returnValue;
+};
+
+const stringEncaseCRLFWithFirstIndex$1 = (string, prefix, postfix, index) => {
+	let endIndex = 0;
+	let returnValue = '';
+	do {
+		const gotCR = string[index - 1] === '\r';
+		returnValue += string.substr(endIndex, (gotCR ? index - 1 : index) - endIndex) + prefix + (gotCR ? '\r\n' : '\n') + postfix;
+		endIndex = index + 1;
+		index = string.indexOf('\n', endIndex);
+	} while (index !== -1);
+
+	returnValue += string.substr(endIndex);
+	return returnValue;
+};
+
+var util = {
+	stringReplaceAll: stringReplaceAll$1,
+	stringEncaseCRLFWithFirstIndex: stringEncaseCRLFWithFirstIndex$1
+};
+
+const TEMPLATE_REGEX = /(?:\\(u(?:[a-f\d]{4}|\{[a-f\d]{1,6}\})|x[a-f\d]{2}|.))|(?:\{(~)?(\w+(?:\([^)]*\))?(?:\.\w+(?:\([^)]*\))?)*)(?:[ \t]|(?=\r?\n)))|(\})|((?:.|[\r\n\f])+?)/gi;
+const STYLE_REGEX = /(?:^|\.)(\w+)(?:\(([^)]*)\))?/g;
+const STRING_REGEX = /^(['"])((?:\\.|(?!\1)[^\\])*)\1$/;
+const ESCAPE_REGEX = /\\(u(?:[a-f\d]{4}|{[a-f\d]{1,6}})|x[a-f\d]{2}|.)|([^\\])/gi;
+
+const ESCAPES = new Map([
+	['n', '\n'],
+	['r', '\r'],
+	['t', '\t'],
+	['b', '\b'],
+	['f', '\f'],
+	['v', '\v'],
+	['0', '\0'],
+	['\\', '\\'],
+	['e', '\u001B'],
+	['a', '\u0007']
+]);
+
+function unescape(c) {
+	const u = c[0] === 'u';
+	const bracket = c[1] === '{';
+
+	if ((u && !bracket && c.length === 5) || (c[0] === 'x' && c.length === 3)) {
+		return String.fromCharCode(parseInt(c.slice(1), 16));
+	}
+
+	if (u && bracket) {
+		return String.fromCodePoint(parseInt(c.slice(2, -1), 16));
+	}
+
+	return ESCAPES.get(c) || c;
+}
+
+function parseArguments(name, arguments_) {
+	const results = [];
+	const chunks = arguments_.trim().split(/\s*,\s*/g);
+	let matches;
+
+	for (const chunk of chunks) {
+		const number = Number(chunk);
+		if (!Number.isNaN(number)) {
+			results.push(number);
+		} else if ((matches = chunk.match(STRING_REGEX))) {
+			results.push(matches[2].replace(ESCAPE_REGEX, (m, escape, character) => escape ? unescape(escape) : character));
 		} else {
-			output.push(wrapAnsi(ansiCodeOrigin));
+			throw new Error(`Invalid Chalk template style argument: ${chunk} (in style '${name}')`);
 		}
 	}
 
-	if (isEscapes) {
-		output = output.filter((element, index) => output.indexOf(element) === index);
+	return results;
+}
 
-		if (endAnsiCode !== undefined) {
-			const fistEscapeCode = wrapAnsi(ansiStyles.codes.get(Number.parseInt(endAnsiCode, 10)));
-			output = output.reduce((current, next) => next === fistEscapeCode ? [next, ...current] : [...current, next], []);
+function parseStyle(style) {
+	STYLE_REGEX.lastIndex = 0;
+
+	const results = [];
+	let matches;
+
+	while ((matches = STYLE_REGEX.exec(style)) !== null) {
+		const name = matches[1];
+
+		if (matches[2]) {
+			const args = parseArguments(name, matches[2]);
+			results.push([name].concat(args));
+		} else {
+			results.push([name]);
 		}
 	}
 
-	return output.join('');
-};
+	return results;
+}
 
-var sliceAnsi = (string, begin, end) => {
-	const characters = [...string];
-	const ansiCodes = [];
+function buildStyle(chalk, styles) {
+	const enabled = {};
 
-	let stringEnd = typeof end === 'number' ? end : characters.length;
-	let isInsideEscape = false;
-	let ansiCode;
-	let visible = 0;
-	let output = '';
+	for (const layer of styles) {
+		for (const style of layer.styles) {
+			enabled[style[0]] = layer.inverse ? null : style.slice(1);
+		}
+	}
 
-	for (const [index, character] of characters.entries()) {
-		let leftEscape = false;
+	let current = chalk;
+	for (const [styleName, styles] of Object.entries(enabled)) {
+		if (!Array.isArray(styles)) {
+			continue;
+		}
 
-		if (ESCAPES.includes(character)) {
-			const code = /\d[^m]*/.exec(string.slice(index, index + 18));
-			ansiCode = code && code.length > 0 ? code[0] : undefined;
+		if (!(styleName in current)) {
+			throw new Error(`Unknown Chalk style: ${styleName}`);
+		}
 
-			if (visible < stringEnd) {
-				isInsideEscape = true;
+		current = styles.length > 0 ? current[styleName](...styles) : current[styleName];
+	}
 
-				if (ansiCode !== undefined) {
-					ansiCodes.push(ansiCode);
-				}
+	return current;
+}
+
+var templates = (chalk, temporary) => {
+	const styles = [];
+	const chunks = [];
+	let chunk = [];
+
+	// eslint-disable-next-line max-params
+	temporary.replace(TEMPLATE_REGEX, (m, escapeCharacter, inverse, style, close, character) => {
+		if (escapeCharacter) {
+			chunk.push(unescape(escapeCharacter));
+		} else if (style) {
+			const string = chunk.join('');
+			chunk = [];
+			chunks.push(styles.length === 0 ? string : buildStyle(chalk, styles)(string));
+			styles.push({inverse, styles: parseStyle(style)});
+		} else if (close) {
+			if (styles.length === 0) {
+				throw new Error('Found extraneous } in Chalk template literal');
 			}
-		} else if (isInsideEscape && character === 'm') {
-			isInsideEscape = false;
-			leftEscape = true;
-		}
 
-		if (!isInsideEscape && !leftEscape) {
-			visible++;
+			chunks.push(buildStyle(chalk, styles)(chunk.join('')));
+			chunk = [];
+			styles.pop();
+		} else {
+			chunk.push(character);
 		}
+	});
 
-		if (!astralRegex({exact: true}).test(character) && isFullwidthCodePoint(character.codePointAt())) {
-			visible++;
+	chunks.push(chunk.join(''));
 
-			if (typeof end !== 'number') {
-				stringEnd++;
-			}
-		}
-
-		if (visible > begin && visible <= stringEnd) {
-			output += character;
-		} else if (visible === begin && !isInsideEscape && ansiCode !== undefined) {
-			output = checkAnsi(ansiCodes);
-		} else if (visible >= stringEnd) {
-			output += checkAnsi(ansiCodes, true, ansiCode);
-			break;
-		}
+	if (styles.length > 0) {
+		const errMessage = `Chalk template literal is missing ${styles.length} closing bracket${styles.length === 1 ? '' : 's'} (\`}\`)`;
+		throw new Error(errMessage);
 	}
 
-	return output;
-};
-
-var getBorderCharacters$1 = {};
-
-/* eslint-disable sort-keys-fix/sort-keys-fix */
-Object.defineProperty(getBorderCharacters$1, "__esModule", { value: true });
-getBorderCharacters$1.getBorderCharacters = void 0;
-const getBorderCharacters = (name) => {
-    if (name === 'honeywell') {
-        return {
-            topBody: '═',
-            topJoin: '╤',
-            topLeft: '╔',
-            topRight: '╗',
-            bottomBody: '═',
-            bottomJoin: '╧',
-            bottomLeft: '╚',
-            bottomRight: '╝',
-            bodyLeft: '║',
-            bodyRight: '║',
-            bodyJoin: '│',
-            headerJoin: '┬',
-            joinBody: '─',
-            joinLeft: '╟',
-            joinRight: '╢',
-            joinJoin: '┼',
-            joinMiddleDown: '┬',
-            joinMiddleUp: '┴',
-            joinMiddleLeft: '┤',
-            joinMiddleRight: '├',
-        };
-    }
-    if (name === 'norc') {
-        return {
-            topBody: '─',
-            topJoin: '┬',
-            topLeft: '┌',
-            topRight: '┐',
-            bottomBody: '─',
-            bottomJoin: '┴',
-            bottomLeft: '└',
-            bottomRight: '┘',
-            bodyLeft: '│',
-            bodyRight: '│',
-            bodyJoin: '│',
-            headerJoin: '┬',
-            joinBody: '─',
-            joinLeft: '├',
-            joinRight: '┤',
-            joinJoin: '┼',
-            joinMiddleDown: '┬',
-            joinMiddleUp: '┴',
-            joinMiddleLeft: '┤',
-            joinMiddleRight: '├',
-        };
-    }
-    if (name === 'ramac') {
-        return {
-            topBody: '-',
-            topJoin: '+',
-            topLeft: '+',
-            topRight: '+',
-            bottomBody: '-',
-            bottomJoin: '+',
-            bottomLeft: '+',
-            bottomRight: '+',
-            bodyLeft: '|',
-            bodyRight: '|',
-            bodyJoin: '|',
-            headerJoin: '+',
-            joinBody: '-',
-            joinLeft: '|',
-            joinRight: '|',
-            joinJoin: '|',
-            joinMiddleDown: '+',
-            joinMiddleUp: '+',
-            joinMiddleLeft: '+',
-            joinMiddleRight: '+',
-        };
-    }
-    if (name === 'void') {
-        return {
-            topBody: '',
-            topJoin: '',
-            topLeft: '',
-            topRight: '',
-            bottomBody: '',
-            bottomJoin: '',
-            bottomLeft: '',
-            bottomRight: '',
-            bodyLeft: '',
-            bodyRight: '',
-            bodyJoin: '',
-            headerJoin: '',
-            joinBody: '',
-            joinLeft: '',
-            joinRight: '',
-            joinJoin: '',
-            joinMiddleDown: '',
-            joinMiddleUp: '',
-            joinMiddleLeft: '',
-            joinMiddleRight: '',
-        };
-    }
-    throw new Error('Unknown border template "' + name + '".');
-};
-getBorderCharacters$1.getBorderCharacters = getBorderCharacters;
-
-(function (exports) {
-var __importDefault = (commonjsGlobal$1 && commonjsGlobal$1.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.isCellInRange = exports.areCellEqual = exports.calculateRangeCoordinate = exports.findOriginalRowIndex = exports.flatten = exports.extractTruncates = exports.sumArray = exports.sequence = exports.distributeUnevenly = exports.countSpaceSequence = exports.groupBySizes = exports.makeBorderConfig = exports.splitAnsi = exports.normalizeString = void 0;
-const slice_ansi_1 = __importDefault(sliceAnsi);
-const string_width_1 = __importDefault(stringWidth$1.exports);
-const strip_ansi_1 = __importDefault(stripAnsi$1);
-const getBorderCharacters_1 = getBorderCharacters$1;
-/**
- * Converts Windows-style newline to Unix-style
- *
- * @internal
- */
-const normalizeString = (input) => {
-    return input.replace(/\r\n/g, '\n');
-};
-exports.normalizeString = normalizeString;
-/**
- * Splits ansi string by newlines
- *
- * @internal
- */
-const splitAnsi = (input) => {
-    const lengths = (0, strip_ansi_1.default)(input).split('\n').map(string_width_1.default);
-    const result = [];
-    let startIndex = 0;
-    lengths.forEach((length) => {
-        result.push(length === 0 ? '' : (0, slice_ansi_1.default)(input, startIndex, startIndex + length));
-        // Plus 1 for the newline character itself
-        startIndex += length + 1;
-    });
-    return result;
-};
-exports.splitAnsi = splitAnsi;
-/**
- * Merges user provided border characters with the default border ("honeywell") characters.
- *
- * @internal
- */
-const makeBorderConfig = (border) => {
-    return {
-        ...(0, getBorderCharacters_1.getBorderCharacters)('honeywell'),
-        ...border,
-    };
-};
-exports.makeBorderConfig = makeBorderConfig;
-/**
- * Groups the array into sub-arrays by sizes.
- *
- * @internal
- * @example
- * groupBySizes(['a', 'b', 'c', 'd', 'e'], [2, 1, 2]) = [ ['a', 'b'], ['c'], ['d', 'e'] ]
- */
-const groupBySizes = (array, sizes) => {
-    let startIndex = 0;
-    return sizes.map((size) => {
-        const group = array.slice(startIndex, startIndex + size);
-        startIndex += size;
-        return group;
-    });
-};
-exports.groupBySizes = groupBySizes;
-/**
- * Counts the number of continuous spaces in a string
- *
- * @internal
- * @example
- * countGroupSpaces('a  bc  de f') = 3
- */
-const countSpaceSequence = (input) => {
-    var _a, _b;
-    return (_b = (_a = input.match(/\s+/g)) === null || _a === void 0 ? void 0 : _a.length) !== null && _b !== void 0 ? _b : 0;
-};
-exports.countSpaceSequence = countSpaceSequence;
-/**
- * Creates the non-increasing number array given sum and length
- * whose the difference between maximum and minimum is not greater than 1
- *
- * @internal
- * @example
- * distributeUnevenly(6, 3) = [2, 2, 2]
- * distributeUnevenly(8, 3) = [3, 3, 2]
- */
-const distributeUnevenly = (sum, length) => {
-    const result = Array.from({ length }).fill(Math.floor(sum / length));
-    return result.map((element, index) => {
-        return element + (index < sum % length ? 1 : 0);
-    });
-};
-exports.distributeUnevenly = distributeUnevenly;
-const sequence = (start, end) => {
-    return Array.from({ length: end - start + 1 }, (_, index) => {
-        return index + start;
-    });
-};
-exports.sequence = sequence;
-const sumArray = (array) => {
-    return array.reduce((accumulator, element) => {
-        return accumulator + element;
-    }, 0);
-};
-exports.sumArray = sumArray;
-const extractTruncates = (config) => {
-    return config.columns.map(({ truncate }) => {
-        return truncate;
-    });
-};
-exports.extractTruncates = extractTruncates;
-const flatten = (array) => {
-    return [].concat(...array);
-};
-exports.flatten = flatten;
-const findOriginalRowIndex = (mappedRowHeights, mappedRowIndex) => {
-    const rowIndexMapping = (0, exports.flatten)(mappedRowHeights.map((height, index) => {
-        return Array.from({ length: height }, () => {
-            return index;
-        });
-    }));
-    return rowIndexMapping[mappedRowIndex];
-};
-exports.findOriginalRowIndex = findOriginalRowIndex;
-const calculateRangeCoordinate = (spanningCellConfig) => {
-    const { row, col, colSpan = 1, rowSpan = 1 } = spanningCellConfig;
-    return { bottomRight: { col: col + colSpan - 1,
-            row: row + rowSpan - 1 },
-        topLeft: { col,
-            row } };
-};
-exports.calculateRangeCoordinate = calculateRangeCoordinate;
-const areCellEqual = (cell1, cell2) => {
-    return cell1.row === cell2.row && cell1.col === cell2.col;
-};
-exports.areCellEqual = areCellEqual;
-const isCellInRange = (cell, { topLeft, bottomRight }) => {
-    return (topLeft.row <= cell.row &&
-        cell.row <= bottomRight.row &&
-        topLeft.col <= cell.col &&
-        cell.col <= bottomRight.col);
-};
-exports.isCellInRange = isCellInRange;
-
-}(utils));
-
-var __importDefault$3 = (commonjsGlobal$1 && commonjsGlobal$1.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(alignString$1, "__esModule", { value: true });
-alignString$1.alignString = void 0;
-const string_width_1$1 = __importDefault$3(stringWidth$1.exports);
-const utils_1$e = utils;
-const alignLeft = (subject, width) => {
-    return subject + ' '.repeat(width);
-};
-const alignRight = (subject, width) => {
-    return ' '.repeat(width) + subject;
-};
-const alignCenter = (subject, width) => {
-    return ' '.repeat(Math.floor(width / 2)) + subject + ' '.repeat(Math.ceil(width / 2));
-};
-const alignJustify = (subject, width) => {
-    const spaceSequenceCount = (0, utils_1$e.countSpaceSequence)(subject);
-    if (spaceSequenceCount === 0) {
-        return alignLeft(subject, width);
-    }
-    const addingSpaces = (0, utils_1$e.distributeUnevenly)(width, spaceSequenceCount);
-    if (Math.max(...addingSpaces) > 3) {
-        return alignLeft(subject, width);
-    }
-    let spaceSequenceIndex = 0;
-    return subject.replace(/\s+/g, (groupSpace) => {
-        return groupSpace + ' '.repeat(addingSpaces[spaceSequenceIndex++]);
-    });
-};
-/**
- * Pads a string to the left and/or right to position the subject
- * text in a desired alignment within a container.
- */
-const alignString = (subject, containerWidth, alignment) => {
-    const subjectWidth = (0, string_width_1$1.default)(subject);
-    if (subjectWidth === containerWidth) {
-        return subject;
-    }
-    if (subjectWidth > containerWidth) {
-        throw new Error('Subject parameter value width cannot be greater than the container width.');
-    }
-    if (subjectWidth === 0) {
-        return ' '.repeat(containerWidth);
-    }
-    const availableWidth = containerWidth - subjectWidth;
-    if (alignment === 'left') {
-        return alignLeft(subject, availableWidth);
-    }
-    if (alignment === 'right') {
-        return alignRight(subject, availableWidth);
-    }
-    if (alignment === 'justify') {
-        return alignJustify(subject, availableWidth);
-    }
-    return alignCenter(subject, availableWidth);
-};
-alignString$1.alignString = alignString;
-
-Object.defineProperty(alignTableData$1, "__esModule", { value: true });
-alignTableData$1.alignTableData = void 0;
-const alignString_1$1 = alignString$1;
-const alignTableData = (rows, config) => {
-    return rows.map((row, rowIndex) => {
-        return row.map((cell, cellIndex) => {
-            var _a;
-            const { width, alignment } = config.columns[cellIndex];
-            const containingRange = (_a = config.spanningCellManager) === null || _a === void 0 ? void 0 : _a.getContainingRange({ col: cellIndex,
-                row: rowIndex }, { mapped: true });
-            if (containingRange) {
-                return cell;
-            }
-            return (0, alignString_1$1.alignString)(cell, width, alignment);
-        });
-    });
-};
-alignTableData$1.alignTableData = alignTableData;
-
-var calculateRowHeights$1 = {};
-
-var calculateCellHeight$1 = {};
-
-var wrapCell$1 = {};
-
-var wrapString$1 = {};
-
-var __importDefault$2 = (commonjsGlobal$1 && commonjsGlobal$1.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(wrapString$1, "__esModule", { value: true });
-wrapString$1.wrapString = void 0;
-const slice_ansi_1$1 = __importDefault$2(sliceAnsi);
-const string_width_1 = __importDefault$2(stringWidth$1.exports);
-/**
- * Creates an array of strings split into groups the length of size.
- * This function works with strings that contain ASCII characters.
- *
- * wrapText is different from would-be "chunk" implementation
- * in that whitespace characters that occur on a chunk size limit are trimmed.
- *
- */
-const wrapString = (subject, size) => {
-    let subjectSlice = subject;
-    const chunks = [];
-    do {
-        chunks.push((0, slice_ansi_1$1.default)(subjectSlice, 0, size));
-        subjectSlice = (0, slice_ansi_1$1.default)(subjectSlice, size).trim();
-    } while ((0, string_width_1.default)(subjectSlice));
-    return chunks;
-};
-wrapString$1.wrapString = wrapString;
-
-var wrapWord$1 = {};
-
-var __importDefault$1 = (commonjsGlobal$1 && commonjsGlobal$1.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(wrapWord$1, "__esModule", { value: true });
-wrapWord$1.wrapWord = void 0;
-const slice_ansi_1 = __importDefault$1(sliceAnsi);
-const strip_ansi_1 = __importDefault$1(stripAnsi$1);
-const calculateStringLengths = (input, size) => {
-    let subject = (0, strip_ansi_1.default)(input);
-    const chunks = [];
-    // https://regex101.com/r/gY5kZ1/1
-    const re = new RegExp('(^.{1,' + String(Math.max(size, 1)) + '}(\\s+|$))|(^.{1,' + String(Math.max(size - 1, 1)) + '}(\\\\|/|_|\\.|,|;|-))');
-    do {
-        let chunk;
-        const match = re.exec(subject);
-        if (match) {
-            chunk = match[0];
-            subject = subject.slice(chunk.length);
-            const trimmedLength = chunk.trim().length;
-            const offset = chunk.length - trimmedLength;
-            chunks.push([trimmedLength, offset]);
-        }
-        else {
-            chunk = subject.slice(0, size);
-            subject = subject.slice(size);
-            chunks.push([chunk.length, 0]);
-        }
-    } while (subject.length);
-    return chunks;
-};
-const wrapWord = (input, size) => {
-    const result = [];
-    let startIndex = 0;
-    calculateStringLengths(input, size).forEach(([length, offset]) => {
-        result.push((0, slice_ansi_1.default)(input, startIndex, startIndex + length));
-        startIndex += length + offset;
-    });
-    return result;
-};
-wrapWord$1.wrapWord = wrapWord;
-
-Object.defineProperty(wrapCell$1, "__esModule", { value: true });
-wrapCell$1.wrapCell = void 0;
-const utils_1$d = utils;
-const wrapString_1 = wrapString$1;
-const wrapWord_1 = wrapWord$1;
-/**
- * Wrap a single cell value into a list of lines
- *
- * Always wraps on newlines, for the remainder uses either word or string wrapping
- * depending on user configuration.
- *
- */
-const wrapCell = (cellValue, cellWidth, useWrapWord) => {
-    // First split on literal newlines
-    const cellLines = (0, utils_1$d.splitAnsi)(cellValue);
-    // Then iterate over the list and word-wrap every remaining line if necessary.
-    for (let lineNr = 0; lineNr < cellLines.length;) {
-        let lineChunks;
-        if (useWrapWord) {
-            lineChunks = (0, wrapWord_1.wrapWord)(cellLines[lineNr], cellWidth);
-        }
-        else {
-            lineChunks = (0, wrapString_1.wrapString)(cellLines[lineNr], cellWidth);
-        }
-        // Replace our original array element with whatever the wrapping returned
-        cellLines.splice(lineNr, 1, ...lineChunks);
-        lineNr += lineChunks.length;
-    }
-    return cellLines;
-};
-wrapCell$1.wrapCell = wrapCell;
-
-Object.defineProperty(calculateCellHeight$1, "__esModule", { value: true });
-calculateCellHeight$1.calculateCellHeight = void 0;
-const wrapCell_1$1 = wrapCell$1;
-/**
- * Calculates height of cell content in regard to its width and word wrapping.
- */
-const calculateCellHeight = (value, columnWidth, useWrapWord = false) => {
-    return (0, wrapCell_1$1.wrapCell)(value, columnWidth, useWrapWord).length;
-};
-calculateCellHeight$1.calculateCellHeight = calculateCellHeight;
-
-Object.defineProperty(calculateRowHeights$1, "__esModule", { value: true });
-calculateRowHeights$1.calculateRowHeights = void 0;
-const calculateCellHeight_1 = calculateCellHeight$1;
-const utils_1$c = utils;
-/**
- * Produces an array of values that describe the largest value length (height) in every row.
- */
-const calculateRowHeights = (rows, config) => {
-    const rowHeights = [];
-    for (const [rowIndex, row] of rows.entries()) {
-        let rowHeight = 1;
-        row.forEach((cell, cellIndex) => {
-            var _a;
-            const containingRange = (_a = config.spanningCellManager) === null || _a === void 0 ? void 0 : _a.getContainingRange({ col: cellIndex,
-                row: rowIndex });
-            if (!containingRange) {
-                const cellHeight = (0, calculateCellHeight_1.calculateCellHeight)(cell, config.columns[cellIndex].width, config.columns[cellIndex].wrapWord);
-                rowHeight = Math.max(rowHeight, cellHeight);
-                return;
-            }
-            const { topLeft, bottomRight, height } = containingRange;
-            // bottom-most cell of a range needs to contain all remain lines of spanning cells
-            if (rowIndex === bottomRight.row) {
-                const totalOccupiedSpanningCellHeight = (0, utils_1$c.sumArray)(rowHeights.slice(topLeft.row));
-                const totalHorizontalBorderHeight = bottomRight.row - topLeft.row;
-                const totalHiddenHorizontalBorderHeight = (0, utils_1$c.sequence)(topLeft.row + 1, bottomRight.row).filter((horizontalBorderIndex) => {
-                    var _a;
-                    /* istanbul ignore next */
-                    return !((_a = config.drawHorizontalLine) === null || _a === void 0 ? void 0 : _a.call(config, horizontalBorderIndex, rows.length));
-                }).length;
-                const cellHeight = height - totalOccupiedSpanningCellHeight - totalHorizontalBorderHeight + totalHiddenHorizontalBorderHeight;
-                rowHeight = Math.max(rowHeight, cellHeight);
-            }
-            // otherwise, just depend on other sibling cell heights in the row
-        });
-        rowHeights.push(rowHeight);
-    }
-    return rowHeights;
-};
-calculateRowHeights$1.calculateRowHeights = calculateRowHeights;
-
-var drawBorder = {};
-
-var drawContent$1 = {};
-
-Object.defineProperty(drawContent$1, "__esModule", { value: true });
-drawContent$1.drawContent = void 0;
-const drawContent = (parameters) => {
-    const { contents, separatorGetter, drawSeparator, spanningCellManager, rowIndex, elementType } = parameters;
-    const contentSize = contents.length;
-    const result = [];
-    if (drawSeparator(0, contentSize)) {
-        result.push(separatorGetter(0, contentSize));
-    }
-    contents.forEach((content, contentIndex) => {
-        if (!elementType || elementType === 'border' || elementType === 'row') {
-            result.push(content);
-        }
-        if (elementType === 'cell' && rowIndex === undefined) {
-            result.push(content);
-        }
-        if (elementType === 'cell' && rowIndex !== undefined) {
-            /* istanbul ignore next */
-            const containingRange = spanningCellManager === null || spanningCellManager === void 0 ? void 0 : spanningCellManager.getContainingRange({ col: contentIndex,
-                row: rowIndex });
-            // when drawing content row, just add a cell when it is a normal cell
-            // or belongs to first column of spanning cell
-            if (!containingRange || contentIndex === containingRange.topLeft.col) {
-                result.push(content);
-            }
-        }
-        // Only append the middle separator if the content is not the last
-        if (contentIndex + 1 < contentSize && drawSeparator(contentIndex + 1, contentSize)) {
-            const separator = separatorGetter(contentIndex + 1, contentSize);
-            if (elementType === 'cell' && rowIndex !== undefined) {
-                const currentCell = { col: contentIndex + 1,
-                    row: rowIndex };
-                /* istanbul ignore next */
-                const containingRange = spanningCellManager === null || spanningCellManager === void 0 ? void 0 : spanningCellManager.getContainingRange(currentCell);
-                if (!containingRange || containingRange.topLeft.col === currentCell.col) {
-                    result.push(separator);
-                }
-            }
-            else {
-                result.push(separator);
-            }
-        }
-    });
-    if (drawSeparator(contentSize, contentSize)) {
-        result.push(separatorGetter(contentSize, contentSize));
-    }
-    return result.join('');
-};
-drawContent$1.drawContent = drawContent;
-
-(function (exports) {
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.createTableBorderGetter = exports.drawBorderBottom = exports.drawBorderJoin = exports.drawBorderTop = exports.drawBorder = exports.createSeparatorGetter = exports.drawBorderSegments = void 0;
-const drawContent_1 = drawContent$1;
-const drawBorderSegments = (columnWidths, parameters) => {
-    const { separator, horizontalBorderIndex, spanningCellManager } = parameters;
-    return columnWidths.map((columnWidth, columnIndex) => {
-        const normalSegment = separator.body.repeat(columnWidth);
-        if (horizontalBorderIndex === undefined) {
-            return normalSegment;
-        }
-        /* istanbul ignore next */
-        const range = spanningCellManager === null || spanningCellManager === void 0 ? void 0 : spanningCellManager.getContainingRange({ col: columnIndex,
-            row: horizontalBorderIndex });
-        if (!range) {
-            return normalSegment;
-        }
-        const { topLeft } = range;
-        // draw border segments as usual for top border of spanning cell
-        if (horizontalBorderIndex === topLeft.row) {
-            return normalSegment;
-        }
-        // if for first column/row of spanning cell, just skip
-        if (columnIndex !== topLeft.col) {
-            return '';
-        }
-        return range.extractBorderContent(horizontalBorderIndex);
-    });
-};
-exports.drawBorderSegments = drawBorderSegments;
-const createSeparatorGetter = (dependencies) => {
-    const { separator, spanningCellManager, horizontalBorderIndex, rowCount } = dependencies;
-    // eslint-disable-next-line complexity
-    return (verticalBorderIndex, columnCount) => {
-        const inSameRange = spanningCellManager === null || spanningCellManager === void 0 ? void 0 : spanningCellManager.inSameRange;
-        if (horizontalBorderIndex !== undefined && inSameRange) {
-            const topCell = { col: verticalBorderIndex,
-                row: horizontalBorderIndex - 1 };
-            const leftCell = { col: verticalBorderIndex - 1,
-                row: horizontalBorderIndex };
-            const oppositeCell = { col: verticalBorderIndex - 1,
-                row: horizontalBorderIndex - 1 };
-            const currentCell = { col: verticalBorderIndex,
-                row: horizontalBorderIndex };
-            const pairs = [
-                [oppositeCell, topCell],
-                [topCell, currentCell],
-                [currentCell, leftCell],
-                [leftCell, oppositeCell],
-            ];
-            // left side of horizontal border
-            if (verticalBorderIndex === 0) {
-                if (inSameRange(currentCell, topCell) && separator.bodyJoinOuter) {
-                    return separator.bodyJoinOuter;
-                }
-                return separator.left;
-            }
-            // right side of horizontal border
-            if (verticalBorderIndex === columnCount) {
-                if (inSameRange(oppositeCell, leftCell) && separator.bodyJoinOuter) {
-                    return separator.bodyJoinOuter;
-                }
-                return separator.right;
-            }
-            // top horizontal border
-            if (horizontalBorderIndex === 0) {
-                if (inSameRange(currentCell, leftCell)) {
-                    return separator.body;
-                }
-                return separator.join;
-            }
-            // bottom horizontal border
-            if (horizontalBorderIndex === rowCount) {
-                if (inSameRange(topCell, oppositeCell)) {
-                    return separator.body;
-                }
-                return separator.join;
-            }
-            const sameRangeCount = pairs.map((pair) => {
-                return inSameRange(...pair);
-            }).filter(Boolean).length;
-            // four cells are belongs to different spanning cells
-            if (sameRangeCount === 0) {
-                return separator.join;
-            }
-            // belong to one spanning cell
-            if (sameRangeCount === 4) {
-                return '';
-            }
-            // belongs to two spanning cell
-            if (sameRangeCount === 2) {
-                if (inSameRange(...pairs[1]) && inSameRange(...pairs[3]) && separator.bodyJoinInner) {
-                    return separator.bodyJoinInner;
-                }
-                return separator.body;
-            }
-            /* istanbul ignore next */
-            if (sameRangeCount === 1) {
-                if (!separator.joinRight || !separator.joinLeft || !separator.joinUp || !separator.joinDown) {
-                    throw new Error(`Can not get border separator for position [${horizontalBorderIndex}, ${verticalBorderIndex}]`);
-                }
-                if (inSameRange(...pairs[0])) {
-                    return separator.joinDown;
-                }
-                if (inSameRange(...pairs[1])) {
-                    return separator.joinLeft;
-                }
-                if (inSameRange(...pairs[2])) {
-                    return separator.joinUp;
-                }
-                return separator.joinRight;
-            }
-            /* istanbul ignore next */
-            throw new Error('Invalid case');
-        }
-        if (verticalBorderIndex === 0) {
-            return separator.left;
-        }
-        if (verticalBorderIndex === columnCount) {
-            return separator.right;
-        }
-        return separator.join;
-    };
-};
-exports.createSeparatorGetter = createSeparatorGetter;
-const drawBorder = (columnWidths, parameters) => {
-    const borderSegments = (0, exports.drawBorderSegments)(columnWidths, parameters);
-    const { drawVerticalLine, horizontalBorderIndex, spanningCellManager } = parameters;
-    return (0, drawContent_1.drawContent)({
-        contents: borderSegments,
-        drawSeparator: drawVerticalLine,
-        elementType: 'border',
-        rowIndex: horizontalBorderIndex,
-        separatorGetter: (0, exports.createSeparatorGetter)(parameters),
-        spanningCellManager,
-    }) + '\n';
-};
-exports.drawBorder = drawBorder;
-const drawBorderTop = (columnWidths, parameters) => {
-    const { border } = parameters;
-    const result = (0, exports.drawBorder)(columnWidths, {
-        ...parameters,
-        separator: {
-            body: border.topBody,
-            join: border.topJoin,
-            left: border.topLeft,
-            right: border.topRight,
-        },
-    });
-    if (result === '\n') {
-        return '';
-    }
-    return result;
-};
-exports.drawBorderTop = drawBorderTop;
-const drawBorderJoin = (columnWidths, parameters) => {
-    const { border } = parameters;
-    return (0, exports.drawBorder)(columnWidths, {
-        ...parameters,
-        separator: {
-            body: border.joinBody,
-            bodyJoinInner: border.bodyJoin,
-            bodyJoinOuter: border.bodyLeft,
-            join: border.joinJoin,
-            joinDown: border.joinMiddleDown,
-            joinLeft: border.joinMiddleLeft,
-            joinRight: border.joinMiddleRight,
-            joinUp: border.joinMiddleUp,
-            left: border.joinLeft,
-            right: border.joinRight,
-        },
-    });
-};
-exports.drawBorderJoin = drawBorderJoin;
-const drawBorderBottom = (columnWidths, parameters) => {
-    const { border } = parameters;
-    return (0, exports.drawBorder)(columnWidths, {
-        ...parameters,
-        separator: {
-            body: border.bottomBody,
-            join: border.bottomJoin,
-            left: border.bottomLeft,
-            right: border.bottomRight,
-        },
-    });
-};
-exports.drawBorderBottom = drawBorderBottom;
-const createTableBorderGetter = (columnWidths, parameters) => {
-    return (index, size) => {
-        const drawBorderParameters = { ...parameters,
-            horizontalBorderIndex: index };
-        if (index === 0) {
-            return (0, exports.drawBorderTop)(columnWidths, drawBorderParameters);
-        }
-        else if (index === size) {
-            return (0, exports.drawBorderBottom)(columnWidths, drawBorderParameters);
-        }
-        return (0, exports.drawBorderJoin)(columnWidths, drawBorderParameters);
-    };
-};
-exports.createTableBorderGetter = createTableBorderGetter;
-
-}(drawBorder));
-
-var drawRow$1 = {};
-
-Object.defineProperty(drawRow$1, "__esModule", { value: true });
-drawRow$1.drawRow = void 0;
-const drawContent_1$1 = drawContent$1;
-const drawRow = (row, config) => {
-    const { border, drawVerticalLine, rowIndex, spanningCellManager } = config;
-    return (0, drawContent_1$1.drawContent)({
-        contents: row,
-        drawSeparator: drawVerticalLine,
-        elementType: 'cell',
-        rowIndex,
-        separatorGetter: (index, columnCount) => {
-            if (index === 0) {
-                return border.bodyLeft;
-            }
-            if (index === columnCount) {
-                return border.bodyRight;
-            }
-            return border.bodyJoin;
-        },
-        spanningCellManager,
-    }) + '\n';
-};
-drawRow$1.drawRow = drawRow;
-
-var makeStreamConfig$1 = {};
-
-var validateConfig$1 = {};
-
-var validators = {};
-
-var equal$1 = {};
-
-// do not edit .js files directly - edit src/index.jst
-
-
-
-var fastDeepEqual = function equal(a, b) {
-  if (a === b) return true;
-
-  if (a && b && typeof a == 'object' && typeof b == 'object') {
-    if (a.constructor !== b.constructor) return false;
-
-    var length, i, keys;
-    if (Array.isArray(a)) {
-      length = a.length;
-      if (length != b.length) return false;
-      for (i = length; i-- !== 0;)
-        if (!equal(a[i], b[i])) return false;
-      return true;
-    }
-
-
-
-    if (a.constructor === RegExp) return a.source === b.source && a.flags === b.flags;
-    if (a.valueOf !== Object.prototype.valueOf) return a.valueOf() === b.valueOf();
-    if (a.toString !== Object.prototype.toString) return a.toString() === b.toString();
-
-    keys = Object.keys(a);
-    length = keys.length;
-    if (length !== Object.keys(b).length) return false;
-
-    for (i = length; i-- !== 0;)
-      if (!Object.prototype.hasOwnProperty.call(b, keys[i])) return false;
-
-    for (i = length; i-- !== 0;) {
-      var key = keys[i];
-
-      if (!equal(a[key], b[key])) return false;
-    }
-
-    return true;
-  }
-
-  // true if both NaN, false otherwise
-  return a!==a && b!==b;
-};
-
-Object.defineProperty(equal$1, "__esModule", { value: true });
-// https://github.com/ajv-validator/ajv/issues/889
-const equal = fastDeepEqual;
-equal.code = 'require("ajv/dist/runtime/equal").default';
-equal$1.default = equal;
-
-(function (exports) {
-exports["config.json"] = validate43;
-const schema13 = {
-    "$id": "config.json",
-    "$schema": "http://json-schema.org/draft-07/schema#",
-    "type": "object",
-    "properties": {
-        "border": {
-            "$ref": "shared.json#/definitions/borders"
-        },
-        "header": {
-            "type": "object",
-            "properties": {
-                "content": {
-                    "type": "string"
-                },
-                "alignment": {
-                    "$ref": "shared.json#/definitions/alignment"
-                },
-                "wrapWord": {
-                    "type": "boolean"
-                },
-                "truncate": {
-                    "type": "integer"
-                },
-                "paddingLeft": {
-                    "type": "integer"
-                },
-                "paddingRight": {
-                    "type": "integer"
-                }
-            },
-            "required": ["content"],
-            "additionalProperties": false
-        },
-        "columns": {
-            "$ref": "shared.json#/definitions/columns"
-        },
-        "columnDefault": {
-            "$ref": "shared.json#/definitions/column"
-        },
-        "drawVerticalLine": {
-            "typeof": "function"
-        },
-        "drawHorizontalLine": {
-            "typeof": "function"
-        },
-        "singleLine": {
-            "typeof": "boolean"
-        },
-        "spanningCells": {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "properties": {
-                    "col": {
-                        "type": "integer",
-                        "minimum": 0
-                    },
-                    "row": {
-                        "type": "integer",
-                        "minimum": 0
-                    },
-                    "colSpan": {
-                        "type": "integer",
-                        "minimum": 1
-                    },
-                    "rowSpan": {
-                        "type": "integer",
-                        "minimum": 1
-                    },
-                    "alignment": {
-                        "$ref": "shared.json#/definitions/alignment"
-                    },
-                    "verticalAlignment": {
-                        "$ref": "shared.json#/definitions/verticalAlignment"
-                    },
-                    "wrapWord": {
-                        "type": "boolean"
-                    },
-                    "truncate": {
-                        "type": "integer"
-                    },
-                    "paddingLeft": {
-                        "type": "integer"
-                    },
-                    "paddingRight": {
-                        "type": "integer"
-                    }
-                },
-                "required": ["row", "col"],
-                "additionalProperties": false
-            }
-        }
-    },
-    "additionalProperties": false
-};
-const schema15 = {
-    "type": "object",
-    "properties": {
-        "topBody": {
-            "$ref": "#/definitions/border"
-        },
-        "topJoin": {
-            "$ref": "#/definitions/border"
-        },
-        "topLeft": {
-            "$ref": "#/definitions/border"
-        },
-        "topRight": {
-            "$ref": "#/definitions/border"
-        },
-        "bottomBody": {
-            "$ref": "#/definitions/border"
-        },
-        "bottomJoin": {
-            "$ref": "#/definitions/border"
-        },
-        "bottomLeft": {
-            "$ref": "#/definitions/border"
-        },
-        "bottomRight": {
-            "$ref": "#/definitions/border"
-        },
-        "bodyLeft": {
-            "$ref": "#/definitions/border"
-        },
-        "bodyRight": {
-            "$ref": "#/definitions/border"
-        },
-        "bodyJoin": {
-            "$ref": "#/definitions/border"
-        },
-        "headerJoin": {
-            "$ref": "#/definitions/border"
-        },
-        "joinBody": {
-            "$ref": "#/definitions/border"
-        },
-        "joinLeft": {
-            "$ref": "#/definitions/border"
-        },
-        "joinRight": {
-            "$ref": "#/definitions/border"
-        },
-        "joinJoin": {
-            "$ref": "#/definitions/border"
-        },
-        "joinMiddleUp": {
-            "$ref": "#/definitions/border"
-        },
-        "joinMiddleDown": {
-            "$ref": "#/definitions/border"
-        },
-        "joinMiddleLeft": {
-            "$ref": "#/definitions/border"
-        },
-        "joinMiddleRight": {
-            "$ref": "#/definitions/border"
-        }
-    },
-    "additionalProperties": false
-};
-const func8 = Object.prototype.hasOwnProperty;
-function validate46(data, { instancePath = "", parentData, parentDataProperty, rootData = data } = {}) {
-    let vErrors = null;
-    let errors = 0;
-    if (typeof data !== "string") {
-        const err0 = {
-            instancePath,
-            schemaPath: "#/type",
-            keyword: "type",
-            params: {
-                type: "string"
-            },
-            message: "must be string"
-        };
-        if (vErrors === null) {
-            vErrors = [err0];
-        }
-        else {
-            vErrors.push(err0);
-        }
-        errors++;
-    }
-    validate46.errors = vErrors;
-    return errors === 0;
-}
-function validate45(data, { instancePath = "", parentData, parentDataProperty, rootData = data } = {}) {
-    let vErrors = null;
-    let errors = 0;
-    if (data && typeof data == "object" && !Array.isArray(data)) {
-        for (const key0 in data) {
-            if (!(func8.call(schema15.properties, key0))) {
-                const err0 = {
-                    instancePath,
-                    schemaPath: "#/additionalProperties",
-                    keyword: "additionalProperties",
-                    params: {
-                        additionalProperty: key0
-                    },
-                    message: "must NOT have additional properties"
-                };
-                if (vErrors === null) {
-                    vErrors = [err0];
-                }
-                else {
-                    vErrors.push(err0);
-                }
-                errors++;
-            }
-        }
-        if (data.topBody !== undefined) {
-            if (!(validate46(data.topBody, {
-                instancePath: instancePath + "/topBody",
-                parentData: data,
-                parentDataProperty: "topBody",
-                rootData
-            }))) {
-                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
-                errors = vErrors.length;
-            }
-        }
-        if (data.topJoin !== undefined) {
-            if (!(validate46(data.topJoin, {
-                instancePath: instancePath + "/topJoin",
-                parentData: data,
-                parentDataProperty: "topJoin",
-                rootData
-            }))) {
-                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
-                errors = vErrors.length;
-            }
-        }
-        if (data.topLeft !== undefined) {
-            if (!(validate46(data.topLeft, {
-                instancePath: instancePath + "/topLeft",
-                parentData: data,
-                parentDataProperty: "topLeft",
-                rootData
-            }))) {
-                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
-                errors = vErrors.length;
-            }
-        }
-        if (data.topRight !== undefined) {
-            if (!(validate46(data.topRight, {
-                instancePath: instancePath + "/topRight",
-                parentData: data,
-                parentDataProperty: "topRight",
-                rootData
-            }))) {
-                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
-                errors = vErrors.length;
-            }
-        }
-        if (data.bottomBody !== undefined) {
-            if (!(validate46(data.bottomBody, {
-                instancePath: instancePath + "/bottomBody",
-                parentData: data,
-                parentDataProperty: "bottomBody",
-                rootData
-            }))) {
-                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
-                errors = vErrors.length;
-            }
-        }
-        if (data.bottomJoin !== undefined) {
-            if (!(validate46(data.bottomJoin, {
-                instancePath: instancePath + "/bottomJoin",
-                parentData: data,
-                parentDataProperty: "bottomJoin",
-                rootData
-            }))) {
-                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
-                errors = vErrors.length;
-            }
-        }
-        if (data.bottomLeft !== undefined) {
-            if (!(validate46(data.bottomLeft, {
-                instancePath: instancePath + "/bottomLeft",
-                parentData: data,
-                parentDataProperty: "bottomLeft",
-                rootData
-            }))) {
-                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
-                errors = vErrors.length;
-            }
-        }
-        if (data.bottomRight !== undefined) {
-            if (!(validate46(data.bottomRight, {
-                instancePath: instancePath + "/bottomRight",
-                parentData: data,
-                parentDataProperty: "bottomRight",
-                rootData
-            }))) {
-                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
-                errors = vErrors.length;
-            }
-        }
-        if (data.bodyLeft !== undefined) {
-            if (!(validate46(data.bodyLeft, {
-                instancePath: instancePath + "/bodyLeft",
-                parentData: data,
-                parentDataProperty: "bodyLeft",
-                rootData
-            }))) {
-                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
-                errors = vErrors.length;
-            }
-        }
-        if (data.bodyRight !== undefined) {
-            if (!(validate46(data.bodyRight, {
-                instancePath: instancePath + "/bodyRight",
-                parentData: data,
-                parentDataProperty: "bodyRight",
-                rootData
-            }))) {
-                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
-                errors = vErrors.length;
-            }
-        }
-        if (data.bodyJoin !== undefined) {
-            if (!(validate46(data.bodyJoin, {
-                instancePath: instancePath + "/bodyJoin",
-                parentData: data,
-                parentDataProperty: "bodyJoin",
-                rootData
-            }))) {
-                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
-                errors = vErrors.length;
-            }
-        }
-        if (data.headerJoin !== undefined) {
-            if (!(validate46(data.headerJoin, {
-                instancePath: instancePath + "/headerJoin",
-                parentData: data,
-                parentDataProperty: "headerJoin",
-                rootData
-            }))) {
-                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
-                errors = vErrors.length;
-            }
-        }
-        if (data.joinBody !== undefined) {
-            if (!(validate46(data.joinBody, {
-                instancePath: instancePath + "/joinBody",
-                parentData: data,
-                parentDataProperty: "joinBody",
-                rootData
-            }))) {
-                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
-                errors = vErrors.length;
-            }
-        }
-        if (data.joinLeft !== undefined) {
-            if (!(validate46(data.joinLeft, {
-                instancePath: instancePath + "/joinLeft",
-                parentData: data,
-                parentDataProperty: "joinLeft",
-                rootData
-            }))) {
-                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
-                errors = vErrors.length;
-            }
-        }
-        if (data.joinRight !== undefined) {
-            if (!(validate46(data.joinRight, {
-                instancePath: instancePath + "/joinRight",
-                parentData: data,
-                parentDataProperty: "joinRight",
-                rootData
-            }))) {
-                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
-                errors = vErrors.length;
-            }
-        }
-        if (data.joinJoin !== undefined) {
-            if (!(validate46(data.joinJoin, {
-                instancePath: instancePath + "/joinJoin",
-                parentData: data,
-                parentDataProperty: "joinJoin",
-                rootData
-            }))) {
-                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
-                errors = vErrors.length;
-            }
-        }
-        if (data.joinMiddleUp !== undefined) {
-            if (!(validate46(data.joinMiddleUp, {
-                instancePath: instancePath + "/joinMiddleUp",
-                parentData: data,
-                parentDataProperty: "joinMiddleUp",
-                rootData
-            }))) {
-                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
-                errors = vErrors.length;
-            }
-        }
-        if (data.joinMiddleDown !== undefined) {
-            if (!(validate46(data.joinMiddleDown, {
-                instancePath: instancePath + "/joinMiddleDown",
-                parentData: data,
-                parentDataProperty: "joinMiddleDown",
-                rootData
-            }))) {
-                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
-                errors = vErrors.length;
-            }
-        }
-        if (data.joinMiddleLeft !== undefined) {
-            if (!(validate46(data.joinMiddleLeft, {
-                instancePath: instancePath + "/joinMiddleLeft",
-                parentData: data,
-                parentDataProperty: "joinMiddleLeft",
-                rootData
-            }))) {
-                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
-                errors = vErrors.length;
-            }
-        }
-        if (data.joinMiddleRight !== undefined) {
-            if (!(validate46(data.joinMiddleRight, {
-                instancePath: instancePath + "/joinMiddleRight",
-                parentData: data,
-                parentDataProperty: "joinMiddleRight",
-                rootData
-            }))) {
-                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
-                errors = vErrors.length;
-            }
-        }
-    }
-    else {
-        const err1 = {
-            instancePath,
-            schemaPath: "#/type",
-            keyword: "type",
-            params: {
-                type: "object"
-            },
-            message: "must be object"
-        };
-        if (vErrors === null) {
-            vErrors = [err1];
-        }
-        else {
-            vErrors.push(err1);
-        }
-        errors++;
-    }
-    validate45.errors = vErrors;
-    return errors === 0;
-}
-const schema17 = {
-    "type": "string",
-    "enum": ["left", "right", "center", "justify"]
-};
-equal$1.default;
-function validate68(data, { instancePath = "", parentData, parentDataProperty, rootData = data } = {}) {
-    let vErrors = null;
-    let errors = 0;
-    if (typeof data !== "string") {
-        const err0 = {
-            instancePath,
-            schemaPath: "#/type",
-            keyword: "type",
-            params: {
-                type: "string"
-            },
-            message: "must be string"
-        };
-        if (vErrors === null) {
-            vErrors = [err0];
-        }
-        else {
-            vErrors.push(err0);
-        }
-        errors++;
-    }
-    if (!((((data === "left") || (data === "right")) || (data === "center")) || (data === "justify"))) {
-        const err1 = {
-            instancePath,
-            schemaPath: "#/enum",
-            keyword: "enum",
-            params: {
-                allowedValues: schema17.enum
-            },
-            message: "must be equal to one of the allowed values"
-        };
-        if (vErrors === null) {
-            vErrors = [err1];
-        }
-        else {
-            vErrors.push(err1);
-        }
-        errors++;
-    }
-    validate68.errors = vErrors;
-    return errors === 0;
-}
-const pattern0 = new RegExp("^[0-9]+$", "u");
-function validate72(data, { instancePath = "", parentData, parentDataProperty, rootData = data } = {}) {
-    let vErrors = null;
-    let errors = 0;
-    if (typeof data !== "string") {
-        const err0 = {
-            instancePath,
-            schemaPath: "#/type",
-            keyword: "type",
-            params: {
-                type: "string"
-            },
-            message: "must be string"
-        };
-        if (vErrors === null) {
-            vErrors = [err0];
-        }
-        else {
-            vErrors.push(err0);
-        }
-        errors++;
-    }
-    if (!((((data === "left") || (data === "right")) || (data === "center")) || (data === "justify"))) {
-        const err1 = {
-            instancePath,
-            schemaPath: "#/enum",
-            keyword: "enum",
-            params: {
-                allowedValues: schema17.enum
-            },
-            message: "must be equal to one of the allowed values"
-        };
-        if (vErrors === null) {
-            vErrors = [err1];
-        }
-        else {
-            vErrors.push(err1);
-        }
-        errors++;
-    }
-    validate72.errors = vErrors;
-    return errors === 0;
-}
-const schema21 = {
-    "type": "string",
-    "enum": ["top", "middle", "bottom"]
-};
-function validate74(data, { instancePath = "", parentData, parentDataProperty, rootData = data } = {}) {
-    let vErrors = null;
-    let errors = 0;
-    if (typeof data !== "string") {
-        const err0 = {
-            instancePath,
-            schemaPath: "#/type",
-            keyword: "type",
-            params: {
-                type: "string"
-            },
-            message: "must be string"
-        };
-        if (vErrors === null) {
-            vErrors = [err0];
-        }
-        else {
-            vErrors.push(err0);
-        }
-        errors++;
-    }
-    if (!(((data === "top") || (data === "middle")) || (data === "bottom"))) {
-        const err1 = {
-            instancePath,
-            schemaPath: "#/enum",
-            keyword: "enum",
-            params: {
-                allowedValues: schema21.enum
-            },
-            message: "must be equal to one of the allowed values"
-        };
-        if (vErrors === null) {
-            vErrors = [err1];
-        }
-        else {
-            vErrors.push(err1);
-        }
-        errors++;
-    }
-    validate74.errors = vErrors;
-    return errors === 0;
-}
-function validate71(data, { instancePath = "", parentData, parentDataProperty, rootData = data } = {}) {
-    let vErrors = null;
-    let errors = 0;
-    if (data && typeof data == "object" && !Array.isArray(data)) {
-        for (const key0 in data) {
-            if (!(((((((key0 === "alignment") || (key0 === "verticalAlignment")) || (key0 === "width")) || (key0 === "wrapWord")) || (key0 === "truncate")) || (key0 === "paddingLeft")) || (key0 === "paddingRight"))) {
-                const err0 = {
-                    instancePath,
-                    schemaPath: "#/additionalProperties",
-                    keyword: "additionalProperties",
-                    params: {
-                        additionalProperty: key0
-                    },
-                    message: "must NOT have additional properties"
-                };
-                if (vErrors === null) {
-                    vErrors = [err0];
-                }
-                else {
-                    vErrors.push(err0);
-                }
-                errors++;
-            }
-        }
-        if (data.alignment !== undefined) {
-            if (!(validate72(data.alignment, {
-                instancePath: instancePath + "/alignment",
-                parentData: data,
-                parentDataProperty: "alignment",
-                rootData
-            }))) {
-                vErrors = vErrors === null ? validate72.errors : vErrors.concat(validate72.errors);
-                errors = vErrors.length;
-            }
-        }
-        if (data.verticalAlignment !== undefined) {
-            if (!(validate74(data.verticalAlignment, {
-                instancePath: instancePath + "/verticalAlignment",
-                parentData: data,
-                parentDataProperty: "verticalAlignment",
-                rootData
-            }))) {
-                vErrors = vErrors === null ? validate74.errors : vErrors.concat(validate74.errors);
-                errors = vErrors.length;
-            }
-        }
-        if (data.width !== undefined) {
-            let data2 = data.width;
-            if (!(((typeof data2 == "number") && (!(data2 % 1) && !isNaN(data2))) && (isFinite(data2)))) {
-                const err1 = {
-                    instancePath: instancePath + "/width",
-                    schemaPath: "#/properties/width/type",
-                    keyword: "type",
-                    params: {
-                        type: "integer"
-                    },
-                    message: "must be integer"
-                };
-                if (vErrors === null) {
-                    vErrors = [err1];
-                }
-                else {
-                    vErrors.push(err1);
-                }
-                errors++;
-            }
-            if ((typeof data2 == "number") && (isFinite(data2))) {
-                if (data2 < 1 || isNaN(data2)) {
-                    const err2 = {
-                        instancePath: instancePath + "/width",
-                        schemaPath: "#/properties/width/minimum",
-                        keyword: "minimum",
-                        params: {
-                            comparison: ">=",
-                            limit: 1
-                        },
-                        message: "must be >= 1"
-                    };
-                    if (vErrors === null) {
-                        vErrors = [err2];
-                    }
-                    else {
-                        vErrors.push(err2);
-                    }
-                    errors++;
-                }
-            }
-        }
-        if (data.wrapWord !== undefined) {
-            if (typeof data.wrapWord !== "boolean") {
-                const err3 = {
-                    instancePath: instancePath + "/wrapWord",
-                    schemaPath: "#/properties/wrapWord/type",
-                    keyword: "type",
-                    params: {
-                        type: "boolean"
-                    },
-                    message: "must be boolean"
-                };
-                if (vErrors === null) {
-                    vErrors = [err3];
-                }
-                else {
-                    vErrors.push(err3);
-                }
-                errors++;
-            }
-        }
-        if (data.truncate !== undefined) {
-            let data4 = data.truncate;
-            if (!(((typeof data4 == "number") && (!(data4 % 1) && !isNaN(data4))) && (isFinite(data4)))) {
-                const err4 = {
-                    instancePath: instancePath + "/truncate",
-                    schemaPath: "#/properties/truncate/type",
-                    keyword: "type",
-                    params: {
-                        type: "integer"
-                    },
-                    message: "must be integer"
-                };
-                if (vErrors === null) {
-                    vErrors = [err4];
-                }
-                else {
-                    vErrors.push(err4);
-                }
-                errors++;
-            }
-        }
-        if (data.paddingLeft !== undefined) {
-            let data5 = data.paddingLeft;
-            if (!(((typeof data5 == "number") && (!(data5 % 1) && !isNaN(data5))) && (isFinite(data5)))) {
-                const err5 = {
-                    instancePath: instancePath + "/paddingLeft",
-                    schemaPath: "#/properties/paddingLeft/type",
-                    keyword: "type",
-                    params: {
-                        type: "integer"
-                    },
-                    message: "must be integer"
-                };
-                if (vErrors === null) {
-                    vErrors = [err5];
-                }
-                else {
-                    vErrors.push(err5);
-                }
-                errors++;
-            }
-        }
-        if (data.paddingRight !== undefined) {
-            let data6 = data.paddingRight;
-            if (!(((typeof data6 == "number") && (!(data6 % 1) && !isNaN(data6))) && (isFinite(data6)))) {
-                const err6 = {
-                    instancePath: instancePath + "/paddingRight",
-                    schemaPath: "#/properties/paddingRight/type",
-                    keyword: "type",
-                    params: {
-                        type: "integer"
-                    },
-                    message: "must be integer"
-                };
-                if (vErrors === null) {
-                    vErrors = [err6];
-                }
-                else {
-                    vErrors.push(err6);
-                }
-                errors++;
-            }
-        }
-    }
-    else {
-        const err7 = {
-            instancePath,
-            schemaPath: "#/type",
-            keyword: "type",
-            params: {
-                type: "object"
-            },
-            message: "must be object"
-        };
-        if (vErrors === null) {
-            vErrors = [err7];
-        }
-        else {
-            vErrors.push(err7);
-        }
-        errors++;
-    }
-    validate71.errors = vErrors;
-    return errors === 0;
-}
-function validate70(data, { instancePath = "", parentData, parentDataProperty, rootData = data } = {}) {
-    let vErrors = null;
-    let errors = 0;
-    const _errs0 = errors;
-    let valid0 = false;
-    let passing0 = null;
-    const _errs1 = errors;
-    if (data && typeof data == "object" && !Array.isArray(data)) {
-        for (const key0 in data) {
-            if (!(pattern0.test(key0))) {
-                const err0 = {
-                    instancePath,
-                    schemaPath: "#/oneOf/0/additionalProperties",
-                    keyword: "additionalProperties",
-                    params: {
-                        additionalProperty: key0
-                    },
-                    message: "must NOT have additional properties"
-                };
-                if (vErrors === null) {
-                    vErrors = [err0];
-                }
-                else {
-                    vErrors.push(err0);
-                }
-                errors++;
-            }
-        }
-        for (const key1 in data) {
-            if (pattern0.test(key1)) {
-                if (!(validate71(data[key1], {
-                    instancePath: instancePath + "/" + key1.replace(/~/g, "~0").replace(/\//g, "~1"),
-                    parentData: data,
-                    parentDataProperty: key1,
-                    rootData
-                }))) {
-                    vErrors = vErrors === null ? validate71.errors : vErrors.concat(validate71.errors);
-                    errors = vErrors.length;
-                }
-            }
-        }
-    }
-    else {
-        const err1 = {
-            instancePath,
-            schemaPath: "#/oneOf/0/type",
-            keyword: "type",
-            params: {
-                type: "object"
-            },
-            message: "must be object"
-        };
-        if (vErrors === null) {
-            vErrors = [err1];
-        }
-        else {
-            vErrors.push(err1);
-        }
-        errors++;
-    }
-    var _valid0 = _errs1 === errors;
-    if (_valid0) {
-        valid0 = true;
-        passing0 = 0;
-    }
-    const _errs5 = errors;
-    if (Array.isArray(data)) {
-        const len0 = data.length;
-        for (let i0 = 0; i0 < len0; i0++) {
-            if (!(validate71(data[i0], {
-                instancePath: instancePath + "/" + i0,
-                parentData: data,
-                parentDataProperty: i0,
-                rootData
-            }))) {
-                vErrors = vErrors === null ? validate71.errors : vErrors.concat(validate71.errors);
-                errors = vErrors.length;
-            }
-        }
-    }
-    else {
-        const err2 = {
-            instancePath,
-            schemaPath: "#/oneOf/1/type",
-            keyword: "type",
-            params: {
-                type: "array"
-            },
-            message: "must be array"
-        };
-        if (vErrors === null) {
-            vErrors = [err2];
-        }
-        else {
-            vErrors.push(err2);
-        }
-        errors++;
-    }
-    var _valid0 = _errs5 === errors;
-    if (_valid0 && valid0) {
-        valid0 = false;
-        passing0 = [passing0, 1];
-    }
-    else {
-        if (_valid0) {
-            valid0 = true;
-            passing0 = 1;
-        }
-    }
-    if (!valid0) {
-        const err3 = {
-            instancePath,
-            schemaPath: "#/oneOf",
-            keyword: "oneOf",
-            params: {
-                passingSchemas: passing0
-            },
-            message: "must match exactly one schema in oneOf"
-        };
-        if (vErrors === null) {
-            vErrors = [err3];
-        }
-        else {
-            vErrors.push(err3);
-        }
-        errors++;
-    }
-    else {
-        errors = _errs0;
-        if (vErrors !== null) {
-            if (_errs0) {
-                vErrors.length = _errs0;
-            }
-            else {
-                vErrors = null;
-            }
-        }
-    }
-    validate70.errors = vErrors;
-    return errors === 0;
-}
-function validate79(data, { instancePath = "", parentData, parentDataProperty, rootData = data } = {}) {
-    let vErrors = null;
-    let errors = 0;
-    if (data && typeof data == "object" && !Array.isArray(data)) {
-        for (const key0 in data) {
-            if (!(((((((key0 === "alignment") || (key0 === "verticalAlignment")) || (key0 === "width")) || (key0 === "wrapWord")) || (key0 === "truncate")) || (key0 === "paddingLeft")) || (key0 === "paddingRight"))) {
-                const err0 = {
-                    instancePath,
-                    schemaPath: "#/additionalProperties",
-                    keyword: "additionalProperties",
-                    params: {
-                        additionalProperty: key0
-                    },
-                    message: "must NOT have additional properties"
-                };
-                if (vErrors === null) {
-                    vErrors = [err0];
-                }
-                else {
-                    vErrors.push(err0);
-                }
-                errors++;
-            }
-        }
-        if (data.alignment !== undefined) {
-            if (!(validate72(data.alignment, {
-                instancePath: instancePath + "/alignment",
-                parentData: data,
-                parentDataProperty: "alignment",
-                rootData
-            }))) {
-                vErrors = vErrors === null ? validate72.errors : vErrors.concat(validate72.errors);
-                errors = vErrors.length;
-            }
-        }
-        if (data.verticalAlignment !== undefined) {
-            if (!(validate74(data.verticalAlignment, {
-                instancePath: instancePath + "/verticalAlignment",
-                parentData: data,
-                parentDataProperty: "verticalAlignment",
-                rootData
-            }))) {
-                vErrors = vErrors === null ? validate74.errors : vErrors.concat(validate74.errors);
-                errors = vErrors.length;
-            }
-        }
-        if (data.width !== undefined) {
-            let data2 = data.width;
-            if (!(((typeof data2 == "number") && (!(data2 % 1) && !isNaN(data2))) && (isFinite(data2)))) {
-                const err1 = {
-                    instancePath: instancePath + "/width",
-                    schemaPath: "#/properties/width/type",
-                    keyword: "type",
-                    params: {
-                        type: "integer"
-                    },
-                    message: "must be integer"
-                };
-                if (vErrors === null) {
-                    vErrors = [err1];
-                }
-                else {
-                    vErrors.push(err1);
-                }
-                errors++;
-            }
-            if ((typeof data2 == "number") && (isFinite(data2))) {
-                if (data2 < 1 || isNaN(data2)) {
-                    const err2 = {
-                        instancePath: instancePath + "/width",
-                        schemaPath: "#/properties/width/minimum",
-                        keyword: "minimum",
-                        params: {
-                            comparison: ">=",
-                            limit: 1
-                        },
-                        message: "must be >= 1"
-                    };
-                    if (vErrors === null) {
-                        vErrors = [err2];
-                    }
-                    else {
-                        vErrors.push(err2);
-                    }
-                    errors++;
-                }
-            }
-        }
-        if (data.wrapWord !== undefined) {
-            if (typeof data.wrapWord !== "boolean") {
-                const err3 = {
-                    instancePath: instancePath + "/wrapWord",
-                    schemaPath: "#/properties/wrapWord/type",
-                    keyword: "type",
-                    params: {
-                        type: "boolean"
-                    },
-                    message: "must be boolean"
-                };
-                if (vErrors === null) {
-                    vErrors = [err3];
-                }
-                else {
-                    vErrors.push(err3);
-                }
-                errors++;
-            }
-        }
-        if (data.truncate !== undefined) {
-            let data4 = data.truncate;
-            if (!(((typeof data4 == "number") && (!(data4 % 1) && !isNaN(data4))) && (isFinite(data4)))) {
-                const err4 = {
-                    instancePath: instancePath + "/truncate",
-                    schemaPath: "#/properties/truncate/type",
-                    keyword: "type",
-                    params: {
-                        type: "integer"
-                    },
-                    message: "must be integer"
-                };
-                if (vErrors === null) {
-                    vErrors = [err4];
-                }
-                else {
-                    vErrors.push(err4);
-                }
-                errors++;
-            }
-        }
-        if (data.paddingLeft !== undefined) {
-            let data5 = data.paddingLeft;
-            if (!(((typeof data5 == "number") && (!(data5 % 1) && !isNaN(data5))) && (isFinite(data5)))) {
-                const err5 = {
-                    instancePath: instancePath + "/paddingLeft",
-                    schemaPath: "#/properties/paddingLeft/type",
-                    keyword: "type",
-                    params: {
-                        type: "integer"
-                    },
-                    message: "must be integer"
-                };
-                if (vErrors === null) {
-                    vErrors = [err5];
-                }
-                else {
-                    vErrors.push(err5);
-                }
-                errors++;
-            }
-        }
-        if (data.paddingRight !== undefined) {
-            let data6 = data.paddingRight;
-            if (!(((typeof data6 == "number") && (!(data6 % 1) && !isNaN(data6))) && (isFinite(data6)))) {
-                const err6 = {
-                    instancePath: instancePath + "/paddingRight",
-                    schemaPath: "#/properties/paddingRight/type",
-                    keyword: "type",
-                    params: {
-                        type: "integer"
-                    },
-                    message: "must be integer"
-                };
-                if (vErrors === null) {
-                    vErrors = [err6];
-                }
-                else {
-                    vErrors.push(err6);
-                }
-                errors++;
-            }
-        }
-    }
-    else {
-        const err7 = {
-            instancePath,
-            schemaPath: "#/type",
-            keyword: "type",
-            params: {
-                type: "object"
-            },
-            message: "must be object"
-        };
-        if (vErrors === null) {
-            vErrors = [err7];
-        }
-        else {
-            vErrors.push(err7);
-        }
-        errors++;
-    }
-    validate79.errors = vErrors;
-    return errors === 0;
-}
-function validate84(data, { instancePath = "", parentData, parentDataProperty, rootData = data } = {}) {
-    let vErrors = null;
-    let errors = 0;
-    if (typeof data !== "string") {
-        const err0 = {
-            instancePath,
-            schemaPath: "#/type",
-            keyword: "type",
-            params: {
-                type: "string"
-            },
-            message: "must be string"
-        };
-        if (vErrors === null) {
-            vErrors = [err0];
-        }
-        else {
-            vErrors.push(err0);
-        }
-        errors++;
-    }
-    if (!(((data === "top") || (data === "middle")) || (data === "bottom"))) {
-        const err1 = {
-            instancePath,
-            schemaPath: "#/enum",
-            keyword: "enum",
-            params: {
-                allowedValues: schema21.enum
-            },
-            message: "must be equal to one of the allowed values"
-        };
-        if (vErrors === null) {
-            vErrors = [err1];
-        }
-        else {
-            vErrors.push(err1);
-        }
-        errors++;
-    }
-    validate84.errors = vErrors;
-    return errors === 0;
-}
-function validate43(data, { instancePath = "", parentData, parentDataProperty, rootData = data } = {}) {
-    let vErrors = null;
-    let errors = 0;
-    if (data && typeof data == "object" && !Array.isArray(data)) {
-        for (const key0 in data) {
-            if (!((((((((key0 === "border") || (key0 === "header")) || (key0 === "columns")) || (key0 === "columnDefault")) || (key0 === "drawVerticalLine")) || (key0 === "drawHorizontalLine")) || (key0 === "singleLine")) || (key0 === "spanningCells"))) {
-                const err0 = {
-                    instancePath,
-                    schemaPath: "#/additionalProperties",
-                    keyword: "additionalProperties",
-                    params: {
-                        additionalProperty: key0
-                    },
-                    message: "must NOT have additional properties"
-                };
-                if (vErrors === null) {
-                    vErrors = [err0];
-                }
-                else {
-                    vErrors.push(err0);
-                }
-                errors++;
-            }
-        }
-        if (data.border !== undefined) {
-            if (!(validate45(data.border, {
-                instancePath: instancePath + "/border",
-                parentData: data,
-                parentDataProperty: "border",
-                rootData
-            }))) {
-                vErrors = vErrors === null ? validate45.errors : vErrors.concat(validate45.errors);
-                errors = vErrors.length;
-            }
-        }
-        if (data.header !== undefined) {
-            let data1 = data.header;
-            if (data1 && typeof data1 == "object" && !Array.isArray(data1)) {
-                if (data1.content === undefined) {
-                    const err1 = {
-                        instancePath: instancePath + "/header",
-                        schemaPath: "#/properties/header/required",
-                        keyword: "required",
-                        params: {
-                            missingProperty: "content"
-                        },
-                        message: "must have required property '" + "content" + "'"
-                    };
-                    if (vErrors === null) {
-                        vErrors = [err1];
-                    }
-                    else {
-                        vErrors.push(err1);
-                    }
-                    errors++;
-                }
-                for (const key1 in data1) {
-                    if (!((((((key1 === "content") || (key1 === "alignment")) || (key1 === "wrapWord")) || (key1 === "truncate")) || (key1 === "paddingLeft")) || (key1 === "paddingRight"))) {
-                        const err2 = {
-                            instancePath: instancePath + "/header",
-                            schemaPath: "#/properties/header/additionalProperties",
-                            keyword: "additionalProperties",
-                            params: {
-                                additionalProperty: key1
-                            },
-                            message: "must NOT have additional properties"
-                        };
-                        if (vErrors === null) {
-                            vErrors = [err2];
-                        }
-                        else {
-                            vErrors.push(err2);
-                        }
-                        errors++;
-                    }
-                }
-                if (data1.content !== undefined) {
-                    if (typeof data1.content !== "string") {
-                        const err3 = {
-                            instancePath: instancePath + "/header/content",
-                            schemaPath: "#/properties/header/properties/content/type",
-                            keyword: "type",
-                            params: {
-                                type: "string"
-                            },
-                            message: "must be string"
-                        };
-                        if (vErrors === null) {
-                            vErrors = [err3];
-                        }
-                        else {
-                            vErrors.push(err3);
-                        }
-                        errors++;
-                    }
-                }
-                if (data1.alignment !== undefined) {
-                    if (!(validate68(data1.alignment, {
-                        instancePath: instancePath + "/header/alignment",
-                        parentData: data1,
-                        parentDataProperty: "alignment",
-                        rootData
-                    }))) {
-                        vErrors = vErrors === null ? validate68.errors : vErrors.concat(validate68.errors);
-                        errors = vErrors.length;
-                    }
-                }
-                if (data1.wrapWord !== undefined) {
-                    if (typeof data1.wrapWord !== "boolean") {
-                        const err4 = {
-                            instancePath: instancePath + "/header/wrapWord",
-                            schemaPath: "#/properties/header/properties/wrapWord/type",
-                            keyword: "type",
-                            params: {
-                                type: "boolean"
-                            },
-                            message: "must be boolean"
-                        };
-                        if (vErrors === null) {
-                            vErrors = [err4];
-                        }
-                        else {
-                            vErrors.push(err4);
-                        }
-                        errors++;
-                    }
-                }
-                if (data1.truncate !== undefined) {
-                    let data5 = data1.truncate;
-                    if (!(((typeof data5 == "number") && (!(data5 % 1) && !isNaN(data5))) && (isFinite(data5)))) {
-                        const err5 = {
-                            instancePath: instancePath + "/header/truncate",
-                            schemaPath: "#/properties/header/properties/truncate/type",
-                            keyword: "type",
-                            params: {
-                                type: "integer"
-                            },
-                            message: "must be integer"
-                        };
-                        if (vErrors === null) {
-                            vErrors = [err5];
-                        }
-                        else {
-                            vErrors.push(err5);
-                        }
-                        errors++;
-                    }
-                }
-                if (data1.paddingLeft !== undefined) {
-                    let data6 = data1.paddingLeft;
-                    if (!(((typeof data6 == "number") && (!(data6 % 1) && !isNaN(data6))) && (isFinite(data6)))) {
-                        const err6 = {
-                            instancePath: instancePath + "/header/paddingLeft",
-                            schemaPath: "#/properties/header/properties/paddingLeft/type",
-                            keyword: "type",
-                            params: {
-                                type: "integer"
-                            },
-                            message: "must be integer"
-                        };
-                        if (vErrors === null) {
-                            vErrors = [err6];
-                        }
-                        else {
-                            vErrors.push(err6);
-                        }
-                        errors++;
-                    }
-                }
-                if (data1.paddingRight !== undefined) {
-                    let data7 = data1.paddingRight;
-                    if (!(((typeof data7 == "number") && (!(data7 % 1) && !isNaN(data7))) && (isFinite(data7)))) {
-                        const err7 = {
-                            instancePath: instancePath + "/header/paddingRight",
-                            schemaPath: "#/properties/header/properties/paddingRight/type",
-                            keyword: "type",
-                            params: {
-                                type: "integer"
-                            },
-                            message: "must be integer"
-                        };
-                        if (vErrors === null) {
-                            vErrors = [err7];
-                        }
-                        else {
-                            vErrors.push(err7);
-                        }
-                        errors++;
-                    }
-                }
-            }
-            else {
-                const err8 = {
-                    instancePath: instancePath + "/header",
-                    schemaPath: "#/properties/header/type",
-                    keyword: "type",
-                    params: {
-                        type: "object"
-                    },
-                    message: "must be object"
-                };
-                if (vErrors === null) {
-                    vErrors = [err8];
-                }
-                else {
-                    vErrors.push(err8);
-                }
-                errors++;
-            }
-        }
-        if (data.columns !== undefined) {
-            if (!(validate70(data.columns, {
-                instancePath: instancePath + "/columns",
-                parentData: data,
-                parentDataProperty: "columns",
-                rootData
-            }))) {
-                vErrors = vErrors === null ? validate70.errors : vErrors.concat(validate70.errors);
-                errors = vErrors.length;
-            }
-        }
-        if (data.columnDefault !== undefined) {
-            if (!(validate79(data.columnDefault, {
-                instancePath: instancePath + "/columnDefault",
-                parentData: data,
-                parentDataProperty: "columnDefault",
-                rootData
-            }))) {
-                vErrors = vErrors === null ? validate79.errors : vErrors.concat(validate79.errors);
-                errors = vErrors.length;
-            }
-        }
-        if (data.drawVerticalLine !== undefined) {
-            if (typeof data.drawVerticalLine != "function") {
-                const err9 = {
-                    instancePath: instancePath + "/drawVerticalLine",
-                    schemaPath: "#/properties/drawVerticalLine/typeof",
-                    keyword: "typeof",
-                    params: {},
-                    message: "must pass \"typeof\" keyword validation"
-                };
-                if (vErrors === null) {
-                    vErrors = [err9];
-                }
-                else {
-                    vErrors.push(err9);
-                }
-                errors++;
-            }
-        }
-        if (data.drawHorizontalLine !== undefined) {
-            if (typeof data.drawHorizontalLine != "function") {
-                const err10 = {
-                    instancePath: instancePath + "/drawHorizontalLine",
-                    schemaPath: "#/properties/drawHorizontalLine/typeof",
-                    keyword: "typeof",
-                    params: {},
-                    message: "must pass \"typeof\" keyword validation"
-                };
-                if (vErrors === null) {
-                    vErrors = [err10];
-                }
-                else {
-                    vErrors.push(err10);
-                }
-                errors++;
-            }
-        }
-        if (data.singleLine !== undefined) {
-            if (typeof data.singleLine != "boolean") {
-                const err11 = {
-                    instancePath: instancePath + "/singleLine",
-                    schemaPath: "#/properties/singleLine/typeof",
-                    keyword: "typeof",
-                    params: {},
-                    message: "must pass \"typeof\" keyword validation"
-                };
-                if (vErrors === null) {
-                    vErrors = [err11];
-                }
-                else {
-                    vErrors.push(err11);
-                }
-                errors++;
-            }
-        }
-        if (data.spanningCells !== undefined) {
-            let data13 = data.spanningCells;
-            if (Array.isArray(data13)) {
-                const len0 = data13.length;
-                for (let i0 = 0; i0 < len0; i0++) {
-                    let data14 = data13[i0];
-                    if (data14 && typeof data14 == "object" && !Array.isArray(data14)) {
-                        if (data14.row === undefined) {
-                            const err12 = {
-                                instancePath: instancePath + "/spanningCells/" + i0,
-                                schemaPath: "#/properties/spanningCells/items/required",
-                                keyword: "required",
-                                params: {
-                                    missingProperty: "row"
-                                },
-                                message: "must have required property '" + "row" + "'"
-                            };
-                            if (vErrors === null) {
-                                vErrors = [err12];
-                            }
-                            else {
-                                vErrors.push(err12);
-                            }
-                            errors++;
-                        }
-                        if (data14.col === undefined) {
-                            const err13 = {
-                                instancePath: instancePath + "/spanningCells/" + i0,
-                                schemaPath: "#/properties/spanningCells/items/required",
-                                keyword: "required",
-                                params: {
-                                    missingProperty: "col"
-                                },
-                                message: "must have required property '" + "col" + "'"
-                            };
-                            if (vErrors === null) {
-                                vErrors = [err13];
-                            }
-                            else {
-                                vErrors.push(err13);
-                            }
-                            errors++;
-                        }
-                        for (const key2 in data14) {
-                            if (!(func8.call(schema13.properties.spanningCells.items.properties, key2))) {
-                                const err14 = {
-                                    instancePath: instancePath + "/spanningCells/" + i0,
-                                    schemaPath: "#/properties/spanningCells/items/additionalProperties",
-                                    keyword: "additionalProperties",
-                                    params: {
-                                        additionalProperty: key2
-                                    },
-                                    message: "must NOT have additional properties"
-                                };
-                                if (vErrors === null) {
-                                    vErrors = [err14];
-                                }
-                                else {
-                                    vErrors.push(err14);
-                                }
-                                errors++;
-                            }
-                        }
-                        if (data14.col !== undefined) {
-                            let data15 = data14.col;
-                            if (!(((typeof data15 == "number") && (!(data15 % 1) && !isNaN(data15))) && (isFinite(data15)))) {
-                                const err15 = {
-                                    instancePath: instancePath + "/spanningCells/" + i0 + "/col",
-                                    schemaPath: "#/properties/spanningCells/items/properties/col/type",
-                                    keyword: "type",
-                                    params: {
-                                        type: "integer"
-                                    },
-                                    message: "must be integer"
-                                };
-                                if (vErrors === null) {
-                                    vErrors = [err15];
-                                }
-                                else {
-                                    vErrors.push(err15);
-                                }
-                                errors++;
-                            }
-                            if ((typeof data15 == "number") && (isFinite(data15))) {
-                                if (data15 < 0 || isNaN(data15)) {
-                                    const err16 = {
-                                        instancePath: instancePath + "/spanningCells/" + i0 + "/col",
-                                        schemaPath: "#/properties/spanningCells/items/properties/col/minimum",
-                                        keyword: "minimum",
-                                        params: {
-                                            comparison: ">=",
-                                            limit: 0
-                                        },
-                                        message: "must be >= 0"
-                                    };
-                                    if (vErrors === null) {
-                                        vErrors = [err16];
-                                    }
-                                    else {
-                                        vErrors.push(err16);
-                                    }
-                                    errors++;
-                                }
-                            }
-                        }
-                        if (data14.row !== undefined) {
-                            let data16 = data14.row;
-                            if (!(((typeof data16 == "number") && (!(data16 % 1) && !isNaN(data16))) && (isFinite(data16)))) {
-                                const err17 = {
-                                    instancePath: instancePath + "/spanningCells/" + i0 + "/row",
-                                    schemaPath: "#/properties/spanningCells/items/properties/row/type",
-                                    keyword: "type",
-                                    params: {
-                                        type: "integer"
-                                    },
-                                    message: "must be integer"
-                                };
-                                if (vErrors === null) {
-                                    vErrors = [err17];
-                                }
-                                else {
-                                    vErrors.push(err17);
-                                }
-                                errors++;
-                            }
-                            if ((typeof data16 == "number") && (isFinite(data16))) {
-                                if (data16 < 0 || isNaN(data16)) {
-                                    const err18 = {
-                                        instancePath: instancePath + "/spanningCells/" + i0 + "/row",
-                                        schemaPath: "#/properties/spanningCells/items/properties/row/minimum",
-                                        keyword: "minimum",
-                                        params: {
-                                            comparison: ">=",
-                                            limit: 0
-                                        },
-                                        message: "must be >= 0"
-                                    };
-                                    if (vErrors === null) {
-                                        vErrors = [err18];
-                                    }
-                                    else {
-                                        vErrors.push(err18);
-                                    }
-                                    errors++;
-                                }
-                            }
-                        }
-                        if (data14.colSpan !== undefined) {
-                            let data17 = data14.colSpan;
-                            if (!(((typeof data17 == "number") && (!(data17 % 1) && !isNaN(data17))) && (isFinite(data17)))) {
-                                const err19 = {
-                                    instancePath: instancePath + "/spanningCells/" + i0 + "/colSpan",
-                                    schemaPath: "#/properties/spanningCells/items/properties/colSpan/type",
-                                    keyword: "type",
-                                    params: {
-                                        type: "integer"
-                                    },
-                                    message: "must be integer"
-                                };
-                                if (vErrors === null) {
-                                    vErrors = [err19];
-                                }
-                                else {
-                                    vErrors.push(err19);
-                                }
-                                errors++;
-                            }
-                            if ((typeof data17 == "number") && (isFinite(data17))) {
-                                if (data17 < 1 || isNaN(data17)) {
-                                    const err20 = {
-                                        instancePath: instancePath + "/spanningCells/" + i0 + "/colSpan",
-                                        schemaPath: "#/properties/spanningCells/items/properties/colSpan/minimum",
-                                        keyword: "minimum",
-                                        params: {
-                                            comparison: ">=",
-                                            limit: 1
-                                        },
-                                        message: "must be >= 1"
-                                    };
-                                    if (vErrors === null) {
-                                        vErrors = [err20];
-                                    }
-                                    else {
-                                        vErrors.push(err20);
-                                    }
-                                    errors++;
-                                }
-                            }
-                        }
-                        if (data14.rowSpan !== undefined) {
-                            let data18 = data14.rowSpan;
-                            if (!(((typeof data18 == "number") && (!(data18 % 1) && !isNaN(data18))) && (isFinite(data18)))) {
-                                const err21 = {
-                                    instancePath: instancePath + "/spanningCells/" + i0 + "/rowSpan",
-                                    schemaPath: "#/properties/spanningCells/items/properties/rowSpan/type",
-                                    keyword: "type",
-                                    params: {
-                                        type: "integer"
-                                    },
-                                    message: "must be integer"
-                                };
-                                if (vErrors === null) {
-                                    vErrors = [err21];
-                                }
-                                else {
-                                    vErrors.push(err21);
-                                }
-                                errors++;
-                            }
-                            if ((typeof data18 == "number") && (isFinite(data18))) {
-                                if (data18 < 1 || isNaN(data18)) {
-                                    const err22 = {
-                                        instancePath: instancePath + "/spanningCells/" + i0 + "/rowSpan",
-                                        schemaPath: "#/properties/spanningCells/items/properties/rowSpan/minimum",
-                                        keyword: "minimum",
-                                        params: {
-                                            comparison: ">=",
-                                            limit: 1
-                                        },
-                                        message: "must be >= 1"
-                                    };
-                                    if (vErrors === null) {
-                                        vErrors = [err22];
-                                    }
-                                    else {
-                                        vErrors.push(err22);
-                                    }
-                                    errors++;
-                                }
-                            }
-                        }
-                        if (data14.alignment !== undefined) {
-                            if (!(validate68(data14.alignment, {
-                                instancePath: instancePath + "/spanningCells/" + i0 + "/alignment",
-                                parentData: data14,
-                                parentDataProperty: "alignment",
-                                rootData
-                            }))) {
-                                vErrors = vErrors === null ? validate68.errors : vErrors.concat(validate68.errors);
-                                errors = vErrors.length;
-                            }
-                        }
-                        if (data14.verticalAlignment !== undefined) {
-                            if (!(validate84(data14.verticalAlignment, {
-                                instancePath: instancePath + "/spanningCells/" + i0 + "/verticalAlignment",
-                                parentData: data14,
-                                parentDataProperty: "verticalAlignment",
-                                rootData
-                            }))) {
-                                vErrors = vErrors === null ? validate84.errors : vErrors.concat(validate84.errors);
-                                errors = vErrors.length;
-                            }
-                        }
-                        if (data14.wrapWord !== undefined) {
-                            if (typeof data14.wrapWord !== "boolean") {
-                                const err23 = {
-                                    instancePath: instancePath + "/spanningCells/" + i0 + "/wrapWord",
-                                    schemaPath: "#/properties/spanningCells/items/properties/wrapWord/type",
-                                    keyword: "type",
-                                    params: {
-                                        type: "boolean"
-                                    },
-                                    message: "must be boolean"
-                                };
-                                if (vErrors === null) {
-                                    vErrors = [err23];
-                                }
-                                else {
-                                    vErrors.push(err23);
-                                }
-                                errors++;
-                            }
-                        }
-                        if (data14.truncate !== undefined) {
-                            let data22 = data14.truncate;
-                            if (!(((typeof data22 == "number") && (!(data22 % 1) && !isNaN(data22))) && (isFinite(data22)))) {
-                                const err24 = {
-                                    instancePath: instancePath + "/spanningCells/" + i0 + "/truncate",
-                                    schemaPath: "#/properties/spanningCells/items/properties/truncate/type",
-                                    keyword: "type",
-                                    params: {
-                                        type: "integer"
-                                    },
-                                    message: "must be integer"
-                                };
-                                if (vErrors === null) {
-                                    vErrors = [err24];
-                                }
-                                else {
-                                    vErrors.push(err24);
-                                }
-                                errors++;
-                            }
-                        }
-                        if (data14.paddingLeft !== undefined) {
-                            let data23 = data14.paddingLeft;
-                            if (!(((typeof data23 == "number") && (!(data23 % 1) && !isNaN(data23))) && (isFinite(data23)))) {
-                                const err25 = {
-                                    instancePath: instancePath + "/spanningCells/" + i0 + "/paddingLeft",
-                                    schemaPath: "#/properties/spanningCells/items/properties/paddingLeft/type",
-                                    keyword: "type",
-                                    params: {
-                                        type: "integer"
-                                    },
-                                    message: "must be integer"
-                                };
-                                if (vErrors === null) {
-                                    vErrors = [err25];
-                                }
-                                else {
-                                    vErrors.push(err25);
-                                }
-                                errors++;
-                            }
-                        }
-                        if (data14.paddingRight !== undefined) {
-                            let data24 = data14.paddingRight;
-                            if (!(((typeof data24 == "number") && (!(data24 % 1) && !isNaN(data24))) && (isFinite(data24)))) {
-                                const err26 = {
-                                    instancePath: instancePath + "/spanningCells/" + i0 + "/paddingRight",
-                                    schemaPath: "#/properties/spanningCells/items/properties/paddingRight/type",
-                                    keyword: "type",
-                                    params: {
-                                        type: "integer"
-                                    },
-                                    message: "must be integer"
-                                };
-                                if (vErrors === null) {
-                                    vErrors = [err26];
-                                }
-                                else {
-                                    vErrors.push(err26);
-                                }
-                                errors++;
-                            }
-                        }
-                    }
-                    else {
-                        const err27 = {
-                            instancePath: instancePath + "/spanningCells/" + i0,
-                            schemaPath: "#/properties/spanningCells/items/type",
-                            keyword: "type",
-                            params: {
-                                type: "object"
-                            },
-                            message: "must be object"
-                        };
-                        if (vErrors === null) {
-                            vErrors = [err27];
-                        }
-                        else {
-                            vErrors.push(err27);
-                        }
-                        errors++;
-                    }
-                }
-            }
-            else {
-                const err28 = {
-                    instancePath: instancePath + "/spanningCells",
-                    schemaPath: "#/properties/spanningCells/type",
-                    keyword: "type",
-                    params: {
-                        type: "array"
-                    },
-                    message: "must be array"
-                };
-                if (vErrors === null) {
-                    vErrors = [err28];
-                }
-                else {
-                    vErrors.push(err28);
-                }
-                errors++;
-            }
-        }
-    }
-    else {
-        const err29 = {
-            instancePath,
-            schemaPath: "#/type",
-            keyword: "type",
-            params: {
-                type: "object"
-            },
-            message: "must be object"
-        };
-        if (vErrors === null) {
-            vErrors = [err29];
-        }
-        else {
-            vErrors.push(err29);
-        }
-        errors++;
-    }
-    validate43.errors = vErrors;
-    return errors === 0;
-}
-exports["streamConfig.json"] = validate86;
-function validate87(data, { instancePath = "", parentData, parentDataProperty, rootData = data } = {}) {
-    let vErrors = null;
-    let errors = 0;
-    if (data && typeof data == "object" && !Array.isArray(data)) {
-        for (const key0 in data) {
-            if (!(func8.call(schema15.properties, key0))) {
-                const err0 = {
-                    instancePath,
-                    schemaPath: "#/additionalProperties",
-                    keyword: "additionalProperties",
-                    params: {
-                        additionalProperty: key0
-                    },
-                    message: "must NOT have additional properties"
-                };
-                if (vErrors === null) {
-                    vErrors = [err0];
-                }
-                else {
-                    vErrors.push(err0);
-                }
-                errors++;
-            }
-        }
-        if (data.topBody !== undefined) {
-            if (!(validate46(data.topBody, {
-                instancePath: instancePath + "/topBody",
-                parentData: data,
-                parentDataProperty: "topBody",
-                rootData
-            }))) {
-                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
-                errors = vErrors.length;
-            }
-        }
-        if (data.topJoin !== undefined) {
-            if (!(validate46(data.topJoin, {
-                instancePath: instancePath + "/topJoin",
-                parentData: data,
-                parentDataProperty: "topJoin",
-                rootData
-            }))) {
-                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
-                errors = vErrors.length;
-            }
-        }
-        if (data.topLeft !== undefined) {
-            if (!(validate46(data.topLeft, {
-                instancePath: instancePath + "/topLeft",
-                parentData: data,
-                parentDataProperty: "topLeft",
-                rootData
-            }))) {
-                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
-                errors = vErrors.length;
-            }
-        }
-        if (data.topRight !== undefined) {
-            if (!(validate46(data.topRight, {
-                instancePath: instancePath + "/topRight",
-                parentData: data,
-                parentDataProperty: "topRight",
-                rootData
-            }))) {
-                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
-                errors = vErrors.length;
-            }
-        }
-        if (data.bottomBody !== undefined) {
-            if (!(validate46(data.bottomBody, {
-                instancePath: instancePath + "/bottomBody",
-                parentData: data,
-                parentDataProperty: "bottomBody",
-                rootData
-            }))) {
-                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
-                errors = vErrors.length;
-            }
-        }
-        if (data.bottomJoin !== undefined) {
-            if (!(validate46(data.bottomJoin, {
-                instancePath: instancePath + "/bottomJoin",
-                parentData: data,
-                parentDataProperty: "bottomJoin",
-                rootData
-            }))) {
-                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
-                errors = vErrors.length;
-            }
-        }
-        if (data.bottomLeft !== undefined) {
-            if (!(validate46(data.bottomLeft, {
-                instancePath: instancePath + "/bottomLeft",
-                parentData: data,
-                parentDataProperty: "bottomLeft",
-                rootData
-            }))) {
-                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
-                errors = vErrors.length;
-            }
-        }
-        if (data.bottomRight !== undefined) {
-            if (!(validate46(data.bottomRight, {
-                instancePath: instancePath + "/bottomRight",
-                parentData: data,
-                parentDataProperty: "bottomRight",
-                rootData
-            }))) {
-                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
-                errors = vErrors.length;
-            }
-        }
-        if (data.bodyLeft !== undefined) {
-            if (!(validate46(data.bodyLeft, {
-                instancePath: instancePath + "/bodyLeft",
-                parentData: data,
-                parentDataProperty: "bodyLeft",
-                rootData
-            }))) {
-                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
-                errors = vErrors.length;
-            }
-        }
-        if (data.bodyRight !== undefined) {
-            if (!(validate46(data.bodyRight, {
-                instancePath: instancePath + "/bodyRight",
-                parentData: data,
-                parentDataProperty: "bodyRight",
-                rootData
-            }))) {
-                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
-                errors = vErrors.length;
-            }
-        }
-        if (data.bodyJoin !== undefined) {
-            if (!(validate46(data.bodyJoin, {
-                instancePath: instancePath + "/bodyJoin",
-                parentData: data,
-                parentDataProperty: "bodyJoin",
-                rootData
-            }))) {
-                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
-                errors = vErrors.length;
-            }
-        }
-        if (data.headerJoin !== undefined) {
-            if (!(validate46(data.headerJoin, {
-                instancePath: instancePath + "/headerJoin",
-                parentData: data,
-                parentDataProperty: "headerJoin",
-                rootData
-            }))) {
-                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
-                errors = vErrors.length;
-            }
-        }
-        if (data.joinBody !== undefined) {
-            if (!(validate46(data.joinBody, {
-                instancePath: instancePath + "/joinBody",
-                parentData: data,
-                parentDataProperty: "joinBody",
-                rootData
-            }))) {
-                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
-                errors = vErrors.length;
-            }
-        }
-        if (data.joinLeft !== undefined) {
-            if (!(validate46(data.joinLeft, {
-                instancePath: instancePath + "/joinLeft",
-                parentData: data,
-                parentDataProperty: "joinLeft",
-                rootData
-            }))) {
-                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
-                errors = vErrors.length;
-            }
-        }
-        if (data.joinRight !== undefined) {
-            if (!(validate46(data.joinRight, {
-                instancePath: instancePath + "/joinRight",
-                parentData: data,
-                parentDataProperty: "joinRight",
-                rootData
-            }))) {
-                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
-                errors = vErrors.length;
-            }
-        }
-        if (data.joinJoin !== undefined) {
-            if (!(validate46(data.joinJoin, {
-                instancePath: instancePath + "/joinJoin",
-                parentData: data,
-                parentDataProperty: "joinJoin",
-                rootData
-            }))) {
-                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
-                errors = vErrors.length;
-            }
-        }
-        if (data.joinMiddleUp !== undefined) {
-            if (!(validate46(data.joinMiddleUp, {
-                instancePath: instancePath + "/joinMiddleUp",
-                parentData: data,
-                parentDataProperty: "joinMiddleUp",
-                rootData
-            }))) {
-                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
-                errors = vErrors.length;
-            }
-        }
-        if (data.joinMiddleDown !== undefined) {
-            if (!(validate46(data.joinMiddleDown, {
-                instancePath: instancePath + "/joinMiddleDown",
-                parentData: data,
-                parentDataProperty: "joinMiddleDown",
-                rootData
-            }))) {
-                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
-                errors = vErrors.length;
-            }
-        }
-        if (data.joinMiddleLeft !== undefined) {
-            if (!(validate46(data.joinMiddleLeft, {
-                instancePath: instancePath + "/joinMiddleLeft",
-                parentData: data,
-                parentDataProperty: "joinMiddleLeft",
-                rootData
-            }))) {
-                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
-                errors = vErrors.length;
-            }
-        }
-        if (data.joinMiddleRight !== undefined) {
-            if (!(validate46(data.joinMiddleRight, {
-                instancePath: instancePath + "/joinMiddleRight",
-                parentData: data,
-                parentDataProperty: "joinMiddleRight",
-                rootData
-            }))) {
-                vErrors = vErrors === null ? validate46.errors : vErrors.concat(validate46.errors);
-                errors = vErrors.length;
-            }
-        }
-    }
-    else {
-        const err1 = {
-            instancePath,
-            schemaPath: "#/type",
-            keyword: "type",
-            params: {
-                type: "object"
-            },
-            message: "must be object"
-        };
-        if (vErrors === null) {
-            vErrors = [err1];
-        }
-        else {
-            vErrors.push(err1);
-        }
-        errors++;
-    }
-    validate87.errors = vErrors;
-    return errors === 0;
-}
-function validate109(data, { instancePath = "", parentData, parentDataProperty, rootData = data } = {}) {
-    let vErrors = null;
-    let errors = 0;
-    const _errs0 = errors;
-    let valid0 = false;
-    let passing0 = null;
-    const _errs1 = errors;
-    if (data && typeof data == "object" && !Array.isArray(data)) {
-        for (const key0 in data) {
-            if (!(pattern0.test(key0))) {
-                const err0 = {
-                    instancePath,
-                    schemaPath: "#/oneOf/0/additionalProperties",
-                    keyword: "additionalProperties",
-                    params: {
-                        additionalProperty: key0
-                    },
-                    message: "must NOT have additional properties"
-                };
-                if (vErrors === null) {
-                    vErrors = [err0];
-                }
-                else {
-                    vErrors.push(err0);
-                }
-                errors++;
-            }
-        }
-        for (const key1 in data) {
-            if (pattern0.test(key1)) {
-                if (!(validate71(data[key1], {
-                    instancePath: instancePath + "/" + key1.replace(/~/g, "~0").replace(/\//g, "~1"),
-                    parentData: data,
-                    parentDataProperty: key1,
-                    rootData
-                }))) {
-                    vErrors = vErrors === null ? validate71.errors : vErrors.concat(validate71.errors);
-                    errors = vErrors.length;
-                }
-            }
-        }
-    }
-    else {
-        const err1 = {
-            instancePath,
-            schemaPath: "#/oneOf/0/type",
-            keyword: "type",
-            params: {
-                type: "object"
-            },
-            message: "must be object"
-        };
-        if (vErrors === null) {
-            vErrors = [err1];
-        }
-        else {
-            vErrors.push(err1);
-        }
-        errors++;
-    }
-    var _valid0 = _errs1 === errors;
-    if (_valid0) {
-        valid0 = true;
-        passing0 = 0;
-    }
-    const _errs5 = errors;
-    if (Array.isArray(data)) {
-        const len0 = data.length;
-        for (let i0 = 0; i0 < len0; i0++) {
-            if (!(validate71(data[i0], {
-                instancePath: instancePath + "/" + i0,
-                parentData: data,
-                parentDataProperty: i0,
-                rootData
-            }))) {
-                vErrors = vErrors === null ? validate71.errors : vErrors.concat(validate71.errors);
-                errors = vErrors.length;
-            }
-        }
-    }
-    else {
-        const err2 = {
-            instancePath,
-            schemaPath: "#/oneOf/1/type",
-            keyword: "type",
-            params: {
-                type: "array"
-            },
-            message: "must be array"
-        };
-        if (vErrors === null) {
-            vErrors = [err2];
-        }
-        else {
-            vErrors.push(err2);
-        }
-        errors++;
-    }
-    var _valid0 = _errs5 === errors;
-    if (_valid0 && valid0) {
-        valid0 = false;
-        passing0 = [passing0, 1];
-    }
-    else {
-        if (_valid0) {
-            valid0 = true;
-            passing0 = 1;
-        }
-    }
-    if (!valid0) {
-        const err3 = {
-            instancePath,
-            schemaPath: "#/oneOf",
-            keyword: "oneOf",
-            params: {
-                passingSchemas: passing0
-            },
-            message: "must match exactly one schema in oneOf"
-        };
-        if (vErrors === null) {
-            vErrors = [err3];
-        }
-        else {
-            vErrors.push(err3);
-        }
-        errors++;
-    }
-    else {
-        errors = _errs0;
-        if (vErrors !== null) {
-            if (_errs0) {
-                vErrors.length = _errs0;
-            }
-            else {
-                vErrors = null;
-            }
-        }
-    }
-    validate109.errors = vErrors;
-    return errors === 0;
-}
-function validate113(data, { instancePath = "", parentData, parentDataProperty, rootData = data } = {}) {
-    let vErrors = null;
-    let errors = 0;
-    if (data && typeof data == "object" && !Array.isArray(data)) {
-        for (const key0 in data) {
-            if (!(((((((key0 === "alignment") || (key0 === "verticalAlignment")) || (key0 === "width")) || (key0 === "wrapWord")) || (key0 === "truncate")) || (key0 === "paddingLeft")) || (key0 === "paddingRight"))) {
-                const err0 = {
-                    instancePath,
-                    schemaPath: "#/additionalProperties",
-                    keyword: "additionalProperties",
-                    params: {
-                        additionalProperty: key0
-                    },
-                    message: "must NOT have additional properties"
-                };
-                if (vErrors === null) {
-                    vErrors = [err0];
-                }
-                else {
-                    vErrors.push(err0);
-                }
-                errors++;
-            }
-        }
-        if (data.alignment !== undefined) {
-            if (!(validate72(data.alignment, {
-                instancePath: instancePath + "/alignment",
-                parentData: data,
-                parentDataProperty: "alignment",
-                rootData
-            }))) {
-                vErrors = vErrors === null ? validate72.errors : vErrors.concat(validate72.errors);
-                errors = vErrors.length;
-            }
-        }
-        if (data.verticalAlignment !== undefined) {
-            if (!(validate74(data.verticalAlignment, {
-                instancePath: instancePath + "/verticalAlignment",
-                parentData: data,
-                parentDataProperty: "verticalAlignment",
-                rootData
-            }))) {
-                vErrors = vErrors === null ? validate74.errors : vErrors.concat(validate74.errors);
-                errors = vErrors.length;
-            }
-        }
-        if (data.width !== undefined) {
-            let data2 = data.width;
-            if (!(((typeof data2 == "number") && (!(data2 % 1) && !isNaN(data2))) && (isFinite(data2)))) {
-                const err1 = {
-                    instancePath: instancePath + "/width",
-                    schemaPath: "#/properties/width/type",
-                    keyword: "type",
-                    params: {
-                        type: "integer"
-                    },
-                    message: "must be integer"
-                };
-                if (vErrors === null) {
-                    vErrors = [err1];
-                }
-                else {
-                    vErrors.push(err1);
-                }
-                errors++;
-            }
-            if ((typeof data2 == "number") && (isFinite(data2))) {
-                if (data2 < 1 || isNaN(data2)) {
-                    const err2 = {
-                        instancePath: instancePath + "/width",
-                        schemaPath: "#/properties/width/minimum",
-                        keyword: "minimum",
-                        params: {
-                            comparison: ">=",
-                            limit: 1
-                        },
-                        message: "must be >= 1"
-                    };
-                    if (vErrors === null) {
-                        vErrors = [err2];
-                    }
-                    else {
-                        vErrors.push(err2);
-                    }
-                    errors++;
-                }
-            }
-        }
-        if (data.wrapWord !== undefined) {
-            if (typeof data.wrapWord !== "boolean") {
-                const err3 = {
-                    instancePath: instancePath + "/wrapWord",
-                    schemaPath: "#/properties/wrapWord/type",
-                    keyword: "type",
-                    params: {
-                        type: "boolean"
-                    },
-                    message: "must be boolean"
-                };
-                if (vErrors === null) {
-                    vErrors = [err3];
-                }
-                else {
-                    vErrors.push(err3);
-                }
-                errors++;
-            }
-        }
-        if (data.truncate !== undefined) {
-            let data4 = data.truncate;
-            if (!(((typeof data4 == "number") && (!(data4 % 1) && !isNaN(data4))) && (isFinite(data4)))) {
-                const err4 = {
-                    instancePath: instancePath + "/truncate",
-                    schemaPath: "#/properties/truncate/type",
-                    keyword: "type",
-                    params: {
-                        type: "integer"
-                    },
-                    message: "must be integer"
-                };
-                if (vErrors === null) {
-                    vErrors = [err4];
-                }
-                else {
-                    vErrors.push(err4);
-                }
-                errors++;
-            }
-        }
-        if (data.paddingLeft !== undefined) {
-            let data5 = data.paddingLeft;
-            if (!(((typeof data5 == "number") && (!(data5 % 1) && !isNaN(data5))) && (isFinite(data5)))) {
-                const err5 = {
-                    instancePath: instancePath + "/paddingLeft",
-                    schemaPath: "#/properties/paddingLeft/type",
-                    keyword: "type",
-                    params: {
-                        type: "integer"
-                    },
-                    message: "must be integer"
-                };
-                if (vErrors === null) {
-                    vErrors = [err5];
-                }
-                else {
-                    vErrors.push(err5);
-                }
-                errors++;
-            }
-        }
-        if (data.paddingRight !== undefined) {
-            let data6 = data.paddingRight;
-            if (!(((typeof data6 == "number") && (!(data6 % 1) && !isNaN(data6))) && (isFinite(data6)))) {
-                const err6 = {
-                    instancePath: instancePath + "/paddingRight",
-                    schemaPath: "#/properties/paddingRight/type",
-                    keyword: "type",
-                    params: {
-                        type: "integer"
-                    },
-                    message: "must be integer"
-                };
-                if (vErrors === null) {
-                    vErrors = [err6];
-                }
-                else {
-                    vErrors.push(err6);
-                }
-                errors++;
-            }
-        }
-    }
-    else {
-        const err7 = {
-            instancePath,
-            schemaPath: "#/type",
-            keyword: "type",
-            params: {
-                type: "object"
-            },
-            message: "must be object"
-        };
-        if (vErrors === null) {
-            vErrors = [err7];
-        }
-        else {
-            vErrors.push(err7);
-        }
-        errors++;
-    }
-    validate113.errors = vErrors;
-    return errors === 0;
-}
-function validate86(data, { instancePath = "", parentData, parentDataProperty, rootData = data } = {}) {
-    let vErrors = null;
-    let errors = 0;
-    if (data && typeof data == "object" && !Array.isArray(data)) {
-        if (data.columnDefault === undefined) {
-            const err0 = {
-                instancePath,
-                schemaPath: "#/required",
-                keyword: "required",
-                params: {
-                    missingProperty: "columnDefault"
-                },
-                message: "must have required property '" + "columnDefault" + "'"
-            };
-            if (vErrors === null) {
-                vErrors = [err0];
-            }
-            else {
-                vErrors.push(err0);
-            }
-            errors++;
-        }
-        if (data.columnCount === undefined) {
-            const err1 = {
-                instancePath,
-                schemaPath: "#/required",
-                keyword: "required",
-                params: {
-                    missingProperty: "columnCount"
-                },
-                message: "must have required property '" + "columnCount" + "'"
-            };
-            if (vErrors === null) {
-                vErrors = [err1];
-            }
-            else {
-                vErrors.push(err1);
-            }
-            errors++;
-        }
-        for (const key0 in data) {
-            if (!(((((key0 === "border") || (key0 === "columns")) || (key0 === "columnDefault")) || (key0 === "columnCount")) || (key0 === "drawVerticalLine"))) {
-                const err2 = {
-                    instancePath,
-                    schemaPath: "#/additionalProperties",
-                    keyword: "additionalProperties",
-                    params: {
-                        additionalProperty: key0
-                    },
-                    message: "must NOT have additional properties"
-                };
-                if (vErrors === null) {
-                    vErrors = [err2];
-                }
-                else {
-                    vErrors.push(err2);
-                }
-                errors++;
-            }
-        }
-        if (data.border !== undefined) {
-            if (!(validate87(data.border, {
-                instancePath: instancePath + "/border",
-                parentData: data,
-                parentDataProperty: "border",
-                rootData
-            }))) {
-                vErrors = vErrors === null ? validate87.errors : vErrors.concat(validate87.errors);
-                errors = vErrors.length;
-            }
-        }
-        if (data.columns !== undefined) {
-            if (!(validate109(data.columns, {
-                instancePath: instancePath + "/columns",
-                parentData: data,
-                parentDataProperty: "columns",
-                rootData
-            }))) {
-                vErrors = vErrors === null ? validate109.errors : vErrors.concat(validate109.errors);
-                errors = vErrors.length;
-            }
-        }
-        if (data.columnDefault !== undefined) {
-            if (!(validate113(data.columnDefault, {
-                instancePath: instancePath + "/columnDefault",
-                parentData: data,
-                parentDataProperty: "columnDefault",
-                rootData
-            }))) {
-                vErrors = vErrors === null ? validate113.errors : vErrors.concat(validate113.errors);
-                errors = vErrors.length;
-            }
-        }
-        if (data.columnCount !== undefined) {
-            let data3 = data.columnCount;
-            if (!(((typeof data3 == "number") && (!(data3 % 1) && !isNaN(data3))) && (isFinite(data3)))) {
-                const err3 = {
-                    instancePath: instancePath + "/columnCount",
-                    schemaPath: "#/properties/columnCount/type",
-                    keyword: "type",
-                    params: {
-                        type: "integer"
-                    },
-                    message: "must be integer"
-                };
-                if (vErrors === null) {
-                    vErrors = [err3];
-                }
-                else {
-                    vErrors.push(err3);
-                }
-                errors++;
-            }
-            if ((typeof data3 == "number") && (isFinite(data3))) {
-                if (data3 < 1 || isNaN(data3)) {
-                    const err4 = {
-                        instancePath: instancePath + "/columnCount",
-                        schemaPath: "#/properties/columnCount/minimum",
-                        keyword: "minimum",
-                        params: {
-                            comparison: ">=",
-                            limit: 1
-                        },
-                        message: "must be >= 1"
-                    };
-                    if (vErrors === null) {
-                        vErrors = [err4];
-                    }
-                    else {
-                        vErrors.push(err4);
-                    }
-                    errors++;
-                }
-            }
-        }
-        if (data.drawVerticalLine !== undefined) {
-            if (typeof data.drawVerticalLine != "function") {
-                const err5 = {
-                    instancePath: instancePath + "/drawVerticalLine",
-                    schemaPath: "#/properties/drawVerticalLine/typeof",
-                    keyword: "typeof",
-                    params: {},
-                    message: "must pass \"typeof\" keyword validation"
-                };
-                if (vErrors === null) {
-                    vErrors = [err5];
-                }
-                else {
-                    vErrors.push(err5);
-                }
-                errors++;
-            }
-        }
-    }
-    else {
-        const err6 = {
-            instancePath,
-            schemaPath: "#/type",
-            keyword: "type",
-            params: {
-                type: "object"
-            },
-            message: "must be object"
-        };
-        if (vErrors === null) {
-            vErrors = [err6];
-        }
-        else {
-            vErrors.push(err6);
-        }
-        errors++;
-    }
-    validate86.errors = vErrors;
-    return errors === 0;
-}
-
-}(validators));
-
-var __importDefault = (commonjsGlobal$1 && commonjsGlobal$1.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(validateConfig$1, "__esModule", { value: true });
-validateConfig$1.validateConfig = void 0;
-const validators_1 = __importDefault(validators);
-const validateConfig = (schemaId, config) => {
-    const validate = validators_1.default[schemaId];
-    if (!validate(config) && validate.errors) {
-        // eslint-disable-next-line promise/prefer-await-to-callbacks
-        const errors = validate.errors.map((error) => {
-            return {
-                message: error.message,
-                params: error.params,
-                schemaPath: error.schemaPath,
-            };
-        });
-        /* eslint-disable no-console */
-        console.log('config', config);
-        console.log('errors', errors);
-        /* eslint-enable no-console */
-        throw new Error('Invalid config.');
-    }
-};
-validateConfig$1.validateConfig = validateConfig;
-
-Object.defineProperty(makeStreamConfig$1, "__esModule", { value: true });
-makeStreamConfig$1.makeStreamConfig = void 0;
-const utils_1$b = utils;
-const validateConfig_1$1 = validateConfig$1;
-/**
- * Creates a configuration for every column using default
- * values for the missing configuration properties.
- */
-const makeColumnsConfig$1 = (columnCount, columns = {}, columnDefault) => {
-    return Array.from({ length: columnCount }).map((_, index) => {
-        return {
-            alignment: 'left',
-            paddingLeft: 1,
-            paddingRight: 1,
-            truncate: Number.POSITIVE_INFINITY,
-            verticalAlignment: 'top',
-            wrapWord: false,
-            ...columnDefault,
-            ...columns[index],
-        };
-    });
-};
-/**
- * Makes a new configuration object out of the userConfig object
- * using default values for the missing configuration properties.
- */
-const makeStreamConfig = (config) => {
-    (0, validateConfig_1$1.validateConfig)('streamConfig.json', config);
-    if (config.columnDefault.width === undefined) {
-        throw new Error('Must provide config.columnDefault.width when creating a stream.');
-    }
-    return {
-        drawVerticalLine: () => {
-            return true;
-        },
-        ...config,
-        border: (0, utils_1$b.makeBorderConfig)(config.border),
-        columns: makeColumnsConfig$1(config.columnCount, config.columns, config.columnDefault),
-    };
-};
-makeStreamConfig$1.makeStreamConfig = makeStreamConfig;
-
-var mapDataUsingRowHeights = {};
-
-(function (exports) {
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.mapDataUsingRowHeights = exports.padCellVertically = void 0;
-const utils_1 = utils;
-const wrapCell_1 = wrapCell$1;
-const createEmptyStrings = (length) => {
-    return new Array(length).fill('');
-};
-const padCellVertically = (lines, rowHeight, verticalAlignment) => {
-    const availableLines = rowHeight - lines.length;
-    if (verticalAlignment === 'top') {
-        return [...lines, ...createEmptyStrings(availableLines)];
-    }
-    if (verticalAlignment === 'bottom') {
-        return [...createEmptyStrings(availableLines), ...lines];
-    }
-    return [
-        ...createEmptyStrings(Math.floor(availableLines / 2)),
-        ...lines,
-        ...createEmptyStrings(Math.ceil(availableLines / 2)),
-    ];
-};
-exports.padCellVertically = padCellVertically;
-const mapDataUsingRowHeights = (unmappedRows, rowHeights, config) => {
-    const nColumns = unmappedRows[0].length;
-    const mappedRows = unmappedRows.map((unmappedRow, unmappedRowIndex) => {
-        const outputRowHeight = rowHeights[unmappedRowIndex];
-        const outputRow = Array.from({ length: outputRowHeight }, () => {
-            return new Array(nColumns).fill('');
-        });
-        unmappedRow.forEach((cell, cellIndex) => {
-            var _a;
-            const containingRange = (_a = config.spanningCellManager) === null || _a === void 0 ? void 0 : _a.getContainingRange({ col: cellIndex,
-                row: unmappedRowIndex });
-            if (containingRange) {
-                containingRange.extractCellContent(unmappedRowIndex).forEach((cellLine, cellLineIndex) => {
-                    outputRow[cellLineIndex][cellIndex] = cellLine;
-                });
-                return;
-            }
-            const cellLines = (0, wrapCell_1.wrapCell)(cell, config.columns[cellIndex].width, config.columns[cellIndex].wrapWord);
-            const paddedCellLines = (0, exports.padCellVertically)(cellLines, outputRowHeight, config.columns[cellIndex].verticalAlignment);
-            paddedCellLines.forEach((cellLine, cellLineIndex) => {
-                outputRow[cellLineIndex][cellIndex] = cellLine;
-            });
-        });
-        return outputRow;
-    });
-    return (0, utils_1.flatten)(mappedRows);
-};
-exports.mapDataUsingRowHeights = mapDataUsingRowHeights;
-
-}(mapDataUsingRowHeights));
-
-var padTableData = {};
-
-(function (exports) {
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.padTableData = exports.padString = void 0;
-const padString = (input, paddingLeft, paddingRight) => {
-    return ' '.repeat(paddingLeft) + input + ' '.repeat(paddingRight);
-};
-exports.padString = padString;
-const padTableData = (rows, config) => {
-    return rows.map((cells, rowIndex) => {
-        return cells.map((cell, cellIndex) => {
-            var _a;
-            const containingRange = (_a = config.spanningCellManager) === null || _a === void 0 ? void 0 : _a.getContainingRange({ col: cellIndex,
-                row: rowIndex }, { mapped: true });
-            if (containingRange) {
-                return cell;
-            }
-            const { paddingLeft, paddingRight } = config.columns[cellIndex];
-            return (0, exports.padString)(cell, paddingLeft, paddingRight);
-        });
-    });
-};
-exports.padTableData = padTableData;
-
-}(padTableData));
-
-var stringifyTableData$1 = {};
-
-Object.defineProperty(stringifyTableData$1, "__esModule", { value: true });
-stringifyTableData$1.stringifyTableData = void 0;
-const utils_1$a = utils;
-const stringifyTableData = (rows) => {
-    return rows.map((cells) => {
-        return cells.map((cell) => {
-            return (0, utils_1$a.normalizeString)(String(cell));
-        });
-    });
-};
-stringifyTableData$1.stringifyTableData = stringifyTableData;
-
-var truncateTableData = {};
-
-var lodash_truncate = {exports: {}};
-
-/**
- * lodash (Custom Build) <https://lodash.com/>
- * Build: `lodash modularize exports="npm" -o ./`
- * Copyright jQuery Foundation and other contributors <https://jquery.org/>
- * Released under MIT license <https://lodash.com/license>
- * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
- * Copyright Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
- */
-
-(function (module, exports) {
-/** Used as default options for `_.truncate`. */
-var DEFAULT_TRUNC_LENGTH = 30,
-    DEFAULT_TRUNC_OMISSION = '...';
-
-/** Used as references for various `Number` constants. */
-var INFINITY = 1 / 0,
-    MAX_INTEGER = 1.7976931348623157e+308,
-    NAN = 0 / 0;
-
-/** `Object#toString` result references. */
-var regexpTag = '[object RegExp]',
-    symbolTag = '[object Symbol]';
-
-/** Used to match leading and trailing whitespace. */
-var reTrim = /^\s+|\s+$/g;
-
-/** Used to match `RegExp` flags from their coerced string values. */
-var reFlags = /\w*$/;
-
-/** Used to detect bad signed hexadecimal string values. */
-var reIsBadHex = /^[-+]0x[0-9a-f]+$/i;
-
-/** Used to detect binary string values. */
-var reIsBinary = /^0b[01]+$/i;
-
-/** Used to detect octal string values. */
-var reIsOctal = /^0o[0-7]+$/i;
-
-/** Used to compose unicode character classes. */
-var rsAstralRange = '\\ud800-\\udfff',
-    rsComboMarksRange = '\\u0300-\\u036f\\ufe20-\\ufe23',
-    rsComboSymbolsRange = '\\u20d0-\\u20f0',
-    rsVarRange = '\\ufe0e\\ufe0f';
-
-/** Used to compose unicode capture groups. */
-var rsAstral = '[' + rsAstralRange + ']',
-    rsCombo = '[' + rsComboMarksRange + rsComboSymbolsRange + ']',
-    rsFitz = '\\ud83c[\\udffb-\\udfff]',
-    rsModifier = '(?:' + rsCombo + '|' + rsFitz + ')',
-    rsNonAstral = '[^' + rsAstralRange + ']',
-    rsRegional = '(?:\\ud83c[\\udde6-\\uddff]){2}',
-    rsSurrPair = '[\\ud800-\\udbff][\\udc00-\\udfff]',
-    rsZWJ = '\\u200d';
-
-/** Used to compose unicode regexes. */
-var reOptMod = rsModifier + '?',
-    rsOptVar = '[' + rsVarRange + ']?',
-    rsOptJoin = '(?:' + rsZWJ + '(?:' + [rsNonAstral, rsRegional, rsSurrPair].join('|') + ')' + rsOptVar + reOptMod + ')*',
-    rsSeq = rsOptVar + reOptMod + rsOptJoin,
-    rsSymbol = '(?:' + [rsNonAstral + rsCombo + '?', rsCombo, rsRegional, rsSurrPair, rsAstral].join('|') + ')';
-
-/** Used to match [string symbols](https://mathiasbynens.be/notes/javascript-unicode). */
-var reUnicode = RegExp(rsFitz + '(?=' + rsFitz + ')|' + rsSymbol + rsSeq, 'g');
-
-/** Used to detect strings with [zero-width joiners or code points from the astral planes](http://eev.ee/blog/2015/09/12/dark-corners-of-unicode/). */
-var reHasUnicode = RegExp('[' + rsZWJ + rsAstralRange  + rsComboMarksRange + rsComboSymbolsRange + rsVarRange + ']');
-
-/** Built-in method references without a dependency on `root`. */
-var freeParseInt = parseInt;
-
-/** Detect free variable `global` from Node.js. */
-var freeGlobal = typeof commonjsGlobal$1 == 'object' && commonjsGlobal$1 && commonjsGlobal$1.Object === Object && commonjsGlobal$1;
-
-/** Detect free variable `self`. */
-var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
-
-/** Used as a reference to the global object. */
-var root = freeGlobal || freeSelf || Function('return this')();
-
-/** Detect free variable `exports`. */
-var freeExports = exports && !exports.nodeType && exports;
-
-/** Detect free variable `module`. */
-var freeModule = freeExports && 'object' == 'object' && module && !module.nodeType && module;
-
-/** Detect the popular CommonJS extension `module.exports`. */
-var moduleExports = freeModule && freeModule.exports === freeExports;
-
-/** Detect free variable `process` from Node.js. */
-var freeProcess = moduleExports && freeGlobal.process;
-
-/** Used to access faster Node.js helpers. */
-var nodeUtil = (function() {
-  try {
-    return freeProcess && freeProcess.binding('util');
-  } catch (e) {}
-}());
-
-/* Node.js helper references. */
-var nodeIsRegExp = nodeUtil && nodeUtil.isRegExp;
-
-/**
- * Gets the size of an ASCII `string`.
- *
- * @private
- * @param {string} string The string inspect.
- * @returns {number} Returns the string size.
- */
-var asciiSize = baseProperty('length');
-
-/**
- * Converts an ASCII `string` to an array.
- *
- * @private
- * @param {string} string The string to convert.
- * @returns {Array} Returns the converted array.
- */
-function asciiToArray(string) {
-  return string.split('');
-}
-
-/**
- * The base implementation of `_.property` without support for deep paths.
- *
- * @private
- * @param {string} key The key of the property to get.
- * @returns {Function} Returns the new accessor function.
- */
-function baseProperty(key) {
-  return function(object) {
-    return object == null ? undefined : object[key];
-  };
-}
-
-/**
- * The base implementation of `_.unary` without support for storing metadata.
- *
- * @private
- * @param {Function} func The function to cap arguments for.
- * @returns {Function} Returns the new capped function.
- */
-function baseUnary(func) {
-  return function(value) {
-    return func(value);
-  };
-}
-
-/**
- * Checks if `string` contains Unicode symbols.
- *
- * @private
- * @param {string} string The string to inspect.
- * @returns {boolean} Returns `true` if a symbol is found, else `false`.
- */
-function hasUnicode(string) {
-  return reHasUnicode.test(string);
-}
-
-/**
- * Gets the number of symbols in `string`.
- *
- * @private
- * @param {string} string The string to inspect.
- * @returns {number} Returns the string size.
- */
-function stringSize(string) {
-  return hasUnicode(string)
-    ? unicodeSize(string)
-    : asciiSize(string);
-}
-
-/**
- * Converts `string` to an array.
- *
- * @private
- * @param {string} string The string to convert.
- * @returns {Array} Returns the converted array.
- */
-function stringToArray(string) {
-  return hasUnicode(string)
-    ? unicodeToArray(string)
-    : asciiToArray(string);
-}
-
-/**
- * Gets the size of a Unicode `string`.
- *
- * @private
- * @param {string} string The string inspect.
- * @returns {number} Returns the string size.
- */
-function unicodeSize(string) {
-  var result = reUnicode.lastIndex = 0;
-  while (reUnicode.test(string)) {
-    result++;
-  }
-  return result;
-}
-
-/**
- * Converts a Unicode `string` to an array.
- *
- * @private
- * @param {string} string The string to convert.
- * @returns {Array} Returns the converted array.
- */
-function unicodeToArray(string) {
-  return string.match(reUnicode) || [];
-}
-
-/** Used for built-in method references. */
-var objectProto = Object.prototype;
-
-/**
- * Used to resolve the
- * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
- * of values.
- */
-var objectToString = objectProto.toString;
-
-/** Built-in value references. */
-var Symbol = root.Symbol;
-
-/** Used to convert symbols to primitives and strings. */
-var symbolProto = Symbol ? Symbol.prototype : undefined,
-    symbolToString = symbolProto ? symbolProto.toString : undefined;
-
-/**
- * The base implementation of `_.isRegExp` without Node.js optimizations.
- *
- * @private
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a regexp, else `false`.
- */
-function baseIsRegExp(value) {
-  return isObject(value) && objectToString.call(value) == regexpTag;
-}
-
-/**
- * The base implementation of `_.slice` without an iteratee call guard.
- *
- * @private
- * @param {Array} array The array to slice.
- * @param {number} [start=0] The start position.
- * @param {number} [end=array.length] The end position.
- * @returns {Array} Returns the slice of `array`.
- */
-function baseSlice(array, start, end) {
-  var index = -1,
-      length = array.length;
-
-  if (start < 0) {
-    start = -start > length ? 0 : (length + start);
-  }
-  end = end > length ? length : end;
-  if (end < 0) {
-    end += length;
-  }
-  length = start > end ? 0 : ((end - start) >>> 0);
-  start >>>= 0;
-
-  var result = Array(length);
-  while (++index < length) {
-    result[index] = array[index + start];
-  }
-  return result;
-}
-
-/**
- * The base implementation of `_.toString` which doesn't convert nullish
- * values to empty strings.
- *
- * @private
- * @param {*} value The value to process.
- * @returns {string} Returns the string.
- */
-function baseToString(value) {
-  // Exit early for strings to avoid a performance hit in some environments.
-  if (typeof value == 'string') {
-    return value;
-  }
-  if (isSymbol(value)) {
-    return symbolToString ? symbolToString.call(value) : '';
-  }
-  var result = (value + '');
-  return (result == '0' && (1 / value) == -INFINITY) ? '-0' : result;
-}
-
-/**
- * Casts `array` to a slice if it's needed.
- *
- * @private
- * @param {Array} array The array to inspect.
- * @param {number} start The start position.
- * @param {number} [end=array.length] The end position.
- * @returns {Array} Returns the cast slice.
- */
-function castSlice(array, start, end) {
-  var length = array.length;
-  end = end === undefined ? length : end;
-  return (!start && end >= length) ? array : baseSlice(array, start, end);
-}
-
-/**
- * Checks if `value` is the
- * [language type](http://www.ecma-international.org/ecma-262/7.0/#sec-ecmascript-language-types)
- * of `Object`. (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
- *
- * @static
- * @memberOf _
- * @since 0.1.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is an object, else `false`.
- * @example
- *
- * _.isObject({});
- * // => true
- *
- * _.isObject([1, 2, 3]);
- * // => true
- *
- * _.isObject(_.noop);
- * // => true
- *
- * _.isObject(null);
- * // => false
- */
-function isObject(value) {
-  var type = typeof value;
-  return !!value && (type == 'object' || type == 'function');
-}
-
-/**
- * Checks if `value` is object-like. A value is object-like if it's not `null`
- * and has a `typeof` result of "object".
- *
- * @static
- * @memberOf _
- * @since 4.0.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
- * @example
- *
- * _.isObjectLike({});
- * // => true
- *
- * _.isObjectLike([1, 2, 3]);
- * // => true
- *
- * _.isObjectLike(_.noop);
- * // => false
- *
- * _.isObjectLike(null);
- * // => false
- */
-function isObjectLike(value) {
-  return !!value && typeof value == 'object';
-}
-
-/**
- * Checks if `value` is classified as a `RegExp` object.
- *
- * @static
- * @memberOf _
- * @since 0.1.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a regexp, else `false`.
- * @example
- *
- * _.isRegExp(/abc/);
- * // => true
- *
- * _.isRegExp('/abc/');
- * // => false
- */
-var isRegExp = nodeIsRegExp ? baseUnary(nodeIsRegExp) : baseIsRegExp;
-
-/**
- * Checks if `value` is classified as a `Symbol` primitive or object.
- *
- * @static
- * @memberOf _
- * @since 4.0.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a symbol, else `false`.
- * @example
- *
- * _.isSymbol(Symbol.iterator);
- * // => true
- *
- * _.isSymbol('abc');
- * // => false
- */
-function isSymbol(value) {
-  return typeof value == 'symbol' ||
-    (isObjectLike(value) && objectToString.call(value) == symbolTag);
-}
-
-/**
- * Converts `value` to a finite number.
- *
- * @static
- * @memberOf _
- * @since 4.12.0
- * @category Lang
- * @param {*} value The value to convert.
- * @returns {number} Returns the converted number.
- * @example
- *
- * _.toFinite(3.2);
- * // => 3.2
- *
- * _.toFinite(Number.MIN_VALUE);
- * // => 5e-324
- *
- * _.toFinite(Infinity);
- * // => 1.7976931348623157e+308
- *
- * _.toFinite('3.2');
- * // => 3.2
- */
-function toFinite(value) {
-  if (!value) {
-    return value === 0 ? value : 0;
-  }
-  value = toNumber(value);
-  if (value === INFINITY || value === -INFINITY) {
-    var sign = (value < 0 ? -1 : 1);
-    return sign * MAX_INTEGER;
-  }
-  return value === value ? value : 0;
-}
-
-/**
- * Converts `value` to an integer.
- *
- * **Note:** This method is loosely based on
- * [`ToInteger`](http://www.ecma-international.org/ecma-262/7.0/#sec-tointeger).
- *
- * @static
- * @memberOf _
- * @since 4.0.0
- * @category Lang
- * @param {*} value The value to convert.
- * @returns {number} Returns the converted integer.
- * @example
- *
- * _.toInteger(3.2);
- * // => 3
- *
- * _.toInteger(Number.MIN_VALUE);
- * // => 0
- *
- * _.toInteger(Infinity);
- * // => 1.7976931348623157e+308
- *
- * _.toInteger('3.2');
- * // => 3
- */
-function toInteger(value) {
-  var result = toFinite(value),
-      remainder = result % 1;
-
-  return result === result ? (remainder ? result - remainder : result) : 0;
-}
-
-/**
- * Converts `value` to a number.
- *
- * @static
- * @memberOf _
- * @since 4.0.0
- * @category Lang
- * @param {*} value The value to process.
- * @returns {number} Returns the number.
- * @example
- *
- * _.toNumber(3.2);
- * // => 3.2
- *
- * _.toNumber(Number.MIN_VALUE);
- * // => 5e-324
- *
- * _.toNumber(Infinity);
- * // => Infinity
- *
- * _.toNumber('3.2');
- * // => 3.2
- */
-function toNumber(value) {
-  if (typeof value == 'number') {
-    return value;
-  }
-  if (isSymbol(value)) {
-    return NAN;
-  }
-  if (isObject(value)) {
-    var other = typeof value.valueOf == 'function' ? value.valueOf() : value;
-    value = isObject(other) ? (other + '') : other;
-  }
-  if (typeof value != 'string') {
-    return value === 0 ? value : +value;
-  }
-  value = value.replace(reTrim, '');
-  var isBinary = reIsBinary.test(value);
-  return (isBinary || reIsOctal.test(value))
-    ? freeParseInt(value.slice(2), isBinary ? 2 : 8)
-    : (reIsBadHex.test(value) ? NAN : +value);
-}
-
-/**
- * Converts `value` to a string. An empty string is returned for `null`
- * and `undefined` values. The sign of `-0` is preserved.
- *
- * @static
- * @memberOf _
- * @since 4.0.0
- * @category Lang
- * @param {*} value The value to process.
- * @returns {string} Returns the string.
- * @example
- *
- * _.toString(null);
- * // => ''
- *
- * _.toString(-0);
- * // => '-0'
- *
- * _.toString([1, 2, 3]);
- * // => '1,2,3'
- */
-function toString(value) {
-  return value == null ? '' : baseToString(value);
-}
-
-/**
- * Truncates `string` if it's longer than the given maximum string length.
- * The last characters of the truncated string are replaced with the omission
- * string which defaults to "...".
- *
- * @static
- * @memberOf _
- * @since 4.0.0
- * @category String
- * @param {string} [string=''] The string to truncate.
- * @param {Object} [options={}] The options object.
- * @param {number} [options.length=30] The maximum string length.
- * @param {string} [options.omission='...'] The string to indicate text is omitted.
- * @param {RegExp|string} [options.separator] The separator pattern to truncate to.
- * @returns {string} Returns the truncated string.
- * @example
- *
- * _.truncate('hi-diddly-ho there, neighborino');
- * // => 'hi-diddly-ho there, neighbo...'
- *
- * _.truncate('hi-diddly-ho there, neighborino', {
- *   'length': 24,
- *   'separator': ' '
- * });
- * // => 'hi-diddly-ho there,...'
- *
- * _.truncate('hi-diddly-ho there, neighborino', {
- *   'length': 24,
- *   'separator': /,? +/
- * });
- * // => 'hi-diddly-ho there...'
- *
- * _.truncate('hi-diddly-ho there, neighborino', {
- *   'omission': ' [...]'
- * });
- * // => 'hi-diddly-ho there, neig [...]'
- */
-function truncate(string, options) {
-  var length = DEFAULT_TRUNC_LENGTH,
-      omission = DEFAULT_TRUNC_OMISSION;
-
-  if (isObject(options)) {
-    var separator = 'separator' in options ? options.separator : separator;
-    length = 'length' in options ? toInteger(options.length) : length;
-    omission = 'omission' in options ? baseToString(options.omission) : omission;
-  }
-  string = toString(string);
-
-  var strLength = string.length;
-  if (hasUnicode(string)) {
-    var strSymbols = stringToArray(string);
-    strLength = strSymbols.length;
-  }
-  if (length >= strLength) {
-    return string;
-  }
-  var end = length - stringSize(omission);
-  if (end < 1) {
-    return omission;
-  }
-  var result = strSymbols
-    ? castSlice(strSymbols, 0, end).join('')
-    : string.slice(0, end);
-
-  if (separator === undefined) {
-    return result + omission;
-  }
-  if (strSymbols) {
-    end += (result.length - end);
-  }
-  if (isRegExp(separator)) {
-    if (string.slice(end).search(separator)) {
-      var match,
-          substring = result;
-
-      if (!separator.global) {
-        separator = RegExp(separator.source, toString(reFlags.exec(separator)) + 'g');
-      }
-      separator.lastIndex = 0;
-      while ((match = separator.exec(substring))) {
-        var newEnd = match.index;
-      }
-      result = result.slice(0, newEnd === undefined ? end : newEnd);
-    }
-  } else if (string.indexOf(baseToString(separator), end) != end) {
-    var index = result.lastIndexOf(separator);
-    if (index > -1) {
-      result = result.slice(0, index);
-    }
-  }
-  return result + omission;
-}
-
-module.exports = truncate;
-}(lodash_truncate, lodash_truncate.exports));
-
-(function (exports) {
-var __importDefault = (commonjsGlobal$1 && commonjsGlobal$1.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.truncateTableData = exports.truncateString = void 0;
-const lodash_truncate_1 = __importDefault(lodash_truncate.exports);
-const truncateString = (input, length) => {
-    return (0, lodash_truncate_1.default)(input, { length,
-        omission: '…' });
-};
-exports.truncateString = truncateString;
-/**
- * @todo Make it work with ASCII content.
- */
-const truncateTableData = (rows, truncates) => {
-    return rows.map((cells) => {
-        return cells.map((cell, cellIndex) => {
-            return (0, exports.truncateString)(cell, truncates[cellIndex]);
-        });
-    });
-};
-exports.truncateTableData = truncateTableData;
-
-}(truncateTableData));
-
-Object.defineProperty(createStream$1, "__esModule", { value: true });
-createStream$1.createStream = void 0;
-const alignTableData_1$1 = alignTableData$1;
-const calculateRowHeights_1$1 = calculateRowHeights$1;
-const drawBorder_1$1 = drawBorder;
-const drawRow_1$1 = drawRow$1;
-const makeStreamConfig_1 = makeStreamConfig$1;
-const mapDataUsingRowHeights_1$2 = mapDataUsingRowHeights;
-const padTableData_1$2 = padTableData;
-const stringifyTableData_1$1 = stringifyTableData$1;
-const truncateTableData_1$2 = truncateTableData;
-const utils_1$9 = utils;
-const prepareData = (data, config) => {
-    let rows = (0, stringifyTableData_1$1.stringifyTableData)(data);
-    rows = (0, truncateTableData_1$2.truncateTableData)(rows, (0, utils_1$9.extractTruncates)(config));
-    const rowHeights = (0, calculateRowHeights_1$1.calculateRowHeights)(rows, config);
-    rows = (0, mapDataUsingRowHeights_1$2.mapDataUsingRowHeights)(rows, rowHeights, config);
-    rows = (0, alignTableData_1$1.alignTableData)(rows, config);
-    rows = (0, padTableData_1$2.padTableData)(rows, config);
-    return rows;
-};
-const create = (row, columnWidths, config) => {
-    const rows = prepareData([row], config);
-    const body = rows.map((literalRow) => {
-        return (0, drawRow_1$1.drawRow)(literalRow, config);
-    }).join('');
-    let output;
-    output = '';
-    output += (0, drawBorder_1$1.drawBorderTop)(columnWidths, config);
-    output += body;
-    output += (0, drawBorder_1$1.drawBorderBottom)(columnWidths, config);
-    output = output.trimEnd();
-    process.stdout.write(output);
-};
-const append = (row, columnWidths, config) => {
-    const rows = prepareData([row], config);
-    const body = rows.map((literalRow) => {
-        return (0, drawRow_1$1.drawRow)(literalRow, config);
-    }).join('');
-    let output = '';
-    const bottom = (0, drawBorder_1$1.drawBorderBottom)(columnWidths, config);
-    if (bottom !== '\n') {
-        output = '\r\u001B[K';
-    }
-    output += (0, drawBorder_1$1.drawBorderJoin)(columnWidths, config);
-    output += body;
-    output += bottom;
-    output = output.trimEnd();
-    process.stdout.write(output);
-};
-const createStream = (userConfig) => {
-    const config = (0, makeStreamConfig_1.makeStreamConfig)(userConfig);
-    const columnWidths = Object.values(config.columns).map((column) => {
-        return column.width + column.paddingLeft + column.paddingRight;
-    });
-    let empty = true;
-    return {
-        write: (row) => {
-            if (row.length !== config.columnCount) {
-                throw new Error('Row cell count does not match the config.columnCount.');
-            }
-            if (empty) {
-                empty = false;
-                create(row, columnWidths, config);
-            }
-            else {
-                append(row, columnWidths, config);
-            }
-        },
-    };
-};
-createStream$1.createStream = createStream;
-
-var table$1 = {};
-
-var calculateOutputColumnWidths$1 = {};
-
-Object.defineProperty(calculateOutputColumnWidths$1, "__esModule", { value: true });
-calculateOutputColumnWidths$1.calculateOutputColumnWidths = void 0;
-const calculateOutputColumnWidths = (config) => {
-    return config.columns.map((col) => {
-        return col.paddingLeft + col.width + col.paddingRight;
-    });
-};
-calculateOutputColumnWidths$1.calculateOutputColumnWidths = calculateOutputColumnWidths;
-
-var drawTable$1 = {};
-
-Object.defineProperty(drawTable$1, "__esModule", { value: true });
-drawTable$1.drawTable = void 0;
-const drawBorder_1 = drawBorder;
-const drawContent_1 = drawContent$1;
-const drawRow_1 = drawRow$1;
-const utils_1$8 = utils;
-const drawTable = (rows, outputColumnWidths, rowHeights, config) => {
-    const { drawHorizontalLine, singleLine, } = config;
-    const contents = (0, utils_1$8.groupBySizes)(rows, rowHeights).map((group, groupIndex) => {
-        return group.map((row) => {
-            return (0, drawRow_1.drawRow)(row, { ...config,
-                rowIndex: groupIndex });
-        }).join('');
-    });
-    return (0, drawContent_1.drawContent)({ contents,
-        drawSeparator: (index, size) => {
-            // Top/bottom border
-            if (index === 0 || index === size) {
-                return drawHorizontalLine(index, size);
-            }
-            return !singleLine && drawHorizontalLine(index, size);
-        },
-        elementType: 'row',
-        rowIndex: -1,
-        separatorGetter: (0, drawBorder_1.createTableBorderGetter)(outputColumnWidths, { ...config,
-            rowCount: contents.length }),
-        spanningCellManager: config.spanningCellManager });
-};
-drawTable$1.drawTable = drawTable;
-
-var injectHeaderConfig$1 = {};
-
-Object.defineProperty(injectHeaderConfig$1, "__esModule", { value: true });
-injectHeaderConfig$1.injectHeaderConfig = void 0;
-const injectHeaderConfig = (rows, config) => {
-    var _a;
-    let spanningCellConfig = (_a = config.spanningCells) !== null && _a !== void 0 ? _a : [];
-    const headerConfig = config.header;
-    const adjustedRows = [...rows];
-    if (headerConfig) {
-        spanningCellConfig = spanningCellConfig.map(({ row, ...rest }) => {
-            return { ...rest,
-                row: row + 1 };
-        });
-        const { content, ...headerStyles } = headerConfig;
-        spanningCellConfig.unshift({ alignment: 'center',
-            col: 0,
-            colSpan: rows[0].length,
-            paddingLeft: 1,
-            paddingRight: 1,
-            row: 0,
-            wrapWord: false,
-            ...headerStyles });
-        adjustedRows.unshift([content, ...Array.from({ length: rows[0].length - 1 }).fill('')]);
-    }
-    return [adjustedRows,
-        spanningCellConfig];
-};
-injectHeaderConfig$1.injectHeaderConfig = injectHeaderConfig;
-
-var makeTableConfig$1 = {};
-
-var calculateMaximumColumnWidths = {};
-
-(function (exports) {
-var __importDefault = (commonjsGlobal$1 && commonjsGlobal$1.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.calculateMaximumColumnWidths = exports.calculateMaximumCellWidth = void 0;
-const string_width_1 = __importDefault(stringWidth$1.exports);
-const utils_1 = utils;
-const calculateMaximumCellWidth = (cell) => {
-    return Math.max(...cell.split('\n').map(string_width_1.default));
-};
-exports.calculateMaximumCellWidth = calculateMaximumCellWidth;
-/**
- * Produces an array of values that describe the largest value length (width) in every column.
- */
-const calculateMaximumColumnWidths = (rows, spanningCellConfigs = []) => {
-    const columnWidths = new Array(rows[0].length).fill(0);
-    const rangeCoordinates = spanningCellConfigs.map(utils_1.calculateRangeCoordinate);
-    const isSpanningCell = (rowIndex, columnIndex) => {
-        return rangeCoordinates.some((rangeCoordinate) => {
-            return (0, utils_1.isCellInRange)({ col: columnIndex,
-                row: rowIndex }, rangeCoordinate);
-        });
-    };
-    rows.forEach((row, rowIndex) => {
-        row.forEach((cell, cellIndex) => {
-            if (isSpanningCell(rowIndex, cellIndex)) {
-                return;
-            }
-            columnWidths[cellIndex] = Math.max(columnWidths[cellIndex], (0, exports.calculateMaximumCellWidth)(cell));
-        });
-    });
-    return columnWidths;
-};
-exports.calculateMaximumColumnWidths = calculateMaximumColumnWidths;
-
-}(calculateMaximumColumnWidths));
-
-var spanningCellManager = {};
-
-var alignSpanningCell = {};
-
-Object.defineProperty(alignSpanningCell, "__esModule", { value: true });
-alignSpanningCell.alignVerticalRangeContent = alignSpanningCell.wrapRangeContent = void 0;
-const alignString_1 = alignString$1;
-const mapDataUsingRowHeights_1$1 = mapDataUsingRowHeights;
-const padTableData_1$1 = padTableData;
-const truncateTableData_1$1 = truncateTableData;
-const utils_1$7 = utils;
-const wrapCell_1 = wrapCell$1;
-/**
- * Fill content into all cells in range in order to calculate total height
- */
-const wrapRangeContent = (rangeConfig, rangeWidth, context) => {
-    const { topLeft, paddingRight, paddingLeft, truncate, wrapWord, alignment } = rangeConfig;
-    const originalContent = context.rows[topLeft.row][topLeft.col];
-    const contentWidth = rangeWidth - paddingLeft - paddingRight;
-    return (0, wrapCell_1.wrapCell)((0, truncateTableData_1$1.truncateString)(originalContent, truncate), contentWidth, wrapWord).map((line) => {
-        const alignedLine = (0, alignString_1.alignString)(line, contentWidth, alignment);
-        return (0, padTableData_1$1.padString)(alignedLine, paddingLeft, paddingRight);
-    });
-};
-alignSpanningCell.wrapRangeContent = wrapRangeContent;
-const alignVerticalRangeContent = (range, content, context) => {
-    const { rows, drawHorizontalLine, rowHeights } = context;
-    const { topLeft, bottomRight, verticalAlignment } = range;
-    // They are empty before calculateRowHeights function run
-    if (rowHeights.length === 0) {
-        return [];
-    }
-    const totalCellHeight = (0, utils_1$7.sumArray)(rowHeights.slice(topLeft.row, bottomRight.row + 1));
-    const totalBorderHeight = bottomRight.row - topLeft.row;
-    const hiddenHorizontalBorderCount = (0, utils_1$7.sequence)(topLeft.row + 1, bottomRight.row).filter((horizontalBorderIndex) => {
-        return !drawHorizontalLine(horizontalBorderIndex, rows.length);
-    }).length;
-    const availableRangeHeight = totalCellHeight + totalBorderHeight - hiddenHorizontalBorderCount;
-    return (0, mapDataUsingRowHeights_1$1.padCellVertically)(content, availableRangeHeight, verticalAlignment).map((line) => {
-        if (line.length === 0) {
-            return ' '.repeat(content[0].length);
-        }
-        return line;
-    });
-};
-alignSpanningCell.alignVerticalRangeContent = alignVerticalRangeContent;
-
-var calculateSpanningCellWidth$1 = {};
-
-Object.defineProperty(calculateSpanningCellWidth$1, "__esModule", { value: true });
-calculateSpanningCellWidth$1.calculateSpanningCellWidth = void 0;
-const utils_1$6 = utils;
-const calculateSpanningCellWidth = (rangeConfig, dependencies) => {
-    const { columnsConfig, drawVerticalLine } = dependencies;
-    const { topLeft, bottomRight } = rangeConfig;
-    const totalWidth = (0, utils_1$6.sumArray)(columnsConfig.slice(topLeft.col, bottomRight.col + 1).map(({ width }) => {
-        return width;
-    }));
-    const totalPadding = topLeft.col === bottomRight.col ?
-        columnsConfig[topLeft.col].paddingRight +
-            columnsConfig[bottomRight.col].paddingLeft :
-        (0, utils_1$6.sumArray)(columnsConfig
-            .slice(topLeft.col, bottomRight.col + 1)
-            .map(({ paddingLeft, paddingRight }) => {
-            return paddingLeft + paddingRight;
-        }));
-    const totalBorderWidths = bottomRight.col - topLeft.col;
-    const totalHiddenVerticalBorders = (0, utils_1$6.sequence)(topLeft.col + 1, bottomRight.col).filter((verticalBorderIndex) => {
-        return !drawVerticalLine(verticalBorderIndex, columnsConfig.length);
-    }).length;
-    return totalWidth + totalPadding + totalBorderWidths - totalHiddenVerticalBorders;
-};
-calculateSpanningCellWidth$1.calculateSpanningCellWidth = calculateSpanningCellWidth;
-
-var makeRangeConfig$1 = {};
-
-Object.defineProperty(makeRangeConfig$1, "__esModule", { value: true });
-makeRangeConfig$1.makeRangeConfig = void 0;
-const utils_1$5 = utils;
-const makeRangeConfig = (spanningCellConfig, columnsConfig) => {
-    var _a;
-    const { topLeft, bottomRight } = (0, utils_1$5.calculateRangeCoordinate)(spanningCellConfig);
-    const cellConfig = {
-        ...columnsConfig[topLeft.col],
-        ...spanningCellConfig,
-        paddingRight: (_a = spanningCellConfig.paddingRight) !== null && _a !== void 0 ? _a : columnsConfig[bottomRight.col].paddingRight,
-    };
-    return { ...cellConfig,
-        bottomRight,
-        topLeft };
-};
-makeRangeConfig$1.makeRangeConfig = makeRangeConfig;
-
-Object.defineProperty(spanningCellManager, "__esModule", { value: true });
-spanningCellManager.createSpanningCellManager = void 0;
-const alignSpanningCell_1 = alignSpanningCell;
-const calculateSpanningCellWidth_1 = calculateSpanningCellWidth$1;
-const makeRangeConfig_1 = makeRangeConfig$1;
-const utils_1$4 = utils;
-const findRangeConfig = (cell, rangeConfigs) => {
-    return rangeConfigs.find((rangeCoordinate) => {
-        return (0, utils_1$4.isCellInRange)(cell, rangeCoordinate);
-    });
-};
-const getContainingRange = (rangeConfig, context) => {
-    const width = (0, calculateSpanningCellWidth_1.calculateSpanningCellWidth)(rangeConfig, context);
-    const wrappedContent = (0, alignSpanningCell_1.wrapRangeContent)(rangeConfig, width, context);
-    const alignedContent = (0, alignSpanningCell_1.alignVerticalRangeContent)(rangeConfig, wrappedContent, context);
-    const getCellContent = (rowIndex) => {
-        const { topLeft } = rangeConfig;
-        const { drawHorizontalLine, rowHeights } = context;
-        const totalWithinHorizontalBorderHeight = rowIndex - topLeft.row;
-        const totalHiddenHorizontalBorderHeight = (0, utils_1$4.sequence)(topLeft.row + 1, rowIndex).filter((index) => {
-            /* istanbul ignore next */
-            return !(drawHorizontalLine === null || drawHorizontalLine === void 0 ? void 0 : drawHorizontalLine(index, rowHeights.length));
-        }).length;
-        const offset = (0, utils_1$4.sumArray)(rowHeights.slice(topLeft.row, rowIndex)) + totalWithinHorizontalBorderHeight - totalHiddenHorizontalBorderHeight;
-        return alignedContent.slice(offset, offset + rowHeights[rowIndex]);
-    };
-    const getBorderContent = (borderIndex) => {
-        const { topLeft } = rangeConfig;
-        const offset = (0, utils_1$4.sumArray)(context.rowHeights.slice(topLeft.row, borderIndex)) + (borderIndex - topLeft.row - 1);
-        return alignedContent[offset];
-    };
-    return {
-        ...rangeConfig,
-        extractBorderContent: getBorderContent,
-        extractCellContent: getCellContent,
-        height: wrappedContent.length,
-        width,
-    };
-};
-const inSameRange = (cell1, cell2, ranges) => {
-    const range1 = findRangeConfig(cell1, ranges);
-    const range2 = findRangeConfig(cell2, ranges);
-    if (range1 && range2) {
-        return (0, utils_1$4.areCellEqual)(range1.topLeft, range2.topLeft);
-    }
-    return false;
-};
-const hashRange = (range) => {
-    const { row, col } = range.topLeft;
-    return `${row}/${col}`;
-};
-const createSpanningCellManager = (parameters) => {
-    const { spanningCellConfigs, columnsConfig } = parameters;
-    const ranges = spanningCellConfigs.map((config) => {
-        return (0, makeRangeConfig_1.makeRangeConfig)(config, columnsConfig);
-    });
-    const rangeCache = {};
-    let rowHeights = [];
-    return { getContainingRange: (cell, options) => {
-            var _a;
-            const originalRow = (options === null || options === void 0 ? void 0 : options.mapped) ? (0, utils_1$4.findOriginalRowIndex)(rowHeights, cell.row) : cell.row;
-            const range = findRangeConfig({ ...cell,
-                row: originalRow }, ranges);
-            if (!range) {
-                return undefined;
-            }
-            if (rowHeights.length === 0) {
-                return getContainingRange(range, { ...parameters,
-                    rowHeights });
-            }
-            const hash = hashRange(range);
-            (_a = rangeCache[hash]) !== null && _a !== void 0 ? _a : (rangeCache[hash] = getContainingRange(range, { ...parameters,
-                rowHeights }));
-            return rangeCache[hash];
-        },
-        inSameRange: (cell1, cell2) => {
-            return inSameRange(cell1, cell2, ranges);
-        },
-        rowHeights,
-        setRowHeights: (_rowHeights) => {
-            rowHeights = _rowHeights;
-        } };
-};
-spanningCellManager.createSpanningCellManager = createSpanningCellManager;
-
-var validateSpanningCellConfig$1 = {};
-
-Object.defineProperty(validateSpanningCellConfig$1, "__esModule", { value: true });
-validateSpanningCellConfig$1.validateSpanningCellConfig = void 0;
-const utils_1$3 = utils;
-const inRange = (start, end, value) => {
-    return start <= value && value <= end;
-};
-const validateSpanningCellConfig = (rows, configs) => {
-    const [nRow, nCol] = [rows.length, rows[0].length];
-    configs.forEach((config, configIndex) => {
-        const { colSpan, rowSpan } = config;
-        if (colSpan === undefined && rowSpan === undefined) {
-            throw new Error(`Expect at least colSpan or rowSpan is provided in config.spanningCells[${configIndex}]`);
-        }
-        if (colSpan !== undefined && colSpan < 1) {
-            throw new Error(`Expect colSpan is not equal zero, instead got: ${colSpan} in config.spanningCells[${configIndex}]`);
-        }
-        if (rowSpan !== undefined && rowSpan < 1) {
-            throw new Error(`Expect rowSpan is not equal zero, instead got: ${rowSpan} in config.spanningCells[${configIndex}]`);
-        }
-    });
-    const rangeCoordinates = configs.map(utils_1$3.calculateRangeCoordinate);
-    rangeCoordinates.forEach(({ topLeft, bottomRight }, rangeIndex) => {
-        if (!inRange(0, nCol - 1, topLeft.col) ||
-            !inRange(0, nRow - 1, topLeft.row) ||
-            !inRange(0, nCol - 1, bottomRight.col) ||
-            !inRange(0, nRow - 1, bottomRight.row)) {
-            throw new Error(`Some cells in config.spanningCells[${rangeIndex}] are out of the table`);
-        }
-    });
-    const configOccupy = Array.from({ length: nRow }, () => {
-        return Array.from({ length: nCol });
-    });
-    rangeCoordinates.forEach(({ topLeft, bottomRight }, rangeIndex) => {
-        (0, utils_1$3.sequence)(topLeft.row, bottomRight.row).forEach((row) => {
-            (0, utils_1$3.sequence)(topLeft.col, bottomRight.col).forEach((col) => {
-                if (configOccupy[row][col] !== undefined) {
-                    throw new Error(`Spanning cells in config.spanningCells[${configOccupy[row][col]}] and config.spanningCells[${rangeIndex}] are overlap each other`);
-                }
-                configOccupy[row][col] = rangeIndex;
-            });
-        });
-    });
-};
-validateSpanningCellConfig$1.validateSpanningCellConfig = validateSpanningCellConfig;
-
-Object.defineProperty(makeTableConfig$1, "__esModule", { value: true });
-makeTableConfig$1.makeTableConfig = void 0;
-const calculateMaximumColumnWidths_1 = calculateMaximumColumnWidths;
-const spanningCellManager_1 = spanningCellManager;
-const utils_1$2 = utils;
-const validateConfig_1 = validateConfig$1;
-const validateSpanningCellConfig_1 = validateSpanningCellConfig$1;
-/**
- * Creates a configuration for every column using default
- * values for the missing configuration properties.
- */
-const makeColumnsConfig = (rows, columns, columnDefault, spanningCellConfigs) => {
-    const columnWidths = (0, calculateMaximumColumnWidths_1.calculateMaximumColumnWidths)(rows, spanningCellConfigs);
-    return rows[0].map((_, columnIndex) => {
-        return {
-            alignment: 'left',
-            paddingLeft: 1,
-            paddingRight: 1,
-            truncate: Number.POSITIVE_INFINITY,
-            verticalAlignment: 'top',
-            width: columnWidths[columnIndex],
-            wrapWord: false,
-            ...columnDefault,
-            ...columns === null || columns === void 0 ? void 0 : columns[columnIndex],
-        };
-    });
-};
-/**
- * Makes a new configuration object out of the userConfig object
- * using default values for the missing configuration properties.
- */
-const makeTableConfig = (rows, config = {}, injectedSpanningCellConfig) => {
-    var _a, _b, _c, _d, _e;
-    (0, validateConfig_1.validateConfig)('config.json', config);
-    (0, validateSpanningCellConfig_1.validateSpanningCellConfig)(rows, (_a = config.spanningCells) !== null && _a !== void 0 ? _a : []);
-    const spanningCellConfigs = (_b = injectedSpanningCellConfig !== null && injectedSpanningCellConfig !== void 0 ? injectedSpanningCellConfig : config.spanningCells) !== null && _b !== void 0 ? _b : [];
-    const columnsConfig = makeColumnsConfig(rows, config.columns, config.columnDefault, spanningCellConfigs);
-    const drawVerticalLine = (_c = config.drawVerticalLine) !== null && _c !== void 0 ? _c : (() => {
-        return true;
-    });
-    const drawHorizontalLine = (_d = config.drawHorizontalLine) !== null && _d !== void 0 ? _d : (() => {
-        return true;
-    });
-    return {
-        ...config,
-        border: (0, utils_1$2.makeBorderConfig)(config.border),
-        columns: columnsConfig,
-        drawHorizontalLine,
-        drawVerticalLine,
-        singleLine: (_e = config.singleLine) !== null && _e !== void 0 ? _e : false,
-        spanningCellManager: (0, spanningCellManager_1.createSpanningCellManager)({
-            columnsConfig,
-            drawHorizontalLine,
-            drawVerticalLine,
-            rows,
-            spanningCellConfigs,
-        }),
-    };
-};
-makeTableConfig$1.makeTableConfig = makeTableConfig;
-
-var validateTableData$1 = {};
-
-Object.defineProperty(validateTableData$1, "__esModule", { value: true });
-validateTableData$1.validateTableData = void 0;
-const utils_1$1 = utils;
-const validateTableData = (rows) => {
-    if (!Array.isArray(rows)) {
-        throw new TypeError('Table data must be an array.');
-    }
-    if (rows.length === 0) {
-        throw new Error('Table must define at least one row.');
-    }
-    if (rows[0].length === 0) {
-        throw new Error('Table must define at least one column.');
-    }
-    const columnNumber = rows[0].length;
-    for (const row of rows) {
-        if (!Array.isArray(row)) {
-            throw new TypeError('Table row data must be an array.');
-        }
-        if (row.length !== columnNumber) {
-            throw new Error('Table must have a consistent number of cells.');
-        }
-        for (const cell of row) {
-            // eslint-disable-next-line no-control-regex
-            if (/[\u0001-\u0006\u0008\u0009\u000B-\u001A]/.test((0, utils_1$1.normalizeString)(String(cell)))) {
-                throw new Error('Table data must not contain control characters.');
-            }
-        }
-    }
-};
-validateTableData$1.validateTableData = validateTableData;
-
-Object.defineProperty(table$1, "__esModule", { value: true });
-table$1.table = void 0;
-const alignTableData_1 = alignTableData$1;
-const calculateOutputColumnWidths_1 = calculateOutputColumnWidths$1;
-const calculateRowHeights_1 = calculateRowHeights$1;
-const drawTable_1 = drawTable$1;
-const injectHeaderConfig_1 = injectHeaderConfig$1;
-const makeTableConfig_1 = makeTableConfig$1;
-const mapDataUsingRowHeights_1 = mapDataUsingRowHeights;
-const padTableData_1 = padTableData;
-const stringifyTableData_1 = stringifyTableData$1;
-const truncateTableData_1 = truncateTableData;
-const utils_1 = utils;
-const validateTableData_1 = validateTableData$1;
-const table = (data, userConfig = {}) => {
-    (0, validateTableData_1.validateTableData)(data);
-    let rows = (0, stringifyTableData_1.stringifyTableData)(data);
-    const [injectedRows, injectedSpanningCellConfig] = (0, injectHeaderConfig_1.injectHeaderConfig)(rows, userConfig);
-    const config = (0, makeTableConfig_1.makeTableConfig)(injectedRows, userConfig, injectedSpanningCellConfig);
-    rows = (0, truncateTableData_1.truncateTableData)(injectedRows, (0, utils_1.extractTruncates)(config));
-    const rowHeights = (0, calculateRowHeights_1.calculateRowHeights)(rows, config);
-    config.spanningCellManager.setRowHeights(rowHeights);
-    rows = (0, mapDataUsingRowHeights_1.mapDataUsingRowHeights)(rows, rowHeights, config);
-    rows = (0, alignTableData_1.alignTableData)(rows, config);
-    rows = (0, padTableData_1.padTableData)(rows, config);
-    const outputColumnWidths = (0, calculateOutputColumnWidths_1.calculateOutputColumnWidths)(config);
-    return (0, drawTable_1.drawTable)(rows, outputColumnWidths, rowHeights, config);
-};
-table$1.table = table;
-
-var api = {};
-
-Object.defineProperty(api, "__esModule", { value: true });
-
-(function (exports) {
-var __createBinding = (commonjsGlobal$1 && commonjsGlobal$1.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __exportStar = (commonjsGlobal$1 && commonjsGlobal$1.__exportStar) || function(m, exports) {
-    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.getBorderCharacters = exports.createStream = exports.table = void 0;
-const createStream_1 = createStream$1;
-Object.defineProperty(exports, "createStream", { enumerable: true, get: function () { return createStream_1.createStream; } });
-const getBorderCharacters_1 = getBorderCharacters$1;
-Object.defineProperty(exports, "getBorderCharacters", { enumerable: true, get: function () { return getBorderCharacters_1.getBorderCharacters; } });
-const table_1 = table$1;
-Object.defineProperty(exports, "table", { enumerable: true, get: function () { return table_1.table; } });
-__exportStar(api, exports);
-
-}(src));
-
-var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
-
-var win;
-
-if (typeof window !== "undefined") {
-    win = window;
-} else if (typeof commonjsGlobal !== "undefined") {
-    win = commonjsGlobal;
-} else if (typeof self !== "undefined"){
-    win = self;
-} else {
-    win = {};
-}
-
-var window_1 = win;
-
-var window$1 = window_1;
-var nodeCrypto = require$$1$2;
-
-function getRandomValues(buf) {
-  if (window$1.crypto && window$1.crypto.getRandomValues) {
-    return window$1.crypto.getRandomValues(buf);
-  }
-  if (typeof window$1.msCrypto === 'object' && typeof window$1.msCrypto.getRandomValues === 'function') {
-    return window$1.msCrypto.getRandomValues(buf);
-  }
-  if (nodeCrypto.randomBytes) {
-    if (!(buf instanceof Uint8Array)) {
-      throw new TypeError('expected Uint8Array');
-    }
-    if (buf.length > 65536) {
-      var e = new Error();
-      e.code = 22;
-      e.message = 'Failed to execute \'getRandomValues\' on \'Crypto\': The ' +
-        'ArrayBufferView\'s byte length (' + buf.length + ') exceeds the ' +
-        'number of bytes of entropy available via this API (65536).';
-      e.name = 'QuotaExceededError';
-      throw e;
-    }
-    var bytes = nodeCrypto.randomBytes(buf.length);
-    buf.set(bytes);
-    return buf;
-  }
-  else {
-    throw new Error('No secure random number generator available.');
-  }
-}
-
-var getRandomValues_1 = getRandomValues;
-
-var MINIMUM_KEY_LENGTH$1 = 64;
-/**
- * Generate random number
- * @param min - lowest value
- * @param max - highest value
- * @returns - random number
- *
- * @see https://github.com/EFForg/OpenWireless/blob/0e0bd06277f7178f840c36a9b799c7659870fa57/app/js/diceware.js#L59
- */
-function getRandom(min, max) {
-    var randomValue = 0;
-    var range = max - min;
-    var bitsNeeded = Math.ceil(Math.log2(range));
-    if (bitsNeeded > 53) {
-        throw new RangeError('Cannot generate numbers larger than 53 bits.');
-    }
-    var bytesNeeded = Math.ceil(bitsNeeded / 8);
-    var mask = Math.pow(2, bitsNeeded) - 1;
-    var byteArray = new Uint8Array(bytesNeeded);
-    getRandomValues_1(byteArray);
-    var p = (bytesNeeded - 1) * 8;
-    for (var i = 0; i < bytesNeeded; i++) {
-        randomValue += byteArray[i] * Math.pow(2, p);
-        p -= 8;
-    }
-    randomValue = randomValue & mask;
-    return randomValue >= range ? getRandom(min, max) : min + randomValue;
-}
-/**
- * Get random character
- * @returns - random character
- *
- * @see https://roots.io/salts.html
- */
-function getRandomChar() {
-    var minCharacter = 33;
-    var maxCharacter = 126;
-    var character = String.fromCharCode(getRandom(minCharacter, maxCharacter));
-    if (['\'', '"', '\\'].some(function (badCharacter) {
-        return character === badCharacter;
-    })) {
-        return getRandomChar();
-    }
-    return character;
-}
-/**
- * Generate a salt
- * @param length - length of the salt, defaults to 64
- * @returns - string
- *
- * @see https://roots.io/salts.html
- */
-function generateSalt(saltLength) {
-    if (saltLength === void 0) { saltLength = MINIMUM_KEY_LENGTH$1; }
-    return Array.apply(void 0, Array(saltLength)).map(getRandomChar)
-        .join('');
-}
-
-var WORDPRESS_KEYS = [
-    'AUTH_KEY',
-    'SECURE_AUTH_KEY',
-    'LOGGED_IN_KEY',
-    'NONCE_KEY',
-    'AUTH_SALT',
-    'SECURE_AUTH_SALT',
-    'LOGGED_IN_SALT',
-    'NONCE_SALT',
+	return chunks.join('');
+};
+
+const ansiStyles = ansiStyles$1.exports;
+const {stdout: stdoutColor, stderr: stderrColor} = supportsColor_1;
+const {
+	stringReplaceAll,
+	stringEncaseCRLFWithFirstIndex
+} = util;
+
+const {isArray} = Array;
+
+// `supportsColor.level` → `ansiStyles.color[name]` mapping
+const levelMapping = [
+	'ansi',
+	'ansi',
+	'ansi256',
+	'ansi16m'
 ];
-var MINIMUM_KEY_LENGTH = 64;
-/**
- * Returns object of default WordPress salts or any string/array of strings
- * @param length - length of the salt, defaults to 64
- * @returns - object of salts
- */
-var wpSalts = function (keys, saltLength) {
-    if (keys === void 0) { keys = ''; }
-    if (saltLength === void 0) { saltLength = 64; }
-    var output = {};
-    if (typeof keys === 'string') {
-        keys = (keys.length > 0) ? [keys] : WORDPRESS_KEYS;
-    }
-    else if (typeof keys === 'object') {
-        keys = (keys !== null && keys.length > 0) ? keys : WORDPRESS_KEYS;
-    }
-    else {
-        keys = WORDPRESS_KEYS;
-    }
-    saltLength = (saltLength < MINIMUM_KEY_LENGTH) ? MINIMUM_KEY_LENGTH : saltLength;
-    keys.map(function (key) { return output[key] = generateSalt(saltLength); });
-    return output;
+
+const styles = Object.create(null);
+
+const applyOptions = (object, options = {}) => {
+	if (options.level && !(Number.isInteger(options.level) && options.level >= 0 && options.level <= 3)) {
+		throw new Error('The `level` option should be an integer from 0 to 3');
+	}
+
+	// Detect level if not set manually
+	const colorLevel = stdoutColor ? stdoutColor.level : 0;
+	object.level = options.level === undefined ? colorLevel : options.level;
 };
 
+class ChalkClass {
+	constructor(options) {
+		// eslint-disable-next-line no-constructor-return
+		return chalkFactory(options);
+	}
+}
+
+const chalkFactory = options => {
+	const chalk = {};
+	applyOptions(chalk, options);
+
+	chalk.template = (...arguments_) => chalkTag(chalk.template, ...arguments_);
+
+	Object.setPrototypeOf(chalk, Chalk.prototype);
+	Object.setPrototypeOf(chalk.template, chalk);
+
+	chalk.template.constructor = () => {
+		throw new Error('`chalk.constructor()` is deprecated. Use `new chalk.Instance()` instead.');
+	};
+
+	chalk.template.Instance = ChalkClass;
+
+	return chalk.template;
+};
+
+function Chalk(options) {
+	return chalkFactory(options);
+}
+
+for (const [styleName, style] of Object.entries(ansiStyles)) {
+	styles[styleName] = {
+		get() {
+			const builder = createBuilder(this, createStyler(style.open, style.close, this._styler), this._isEmpty);
+			Object.defineProperty(this, styleName, {value: builder});
+			return builder;
+		}
+	};
+}
+
+styles.visible = {
+	get() {
+		const builder = createBuilder(this, this._styler, true);
+		Object.defineProperty(this, 'visible', {value: builder});
+		return builder;
+	}
+};
+
+const usedModels = ['rgb', 'hex', 'keyword', 'hsl', 'hsv', 'hwb', 'ansi', 'ansi256'];
+
+for (const model of usedModels) {
+	styles[model] = {
+		get() {
+			const {level} = this;
+			return function (...arguments_) {
+				const styler = createStyler(ansiStyles.color[levelMapping[level]][model](...arguments_), ansiStyles.color.close, this._styler);
+				return createBuilder(this, styler, this._isEmpty);
+			};
+		}
+	};
+}
+
+for (const model of usedModels) {
+	const bgModel = 'bg' + model[0].toUpperCase() + model.slice(1);
+	styles[bgModel] = {
+		get() {
+			const {level} = this;
+			return function (...arguments_) {
+				const styler = createStyler(ansiStyles.bgColor[levelMapping[level]][model](...arguments_), ansiStyles.bgColor.close, this._styler);
+				return createBuilder(this, styler, this._isEmpty);
+			};
+		}
+	};
+}
+
+const proto = Object.defineProperties(() => {}, {
+	...styles,
+	level: {
+		enumerable: true,
+		get() {
+			return this._generator.level;
+		},
+		set(level) {
+			this._generator.level = level;
+		}
+	}
+});
+
+const createStyler = (open, close, parent) => {
+	let openAll;
+	let closeAll;
+	if (parent === undefined) {
+		openAll = open;
+		closeAll = close;
+	} else {
+		openAll = parent.openAll + open;
+		closeAll = close + parent.closeAll;
+	}
+
+	return {
+		open,
+		close,
+		openAll,
+		closeAll,
+		parent
+	};
+};
+
+const createBuilder = (self, _styler, _isEmpty) => {
+	const builder = (...arguments_) => {
+		if (isArray(arguments_[0]) && isArray(arguments_[0].raw)) {
+			// Called as a template literal, for example: chalk.red`2 + 3 = {bold ${2+3}}`
+			return applyStyle(builder, chalkTag(builder, ...arguments_));
+		}
+
+		// Single argument is hot path, implicit coercion is faster than anything
+		// eslint-disable-next-line no-implicit-coercion
+		return applyStyle(builder, (arguments_.length === 1) ? ('' + arguments_[0]) : arguments_.join(' '));
+	};
+
+	// We alter the prototype because we must return a function, but there is
+	// no way to create a function with a different prototype
+	Object.setPrototypeOf(builder, proto);
+
+	builder._generator = self;
+	builder._styler = _styler;
+	builder._isEmpty = _isEmpty;
+
+	return builder;
+};
+
+const applyStyle = (self, string) => {
+	if (self.level <= 0 || !string) {
+		return self._isEmpty ? '' : string;
+	}
+
+	let styler = self._styler;
+
+	if (styler === undefined) {
+		return string;
+	}
+
+	const {openAll, closeAll} = styler;
+	if (string.indexOf('\u001B') !== -1) {
+		while (styler !== undefined) {
+			// Replace any instances already present with a re-opening code
+			// otherwise only the part of the string until said closing code
+			// will be colored, and the rest will simply be 'plain'.
+			string = stringReplaceAll(string, styler.close, styler.open);
+
+			styler = styler.parent;
+		}
+	}
+
+	// We can move both next actions out of loop, because remaining actions in loop won't have
+	// any/visible effect on parts we add here. Close the styling before a linebreak and reopen
+	// after next line to fix a bleed issue on macOS: https://github.com/chalk/chalk/pull/92
+	const lfIndex = string.indexOf('\n');
+	if (lfIndex !== -1) {
+		string = stringEncaseCRLFWithFirstIndex(string, closeAll, openAll, lfIndex);
+	}
+
+	return openAll + string + closeAll;
+};
+
+let template;
+const chalkTag = (chalk, ...strings) => {
+	const [firstString] = strings;
+
+	if (!isArray(firstString) || !isArray(firstString.raw)) {
+		// If chalk() was called by itself or with a string,
+		// return the string itself as a string.
+		return strings.join(' ');
+	}
+
+	const arguments_ = strings.slice(1);
+	const parts = [firstString.raw[0]];
+
+	for (let i = 1; i < firstString.length; i++) {
+		parts.push(
+			String(arguments_[i - 1]).replace(/[{}\\]/g, '\\$&'),
+			String(firstString.raw[i])
+		);
+	}
+
+	if (template === undefined) {
+		template = templates;
+	}
+
+	return template(chalk, parts.join(''));
+};
+
+Object.defineProperties(Chalk.prototype, styles);
+
+const chalk = Chalk(); // eslint-disable-line new-cap
+chalk.supportsColor = stdoutColor;
+chalk.stderr = Chalk({level: stderrColor ? stderrColor.level : 0}); // eslint-disable-line new-cap
+chalk.stderr.supportsColor = stderrColor;
+
+var source = chalk;
+
+const logSymbols = {
+	info: 'ℹ️',
+	success: '✅',
+	warning: '⚠️',
+	error: '❌️',
+};
+
+function isPlainObject(value) {
+	if (Object.prototype.toString.call(value) !== '[object Object]') {
+		return false;
+	}
+
+	const prototype = Object.getPrototypeOf(value);
+	return prototype === null || prototype === Object.prototype;
+}
+
+function sortKeys(object, options = {}) {
+	if (!isPlainObject(object) && !Array.isArray(object)) {
+		throw new TypeError('Expected a plain object or array');
+	}
+
+	const {deep, compare} = options;
+	const seenInput = [];
+	const seenOutput = [];
+
+	const deepSortArray = array => {
+		const seenIndex = seenInput.indexOf(array);
+		if (seenIndex !== -1) {
+			return seenOutput[seenIndex];
+		}
+
+		const result = [];
+		seenInput.push(array);
+		seenOutput.push(result);
+
+		result.push(...array.map(item => {
+			if (Array.isArray(item)) {
+				return deepSortArray(item);
+			}
+
+			if (isPlainObject(item)) {
+				return _sortKeys(item);
+			}
+
+			return item;
+		}));
+
+		return result;
+	};
+
+	const _sortKeys = object => {
+		const seenIndex = seenInput.indexOf(object);
+		if (seenIndex !== -1) {
+			return seenOutput[seenIndex];
+		}
+
+		const result = {};
+		const keys = Object.keys(object).sort(compare);
+
+		seenInput.push(object);
+		seenOutput.push(result);
+
+		for (const key of keys) {
+			const value = object[key];
+			let newValue;
+
+			if (deep && Array.isArray(value)) {
+				newValue = deepSortArray(value);
+			} else {
+				newValue = deep && isPlainObject(value) ? _sortKeys(value) : value;
+			}
+
+			Object.defineProperty(result, key, {
+				...Object.getOwnPropertyDescriptor(object, key),
+				value: newValue
+			});
+		}
+
+		return result;
+	};
+
+	if (Array.isArray(object)) {
+		return deep ? deepSortArray(object) : object.slice();
+	}
+
+	return _sortKeys(object);
+}
+
+// Dependencies
+const { version } = JSON.parse(await promises.readFile('./package.json', 'utf8'));
+console.log(version);
 // Action
 commander.exports.program
-    .version(pkg.version)
+    .version(version)
     .description('CLI tool to generate WordPress salts in various formats')
     .arguments('[options]')
     .usage('[options]')
