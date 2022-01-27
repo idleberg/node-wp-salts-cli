@@ -18048,7 +18048,6 @@ function sortKeys(object, options = {}) {
 
 // Dependencies
 const { version } = JSON.parse(await promises.readFile('./package.json', 'utf8'));
-console.log(version);
 // Action
 commander.exports.program
     .version(version)
