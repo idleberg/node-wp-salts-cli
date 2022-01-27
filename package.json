@@ -12,8 +12,7 @@
     "lint": "npm-run-all --parallel lint:*",
     "start": "rollup --watch --config",
     "publish": "np --no-yarn",
-    "test": "ava ./test/*.mjs --verbose",
-    "postinstall": "husky install || echo \"Skipping husky installation\""
+    "test": "ava ./test/*.mjs --verbose"
   },
   "files": [
     "bin/",
