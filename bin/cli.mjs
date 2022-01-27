@@ -52,7 +52,7 @@ var dependencies = {
 	"log-symbols": "^5.1.0",
 	"sort-keys": "^5.0.0",
 	table: "^6.0.7",
-	"wp-salts": "^2.0.0",
+	"wp-salts": "^2.0.1",
 	yaml: "^1.10.0"
 };
 var devDependencies = {

@@ -28,7 +28,7 @@ specifiers:
   table: ^6.0.7
   tslib: ^2.1.0
   typescript: ^4.1.3
-  wp-salts: ^2.0.0
+  wp-salts: ^2.0.1
   yaml: ^1.10.0
 
 dependencies:
@@ -37,7 +37,7 @@ dependencies:
   log-symbols: 5.1.0
   sort-keys: 5.0.0
   table: 6.8.0
-  wp-salts: 2.0.0
+  wp-salts: 2.0.1
   yaml: 1.10.2
 
 devDependencies:
@@ -5519,8 +5519,8 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: true
 
-  /wp-salts/2.0.0:
-    resolution: {integrity: sha512-AyHtbQqm1wTcyawB+xzy/4aqd6hin0ONMjLV1JWiL6BPpxsjH8EhpoqIO58+tBE1nhKr4hQ5qNdbOWdJpifsfg==}
+  /wp-salts/2.0.1:
+    resolution: {integrity: sha512-gDg+eSeH6H2f6FIAzkn9rSAWcDpyz0jOyqvCCJwePIggzEthxDnVd/8vSQDMSOAE5JMH5QGXDKy4RT3X4KLATA==}
     dependencies:
       get-random-values: 1.2.2
     dev: false
