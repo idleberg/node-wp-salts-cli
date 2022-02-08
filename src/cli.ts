@@ -1,12 +1,12 @@
 // Dependencies
 import { program } from 'commander';
+import { promises as fs } from 'node:fs';
 import { table, getBorderCharacters } from 'table';
 import { wpSalts } from 'wp-salts';
 import * as formatters from './formatters';
 import chalk from 'chalk';
 import logSymbols from 'log-symbols';
-import sortKeys from 'sort-keys';
-import { promises as fs } from 'node:fs';
+import sortKeys from 'sort-keys'
 
 const { version } = JSON.parse(await fs.readFile('./package.json', 'utf8'));
 
