@@ -12,6 +12,9 @@ shrinkwrap.yaml
 .eslintcache
 tsconfig.tsbuildinfo
 
+# build
+bin/
+
 # project specific
 test.js
 test.ts
