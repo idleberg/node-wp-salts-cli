@@ -9,11 +9,11 @@ module.exports = {
     'plugin:@typescript-eslint/recommended',
     'plugin:json/recommended'
   ],
-  "overrides": [
+  overrides: [
     {
-      "files": ["tsconfig.json"],
-      "rules": {
-        "json/*": ["error", "allowComments"]
+      files: ['tsconfig.json'],
+      rules: {
+        'json/*': ['error', 'allowComments']
       }
     }
   ]

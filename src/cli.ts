@@ -1,4 +1,5 @@
-// Dependencies
+import { dirname, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { program } from 'commander';
 import { promises as fs } from 'node:fs';
 import { table, getBorderCharacters } from 'table';
@@ -8,7 +9,12 @@ import chalk from 'chalk';
 import logSymbols from 'log-symbols';
 import sortKeys from 'sort-keys'
 
-const { version } = JSON.parse(await fs.readFile('./package.json', 'utf8'));
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const { version } = JSON.parse(
+  await fs.readFile(resolve(__dirname, '../package.json'), 'utf8')
+);
 
 // Action
 program
