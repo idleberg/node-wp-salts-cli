@@ -1,6 +1,6 @@
 {
   "name": "wp-salts-cli",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "description": "Generate WordPress salts right in your shell, even when offline. Supports plain-text output as well as DotEnv, PHP, JSON, or YAML.",
   "license": "MIT",
   "scripts": {
@@ -36,11 +36,11 @@
   },
   "keywords": [
     "wordpress",
-			"salt",
-			"salts",
-			"shuffle-salts",
-			"cryptography",
-			"wp-cli"
+    "salt",
+    "salts",
+    "shuffle-salts",
+    "cryptography",
+    "wp-cli"
   ],
   "dependencies": {
     "commander": "^9.4.1",
