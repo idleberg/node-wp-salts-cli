@@ -23,7 +23,7 @@ wp-salts
 # Output as DotEnv
 wp-salts --dotenv
 
-# Output single strings as YAML
+# Output specific strings as YAML
 wp-salts SECURE_AUTH_KEY SECURE_AUTH_SALT --yaml
 
 # Combine short-form flags
