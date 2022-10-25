@@ -5,7 +5,7 @@ import { promises as fs } from 'node:fs';
 import { table, getBorderCharacters } from 'table';
 import { wpSalts } from 'wp-salts';
 import * as formatters from './formatters';
-import chalk from 'chalk';
+import pico from 'picocolors';
 import logSymbols from 'log-symbols';
 import sortKeys from 'sort-keys'
 
@@ -80,7 +80,7 @@ if (options.json) {
   console.log(formatters.toPHP(salts, !options.ugly));
 } else {
   const data: unknown[][] = [
-    [chalk.bold('Key'), chalk.bold('Salt')]
+    [pico.bold('Key'), pico.bold('Salt')]
   ];
 
   Object.keys(salts).forEach( (key: string) => {
