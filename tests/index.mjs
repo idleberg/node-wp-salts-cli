@@ -1,7 +1,7 @@
-// Dependencies
-import test from 'ava';
-import { execa } from 'execa';
 import { dirname, resolve } from 'node:path';
+import { execa } from 'execa';
+import { test } from 'uvu';
+import * as assert from 'uvu/assert';
 
 const __dirname = resolve(dirname(''));
 
@@ -24,7 +24,7 @@ test('Default: Key count', async t => {
   const actual = Object.keys(JSON.parse(jsonOut)).sort();
   const expected = WORDPRESS_KEYS;
 
-  t.deepEqual(expected, actual);
+  assert.equal(expected, actual);
 });
 
 test('Default: Key length (8-bit)', async t => {
@@ -38,7 +38,7 @@ test('Default: Key length (8-bit)', async t => {
 
   const expected = WORDPRESS_KEYS.length * 64;
 
-  t.is(expected, actual);
+  assert.is(expected, actual);
 });
 
 test('Default: Key length (16-bit)', async t => {
@@ -54,7 +54,7 @@ test('Default: Key length (16-bit)', async t => {
 
   const expected = WORDPRESS_KEYS.length * keyLength;
 
-  t.is(expected, actual);
+  assert.is(expected, actual);
 });
 
 test('Default: Key length below minimum', async t => {
@@ -70,7 +70,7 @@ test('Default: Key length below minimum', async t => {
 
   const expected = 512;
 
-  t.is(expected, actual);
+  assert.is(expected, actual);
 });
 
 test('Default: Indentation', async t => {
@@ -79,7 +79,7 @@ test('Default: Indentation', async t => {
   const actual = /\s{7}/g.test(jsonOut);
   const expected = true;
 
-  t.is(expected, actual);
+  assert.is(expected, actual);
 });
 
 test('Default: Line breaks', async t => {
@@ -88,7 +88,7 @@ test('Default: Line breaks', async t => {
   const actual = jsonOut.includes('\n');
   const expected = true;
 
-  t.is(expected, actual);
+  assert.is(expected, actual);
 });
 
 test('Default: Sort results', async t => {
@@ -98,7 +98,7 @@ test('Default: Sort results', async t => {
   const actual = Object.keys(salts).join('|');
   const expected = WORDPRESS_KEYS.join('|');
 
-  t.is(expected, actual);
+  assert.is(expected, actual);
 });
 
 test('Default: Ugly JSON output', async t => {
@@ -107,7 +107,7 @@ test('Default: Ugly JSON output', async t => {
   const actual = jsonOut.includes('\n');
   const expected = false;
 
-  t.is(expected, actual);
+  assert.is(expected, actual);
 });
 
 test('Default: Ugly PHP output', async t => {
@@ -116,7 +116,7 @@ test('Default: Ugly PHP output', async t => {
   const actual = /\s{2,}/.test(jsonOut);
   const expected = false;
 
-  t.is(expected, actual);
+  assert.is(expected, actual);
 });
 
 test('Custom String: Key count', async t => {
@@ -126,7 +126,7 @@ test('Custom String: Key count', async t => {
   const actual = Object.keys(JSON.parse(jsonOut)).sort();
   const expected = [ defaultKey ];
 
-  t.deepEqual(expected, actual);
+  assert.equal(expected, actual);
 });
 
 test('Custom String: Key length (8-bit)', async t => {
@@ -137,7 +137,7 @@ test('Custom String: Key length (8-bit)', async t => {
   const actual = salts[defaultKey].length;
   const expected = 64;
 
-  t.is(expected, actual);
+  assert.is(expected, actual);
 });
 
 test('Custom String: Key length (16-bit)', async t => {
@@ -149,7 +149,7 @@ test('Custom String: Key length (16-bit)', async t => {
   const actual = salts[defaultKey].length;
   const expected = keyLength;
 
-  t.is(expected, actual);
+  assert.is(expected, actual);
 });
 
 test('Custom String: Key length below minimum', async t => {
@@ -161,7 +161,7 @@ test('Custom String: Key length below minimum', async t => {
   const actual = salts[defaultKey].length;
   const expected = 64;
 
-  t.is(expected, actual);
+  assert.is(expected, actual);
 });
 
 test('Custom String: Indentation', async t => {
@@ -171,7 +171,7 @@ test('Custom String: Indentation', async t => {
   const actual = /\s{7}/g.test(jsonOut);
   const expected = true;
 
-  t.is(expected, actual);
+  assert.is(expected, actual);
 });
 
 test('Custom String: Line breaks', async t => {
@@ -181,7 +181,7 @@ test('Custom String: Line breaks', async t => {
   const actual = jsonOut.includes('\n');
   const expected = true;
 
-  t.is(expected, actual);
+  assert.is(expected, actual);
 });
 
 test('Custom String: Ugly JSON output', async t => {
@@ -191,7 +191,7 @@ test('Custom String: Ugly JSON output', async t => {
   const actual = jsonOut.includes('\n');
   const expected = false;
 
-  t.is(expected, actual);
+  assert.is(expected, actual);
 });
 
 test('Custom Array: Key count', async t => {
@@ -201,7 +201,7 @@ test('Custom Array: Key count', async t => {
   const actual = Object.keys(JSON.parse(jsonOut)).sort();
   const expected = defaultKeys;
 
-  t.deepEqual(expected, actual);
+  assert.equal(expected, actual);
 });
 
 test('Custom Array: Key length (8-bit)', async t => {
@@ -217,7 +217,7 @@ test('Custom Array: Key length (8-bit)', async t => {
 
   const expected = defaultKeys.length * 64;
 
-  t.is(expected, actual);
+  assert.is(expected, actual);
 });
 
 test('Custom Array: Key length (16-bit)', async t => {
@@ -234,7 +234,7 @@ test('Custom Array: Key length (16-bit)', async t => {
 
   const expected = defaultKeys.length * keyLength;
 
-  t.is(expected, actual);
+  assert.is(expected, actual);
 });
 
 test('Custom Array: Key length below minimum', async t => {
@@ -251,7 +251,7 @@ test('Custom Array: Key length below minimum', async t => {
 
   const expected = 192;
 
-  t.is(expected, actual);
+  assert.is(expected, actual);
 });
 
 test('Custom Array: Indentation', async t => {
@@ -261,7 +261,7 @@ test('Custom Array: Indentation', async t => {
   const actual = /\s{7}/g.test(jsonOut);
   const expected = true;
 
-  t.is(expected, actual);
+  assert.is(expected, actual);
 });
 
 
@@ -272,7 +272,7 @@ test('Custom Array: Line breaks', async t => {
   const actual = jsonOut.includes('\n');
   const expected = true;
 
-  t.is(expected, actual);
+  assert.is(expected, actual);
 });
 
 test('Custom Array: Sort results', async t => {
@@ -283,7 +283,7 @@ test('Custom Array: Sort results', async t => {
   const actual = Object.keys(salts).join('|');
   const expected = 'A|B|C';
 
-  t.is(expected, actual);
+  assert.is(expected, actual);
 });
 
 test('Custom Array: Ugly JSON output', async t => {
@@ -293,15 +293,17 @@ test('Custom Array: Ugly JSON output', async t => {
   const actual = jsonOut.includes('\n');
   const expected = false;
 
-  t.is(expected, actual);
+  assert.is(expected, actual);
 });
 
 test('Custom Array: Ugly PHP output', async t => {
-  const defaultKeys = ['A', 'B', 'CCC'];
+  const defaultKeys = ['A', 'B', 'C'];
   const jsonOut = (await execa('node', [CLI_SCRIPT, '--php', '--ugly', ...defaultKeys])).stdout;
 
   const actual = /\s{2,}/.test(jsonOut);
   const expected = false;
 
-  t.is(expected, actual);
+  assert.is(expected, actual);
 });
+
+test.run();
