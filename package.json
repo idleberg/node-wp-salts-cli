@@ -36,8 +36,11 @@
   },
   "keywords": [
     "wordpress",
-    "salts",
-    "wordpress-salts"
+			"salt",
+			"salts",
+			"shuffle-salts",
+			"cryptography",
+			"wp-cli"
   ],
   "dependencies": {
     "commander": "^8.3.0",
