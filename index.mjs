@@ -2,7 +2,7 @@
 
 import { promises as fs } from 'fs';
 import updateNotifier from 'update-notifier';
-import './bin/cli.mjs';
+import './bin/cli.js';
 
 (async () => {
   const pkg = await fs.readFile('./package.json', 'utf8');
