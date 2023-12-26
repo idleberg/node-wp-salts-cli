@@ -1,11 +1,11 @@
-import { dirname, resolve } from 'node:path';
+import 'node:crypto'
+import 'node:events'
+import { resolve } from 'node:path';
 import { execa } from 'execa';
 import { test } from 'uvu';
 import * as assert from 'uvu/assert';
 
-const __dirname = resolve(dirname(''));
-
-const CLI_SCRIPT =  resolve(__dirname, 'bin/cli.mjs')
+const CLI_SCRIPT = resolve(process.cwd(), 'index.mjs')
 const WORDPRESS_KEYS = [
   'AUTH_KEY',
   'AUTH_SALT',
@@ -18,7 +18,7 @@ const WORDPRESS_KEYS = [
 ];
 
 // Tests
-test('Default: Key count', async t => {
+test('Default: Key count', async () => {
   const jsonOut = (await execa('node', [CLI_SCRIPT, '--json'])).stdout;
 
   const actual = Object.keys(JSON.parse(jsonOut)).sort();
@@ -27,7 +27,7 @@ test('Default: Key count', async t => {
   assert.equal(expected, actual);
 });
 
-test('Default: Key length (8-bit)', async t => {
+test('Default: Key length (8-bit)', async () => {
   const jsonOut = (await execa('node', [CLI_SCRIPT, '--json'])).stdout;
   const salts = JSON.parse(jsonOut);
   let actual = 0;
@@ -41,7 +41,7 @@ test('Default: Key length (8-bit)', async t => {
   assert.is(expected, actual);
 });
 
-test('Default: Key length (16-bit)', async t => {
+test('Default: Key length (16-bit)', async () => {
   const keyLength = 128;
   const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', `--length=${keyLength}`])).stdout;
   const salts = JSON.parse(jsonOut);
@@ -57,7 +57,7 @@ test('Default: Key length (16-bit)', async t => {
   assert.is(expected, actual);
 });
 
-test('Default: Key length below minimum', async t => {
+test('Default: Key length below minimum', async () => {
   const keyLength = 32;
   const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', `--length=${keyLength}`])).stdout;
   const salts = JSON.parse(jsonOut);
@@ -73,7 +73,7 @@ test('Default: Key length below minimum', async t => {
   assert.is(expected, actual);
 });
 
-test('Default: Indentation', async t => {
+test('Default: Indentation', async () => {
   const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', '--indent', '7'])).stdout;
 
   const actual = /\s{7}/g.test(jsonOut);
@@ -82,7 +82,7 @@ test('Default: Indentation', async t => {
   assert.is(expected, actual);
 });
 
-test('Default: Line breaks', async t => {
+test('Default: Line breaks', async () => {
   const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', '--ugly', '--break'])).stdout;
 
   const actual = jsonOut.includes('\n');
@@ -91,7 +91,7 @@ test('Default: Line breaks', async t => {
   assert.is(expected, actual);
 });
 
-test('Default: Sort results', async t => {
+test('Default: Sort results', async () => {
   const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', '--sort'])).stdout;
   const salts = JSON.parse(jsonOut);
 
@@ -101,7 +101,7 @@ test('Default: Sort results', async t => {
   assert.is(expected, actual);
 });
 
-test('Default: Ugly JSON output', async t => {
+test('Default: Ugly JSON output', async () => {
   const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', '--ugly'])).stdout;
 
   const actual = jsonOut.includes('\n');
@@ -110,7 +110,7 @@ test('Default: Ugly JSON output', async t => {
   assert.is(expected, actual);
 });
 
-test('Default: Ugly PHP output', async t => {
+test('Default: Ugly PHP output', async () => {
   const jsonOut = (await execa('node', [CLI_SCRIPT, '--php', '--ugly'])).stdout;
 
   const actual = /\s{2,}/.test(jsonOut);
@@ -119,7 +119,7 @@ test('Default: Ugly PHP output', async t => {
   assert.is(expected, actual);
 });
 
-test('Custom String: Key count', async t => {
+test('Custom String: Key count', async () => {
   const defaultKey = 'test';
   const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', defaultKey])).stdout;
 
@@ -129,7 +129,7 @@ test('Custom String: Key count', async t => {
   assert.equal(expected, actual);
 });
 
-test('Custom String: Key length (8-bit)', async t => {
+test('Custom String: Key length (8-bit)', async () => {
   const defaultKey = 'test';
   const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', defaultKey])).stdout;
   const salts = JSON.parse(jsonOut);
@@ -140,7 +140,7 @@ test('Custom String: Key length (8-bit)', async t => {
   assert.is(expected, actual);
 });
 
-test('Custom String: Key length (16-bit)', async t => {
+test('Custom String: Key length (16-bit)', async () => {
   const defaultKey = 'test';
   const keyLength = 128;
   const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', `--length=${keyLength}`, defaultKey])).stdout;
@@ -152,7 +152,7 @@ test('Custom String: Key length (16-bit)', async t => {
   assert.is(expected, actual);
 });
 
-test('Custom String: Key length below minimum', async t => {
+test('Custom String: Key length below minimum', async () => {
   const defaultKey = 'test';
   const keyLength = 32;
   const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', `--length=${keyLength}`, defaultKey])).stdout;
@@ -164,7 +164,7 @@ test('Custom String: Key length below minimum', async t => {
   assert.is(expected, actual);
 });
 
-test('Custom String: Indentation', async t => {
+test('Custom String: Indentation', async () => {
   const defaultKey = 'test';
   const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', '--indent', '7', defaultKey])).stdout;
 
@@ -174,7 +174,7 @@ test('Custom String: Indentation', async t => {
   assert.is(expected, actual);
 });
 
-test('Custom String: Line breaks', async t => {
+test('Custom String: Line breaks', async () => {
   const defaultKey = 'test';
   const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', '--ugly', '--break', defaultKey])).stdout;
 
@@ -184,7 +184,7 @@ test('Custom String: Line breaks', async t => {
   assert.is(expected, actual);
 });
 
-test('Custom String: Ugly JSON output', async t => {
+test('Custom String: Ugly JSON output', async () => {
   const defaultKey = 'test';
   const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', '--ugly', defaultKey])).stdout;
 
@@ -194,7 +194,7 @@ test('Custom String: Ugly JSON output', async t => {
   assert.is(expected, actual);
 });
 
-test('Custom Array: Key count', async t => {
+test('Custom Array: Key count', async () => {
   const defaultKeys = ['test1', 'test2', 'test3'];
   const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', ...defaultKeys])).stdout;
 
@@ -204,7 +204,7 @@ test('Custom Array: Key count', async t => {
   assert.equal(expected, actual);
 });
 
-test('Custom Array: Key length (8-bit)', async t => {
+test('Custom Array: Key length (8-bit)', async () => {
   const defaultKeys = ['test1', 'test2', 'test3'];
   const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', ...defaultKeys])).stdout;
   const salts = JSON.parse(jsonOut);
@@ -220,7 +220,7 @@ test('Custom Array: Key length (8-bit)', async t => {
   assert.is(expected, actual);
 });
 
-test('Custom Array: Key length (16-bit)', async t => {
+test('Custom Array: Key length (16-bit)', async () => {
   const defaultKeys = ['test1', 'test2', 'test3'];
   const keyLength = 128;
   const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', `--length=${keyLength}`, ...defaultKeys])).stdout;
@@ -237,7 +237,7 @@ test('Custom Array: Key length (16-bit)', async t => {
   assert.is(expected, actual);
 });
 
-test('Custom Array: Key length below minimum', async t => {
+test('Custom Array: Key length below minimum', async () => {
   const defaultKeys = ['test1', 'test2', 'test3'];
   const keyLength = 32;
   const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', `--length=${keyLength}`, ...defaultKeys])).stdout;
@@ -254,7 +254,7 @@ test('Custom Array: Key length below minimum', async t => {
   assert.is(expected, actual);
 });
 
-test('Custom Array: Indentation', async t => {
+test('Custom Array: Indentation', async () => {
   const defaultKeys = ['test1', 'test2', 'test3'];
   const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', '--indent', '7', ...defaultKeys])).stdout;
 
@@ -265,7 +265,7 @@ test('Custom Array: Indentation', async t => {
 });
 
 
-test('Custom Array: Line breaks', async t => {
+test('Custom Array: Line breaks', async () => {
   const defaultKeys = ['test1', 'test2', 'test3'];
   const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', '--ugly', '--break', ...defaultKeys])).stdout;
 
@@ -275,7 +275,7 @@ test('Custom Array: Line breaks', async t => {
   assert.is(expected, actual);
 });
 
-test('Custom Array: Sort results', async t => {
+test('Custom Array: Sort results', async () => {
   const defaultKeys = ['A', 'C', 'B'];
   const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', '--sort', ...defaultKeys])).stdout;
   const salts = JSON.parse(jsonOut);
@@ -286,7 +286,7 @@ test('Custom Array: Sort results', async t => {
   assert.is(expected, actual);
 });
 
-test('Custom Array: Ugly JSON output', async t => {
+test('Custom Array: Ugly JSON output', async () => {
   const defaultKeys = ['test1', 'test2', 'test3'];
   const jsonOut = (await execa('node', [CLI_SCRIPT, '--json', '--ugly', ...defaultKeys])).stdout;
 
@@ -296,7 +296,7 @@ test('Custom Array: Ugly JSON output', async t => {
   assert.is(expected, actual);
 });
 
-test('Custom Array: Ugly PHP output', async t => {
+test('Custom Array: Ugly PHP output', async () => {
   const defaultKeys = ['A', 'B', 'C'];
   const jsonOut = (await execa('node', [CLI_SCRIPT, '--php', '--ugly', ...defaultKeys])).stdout;
 
