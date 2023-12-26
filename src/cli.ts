@@ -33,7 +33,7 @@ program
   .option('-u, --ugly', 'don\'t align JSON or PHP output')
   .parse(process.argv);
 
-const options: ProgramOptions = program.opts();
+const options = program.opts();
 
 if (options.indent && options.ugly) {
   console.error(logSymbols.error, 'You cannot combine the indent and ugly flags\n');
