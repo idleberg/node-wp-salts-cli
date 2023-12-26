@@ -26,7 +26,7 @@
     "wp-salts": "./index.mjs"
   },
   "type": "module",
-  "types": "./types/index.d.ts",
+  "types": "./types/cli.d.ts",
   "engines": {
     "node": ">=18"
   },
