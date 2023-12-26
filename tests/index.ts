@@ -32,7 +32,7 @@ test('Default: Key length (8-bit)', async () => {
   const salts = JSON.parse(jsonOut);
   let actual = 0;
 
-  Object.keys(salts).sort().forEach( (key, index) => {
+  Object.keys(salts).sort().forEach(key => {
     actual += salts[key].length;
   });
 
@@ -48,7 +48,7 @@ test('Default: Key length (16-bit)', async () => {
 
   let actual = 0;
 
-  Object.keys(salts).sort().forEach( (key, index) => {
+  Object.keys(salts).sort().forEach(key => {
     actual += salts[key].length;
   });
 
@@ -64,7 +64,7 @@ test('Default: Key length below minimum', async () => {
 
   let actual = 0;
 
-  Object.keys(salts).sort().forEach( (key, index) => {
+  Object.keys(salts).sort().forEach(key => {
     actual += salts[key].length;
   });
 
