@@ -1,4 +1,5 @@
 import { stringify as yamlStringify } from 'yaml';
+import type WordpressSaltsCLI from 'types';
 
 function getLongestString(input: string[]): string {
 	const map = input.map((x) => x.length);
@@ -8,11 +9,12 @@ function getLongestString(input: string[]): string {
 }
 
 /**
- * Returns salts object as DotEnv string
+ * Returns salts object as DotEnv string.
+ *
  * @param input
  * @returns
  */
-function toDotEnv(input: WpSaltsCli.CustomSalts): string {
+export function toDotEnv(input: WordpressSaltsCLI.SaltObject): string {
 	return Object.keys(input)
 		.map((key: string) => {
 			return `${key}='${input[key]}'`;
@@ -21,11 +23,12 @@ function toDotEnv(input: WpSaltsCli.CustomSalts): string {
 }
 
 /**
- * Returns salts object as PHP code string
+ * Returns salts object as PHP code string.
+ *
  * @param input
  * @returns
  */
-function toPHP(input: WpSaltsCli.CustomSalts, prettyPrint = true): string {
+export function toPHP(input: WordpressSaltsCLI.SaltObject, prettyPrint = true): string {
 	const maxLength = getLongestString(Object.keys(input)).length;
 
 	return Object.keys(input)
@@ -38,14 +41,13 @@ function toPHP(input: WpSaltsCli.CustomSalts, prettyPrint = true): string {
 }
 
 /**
- * Returns salts object as YAML string
+ * Returns salts object as YAML string.
+ *
  * @param input
  * @returns
  */
-function toYAML(input: unknown): string {
+export function toYAML(input: WordpressSaltsCLI.SaltObject): string {
 	return yamlStringify(input, {
 		defaultStringType: 'QUOTE_DOUBLE',
 	});
 }
-
-export { toDotEnv, toPHP, toYAML };
