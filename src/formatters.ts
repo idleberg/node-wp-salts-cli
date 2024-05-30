@@ -41,7 +41,9 @@ function toPHP(input: WpSaltsCli.CustomSalts, prettyPrint = true): string {
  * @returns
  */
 function toYAML(input: unknown): string {
-  return yamlStringify(input);
+  return yamlStringify(input, {
+		defaultStringType: 'QUOTE_DOUBLE'
+	});
 }
 
 export {
