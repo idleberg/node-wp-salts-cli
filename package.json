@@ -1,88 +1,71 @@
 {
-  "name": "wp-salts-cli",
-  "version": "4.0.0",
-  "description": "Generate WordPress salts right in your shell, even when offline. Supports plain-text output as well as DotEnv, PHP, JSON, or YAML.",
-  "license": "MIT",
-  "scripts": {
-    "build": "tsup",
-    "dev": "npm run build -- --watch",
-    "fix": "eslint --fix ./src",
-    "lint:code": "eslint **/*.json **/*.ts --ignore-path .gitignore",
-    "lint:deps": "knip --production",
-    "lint:md": "remark . --quiet --frail --ignore-path .gitignore",
-    "lint": "npm-run-all --parallel lint:*",
-    "start": "npm run dev",
-    "prepare": "husky",
-    "prepack": "npm run build",
-    "publish": "np --no-yarn",
-    "test": "uvu -r tsm tests"
-  },
-  "files": [
-    "bin/",
-    "types/",
-    "LICENSE",
-    "README.md"
-  ],
-  "bin": {
-    "wp-salts": "./index.mjs"
-  },
-  "type": "module",
-  "types": "./types/cli.d.ts",
-  "engines": {
-    "node": ">=18"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/idleberg/node-wp-salts-cli.git"
-  },
-  "keywords": [
-    "wordpress",
-    "salt",
-    "salts",
-    "shuffle-salts",
-    "cryptography",
-    "wp-cli"
-  ],
-  "dependencies": {
-    "commander": "^12.1.0",
-    "log-symbols": "^6.0.0",
-    "picocolors": "^1.0.1",
-    "sort-keys": "^5.0.0",
-    "table": "^6.8.2",
-    "update-notifier": "^7.0.0",
-    "wp-salts": "^5.0.0",
-    "yaml": "^2.4.2"
-  },
-  "devDependencies": {
-    "@types/node": "^18.19.33",
-    "@typescript-eslint/eslint-plugin": "^6.21.0",
-    "@typescript-eslint/parser": "^6.21.0",
-    "eslint": "^8.57.0",
-    "eslint-plugin-jsonc": "^2.16.0",
-    "eslint-plugin-unicorn": "^53.0.0",
-    "execa": "^8.0.1",
-    "husky": "^9.0.11",
-    "knip": "^5.17.3",
-    "lint-staged": "^15.2.5",
-    "np": "^10.0.5",
-    "npm-run-all2": "^6.2.0",
-    "prettier": "^3.2.5",
-    "remark-cli": "^12.0.1",
-    "remark-preset-lint-recommended": "^7.0.0",
-    "remark-preset-prettier": "^2.0.1",
-    "tslib": "^2.6.2",
-    "tsm": "^2.3.0",
-    "tsup": "^8.0.2",
-    "typescript": "^5.4.5",
-    "uvu": "^0.5.6"
-  },
-  "lint-staged": {
-    "*.json": "eslint --cache --fix",
-    "*.ts": [
-      "eslint --cache --fix",
-      "prettier --cache --write"
-    ],
-    "*.md": "prettier --write"
-  },
-  "packageManager": "pnpm@9.1.4+sha512.9df9cf27c91715646c7d675d1c9c8e41f6fce88246f1318c1aa6a1ed1aeb3c4f032fcdf4ba63cc69c4fe6d634279176b5358727d8f2cc1e65b65f43ce2f8bfb0"
+	"name": "wp-salts-cli",
+	"version": "4.0.0",
+	"description": "Generate WordPress salts right in your shell, even when offline. Supports plain-text output as well as DotEnv, PHP, JSON, or YAML.",
+	"license": "MIT",
+	"scripts": {
+		"build": "tsdown",
+		"dev": "npm run build -- --watch",
+		"lint": "concurrently --prefix-colors blue,green,magenta npm:lint:*",
+		"lint:biome": "biome check",
+		"lint:knip": "knip --cache --production",
+		"lint:publint": "publint",
+		"prepack": "npm run build",
+		"prepare": "lefthook install",
+		"publish:jsr": "deno publish",
+		"publish:npm": "np --any-branch",
+		"start": "npm run start",
+		"test": "vitest run"
+	},
+	"files": [
+		"bin/",
+		"types/",
+		"LICENSE",
+		"README.md"
+	],
+	"bin": {
+		"wp-salts": "./index.mjs"
+	},
+	"type": "module",
+	"types": "./types/cli.d.ts",
+	"engines": {
+		"node": ">=20"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/idleberg/node-wp-salts-cli.git"
+	},
+	"keywords": [
+		"wordpress",
+		"salt",
+		"salts",
+		"shuffle-salts",
+		"cryptography",
+		"wp-cli"
+	],
+	"dependencies": {
+		"commander": "^14.0.2",
+		"log-symbols": "^7.0.1",
+		"picocolors": "^1.1.1",
+		"sort-keys": "^6.0.0",
+		"table": "^6.9.0",
+		"update-notifier": "^7.3.1",
+		"wp-salts": "^5.0.2",
+		"yaml": "^2.8.1"
+	},
+	"devDependencies": {
+		"@commitlint/cli": "^20.1.0",
+		"@commitlint/config-conventional": "^20.0.0",
+		"@idleberg/configs": "^0.3.1",
+		"@types/node": "^24.9.2",
+		"@vitest/coverage-v8": "4.0.6",
+		"concurrently": "^9.2.1",
+		"knip": "^5.66.4",
+		"np": "^10.2.0",
+		"publint": "^0.3.15",
+		"tsdown": "^0.15.12",
+		"typescript": "^5.9.3",
+		"vitest": "^4.0.6"
+	},
+	"packageManager": "pnpm@9.1.4+sha512.9df9cf27c91715646c7d675d1c9c8e41f6fce88246f1318c1aa6a1ed1aeb3c4f032fcdf4ba63cc69c4fe6d634279176b5358727d8f2cc1e65b65f43ce2f8bfb0"
 }

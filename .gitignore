@@ -13,7 +13,11 @@ shrinkwrap.yaml
 tsconfig.tsbuildinfo
 
 # build
+dist/
 bin/
+
+# tests
+coverage/
 
 # project specific
 test.js
