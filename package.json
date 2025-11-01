@@ -23,11 +23,11 @@
 		"LICENSE",
 		"README.md"
 	],
+	"type": "module",
 	"bin": {
 		"wp-salts": "./index.mjs"
 	},
-	"type": "module",
-	"types": "./types/cli.d.ts",
+	"types": "./bin/cli.d.ts",
 	"engines": {
 		"node": ">=20"
 	},
