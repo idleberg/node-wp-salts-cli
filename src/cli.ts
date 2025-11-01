@@ -1,13 +1,13 @@
+import { promises as fs } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { program } from 'commander';
-import { promises as fs } from 'node:fs';
-import { table, getBorderCharacters } from 'table';
+import logSymbols from 'log-symbols';
+import pico from 'picocolors';
+import sortKeys from 'sort-keys';
+import { getBorderCharacters, table } from 'table';
 import { wpSalts } from 'wp-salts';
 import * as formatters from './formatters';
-import pico from 'picocolors';
-import logSymbols from 'log-symbols';
-import sortKeys from 'sort-keys';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -25,8 +25,8 @@ program
 	.option('-P, --php', 'output as PHP')
 	.option('-Y, --yaml', 'output as YAML')
 	.option('-b, --break', 'add line-breaks before and after the result')
-	.option('-i, --indent <int>', 'indentation level for JSON output', parseInt)
-	.option('-l, --length <int>', 'length of the salt (default: 64)', parseInt)
+	.option('-i, --indent <int>', 'indentation level for JSON output', Number.parseInt)
+	.option('-l, --length <int>', 'length of the salt (default: 64)', Number.parseInt)
 	.option('-s, --sort', 'sort keys alphabetically')
 	.option('-u, --ugly', "don't align JSON or PHP output")
 	.parse(process.argv);
@@ -42,7 +42,7 @@ let indentation: number;
 
 Object.freeze(program);
 
-if (options.indent && !isNaN(options.indent)) {
+if (options.indent && !Number.isNaN(options.indent)) {
 	indentation = options.indent;
 } else if (!options.indent && options.ugly) {
 	indentation = 0;
