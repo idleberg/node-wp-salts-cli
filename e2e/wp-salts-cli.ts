@@ -5,7 +5,7 @@ import { execa } from 'execa';
 import { test } from 'uvu';
 import * as assert from 'uvu/assert';
 
-const CLI_SCRIPT = resolve(process.cwd(), 'index.mjs');
+const CLI_SCRIPT = resolve(process.cwd(), 'src/cli.ts');
 const WORDPRESS_KEYS = [
 	'AUTH_KEY',
 	'AUTH_SALT',
