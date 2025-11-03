@@ -27,7 +27,7 @@
 	],
 	"type": "module",
 	"bin": {
-		"wp-salts": "./index.mjs"
+		"wp-salts": "./bin/cli.js"
 	},
 	"types": "./bin/cli.d.ts",
 	"engines": {
@@ -51,7 +51,6 @@
 		"picocolors": "^1.1.1",
 		"sort-keys": "^6.0.0",
 		"table": "^6.9.0",
-		"update-notifier": "^7.3.1",
 		"wp-salts": "^5.0.2",
 		"yaml": "^2.8.1"
 	},
