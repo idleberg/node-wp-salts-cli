@@ -15,7 +15,9 @@
 		"publish:jsr": "deno publish",
 		"publish:npm": "np --any-branch",
 		"start": "npm run start",
-		"test": "vitest run"
+		"test": "concurrently --prefix-colors blue,green npm:test:*",
+		"test:e2e": "uvu e2e",
+		"test:unit": "vitest run"
 	},
 	"files": [
 		"bin/",
@@ -60,11 +62,13 @@
 		"@types/node": "^24.9.2",
 		"@vitest/coverage-v8": "4.0.6",
 		"concurrently": "^9.2.1",
+		"execa": "^9.6.0",
 		"knip": "^5.66.4",
 		"np": "^10.2.0",
 		"publint": "^0.3.15",
 		"tsdown": "^0.15.12",
 		"typescript": "^5.9.3",
+		"uvu": "^0.5.6",
 		"vitest": "^4.0.6"
 	},
 	"packageManager": "pnpm@9.1.4+sha512.9df9cf27c91715646c7d675d1c9c8e41f6fce88246f1318c1aa6a1ed1aeb3c4f032fcdf4ba63cc69c4fe6d634279176b5358727d8f2cc1e65b65f43ce2f8bfb0"
