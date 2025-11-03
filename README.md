@@ -2,7 +2,7 @@
 
 [![License](https://img.shields.io/github/license/idleberg/node-wp-salts-cli?color=blue&style=for-the-badge)](https://github.com/idleberg/node-wp-salts-cli/blob/main/LICENSE)
 [![Version](https://img.shields.io/npm/v/wp-salts-cli?style=for-the-badge)](https://www.npmjs.org/package/wp-salts-cli)
-[![Build](https://img.shields.io/github/actions/workflow/status/idleberg/node-wp-salts-cli/node.yml?style=for-the-badge)](https://github.com/idleberg/node-wp-salts-cli/actions)
+![GitHub branch check runs](https://img.shields.io/github/check-runs/idleberg/node-wp-salts-cli/main?style=for-the-badge)
 
 Generate WordPress salts right in your shell, even when offline. Supports plain-text output as well as DotEnv, PHP, JSON, or YAML.
 
