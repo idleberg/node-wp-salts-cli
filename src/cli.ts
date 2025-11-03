@@ -18,7 +18,7 @@ const { version } = JSON.parse(await fs.readFile(resolve(__dirname, '../package.
 program
 	.version(version)
 	.description('CLI tool to generate WordPress salts in various formats')
-	.arguments('[options]')
+	.arguments('[salts...]')
 	.usage('[options]')
 	.option('-D, --dotenv', 'output as DotENV')
 	.option('-J, --json', 'output as JSON')
