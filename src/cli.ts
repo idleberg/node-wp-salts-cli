@@ -7,7 +7,7 @@ import pico from 'picocolors';
 import sortKeys from 'sort-keys';
 import { getBorderCharacters, table } from 'table';
 import { wpSalts } from 'wp-salts';
-import * as formatters from './formatters';
+import * as formatters from './formatters.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
