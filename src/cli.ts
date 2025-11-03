@@ -1,7 +1,7 @@
 import { promises as fs } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { program } from 'commander';
+import { type OptionValues, program } from 'commander';
 import logSymbols from 'log-symbols';
 import pico from 'picocolors';
 import sortKeys from 'sort-keys';
@@ -84,7 +84,7 @@ if (options.json) {
 lineBreak(options);
 
 // Helpers
-function lineBreak(p) {
+function lineBreak(p: OptionValues): void {
 	if (p.break && (p.json || p.yaml || p.dotenv || p.php)) {
 		console.log();
 	}
